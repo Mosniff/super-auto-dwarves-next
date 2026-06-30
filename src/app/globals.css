@@ -59,6 +59,15 @@
   --color-iron-500: #5c636b; /* primary iron */
   --color-iron-700: #3a4046; /* dark iron */
   --color-iron-900: #15181b; /* near-black iron, deepest */
+
+  /* ── Parchment (warm, for the info scroll) ───────── */
+  --color-parchment-50: #f4e8cf; /* lightest sheet highlight */
+  --color-parchment-100: #e8d5a8; /* main sheet */
+  --color-parchment-200: #d9bf86; /* sheet shadow / aged areas */
+  --color-parchment-300: #c4a55f; /* edges, rod mid-tone */
+  --color-parchment-400: #9c7d42; /* deep aged edge, rod shadow */
+  --color-ink-700: #4a3420; /* primary ink text on parchment */
+  --color-ink-900: #2e2012; /* darkest ink */
 }
 
 :root {
