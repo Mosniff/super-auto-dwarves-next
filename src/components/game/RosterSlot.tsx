@@ -26,7 +26,9 @@ export function RosterSlot({ character, facing = "right" }: RosterSlotProps) {
           </div>
         </>
       ) : (
-        <span className="select-none text-xs font-medium text-stone-500/60" />
+        <span className="select-none text-[10px] font-medium uppercase tracking-wide text-marble-50/30">
+          Empty
+        </span>
       )}
     </div>
   );
