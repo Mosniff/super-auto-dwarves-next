@@ -8,12 +8,15 @@ interface RosterSlabProps {
   variant?: "player" | "enemy";
 }
 
-export function RosterSlab({ characters, variant = "player" }: RosterSlabProps) {
+export function RosterSlab({
+  characters,
+  variant = "player",
+}: RosterSlabProps) {
   const slots = Array.from({ length: SLOT_COUNT }, (_, i) => characters[i]);
   const facing = variant === "enemy" ? "left" : "right";
 
   return (
-    <div className="w-full bg-linear-to-b from-marble-100 via-marble-200 to-marble-300 px-5 py-4">
+    <div className="w-full bg-linear-to-b from-slate-100 via-slate-200 to-slate-300 px-5 py-4">
       <div
         className={`mx-auto flex max-w-5xl gap-3 ${
           variant === "player" ? "flex-row-reverse" : "flex-row"

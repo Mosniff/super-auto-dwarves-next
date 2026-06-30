@@ -13,15 +13,15 @@ export function GameHeader() {
       }}
     >
       {/* ── Utility strip ─────────────────────────────── */}
-      <div className="flex items-center justify-between border-b border-iron-900/40 bg-marble-300 px-4 py-1.5">
-        <span className="text-sm font-semibold tracking-wide text-marble-50">
+      <div className="flex items-center justify-between border-b border-iron-900/40 bg-slate-300 px-4 py-1.5">
+        <span className="text-sm font-semibold tracking-wide text-slate-50">
           Super Auto Dwarves
         </span>
         <Button
           variant="ghost"
           size="sm"
           asChild
-          className="text-marble-50 hover:bg-marble-200 hover:text-white"
+          className="text-slate-50 hover:bg-slate-200 hover:text-white"
         >
           <Link href="/">← Menu</Link>
         </Button>

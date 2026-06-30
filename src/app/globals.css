@@ -48,11 +48,11 @@
   --radius-4xl: calc(var(--radius) * 2.6);
 
   /* ── Slate / basalt (dark stone) ─────────────────── */
-  --color-marble-50: #6b7177; /* lightest lit edge / highlight */
-  --color-marble-100: #4a4f54; /* slab top face */
-  --color-marble-200: #393d42; /* slab mid / slot surface */
-  --color-marble-300: #2b2e32; /* slab base / shadowed face */
-  --color-marble-400: #1c1e21; /* deepest lines, veining shadow */
+  --color-slate-50: #6b7177; /* lightest lit edge / highlight */
+  --color-slate-100: #4a4f54; /* slab top face */
+  --color-slate-200: #393d42; /* slab mid / slot surface */
+  --color-slate-300: #2b2e32; /* slab base / shadowed face */
+  --color-slate-400: #1c1e21; /* deepest lines, veining shadow */
 
   /* ── Iron / steel (accent) ───────────────────────── */
   --color-iron-300: #9aa0a6; /* light steel — use for visible trim */
