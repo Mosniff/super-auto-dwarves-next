@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { PLAYER_TEAM } from "@/lib/dummy-battle";
 import { RosterSlab } from "./RosterSlab";
 
 export function GameHeader() {
@@ -27,7 +28,7 @@ export function GameHeader() {
       </div>
 
       {/* ── Roster ────────────────────────────────────── */}
-      <RosterSlab />
+      <RosterSlab characters={PLAYER_TEAM} variant="player" />
     </header>
   );
 }

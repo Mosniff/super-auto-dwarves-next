@@ -1,12 +1,13 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { RosterSlab } from "@/components/game/RosterSlab";
+import { ENEMY_TEAM } from "@/lib/dummy-battle";
 
 export default function PlayPage() {
   return (
-    <main className="flex min-h-screen flex-col p-6">
-      <section className="flex flex-1 items-center justify-center">
+    <main className="flex min-h-screen flex-col">
+      <section className="flex flex-1 items-center justify-center p-6">
         <p className="text-muted-foreground">Battle canvas</p>
       </section>
+      <RosterSlab characters={ENEMY_TEAM} variant="enemy" />
     </main>
   );
 }
