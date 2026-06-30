@@ -1,3 +1,4 @@
+import Image from "next/image";
 import type { DummyCharacter } from "@/lib/dummy-battle";
 
 interface RosterSlotProps {
@@ -14,9 +15,19 @@ export function RosterSlot({ character, facing = "right" }: RosterSlotProps) {
       {character ? (
         <>
           <div
-            className="w-full flex-1 rounded-sm bg-marble-300"
+            className="relative w-full flex-1 overflow-hidden rounded-sm bg-marble-300"
             style={facing === "left" ? { transform: "scaleX(-1)" } : undefined}
-          />
+          >
+            <Image
+              src="/character_portraits/placeholder.png"
+              alt={character.name}
+              fill
+              className="object-cover"
+              sizes="250px"
+              quality={90}
+              priority
+            />
+          </div>
           <span className="w-full truncate text-center text-[10px] font-medium text-marble-50">
             {character.name}
           </span>
