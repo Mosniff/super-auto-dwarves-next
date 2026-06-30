@@ -8,7 +8,7 @@ export default function GameLayout({
   return (
     <div className="flex min-h-screen flex-col">
       <GameHeader />
-      <div className="flex-1">{children}</div>
+      <div className="flex flex-1 flex-col">{children}</div>
     </div>
   );
 }
