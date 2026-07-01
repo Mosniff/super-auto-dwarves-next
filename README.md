@@ -2,7 +2,7 @@
 
 A fantasy auto-battler inspired by Super Auto Pets, Choose Your Own Adventure games, and Dungeons & Dragons. The game features both PvE and asynchronous PvP battles.
 
-> **Status:** Architecture and tech stack decided; game-specific rules not yet defined. See the [Roadmap](#roadmap) and `CLAUDE.md` for contributor/architecture conventions.
+> **Status:** Architecture and tech stack decided; project scaffolded. The **fundamental battle system** is now specified (see [Battle system](#battle-system)). Other game systems (cards, progression, shopping, abilities) remain to be defined — see the [Roadmap](#roadmap) and `CLAUDE.md` for contributor/architecture conventions.
 
 ---
 
@@ -37,6 +37,32 @@ PvP works without any live connection between players. Because a battle is fully
 
 ---
 
+## Battle system
+
+This describes the **fundamental battle system** — the base combat loop that everything else builds on. Character **abilities** and **triggered effects** will extend this later; they are noted here as future additions but are not part of the fundamental system.
+
+**Rosters.** Each side brings an ordered roster of up to 7 characters. A roster is a **contiguous, front-anchored line**: the front character is first, and any empty space is only ever at the back (behind the rearmost character) — never between characters. Players may arrange characters with gaps during the shopping phase, but the roster is "squeezed" into a gapless line when a battle begins. Battle logic always receives an already-contiguous roster.
+
+**Positions are relative, never absolute.** Because characters drop and the line shuffles forward constantly, absolute slot numbers are meaningless mid-battle. All positional logic refers to _relative_ position ("the front character", "the rearmost", "the character directly behind") — never a fixed slot index. (This matters mainly for future abilities, but the principle is baked in from the start.)
+
+**The turn.** Every turn is the same single exchange:
+
+1. The **front character of each roster attacks simultaneously.** Each deals damage equal to its own `attack` stat to the opposing front character.
+2. Damage subtracts from the target's `hp`.
+3. Any character at **0 hp or below drops** — it is removed from battle, and its roster shuffles forward so a new character fills the front.
+
+Non-front characters do nothing in the fundamental system (abilities will later let them act).
+
+**Simultaneity.** The two front characters attack _at the same time_: both attacks are resolved against the state as it was at the start of the turn, so a character's death does not cancel the blow it already threw. If both front characters would drop each other in the same turn, **both drop**.
+
+**Ending.** The battle ends when at least one roster is empty. The side with characters remaining **wins**; if both rosters empty on the same turn, it's a **draw**.
+
+**Future extension.** Abilities and triggered effects (e.g. "on battle start", "on taking damage", "on drop") build on this loop without changing its fundamentals. They are out of scope for the fundamental system and specified separately when added.
+
+For the technical design of how a battle is computed, transmitted, replayed, and animated (the event stream, `applyEvent`, animation beats), see the "Battle data architecture" section in `CLAUDE.md`.
+
+---
+
 ## How it's structured
 
 The guiding principle is **separation of game logic from everything else.** All game rules — the battle system, character progression, turn resolution — live in **pure TypeScript modules** independent of React, Next.js, Prisma, and Supabase. They take plain data in and return plain data out.
@@ -61,7 +87,7 @@ Tests use **Vitest**. The bulk are fast pure-logic unit tests over the framework
 
 ## Getting started
 
-> _Setup instructions to be completed once the project is scaffolded._
+> _Setup instructions to be completed._
 
 ```bash
 # install dependencies
@@ -78,11 +104,12 @@ Tests use **Vitest**. The bulk are fast pure-logic unit tests over the framework
 
 ## Roadmap
 
-Game-specific rules are intentionally not yet defined. Still to be specified and implemented:
+The **fundamental battle system** is specified (see above). Still to be specified and implemented:
 
+- [x] Turn structure and win/loss/draw conditions _(fundamental battle system)_
+- [x] Battle resolution model — event stream, resolve-once/replay-many _(see `CLAUDE.md`)_
 - [ ] Card model and card types
-- [ ] Battle system rules and damage/resolution formulas
 - [ ] Character stats and progression / leveling rules
-- [ ] Roster construction and constraints
-- [ ] Turn structure and win/loss conditions
+- [ ] Roster construction and constraints (shopping phase)
+- [ ] Character abilities and triggered effects (extends the fundamental battle system)
 - [ ] Data model (Prisma schema) for the above
