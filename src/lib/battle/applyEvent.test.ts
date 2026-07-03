@@ -116,4 +116,51 @@ describe("applyEvent", () => {
     expect(result.enemy.activeCharacters.length).toBe(1);
     expect(result.enemy.downedCharacters.length).toBe(0);
   });
+
+  describe("state-no-op events", () => {
+    const state: BattleState = {
+      player: {
+        activeCharacters: [{ id: "p1", name: "Borin", attack: 4, hp: 7 }],
+        downedCharacters: [],
+      },
+      enemy: {
+        activeCharacters: [{ id: "e1", name: "Grukk", attack: 5, hp: 6 }],
+        downedCharacters: [],
+      },
+    };
+
+    it("ATTACK does not change state", () => {
+      const event: BattleEvent = {
+        type: "ATTACK",
+        attackerId: "p1",
+        targetId: "e1",
+        value: 4,
+      };
+
+      const result = applyEvent(state, event);
+
+      expect(result).toEqual(state);
+    });
+
+    it("BATTLE_START does not change state", () => {
+      const event: BattleEvent = {
+        type: "BATTLE_START",
+      };
+
+      const result = applyEvent(state, event);
+
+      expect(result).toEqual(state);
+    });
+
+    it("BATTLE_END does not change state", () => {
+      const event: BattleEvent = {
+        type: "BATTLE_END",
+        outcome: "playerWin",
+      };
+
+      const result = applyEvent(state, event);
+
+      expect(result).toEqual(state);
+    });
+  });
 });

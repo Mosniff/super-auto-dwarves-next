@@ -29,4 +29,17 @@ export type BattleEvent =
   | {
       type: "DROP";
       characterId: string;
+    }
+  | {
+      type: "ATTACK";
+      attackerId: string;
+      targetId: string;
+      value: number;
+    }
+  | {
+      type: "BATTLE_START";
+    }
+  | {
+      type: "BATTLE_END";
+      outcome: "playerWin" | "enemyWin" | "draw";
     };
