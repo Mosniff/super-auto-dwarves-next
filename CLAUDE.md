@@ -193,6 +193,7 @@ Use **Vitest**. (Background: Rails fuses logic and persistence in the model laye
 ## Conventions & guardrails
 
 - Keep game logic in pure modules. Never inline it into components, actions, or queries.
+- Always use explicit, descriptive names — never terse abbreviations. Full words for all variables, including short-lived callback parameters: character not c, event not e, roster.map((character) => ...) never .map((c) => ...). This is a hard rule, no exceptions for "trivial" one-liners. Readability is favoured over brevity throughout — this is a solo, learning-oriented codebase where legibility when returning to code cold matters more than saving keystrokes.
 - No game loop / `requestAnimationFrame` / frame-based animation. Animations are declarative — CSS transitions for simple changes, Framer Motion for orchestrated/sequenced motion. The frame-loop escape hatch should essentially never be opened.
 - Don't add Next.js features that don't do real work. Every server-rendered page, action, or route should have a genuine product reason.
 - Keep persistence behind a clear seam so its implementation can change without rippling through the app.
