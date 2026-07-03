@@ -3,7 +3,8 @@
     "allow": [
       "Bash(npm install *)",
       "Bash(node -e \"console.log\\(require\\('./node_modules/vitest/package.json'\\).version\\)\")",
-      "Bash(npm run *)"
+      "Bash(npm run *)",
+      "Bash(npx tsc *)"
     ]
   }
 }

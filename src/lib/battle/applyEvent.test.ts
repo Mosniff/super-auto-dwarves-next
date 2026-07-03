@@ -5,8 +5,14 @@ import type { BattleState, BattleEvent } from "./types";
 describe("applyEvent", () => {
   it("DAMAGE updates an enemy target's hp to resultingHp", () => {
     const state: BattleState = {
-      player: [{ id: "p1", name: "Borin", attack: 4, hp: 7 }],
-      enemy: [{ id: "e1", name: "Grukk", attack: 5, hp: 6 }],
+      player: {
+        activeCharacters: [{ id: "p1", name: "Borin", attack: 4, hp: 7 }],
+        downedCharacters: [],
+      },
+      enemy: {
+        activeCharacters: [{ id: "e1", name: "Grukk", attack: 5, hp: 6 }],
+        downedCharacters: [],
+      },
     };
 
     const event: BattleEvent = {
@@ -19,13 +25,19 @@ describe("applyEvent", () => {
 
     const result = applyEvent(state, event);
 
-    expect(result.enemy[0].hp).toBe(2);
+    expect(result.enemy.activeCharacters[0].hp).toBe(2);
   });
 
   it("DAMAGE updates a player target's hp to resultingHp", () => {
     const state: BattleState = {
-      player: [{ id: "p1", name: "Borin", attack: 4, hp: 7 }],
-      enemy: [{ id: "e1", name: "Grukk", attack: 5, hp: 6 }],
+      player: {
+        activeCharacters: [{ id: "p1", name: "Borin", attack: 4, hp: 7 }],
+        downedCharacters: [],
+      },
+      enemy: {
+        activeCharacters: [{ id: "e1", name: "Grukk", attack: 5, hp: 6 }],
+        downedCharacters: [],
+      },
     };
 
     const event: BattleEvent = {
@@ -38,19 +50,25 @@ describe("applyEvent", () => {
 
     const result = applyEvent(state, event);
 
-    expect(result.player[0].hp).toBe(2);
+    expect(result.player.activeCharacters[0].hp).toBe(2);
   });
 
   it("DAMAGE leaves all non-target characters unchanged", () => {
     const state: BattleState = {
-      player: [
-        { id: "p1", name: "Borin", attack: 4, hp: 7 },
-        { id: "p2", name: "Thrudi", attack: 6, hp: 5 },
-      ],
-      enemy: [
-        { id: "e1", name: "Grukk", attack: 5, hp: 6 },
-        { id: "e2", name: "Skarna", attack: 3, hp: 8 },
-      ],
+      player: {
+        activeCharacters: [
+          { id: "p1", name: "Borin", attack: 4, hp: 7 },
+          { id: "p2", name: "Thrudi", attack: 6, hp: 5 },
+        ],
+        downedCharacters: [],
+      },
+      enemy: {
+        activeCharacters: [
+          { id: "e1", name: "Grukk", attack: 5, hp: 6 },
+          { id: "e2", name: "Skarna", attack: 3, hp: 8 },
+        ],
+        downedCharacters: [],
+      },
     };
 
     const event: BattleEvent = {
@@ -63,9 +81,39 @@ describe("applyEvent", () => {
 
     const result = applyEvent(state, event);
 
-    expect(result.enemy[0].hp).toBe(2);
-    expect(result.player[0].hp).toBe(7);
-    expect(result.player[1].hp).toBe(5);
-    expect(result.enemy[1].hp).toBe(8);
+    expect(result.enemy.activeCharacters[0].hp).toBe(2);
+    expect(result.player.activeCharacters[0].hp).toBe(7);
+    expect(result.player.activeCharacters[1].hp).toBe(5);
+    expect(result.enemy.activeCharacters[1].hp).toBe(8);
+  });
+
+  it("DROP removes the character from activeCharacters and moves it to that side's downedCharacters", () => {
+    const state: BattleState = {
+      player: {
+        activeCharacters: [
+          { id: "p1", name: "Borin", attack: 4, hp: 7 },
+          { id: "p2", name: "Thrudi", attack: 6, hp: 5 },
+        ],
+        downedCharacters: [],
+      },
+      enemy: {
+        activeCharacters: [{ id: "e1", name: "Grukk", attack: 5, hp: 6 }],
+        downedCharacters: [],
+      },
+    };
+
+    const event: BattleEvent = {
+      type: "DROP",
+      characterId: "p1",
+    };
+
+    const result = applyEvent(state, event);
+
+    expect(result.player.activeCharacters.length).toBe(1);
+    expect(result.player.activeCharacters[0].id).toBe("p2");
+    expect(result.player.downedCharacters.length).toBe(1);
+    expect(result.player.downedCharacters[0].id).toBe("p1");
+    expect(result.enemy.activeCharacters.length).toBe(1);
+    expect(result.enemy.downedCharacters.length).toBe(0);
   });
 });
