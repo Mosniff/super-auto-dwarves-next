@@ -42,4 +42,8 @@ export type BattleEvent =
   | {
       type: "BATTLE_END";
       outcome: "playerWin" | "enemyWin" | "draw";
+    }
+  | {
+      type: "TURN_START";
+      turn: number;
     };

@@ -162,5 +162,16 @@ describe("applyEvent", () => {
 
       expect(result).toEqual(state);
     });
+
+    it("TURN_START does not change state", () => {
+      const event: BattleEvent = {
+        type: "TURN_START",
+        turn: 1,
+      };
+
+      const result = applyEvent(state, event);
+
+      expect(result).toEqual(state);
+    });
   });
 });
