@@ -173,5 +173,15 @@ describe("applyEvent", () => {
 
       expect(result).toEqual(state);
     });
+
+    it("TIMEOUT does not change state", () => {
+      const event: BattleEvent = {
+        type: "TIMEOUT",
+      };
+
+      const result = applyEvent(state, event);
+
+      expect(result).toEqual(state);
+    });
   });
 });

@@ -4,6 +4,7 @@ import { applyEvent } from "./applyEvent";
 export function resolveBattle(
   playerCharacters: BattleCharacter[],
   enemyCharacters: BattleCharacter[],
+  maxTurns: number = 20,
 ): { initialState: BattleState; events: BattleEvent[] } {
   const initialState: BattleState = {
     player: { activeCharacters: playerCharacters, downedCharacters: [] },
@@ -20,10 +21,16 @@ export function resolveBattle(
 
   emitEvent({ type: "BATTLE_START" });
 
+  let currentTurn = 1;
+
   while (
     workingState.player.activeCharacters.length > 0 &&
-    workingState.enemy.activeCharacters.length > 0
+    workingState.enemy.activeCharacters.length > 0 &&
+    currentTurn <= maxTurns
   ) {
+    emitEvent({ type: "TURN_START", turn: currentTurn });
+    currentTurn += 1;
+
     const playerFrontCharacter = workingState.player.activeCharacters[0];
     const enemyFrontCharacter = workingState.enemy.activeCharacters[0];
 
@@ -77,7 +84,9 @@ export function resolveBattle(
       ? "draw"
       : enemyWipedOut
         ? "playerWin"
-        : "enemyWin";
+        : playerWipedOut
+          ? "enemyWin"
+          : "draw";
 
   emitEvent({ type: "BATTLE_END", outcome });
 

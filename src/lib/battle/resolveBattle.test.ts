@@ -170,4 +170,111 @@ describe("resolveBattle", () => {
       resultingHp: 4,
     });
   });
+
+  it("the resolver emits a TURN_START event at the start of each turn, numbered from 1", () => {
+    const playerCharacters: BattleCharacter[] = [
+      { id: "p1", name: "Borin", attack: 2, hp: 3 },
+      { id: "p2", name: "Thrudi", attack: 4, hp: 5 },
+    ];
+    const enemyCharacters: BattleCharacter[] = [
+      { id: "e1", name: "Grukk", attack: 2, hp: 6 },
+    ];
+
+    const { events } = resolveBattle(playerCharacters, enemyCharacters);
+
+    const turnStarts = events.filter((event) => event.type === "TURN_START");
+
+    expect(turnStarts.length).toBe(3);
+    expect(turnStarts.map((event) => event.turn)).toEqual([1, 2, 3]);
+
+    const firstTurnStartIndex = events.findIndex(
+      (event) => event.type === "TURN_START",
+    );
+    const firstAttackIndex = events.findIndex(
+      (event) => event.type === "ATTACK",
+    );
+
+    expect(firstTurnStartIndex).toBeLessThan(firstAttackIndex);
+  });
+
+  it(
+    "a battle that never resolves is capped and ends in a draw",
+    () => {
+      const playerCharacters: BattleCharacter[] = [
+        { id: "p1", name: "Pacifist", attack: 0, hp: 5 },
+      ];
+      const enemyCharacters: BattleCharacter[] = [
+        { id: "e1", name: "Coward", attack: 0, hp: 5 },
+      ];
+
+      const { initialState, events } = resolveBattle(
+        playerCharacters,
+        enemyCharacters,
+        3,
+      );
+
+      const finalState = events.reduce(
+        (state, event) => applyEvent(state, event),
+        initialState,
+      );
+
+      const turnStarts = events.filter(
+        (event) => event.type === "TURN_START",
+      );
+
+      expect(turnStarts.length).toBe(3);
+      expect(events.at(-1)).toEqual({
+        type: "BATTLE_END",
+        outcome: "draw",
+      });
+      expect(finalState.player.activeCharacters.length).toBe(1);
+      expect(finalState.enemy.activeCharacters.length).toBe(1);
+    },
+    5000,
+  );
+
+  it(
+    "a stalemate capped battle emits a TIMEOUT event before BATTLE_END",
+    () => {
+      const playerCharacters: BattleCharacter[] = [
+        { id: "p1", name: "Pacifist", attack: 0, hp: 5 },
+      ];
+      const enemyCharacters: BattleCharacter[] = [
+        { id: "e1", name: "Coward", attack: 0, hp: 5 },
+      ];
+
+      const { events } = resolveBattle(playerCharacters, enemyCharacters, 3);
+
+      const timeoutEvents = events.filter(
+        (event) => event.type === "TIMEOUT",
+      );
+
+      expect(timeoutEvents.length).toBe(1);
+      expect(events.at(-2)).toEqual({ type: "TIMEOUT" });
+      expect(events.at(-1)).toEqual({
+        type: "BATTLE_END",
+        outcome: "draw",
+      });
+    },
+    5000,
+  );
+
+  it("a battle won on the cap turn does NOT emit a TIMEOUT event", () => {
+    const playerCharacters: BattleCharacter[] = [
+      { id: "p1", name: "Borin", attack: 1, hp: 10 },
+    ];
+    const enemyCharacters: BattleCharacter[] = [
+      { id: "e1", name: "Grukk", attack: 1, hp: 3 },
+    ];
+
+    const { events } = resolveBattle(playerCharacters, enemyCharacters, 3);
+
+    const timeoutEvents = events.filter((event) => event.type === "TIMEOUT");
+
+    expect(timeoutEvents.length).toBe(0);
+    expect(events.at(-1)).toEqual({
+      type: "BATTLE_END",
+      outcome: "playerWin",
+    });
+  });
 });

@@ -46,4 +46,7 @@ export type BattleEvent =
   | {
       type: "TURN_START";
       turn: number;
+    }
+  | {
+      type: "TIMEOUT";
     };
