@@ -88,6 +88,13 @@ export function resolveBattle(
           ? "enemyWin"
           : "draw";
 
+  const cappedInStalemate =
+    currentTurn > maxTurns && !playerWipedOut && !enemyWipedOut;
+
+  if (cappedInStalemate) {
+    emitEvent({ type: "TIMEOUT" });
+  }
+
   emitEvent({ type: "BATTLE_END", outcome });
 
   return { initialState, events };
