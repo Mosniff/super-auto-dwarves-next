@@ -50,3 +50,8 @@ export type BattleEvent =
   | {
       type: "TIMEOUT";
     };
+
+export interface ResolvedBattle {
+  initialState: BattleState;
+  events: BattleEvent[];
+}

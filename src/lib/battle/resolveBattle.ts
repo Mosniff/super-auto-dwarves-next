@@ -1,11 +1,16 @@
-import type { BattleCharacter, BattleState, BattleEvent } from "./types";
+import type {
+  BattleCharacter,
+  BattleState,
+  BattleEvent,
+  ResolvedBattle,
+} from "./types";
 import { applyEvent } from "./applyEvent";
 
 export function resolveBattle(
   playerCharacters: BattleCharacter[],
   enemyCharacters: BattleCharacter[],
   maxTurns: number = 20,
-): { initialState: BattleState; events: BattleEvent[] } {
+): ResolvedBattle {
   const initialState: BattleState = {
     player: { activeCharacters: playerCharacters, downedCharacters: [] },
     enemy: { activeCharacters: enemyCharacters, downedCharacters: [] },
