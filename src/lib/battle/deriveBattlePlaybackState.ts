@@ -5,27 +5,42 @@ import { buildNameMap } from "./buildNameMap";
 
 interface BattlePlaybackView {
   currentState: BattleState;
-  logLines: string[];
+  currentBeatLines: string[];
+  allBeatLines: string[][];
   isFinished: boolean;
 }
 
 export function deriveBattlePlaybackState(
   resolvedBattle: ResolvedBattle,
-  position: number,
+  playbackBeat: number,
+  viewingBeat: number,
 ): BattlePlaybackView {
-  const appliedEvents = resolvedBattle.events.slice(0, position + 1);
   const nameMap = buildNameMap(resolvedBattle.initialState);
+
+  const appliedEvents = resolvedBattle.events.filter(
+    (event) => event.beat <= playbackBeat,
+  );
 
   const currentState = appliedEvents.reduce(
     (state, event) => applyEvent(state, event),
     resolvedBattle.initialState,
   );
 
-  const logLines = appliedEvents.map((event) =>
-    formatBattleEvent(event, nameMap),
+  const highestBeat = Math.max(
+    ...resolvedBattle.events.map((event) => event.beat),
   );
 
-  const isFinished = position === resolvedBattle.events.length - 1;
+  const allBeatLines: string[][] = Array.from(
+    { length: highestBeat + 1 },
+    () => [],
+  );
+  for (const event of resolvedBattle.events) {
+    allBeatLines[event.beat].push(formatBattleEvent(event, nameMap));
+  }
 
-  return { currentState, logLines, isFinished };
+  const currentBeatLines = allBeatLines[viewingBeat] ?? [];
+
+  const isFinished = playbackBeat >= highestBeat;
+
+  return { currentState, currentBeatLines, allBeatLines, isFinished };
 }

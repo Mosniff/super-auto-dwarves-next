@@ -3,24 +3,47 @@ import type { ResolvedBattle } from "./types";
 import { deriveBattlePlaybackState } from "./deriveBattlePlaybackState";
 
 export function useBattlePlayback(resolvedBattle: ResolvedBattle) {
-  const [position, setPosition] = useState(-1); // -1 = nothing applied yet
+  const [playbackBeat, setPlaybackBeat] = useState(-1); // -1 = nothing applied yet
+  const [viewingBeat, setViewingBeat] = useState(-1); // -1 = no beat displayed yet
 
-  const view = deriveBattlePlaybackState(resolvedBattle, position);
+  const highestBeat = Math.max(
+    ...resolvedBattle.events.map((event) => event.beat),
+  );
+
+  const view = deriveBattlePlaybackState(
+    resolvedBattle,
+    playbackBeat,
+    viewingBeat,
+  );
 
   const advance = () => {
-    setPosition((currentPosition) => {
-      // don't advance past the last event
-      if (currentPosition >= resolvedBattle.events.length - 1) {
-        return currentPosition;
-      }
-      return currentPosition + 1;
-    });
+    // don't advance past the last beat
+    const nextPlaybackBeat = Math.min(playbackBeat + 1, highestBeat);
+    setPlaybackBeat(nextPlaybackBeat);
+    // advancing always snaps the view forward, even if the user was browsing history
+    setViewingBeat(nextPlaybackBeat);
+  };
+
+  const viewPreviousBeat = () => {
+    setViewingBeat((currentViewingBeat) =>
+      Math.max(currentViewingBeat - 1, 0),
+    );
+  };
+
+  const viewNextBeat = () => {
+    setViewingBeat((currentViewingBeat) =>
+      Math.min(currentViewingBeat + 1, playbackBeat),
+    );
   };
 
   return {
     currentState: view.currentState,
-    logLines: view.logLines,
+    currentBeatLines: view.currentBeatLines,
     isFinished: view.isFinished,
     advance,
+    viewPreviousBeat,
+    viewNextBeat,
+    canViewPrevious: viewingBeat > 0,
+    canViewNext: viewingBeat < playbackBeat,
   };
 }

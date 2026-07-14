@@ -14,8 +14,16 @@ export function BattleScreen() {
     [],
   );
 
-  const { currentState, logLines, isFinished, advance } =
-    useBattlePlayback(resolvedBattle);
+  const {
+    currentState,
+    currentBeatLines,
+    isFinished,
+    advance,
+    viewPreviousBeat,
+    viewNextBeat,
+    canViewPrevious,
+    canViewNext,
+  } = useBattlePlayback(resolvedBattle);
 
   return (
     <GameScreenShell playerCharacters={currentState.player.activeCharacters}>
@@ -23,9 +31,13 @@ export function BattleScreen() {
         <ActionZone
           playerFrontCharacter={currentState.player.activeCharacters[0]}
           enemyFrontCharacter={currentState.enemy.activeCharacters[0]}
-          logLines={logLines}
+          currentBeatLines={currentBeatLines}
           onAdvance={advance}
           isFinished={isFinished}
+          onViewPreviousBeat={viewPreviousBeat}
+          onViewNextBeat={viewNextBeat}
+          canViewPrevious={canViewPrevious}
+          canViewNext={canViewNext}
         />
       </section>
       <RosterSlab

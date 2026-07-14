@@ -5,26 +5,38 @@ import type { BattleCharacter } from "@/lib/battle/types";
 interface ActionZoneProps {
   playerFrontCharacter?: BattleCharacter;
   enemyFrontCharacter?: BattleCharacter;
-  logLines: string[];
+  currentBeatLines: string[];
   onAdvance: () => void;
   isFinished: boolean;
+  onViewPreviousBeat: () => void;
+  onViewNextBeat: () => void;
+  canViewPrevious: boolean;
+  canViewNext: boolean;
 }
 
 export function ActionZone({
   playerFrontCharacter,
   enemyFrontCharacter,
-  logLines,
+  currentBeatLines,
   onAdvance,
   isFinished,
+  onViewPreviousBeat,
+  onViewNextBeat,
+  canViewPrevious,
+  canViewNext,
 }: ActionZoneProps) {
   return (
     <div className="flex w-full items-center justify-center gap-8">
       <ActiveCard character={playerFrontCharacter} facing="right" />
       <div className="h-64 max-w-md flex-1">
         <InfoScroll
-          logLines={logLines}
+          currentBeatLines={currentBeatLines}
           onAdvance={onAdvance}
           isFinished={isFinished}
+          onViewPreviousBeat={onViewPreviousBeat}
+          onViewNextBeat={onViewNextBeat}
+          canViewPrevious={canViewPrevious}
+          canViewNext={canViewNext}
         />
       </div>
       <ActiveCard character={enemyFrontCharacter} facing="left" />
