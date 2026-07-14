@@ -21,6 +21,7 @@ describe("applyEvent", () => {
       amount: 4,
       resultingHp: 2,
       source: "p1",
+      beat: 0,
     };
 
     const result = applyEvent(state, event);
@@ -46,6 +47,7 @@ describe("applyEvent", () => {
       amount: 5,
       resultingHp: 2,
       source: "e1",
+      beat: 0,
     };
 
     const result = applyEvent(state, event);
@@ -77,6 +79,7 @@ describe("applyEvent", () => {
       amount: 4,
       resultingHp: 2,
       source: "p1",
+      beat: 0,
     };
 
     const result = applyEvent(state, event);
@@ -105,6 +108,7 @@ describe("applyEvent", () => {
     const event: BattleEvent = {
       type: "DROP",
       characterId: "p1",
+      beat: 0,
     };
 
     const result = applyEvent(state, event);
@@ -135,6 +139,7 @@ describe("applyEvent", () => {
         attackerId: "p1",
         targetId: "e1",
         value: 4,
+        beat: 0,
       };
 
       const result = applyEvent(state, event);
@@ -145,6 +150,7 @@ describe("applyEvent", () => {
     it("BATTLE_START does not change state", () => {
       const event: BattleEvent = {
         type: "BATTLE_START",
+        beat: 0,
       };
 
       const result = applyEvent(state, event);
@@ -156,6 +162,7 @@ describe("applyEvent", () => {
       const event: BattleEvent = {
         type: "BATTLE_END",
         outcome: "playerWin",
+        beat: 0,
       };
 
       const result = applyEvent(state, event);
@@ -167,6 +174,7 @@ describe("applyEvent", () => {
       const event: BattleEvent = {
         type: "TURN_START",
         turn: 1,
+        beat: 0,
       };
 
       const result = applyEvent(state, event);
@@ -177,6 +185,7 @@ describe("applyEvent", () => {
     it("TIMEOUT does not change state", () => {
       const event: BattleEvent = {
         type: "TIMEOUT",
+        beat: 0,
       };
 
       const result = applyEvent(state, event);

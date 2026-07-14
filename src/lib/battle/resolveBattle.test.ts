@@ -29,7 +29,7 @@ describe("resolveBattle", () => {
     expect(finalState.player.activeCharacters[0].id).toBe("p1");
     expect(finalState.player.activeCharacters[0].hp).toBe(8);
 
-    expect(events.at(-1)).toEqual({
+    expect(events.at(-1)).toMatchObject({
       type: "BATTLE_END",
       outcome: "playerWin",
     });
@@ -60,10 +60,19 @@ describe("resolveBattle", () => {
     expect(finalState.enemy.downedCharacters.length).toBe(1);
     expect(finalState.enemy.downedCharacters[0].id).toBe("e1");
 
-    expect(events.at(-1)).toEqual({
+    expect(events.at(-1)).toMatchObject({
       type: "BATTLE_END",
       outcome: "draw",
     });
+
+    const dropEvents = events.filter((event) => event.type === "DROP");
+    const clashEvents = events.filter(
+      (event) => event.type === "ATTACK" || event.type === "DAMAGE",
+    );
+
+    expect(dropEvents.length).toBe(2);
+    expect(dropEvents[0].beat).toBe(dropEvents[1].beat);
+    expect(dropEvents[0].beat).toBeGreaterThan(clashEvents[0].beat);
   });
 
   it("a multi-turn battle continues after a front character drops and the next steps up", () => {
@@ -94,10 +103,24 @@ describe("resolveBattle", () => {
     expect(finalState.player.downedCharacters.length).toBe(1);
     expect(finalState.player.downedCharacters[0].id).toBe("p1");
 
-    expect(events.at(-1)).toEqual({
+    expect(events.at(-1)).toMatchObject({
       type: "BATTLE_END",
       outcome: "playerWin",
     });
+
+    const attackEvents = events.filter((event) => event.type === "ATTACK");
+    const damageEvents = events.filter((event) => event.type === "DAMAGE");
+    const turnStartEvents = events.filter(
+      (event) => event.type === "TURN_START",
+    );
+
+    // Turn 1's clash: both ATTACKs and both DAMAGEs share one beat.
+    expect(attackEvents[0].beat).toBe(attackEvents[1].beat);
+    expect(damageEvents[0].beat).toBe(attackEvents[0].beat);
+    expect(damageEvents[1].beat).toBe(attackEvents[0].beat);
+
+    // TURN_START opens its own, earlier beat before that turn's clash.
+    expect(turnStartEvents[0].beat).toBeLessThan(attackEvents[0].beat);
   });
 
   it("a one-sided lethal exchange won by the enemy ends in enemyWin", () => {
@@ -125,7 +148,7 @@ describe("resolveBattle", () => {
     expect(finalState.enemy.activeCharacters[0].id).toBe("e1");
     expect(finalState.enemy.activeCharacters[0].hp).toBe(8);
 
-    expect(events.at(-1)).toEqual({
+    expect(events.at(-1)).toMatchObject({
       type: "BATTLE_END",
       outcome: "enemyWin",
     });
@@ -223,7 +246,7 @@ describe("resolveBattle", () => {
       );
 
       expect(turnStarts.length).toBe(3);
-      expect(events.at(-1)).toEqual({
+      expect(events.at(-1)).toMatchObject({
         type: "BATTLE_END",
         outcome: "draw",
       });
@@ -250,8 +273,8 @@ describe("resolveBattle", () => {
       );
 
       expect(timeoutEvents.length).toBe(1);
-      expect(events.at(-2)).toEqual({ type: "TIMEOUT" });
-      expect(events.at(-1)).toEqual({
+      expect(events.at(-2)).toMatchObject({ type: "TIMEOUT" });
+      expect(events.at(-1)).toMatchObject({
         type: "BATTLE_END",
         outcome: "draw",
       });
@@ -272,7 +295,7 @@ describe("resolveBattle", () => {
     const timeoutEvents = events.filter((event) => event.type === "TIMEOUT");
 
     expect(timeoutEvents.length).toBe(0);
-    expect(events.at(-1)).toEqual({
+    expect(events.at(-1)).toMatchObject({
       type: "BATTLE_END",
       outcome: "playerWin",
     });

@@ -1,15 +1,33 @@
 import { ActiveCard } from "@/components/game/ActiveCard";
 import { InfoScroll } from "@/components/game/InfoScroll";
-import { ENEMY_TEAM, PLAYER_TEAM } from "@/lib/dummy-battle";
+import type { BattleCharacter } from "@/lib/battle/types";
 
-export function ActionZone() {
+interface ActionZoneProps {
+  playerFrontCharacter?: BattleCharacter;
+  enemyFrontCharacter?: BattleCharacter;
+  logLines: string[];
+  onAdvance: () => void;
+  isFinished: boolean;
+}
+
+export function ActionZone({
+  playerFrontCharacter,
+  enemyFrontCharacter,
+  logLines,
+  onAdvance,
+  isFinished,
+}: ActionZoneProps) {
   return (
-    <div className="flex h-full w-full items-stretch justify-center gap-8">
-      <ActiveCard character={PLAYER_TEAM[0]} facing="right" />
-      <div className="max-w-md flex-1">
-        <InfoScroll />
+    <div className="flex w-full items-center justify-center gap-8">
+      <ActiveCard character={playerFrontCharacter} facing="right" />
+      <div className="h-64 max-w-md flex-1">
+        <InfoScroll
+          logLines={logLines}
+          onAdvance={onAdvance}
+          isFinished={isFinished}
+        />
       </div>
-      <ActiveCard character={ENEMY_TEAM[0]} facing="left" />
+      <ActiveCard character={enemyFrontCharacter} facing="left" />
     </div>
   );
 }

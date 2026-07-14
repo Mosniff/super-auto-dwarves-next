@@ -17,8 +17,15 @@ export interface BattleState {
   enemy: Roster;
 }
 
+interface BeatMetadata {
+  // Groups events that should be presented together as one animation beat.
+  // See CLAUDE.md → "Battle data architecture" → "Animation beats".
+  beat: number;
+}
+
+// The event payloads (no beat) — used by the resolver when emitting.
 // Discriminated union of logged state-change events. Starts minimal; grows per-test.
-export type BattleEvent =
+export type BattleEventPayload =
   | {
       type: "DAMAGE";
       targetId: string;
@@ -50,6 +57,9 @@ export type BattleEvent =
   | {
       type: "TIMEOUT";
     };
+
+// A logged event: a payload stamped with its beat.
+export type BattleEvent = BattleEventPayload & BeatMetadata;
 
 export interface ResolvedBattle {
   initialState: BattleState;

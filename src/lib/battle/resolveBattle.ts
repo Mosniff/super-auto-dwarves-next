@@ -2,6 +2,7 @@ import type {
   BattleCharacter,
   BattleState,
   BattleEvent,
+  BattleEventPayload,
   ResolvedBattle,
 } from "./types";
 import { applyEvent } from "./applyEvent";
@@ -19,7 +20,13 @@ export function resolveBattle(
   const events: BattleEvent[] = [];
   let workingState = initialState;
 
-  const emitEvent = (event: BattleEvent) => {
+  let currentBeat = 0;
+  const startNewBeat = () => {
+    currentBeat += 1;
+  };
+
+  const emitEvent = (eventPayload: BattleEventPayload) => {
+    const event: BattleEvent = { ...eventPayload, beat: currentBeat };
     events.push(event);
     workingState = applyEvent(workingState, event);
   };
@@ -33,6 +40,7 @@ export function resolveBattle(
     workingState.enemy.activeCharacters.length > 0 &&
     currentTurn <= maxTurns
   ) {
+    startNewBeat();
     emitEvent({ type: "TURN_START", turn: currentTurn });
     currentTurn += 1;
 
@@ -42,6 +50,7 @@ export function resolveBattle(
     const playerDamageValue = Math.max(0, playerFrontCharacter.attack);
     const enemyDamageValue = Math.max(0, enemyFrontCharacter.attack);
 
+    startNewBeat();
     emitEvent({
       type: "ATTACK",
       attackerId: playerFrontCharacter.id,
@@ -73,10 +82,16 @@ export function resolveBattle(
       source: enemyFrontCharacter.id,
     });
 
-    if (enemyResultingHp <= 0) {
+    const enemyDrops = enemyResultingHp <= 0;
+    const playerDrops = playerResultingHp <= 0;
+
+    if (enemyDrops || playerDrops) {
+      startNewBeat();
+    }
+    if (enemyDrops) {
       emitEvent({ type: "DROP", characterId: enemyFrontCharacter.id });
     }
-    if (playerResultingHp <= 0) {
+    if (playerDrops) {
       emitEvent({ type: "DROP", characterId: playerFrontCharacter.id });
     }
   }
@@ -97,9 +112,11 @@ export function resolveBattle(
     currentTurn > maxTurns && !playerWipedOut && !enemyWipedOut;
 
   if (cappedInStalemate) {
+    startNewBeat();
     emitEvent({ type: "TIMEOUT" });
   }
 
+  startNewBeat();
   emitEvent({ type: "BATTLE_END", outcome });
 
   return { initialState, events };

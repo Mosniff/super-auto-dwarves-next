@@ -9,13 +9,13 @@ describe("formatBattleEvent", () => {
   ]);
 
   it("formats BATTLE_START", () => {
-    const event: BattleEvent = { type: "BATTLE_START" };
+    const event: BattleEvent = { type: "BATTLE_START", beat: 0 };
 
     expect(formatBattleEvent(event, nameMap)).toBe("Battle start!");
   });
 
   it("formats TURN_START", () => {
-    const event: BattleEvent = { type: "TURN_START", turn: 1 };
+    const event: BattleEvent = { type: "TURN_START", turn: 1, beat: 0 };
 
     expect(formatBattleEvent(event, nameMap)).toBe("Turn 1");
   });
@@ -26,6 +26,7 @@ describe("formatBattleEvent", () => {
       attackerId: "p1",
       targetId: "e1",
       value: 4,
+      beat: 0,
     };
 
     expect(formatBattleEvent(event, nameMap)).toBe("Borin attacks Grukk");
@@ -38,6 +39,7 @@ describe("formatBattleEvent", () => {
       amount: 4,
       resultingHp: 2,
       source: "p1",
+      beat: 0,
     };
 
     expect(formatBattleEvent(event, nameMap)).toBe(
@@ -52,6 +54,7 @@ describe("formatBattleEvent", () => {
       amount: 5,
       resultingHp: -1,
       source: "p1",
+      beat: 0,
     };
 
     expect(formatBattleEvent(event, nameMap)).toBe(
@@ -60,13 +63,13 @@ describe("formatBattleEvent", () => {
   });
 
   it("formats DROP", () => {
-    const event: BattleEvent = { type: "DROP", characterId: "p1" };
+    const event: BattleEvent = { type: "DROP", characterId: "p1", beat: 0 };
 
     expect(formatBattleEvent(event, nameMap)).toBe("Borin drops");
   });
 
   it("formats TIMEOUT", () => {
-    const event: BattleEvent = { type: "TIMEOUT" };
+    const event: BattleEvent = { type: "TIMEOUT", beat: 0 };
 
     expect(formatBattleEvent(event, nameMap)).toBe(
       "Turn limit reached — stalemate",
@@ -74,25 +77,37 @@ describe("formatBattleEvent", () => {
   });
 
   it("formats BATTLE_END with outcome playerWin", () => {
-    const event: BattleEvent = { type: "BATTLE_END", outcome: "playerWin" };
+    const event: BattleEvent = {
+      type: "BATTLE_END",
+      outcome: "playerWin",
+      beat: 0,
+    };
 
     expect(formatBattleEvent(event, nameMap)).toBe("Victory!");
   });
 
   it("formats BATTLE_END with outcome enemyWin", () => {
-    const event: BattleEvent = { type: "BATTLE_END", outcome: "enemyWin" };
+    const event: BattleEvent = {
+      type: "BATTLE_END",
+      outcome: "enemyWin",
+      beat: 0,
+    };
 
     expect(formatBattleEvent(event, nameMap)).toBe("Defeat");
   });
 
   it("formats BATTLE_END with outcome draw", () => {
-    const event: BattleEvent = { type: "BATTLE_END", outcome: "draw" };
+    const event: BattleEvent = { type: "BATTLE_END", outcome: "draw", beat: 0 };
 
     expect(formatBattleEvent(event, nameMap)).toBe("Draw");
   });
 
   it("falls back to the raw id when a character id is not in the nameMap", () => {
-    const event: BattleEvent = { type: "DROP", characterId: "unknown-id" };
+    const event: BattleEvent = {
+      type: "DROP",
+      characterId: "unknown-id",
+      beat: 0,
+    };
 
     expect(formatBattleEvent(event, nameMap)).toBe("unknown-id drops");
   });
