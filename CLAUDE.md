@@ -130,21 +130,46 @@ The relationship: applying a state-change event may reach a trigger point → th
 
 Logged events are a TypeScript **discriminated union** keyed on a `type` field. Each type carries exactly the fields it needs; `switch (event.type)` narrows the shape. This serves both consumers: `applyEvent` switches on type to mutate correctly, and the animation dispatcher switches on type to choose the animation — both type-checked. The union of event types also _is_ the documentation of "everything that can happen in a battle."
 
-Fundamental-system events (starting set — refine during implementation):
+Every logged event carries a `beat: number` (see "Animation beats" below). In TypeScript this is expressed as `BattleEvent = BattleEventPayload & BeatMetadata`, where `BattleEventPayload` is the discriminated union of payloads and `BeatMetadata` supplies the beat. The resolver emits payloads; `emitEvent` stamps the beat.
 
-- `ATTACK` — `{ attackerId, targetId, value }`. The lunge/bash beat. Per simultaneity, a turn emits **two** of these (both fronts) before any `DAMAGE` is applied (declare-then-apply).
-- `DAMAGE` — `{ targetId, amount, resultingHp, source }`. The flinch / hp-bar-drop beat. Carries **resulting hp** (outcome, not delta) and a **`source`** identifying causality (see below).
-- `DROP` — `{ characterId }`. The death beat. Applying it removes the character from the roster; contiguity/shuffle-forward is the automatic consequence of removing from an ordered list (no separate event unless the shuffle needs to animate as a distinct beat — decide during the animation phase).
-- `BATTLE_END` — `{ outcome: "playerWin" | "enemyWin" | "draw" }`. The final beat.
+The fundamental system's seven events:
+
+- `BATTLE_START` — `{}`. Opens the battle.
+- `TURN_START` — `{ turn }`. Opens a turn (numbered from 1). Its own beat.
+- `ATTACK` — `{ attackerId, targetId, value }`. The lunge/bash. Per simultaneity, a turn emits **two** (both fronts) before any `DAMAGE` (declare-then-apply). `value` is the clamped damage (never negative).
+- `DAMAGE` — `{ targetId, amount, resultingHp, source }`. The flinch / hp-drop. Carries **resulting hp** (outcome, not delta) and a **`source`** for causality.
+- `DROP` — `{ characterId }`. The death. Applying it removes the character from `activeCharacters` and appends to that side's `downedCharacters`; the shuffle-forward is the automatic consequence of removing from an ordered list.
+- `TIMEOUT` — `{}`. Emitted only when the turn cap is hit in a genuine stalemate (both sides still have characters). Not emitted if the cap turn also produced a wipeout.
+- `BATTLE_END` — `{ outcome: "playerWin" | "enemyWin" | "draw" }`. The result.
+
+`ATTACK`, `BATTLE_START`, `TURN_START`, `TIMEOUT`, and `BATTLE_END` are state no-ops — `applyEvent` returns state unchanged for them. Only `DAMAGE` and `DROP` mutate state.
 
 ### Animation beats: one event ≠ one animation
 
-Event granularity serves the **logic**; animation granularity serves the **frontend**. The frontend bridges them: it **groups multiple events into a single choreographed beat.**
+Event granularity serves the **logic**; presentation granularity serves the **frontend**. Beats bridge them: every event carries a `beat: number`, and events sharing a beat are presented together as one moment.
 
-Example — one turn's exchange produces four events (`ATTACK`, `ATTACK`, `DAMAGE`, `DAMAGE`). The desired animation is **one beat**: both characters bash simultaneously and both hp bars tick down on impact. The frontend consumes the group and choreographs the sub-parts (lunge → impact → hp drop) within that single beat, even though they came from four separate events.
+The **resolver** assigns beats (not the frontend — grouping is explicit metadata, never inferred from event types). `resolveBattle` keeps a `currentBeat` counter and calls `startNewBeat()` at each boundary; `emitEvent` stamps the current beat onto every payload it emits.
 
-- **Grouping** — how the frontend knows which events form one beat — should be **explicit metadata** (e.g. a beat/group id on events), not inferred from event types. This encodes _intent_, and generalizes to ability cascades where an arbitrary number of events should read as one beat (or as a deliberate sequence). Grouping is about **pacing**.
-- **Source attribution** — the `source` field on `DAMAGE` (and similar "something happened to X" events) says _where it came from_ (which attacker, or later which ability). This makes each event self-describing about causality, independent of grouping, and supports UI like attributed combat text ("4 — Borin"). Source is about **causality**; keep it separate from grouping.
+Beat boundaries in the fundamental system:
+
+- `BATTLE_START` — beat 0.
+- Each turn: a new beat for `TURN_START`, then a new beat for the clash (both `ATTACK`s and both `DAMAGE`s share one beat — this is what makes simultaneity legible), then — only if someone actually drops — a new beat for the `DROP`(s) (a mutual kill puts both `DROP`s in one beat).
+- New beats for `TIMEOUT` (if emitted) and `BATTLE_END`.
+
+Playback steps one beat at a time, not one event. `deriveBattlePlaybackState(resolvedBattle, playbackBeat, viewingBeat)` applies every event with `beat <= playbackBeat`.
+
+- **Source attribution** — the `source` field on `DAMAGE` says _where it came from_ (which attacker, later which ability). Self-describing causality, independent of beat grouping. Beats are about **pacing**; `source` is about **causality**.
+
+### Playback: two independent positions
+
+Playback tracks two positions, and conflating them is a bug:
+
+- **`playbackBeat`** — how far the battle has progressed. `advance()` moves it forward. Battle state derives from this. It never moves backward.
+- **`viewingBeat`** — which beat's log text is displayed. Back/forward controls move it. Moving it does **not** rewind battle state — the user browses the log, they do not scrub the battle.
+
+They usually coincide (advancing snaps the view to the new beat), but the user can page back to re-read an earlier beat while the board still shows the current situation. `advance()` always continues the battle and snaps the view forward, even if the user was browsing history.
+
+This lives in `useBattlePlayback` (React state) on top of the pure `deriveBattlePlaybackState`.
 
 ### Testability
 
