@@ -1,17 +1,9 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { PLAYER_TEAM } from "@/lib/dummy-battle";
-import { RosterSlab } from "./RosterSlab";
 
 export function GameHeader() {
   return (
-    <header
-      className="w-full"
-      style={{
-        boxShadow: "var(--shadow-slab)",
-        borderBottom: "var(--slab-base-border)",
-      }}
-    >
+    <header className="w-full">
       {/* ── Utility strip ─────────────────────────────── */}
       <div className="flex items-center justify-between border-b border-iron-900/40 bg-slate-300 px-4 py-1.5">
         <span className="text-sm font-semibold tracking-wide text-slate-50">
@@ -26,9 +18,6 @@ export function GameHeader() {
           <Link href="/">← Menu</Link>
         </Button>
       </div>
-
-      {/* ── Roster ────────────────────────────────────── */}
-      <RosterSlab characters={PLAYER_TEAM} variant="player" />
     </header>
   );
 }

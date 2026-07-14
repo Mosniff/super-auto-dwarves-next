@@ -1,8 +1,8 @@
 import Image from "next/image";
-import type { DummyCharacter } from "@/lib/dummy-battle";
+import type { BattleCharacter } from "@/lib/battle/types";
 
 interface CharacterCardProps {
-  character: DummyCharacter;
+  character: BattleCharacter;
   facing?: "left" | "right";
   variant?: "compact" | "full";
 }
@@ -56,7 +56,7 @@ export function CharacterCard({
         className={`flex w-full items-center justify-between font-semibold text-slate-50 ${styles.stats}`}
       >
         <span>⚔ {character.attack}</span>
-        <span>♥ {character.health}</span>
+        <span>♥ {character.hp}</span>
       </div>
     </div>
   );

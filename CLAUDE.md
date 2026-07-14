@@ -201,6 +201,7 @@ Use **Vitest**. (Background: Rails fuses logic and persistence in the model laye
 - Server is the source of truth: validate every player action server-side against server-held state. The client sends _intents_, never _state_ or _outcomes_. See "Security / anti-cheat model."
 - Battle logic: never mutate battle state except by creating an event and applying it via the shared `applyEvent`. This keeps the event log complete automatically and keeps backend/frontend consistent. See "Battle data architecture."
 - Use shadcn/ui for standard app UI (menus, buttons, dialogs); these components are copied into the codebase and owned here, so edit them freely.
+- Visual/UI verification is performed by the human, never by an automated agent. Do not install or invoke browser-automation tooling (Playwright, headless Chromium, chromium-cli, screenshot utilities) to check how a page renders. Agents verify with tsc --noEmit, npm test, and npm run build; the human reviews appearance. If a task's success criterion is visual, report that the code changes are complete and let the human check.
 
 ---
 

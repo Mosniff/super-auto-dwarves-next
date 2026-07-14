@@ -1,8 +1,8 @@
-import type { DummyCharacter } from "@/lib/dummy-battle";
+import type { BattleCharacter } from "@/lib/battle/types";
 import { CharacterCard } from "./CharacterCard";
 
 interface ActiveCardProps {
-  character: DummyCharacter;
+  character: BattleCharacter;
   facing?: "left" | "right";
 }
 
