@@ -12,6 +12,9 @@ interface ActionZoneProps {
   onViewNextBeat: () => void;
   canViewPrevious: boolean;
   canViewNext: boolean;
+  isPlaying: boolean;
+  onPlay: () => void;
+  onPause: () => void;
 }
 
 export function ActionZone({
@@ -24,6 +27,9 @@ export function ActionZone({
   onViewNextBeat,
   canViewPrevious,
   canViewNext,
+  isPlaying,
+  onPlay,
+  onPause,
 }: ActionZoneProps) {
   return (
     <div className="flex w-full items-center justify-center gap-8">
@@ -37,6 +43,9 @@ export function ActionZone({
           onViewNextBeat={onViewNextBeat}
           canViewPrevious={canViewPrevious}
           canViewNext={canViewNext}
+          isPlaying={isPlaying}
+          onPlay={onPlay}
+          onPause={onPause}
         />
       </div>
       <ActiveCard character={enemyFrontCharacter} facing="left" />

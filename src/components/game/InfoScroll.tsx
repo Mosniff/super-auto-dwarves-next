@@ -10,6 +10,9 @@ const ROD_SHADOW = "0 2px 4px rgba(0,0,0,0.35)";
 const NAVIGATION_BUTTON_CLASS_NAME =
   "self-center border-ink-700/40 bg-parchment-50 text-ink-700 hover:bg-parchment-200 hover:text-ink-900";
 
+const CONTROL_BUTTON_CLASS_NAME =
+  "border-ink-700/40 bg-parchment-50 text-ink-700 hover:bg-parchment-200 hover:text-ink-900";
+
 interface InfoScrollProps {
   currentBeatLines: string[];
   onAdvance: () => void;
@@ -18,6 +21,9 @@ interface InfoScrollProps {
   onViewNextBeat: () => void;
   canViewPrevious: boolean;
   canViewNext: boolean;
+  isPlaying: boolean;
+  onPlay: () => void;
+  onPause: () => void;
 }
 
 export function InfoScroll({
@@ -28,6 +34,9 @@ export function InfoScroll({
   onViewNextBeat,
   canViewPrevious,
   canViewNext,
+  isPlaying,
+  onPlay,
+  onPause,
 }: InfoScrollProps) {
   return (
     <div className="flex h-full flex-col">
@@ -45,7 +54,7 @@ export function InfoScroll({
             variant="outline"
             size="icon-sm"
             onClick={onViewPreviousBeat}
-            disabled={!canViewPrevious}
+            disabled={!canViewPrevious || isPlaying}
             className={NAVIGATION_BUTTON_CLASS_NAME}
           >
             <ChevronLeft />
@@ -69,7 +78,7 @@ export function InfoScroll({
             variant="outline"
             size="icon-sm"
             onClick={onViewNextBeat}
-            disabled={!canViewNext}
+            disabled={!canViewNext || isPlaying}
             className={NAVIGATION_BUTTON_CLASS_NAME}
           >
             <ChevronRight />
@@ -80,25 +89,20 @@ export function InfoScroll({
           <Button
             variant="outline"
             size="sm"
-            className="border-ink-700/40 bg-parchment-50 text-ink-700 hover:bg-parchment-200 hover:text-ink-900"
+            onClick={isPlaying ? onPause : onPlay}
+            disabled={isFinished}
+            className={CONTROL_BUTTON_CLASS_NAME}
           >
-            Pause
+            {isPlaying ? "Autoplay: On" : "Autoplay: Off"}
           </Button>
           <Button
             variant="outline"
             size="sm"
             onClick={onAdvance}
-            disabled={isFinished}
-            className="border-ink-700/40 bg-parchment-50 text-ink-700 hover:bg-parchment-200 hover:text-ink-900"
+            disabled={isFinished || isPlaying}
+            className={CONTROL_BUTTON_CLASS_NAME}
           >
             Advance
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            className="border-ink-700/40 bg-parchment-50 text-ink-700 hover:bg-parchment-200 hover:text-ink-900"
-          >
-            Auto
           </Button>
         </div>
       </div>

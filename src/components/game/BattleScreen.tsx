@@ -23,6 +23,9 @@ export function BattleScreen() {
     viewNextBeat,
     canViewPrevious,
     canViewNext,
+    isPlaying,
+    play,
+    pause,
   } = useBattlePlayback(resolvedBattle);
 
   return (
@@ -38,6 +41,9 @@ export function BattleScreen() {
           onViewNextBeat={viewNextBeat}
           canViewPrevious={canViewPrevious}
           canViewNext={canViewNext}
+          isPlaying={isPlaying}
+          onPlay={play}
+          onPause={pause}
         />
       </section>
       <RosterSlab
