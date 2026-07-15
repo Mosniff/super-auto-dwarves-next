@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { ResolvedBattle } from "./types";
-import { deriveBattlePlaybackState } from "./deriveBattlePlaybackState";
+import type { ResolvedBattle } from "@/lib/battle/types";
+import { deriveBattlePlaybackState } from "@/lib/battle/deriveBattlePlaybackState";
 
 export function useBattlePlayback(resolvedBattle: ResolvedBattle) {
   const [playbackBeat, setPlaybackBeat] = useState(-1); // -1 = nothing applied yet

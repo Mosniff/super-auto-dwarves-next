@@ -6,7 +6,7 @@ import { GameScreenShell } from "@/components/game/GameScreenShell";
 import { RosterSlab } from "@/components/game/RosterSlab";
 import { ENEMY_TEAM, PLAYER_TEAM } from "@/lib/dummy-battle";
 import { resolveBattle } from "@/lib/battle/resolveBattle";
-import { useBattlePlayback } from "@/lib/battle/useBattlePlayback";
+import { useBattlePlayback } from "@/hooks/useBattlePlayback";
 
 export function BattleScreen() {
   const resolvedBattle = useMemo(
