@@ -171,6 +171,14 @@ They usually coincide (advancing snaps the view to the new beat), but the user c
 
 This lives in `useBattlePlayback` (React state) on top of the pure `deriveBattlePlaybackState`.
 
+### Playback controls (all in useBattlePlayback, src/hooks/):
+
+advance() — step forward one beat (manual). Snaps viewingBeat to the new playbackBeat.
+viewPreviousBeat() / viewNextBeat() — move viewingBeat only, to re-read history; never touch playbackBeat. Bounded by canViewPrevious / canViewNext.
+play() / pause() with isPlaying — autoplay advances one beat every AUTOPLAY_INTERVAL_MS (800ms) via a useEffect timer that clears on pause/unmount and self-stops at the final beat.
+"Playing = watching": while isPlaying, all manual navigation (advance, back, forward) is disabled in the UI; manual control resumes on pause.
+The 800ms fixed interval is a Phase-3 placeholder; Phase 4 animation will likely drive beat advancement off animation completion rather than a fixed timer.
+
 ### Testability
 
 Both halves are pure and unit-testable with no DB, no UI:
