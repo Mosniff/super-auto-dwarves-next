@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import type { ResolvedBattle } from "@/lib/battle/types";
 import { deriveBattlePlaybackState } from "@/lib/battle/deriveBattlePlaybackState";
-
-const AUTOPLAY_INTERVAL_MS = 800;
+import { beatDurationMs } from "@/lib/battle/beatDurationMs";
 
 export function useBattlePlayback(resolvedBattle: ResolvedBattle) {
   const [playbackBeat, setPlaybackBeat] = useState(-1); // -1 = nothing applied yet
@@ -43,8 +42,8 @@ export function useBattlePlayback(resolvedBattle: ResolvedBattle) {
   const pause = () => setIsPlaying(false);
 
   // The effect depends on playbackBeat so it tears down and re-creates the
-  // interval on every tick, keeping the interval's closure fresh rather than
-  // reading a stale playbackBeat from an interval that outlives many renders.
+  // timeout on every tick, keeping the timeout's closure fresh rather than
+  // reading a stale playbackBeat from a timer that outlives many renders.
   useEffect(() => {
     if (!isPlaying) {
       return;
@@ -55,14 +54,24 @@ export function useBattlePlayback(resolvedBattle: ResolvedBattle) {
       return;
     }
 
-    const intervalId = setInterval(() => {
+    const currentBeatEvents = resolvedBattle.events.filter(
+      (event) => event.beat === playbackBeat,
+    );
+
+    const timeoutId = setTimeout(() => {
       const nextPlaybackBeat = Math.min(playbackBeat + 1, highestBeat);
       setPlaybackBeat(nextPlaybackBeat);
       setViewingBeat(nextPlaybackBeat);
-    }, AUTOPLAY_INTERVAL_MS);
+    }, beatDurationMs(currentBeatEvents));
 
-    return () => clearInterval(intervalId);
-  }, [isPlaying, view.isFinished, playbackBeat, highestBeat]);
+    return () => clearTimeout(timeoutId);
+  }, [
+    isPlaying,
+    view.isFinished,
+    playbackBeat,
+    highestBeat,
+    resolvedBattle.events,
+  ]);
 
   return {
     currentState: view.currentState,
