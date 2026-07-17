@@ -15,7 +15,7 @@ describe("deriveBattlePlaybackState", () => {
   const resolvedBattle = resolveBattle(playerCharacters, enemyCharacters);
 
   const highestBeat = Math.max(
-    ...resolvedBattle.events.map((event) => event.beat),
+    ...resolvedBattle.events.map((event) => event.beatIndex),
   );
 
   it("at playbackBeat -1 / viewingBeat -1: nothing is applied, log is empty, not finished", () => {
@@ -37,7 +37,7 @@ describe("deriveBattlePlaybackState", () => {
     const firstAttackEvent = resolvedBattle.events.find(
       (event) => event.type === "ATTACK",
     );
-    const clashBeat = firstAttackEvent!.beat;
+    const clashBeat = firstAttackEvent!.beatIndex;
 
     const playbackView = deriveBattlePlaybackState(
       resolvedBattle,

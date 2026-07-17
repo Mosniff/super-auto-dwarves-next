@@ -18,7 +18,7 @@ export function deriveBattlePlaybackState(
   const nameMap = buildNameMap(resolvedBattle.initialState);
 
   const appliedEvents = resolvedBattle.events.filter(
-    (event) => event.beat <= playbackBeat,
+    (event) => event.beatIndex <= playbackBeat,
   );
 
   const currentState = appliedEvents.reduce(
@@ -27,7 +27,7 @@ export function deriveBattlePlaybackState(
   );
 
   const highestBeat = Math.max(
-    ...resolvedBattle.events.map((event) => event.beat),
+    ...resolvedBattle.events.map((event) => event.beatIndex),
   );
 
   const allBeatLines: string[][] = Array.from(
@@ -35,7 +35,7 @@ export function deriveBattlePlaybackState(
     () => [],
   );
   for (const event of resolvedBattle.events) {
-    allBeatLines[event.beat].push(formatBattleEvent(event, nameMap));
+    allBeatLines[event.beatIndex].push(formatBattleEvent(event, nameMap));
   }
 
   const currentBeatLines = allBeatLines[viewingBeat] ?? [];

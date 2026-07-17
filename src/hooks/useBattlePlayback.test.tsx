@@ -21,7 +21,7 @@ function buildResolvedBattle() {
 describe("useBattlePlayback", () => {
   const resolvedBattle = buildResolvedBattle();
   const highestBeat = Math.max(
-    ...resolvedBattle.events.map((event) => event.beat),
+    ...resolvedBattle.events.map((event) => event.beatIndex),
   );
 
   it("starts before the battle: currentState equals initialState, not finished", () => {

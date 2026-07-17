@@ -26,7 +26,7 @@ export function resolveBattle(
   };
 
   const emitEvent = (eventPayload: BattleEventPayload) => {
-    const event: BattleEvent = { ...eventPayload, beat: currentBeat };
+    const event: BattleEvent = { ...eventPayload, beatIndex: currentBeat };
     events.push(event);
     workingState = applyEvent(workingState, event);
   };

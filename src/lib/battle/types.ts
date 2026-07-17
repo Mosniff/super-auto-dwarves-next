@@ -22,7 +22,7 @@ export interface BattleState {
 interface BeatMetadata {
   // Groups events that should be presented together as one animation beat.
   // See CLAUDE.md → "Battle data architecture" → "Animation beats".
-  beat: number;
+  beatIndex: number;
 }
 
 // The event payloads (no beat) — used by the resolver when emitting.

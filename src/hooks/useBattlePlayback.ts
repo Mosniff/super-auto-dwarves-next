@@ -9,7 +9,7 @@ export function useBattlePlayback(resolvedBattle: ResolvedBattle) {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const highestBeat = Math.max(
-    ...resolvedBattle.events.map((event) => event.beat),
+    ...resolvedBattle.events.map((event) => event.beatIndex),
   );
 
   const view = deriveBattlePlaybackState(
@@ -27,9 +27,7 @@ export function useBattlePlayback(resolvedBattle: ResolvedBattle) {
   };
 
   const viewPreviousBeat = () => {
-    setViewingBeat((currentViewingBeat) =>
-      Math.max(currentViewingBeat - 1, 0),
-    );
+    setViewingBeat((currentViewingBeat) => Math.max(currentViewingBeat - 1, 0));
   };
 
   const viewNextBeat = () => {
@@ -55,7 +53,7 @@ export function useBattlePlayback(resolvedBattle: ResolvedBattle) {
     }
 
     const currentBeatEvents = resolvedBattle.events.filter(
-      (event) => event.beat === playbackBeat,
+      (event) => event.beatIndex === playbackBeat,
     );
 
     const timeoutId = setTimeout(() => {

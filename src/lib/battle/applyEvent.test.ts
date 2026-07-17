@@ -6,11 +6,15 @@ describe("applyEvent", () => {
   it("DAMAGE updates an enemy target's hp to resultingHp", () => {
     const state: BattleState = {
       player: {
-        activeCharacters: [{ id: "p1", name: "Borin", attack: 4, hp: 7, maxHp: 7 }],
+        activeCharacters: [
+          { id: "p1", name: "Borin", attack: 4, hp: 7, maxHp: 7 },
+        ],
         downedCharacters: [],
       },
       enemy: {
-        activeCharacters: [{ id: "e1", name: "Grukk", attack: 5, hp: 6, maxHp: 6 }],
+        activeCharacters: [
+          { id: "e1", name: "Grukk", attack: 5, hp: 6, maxHp: 6 },
+        ],
         downedCharacters: [],
       },
     };
@@ -21,7 +25,7 @@ describe("applyEvent", () => {
       amount: 4,
       resultingHp: 2,
       source: "p1",
-      beat: 0,
+      beatIndex: 0,
     };
 
     const result = applyEvent(state, event);
@@ -32,11 +36,15 @@ describe("applyEvent", () => {
   it("DAMAGE updates a player target's hp to resultingHp", () => {
     const state: BattleState = {
       player: {
-        activeCharacters: [{ id: "p1", name: "Borin", attack: 4, hp: 7, maxHp: 7 }],
+        activeCharacters: [
+          { id: "p1", name: "Borin", attack: 4, hp: 7, maxHp: 7 },
+        ],
         downedCharacters: [],
       },
       enemy: {
-        activeCharacters: [{ id: "e1", name: "Grukk", attack: 5, hp: 6, maxHp: 6 }],
+        activeCharacters: [
+          { id: "e1", name: "Grukk", attack: 5, hp: 6, maxHp: 6 },
+        ],
         downedCharacters: [],
       },
     };
@@ -47,7 +55,7 @@ describe("applyEvent", () => {
       amount: 5,
       resultingHp: 2,
       source: "e1",
-      beat: 0,
+      beatIndex: 0,
     };
 
     const result = applyEvent(state, event);
@@ -79,7 +87,7 @@ describe("applyEvent", () => {
       amount: 4,
       resultingHp: 2,
       source: "p1",
-      beat: 0,
+      beatIndex: 0,
     };
 
     const result = applyEvent(state, event);
@@ -100,7 +108,9 @@ describe("applyEvent", () => {
         downedCharacters: [],
       },
       enemy: {
-        activeCharacters: [{ id: "e1", name: "Grukk", attack: 5, hp: 6, maxHp: 6 }],
+        activeCharacters: [
+          { id: "e1", name: "Grukk", attack: 5, hp: 6, maxHp: 6 },
+        ],
         downedCharacters: [],
       },
     };
@@ -108,7 +118,7 @@ describe("applyEvent", () => {
     const event: BattleEvent = {
       type: "DROP",
       characterId: "p1",
-      beat: 0,
+      beatIndex: 0,
     };
 
     const result = applyEvent(state, event);
@@ -124,11 +134,15 @@ describe("applyEvent", () => {
   describe("state-no-op events", () => {
     const state: BattleState = {
       player: {
-        activeCharacters: [{ id: "p1", name: "Borin", attack: 4, hp: 7, maxHp: 7 }],
+        activeCharacters: [
+          { id: "p1", name: "Borin", attack: 4, hp: 7, maxHp: 7 },
+        ],
         downedCharacters: [],
       },
       enemy: {
-        activeCharacters: [{ id: "e1", name: "Grukk", attack: 5, hp: 6, maxHp: 6 }],
+        activeCharacters: [
+          { id: "e1", name: "Grukk", attack: 5, hp: 6, maxHp: 6 },
+        ],
         downedCharacters: [],
       },
     };
@@ -139,7 +153,7 @@ describe("applyEvent", () => {
         attackerId: "p1",
         targetId: "e1",
         value: 4,
-        beat: 0,
+        beatIndex: 0,
       };
 
       const result = applyEvent(state, event);
@@ -150,7 +164,7 @@ describe("applyEvent", () => {
     it("BATTLE_START does not change state", () => {
       const event: BattleEvent = {
         type: "BATTLE_START",
-        beat: 0,
+        beatIndex: 0,
       };
 
       const result = applyEvent(state, event);
@@ -162,7 +176,7 @@ describe("applyEvent", () => {
       const event: BattleEvent = {
         type: "BATTLE_END",
         outcome: "playerWin",
-        beat: 0,
+        beatIndex: 0,
       };
 
       const result = applyEvent(state, event);
@@ -174,7 +188,7 @@ describe("applyEvent", () => {
       const event: BattleEvent = {
         type: "TURN_START",
         turn: 1,
-        beat: 0,
+        beatIndex: 0,
       };
 
       const result = applyEvent(state, event);
@@ -185,7 +199,7 @@ describe("applyEvent", () => {
     it("TIMEOUT does not change state", () => {
       const event: BattleEvent = {
         type: "TIMEOUT",
-        beat: 0,
+        beatIndex: 0,
       };
 
       const result = applyEvent(state, event);

@@ -71,8 +71,8 @@ describe("resolveBattle", () => {
     );
 
     expect(dropEvents.length).toBe(2);
-    expect(dropEvents[0].beat).toBe(dropEvents[1].beat);
-    expect(dropEvents[0].beat).toBeGreaterThan(clashEvents[0].beat);
+    expect(dropEvents[0].beatIndex).toBe(dropEvents[1].beatIndex);
+    expect(dropEvents[0].beatIndex).toBeGreaterThan(clashEvents[0].beatIndex);
   });
 
   it("a multi-turn battle continues after a front character drops and the next steps up", () => {
@@ -115,12 +115,14 @@ describe("resolveBattle", () => {
     );
 
     // Turn 1's clash: both ATTACKs and both DAMAGEs share one beat.
-    expect(attackEvents[0].beat).toBe(attackEvents[1].beat);
-    expect(damageEvents[0].beat).toBe(attackEvents[0].beat);
-    expect(damageEvents[1].beat).toBe(attackEvents[0].beat);
+    expect(attackEvents[0].beatIndex).toBe(attackEvents[1].beatIndex);
+    expect(damageEvents[0].beatIndex).toBe(attackEvents[0].beatIndex);
+    expect(damageEvents[1].beatIndex).toBe(attackEvents[0].beatIndex);
 
     // TURN_START opens its own, earlier beat before that turn's clash.
-    expect(turnStartEvents[0].beat).toBeLessThan(attackEvents[0].beat);
+    expect(turnStartEvents[0].beatIndex).toBeLessThan(
+      attackEvents[0].beatIndex,
+    );
   });
 
   it("a one-sided lethal exchange won by the enemy ends in enemyWin", () => {

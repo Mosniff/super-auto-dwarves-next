@@ -15,7 +15,7 @@ describe("beatDurationMs", () => {
         amount: 4,
         resultingHp: 2,
         source: "p1",
-        beat: 0,
+        beatIndex: 0,
       },
     ];
 
@@ -24,7 +24,7 @@ describe("beatDurationMs", () => {
 
   it("returns the eventful duration for a beat with a DROP event", () => {
     const beatEvents: BattleEvent[] = [
-      { type: "DROP", characterId: "e1", beat: 0 },
+      { type: "DROP", characterId: "e1", beatIndex: 0 },
     ];
 
     expect(beatDurationMs(beatEvents)).toBe(EVENTFUL_BEAT_DURATION_MS);
@@ -38,9 +38,9 @@ describe("beatDurationMs", () => {
         amount: 4,
         resultingHp: 0,
         source: "p1",
-        beat: 0,
+        beatIndex: 0,
       },
-      { type: "DROP", characterId: "e1", beat: 0 },
+      { type: "DROP", characterId: "e1", beatIndex: 0 },
     ];
 
     expect(beatDurationMs(beatEvents)).toBe(EVENTFUL_BEAT_DURATION_MS);
@@ -48,14 +48,14 @@ describe("beatDurationMs", () => {
 
   it("returns the quiet duration for a TURN_START-only beat", () => {
     const beatEvents: BattleEvent[] = [
-      { type: "TURN_START", turn: 1, beat: 0 },
+      { type: "TURN_START", turn: 1, beatIndex: 0 },
     ];
 
     expect(beatDurationMs(beatEvents)).toBe(QUIET_BEAT_DURATION_MS);
   });
 
   it("returns the quiet duration for a BATTLE_START-only beat", () => {
-    const beatEvents: BattleEvent[] = [{ type: "BATTLE_START", beat: 0 }];
+    const beatEvents: BattleEvent[] = [{ type: "BATTLE_START", beatIndex: 0 }];
 
     expect(beatDurationMs(beatEvents)).toBe(QUIET_BEAT_DURATION_MS);
   });
@@ -67,7 +67,7 @@ describe("beatDurationMs", () => {
         attackerId: "p1",
         targetId: "e1",
         value: 4,
-        beat: 0,
+        beatIndex: 0,
       },
     ];
 
@@ -76,7 +76,7 @@ describe("beatDurationMs", () => {
 
   it("returns the quiet duration for a BATTLE_END-only beat", () => {
     const beatEvents: BattleEvent[] = [
-      { type: "BATTLE_END", outcome: "playerWin", beat: 0 },
+      { type: "BATTLE_END", outcome: "playerWin", beatIndex: 0 },
     ];
 
     expect(beatDurationMs(beatEvents)).toBe(QUIET_BEAT_DURATION_MS);
