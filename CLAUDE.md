@@ -130,7 +130,7 @@ The relationship: applying a state-change event may reach a trigger point → th
 
 Logged events are a TypeScript **discriminated union** keyed on a `type` field. Each type carries exactly the fields it needs; `switch (event.type)` narrows the shape. This serves both consumers: `applyEvent` switches on type to mutate correctly, and the animation dispatcher switches on type to choose the animation — both type-checked. The union of event types also _is_ the documentation of "everything that can happen in a battle."
 
-Every logged event carries a `beat: number` (see "Animation beats" below). In TypeScript this is expressed as `BattleEvent = BattleEventPayload & BeatMetadata`, where `BattleEventPayload` is the discriminated union of payloads and `BeatMetadata` supplies the beat. The resolver emits payloads; `emitEvent` stamps the beat.
+Every logged event carries a `beatIndex: number` (see "Animation beats" below). In TypeScript this is expressed as `BattleEvent = BattleEventPayload & BeatMetadata`, where `BattleEventPayload` is the discriminated union of payloads and `BeatMetadata` supplies the beat. The resolver emits payloads; `emitEvent` stamps the beat.
 
 The fundamental system's seven events:
 
@@ -150,7 +150,7 @@ The fundamental system's seven events:
 
 ### Animation beats: one event ≠ one animation
 
-Event granularity serves the **logic**; presentation granularity serves the **frontend**. Beats bridge them: every event carries a `beat: number`, and events sharing a beat are presented together as one moment.
+Event granularity serves the **logic**; presentation granularity serves the **frontend**. Beats bridge them: every event carries a `beatIndex: number`, and events sharing a beat are presented together as one moment.
 
 The **resolver** assigns beats (not the frontend — grouping is explicit metadata, never inferred from event types). `resolveBattle` keeps a `currentBeat` counter and calls `startNewBeat()` at each boundary; `emitEvent` stamps the current beat onto every payload it emits.
 
