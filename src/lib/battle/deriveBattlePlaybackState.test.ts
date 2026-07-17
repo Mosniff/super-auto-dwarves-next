@@ -2,15 +2,15 @@ import { describe, it, expect } from "vitest";
 import { deriveBattlePlaybackState } from "./deriveBattlePlaybackState";
 import { resolveBattle } from "./resolveBattle";
 import { applyEvent } from "./applyEvent";
-import type { BattleCharacter } from "./types";
+import type { Character } from "./types";
 
 describe("deriveBattlePlaybackState", () => {
-  const playerCharacters: BattleCharacter[] = [
-    { id: "p1", name: "Borin", attack: 2, hp: 3 },
-    { id: "p2", name: "Thrudi", attack: 4, hp: 5 },
+  const playerCharacters: Character[] = [
+    { id: "p1", name: "Borin", attack: 2, hp: 3, maxHp: 3 },
+    { id: "p2", name: "Thrudi", attack: 4, hp: 5, maxHp: 5 },
   ];
-  const enemyCharacters: BattleCharacter[] = [
-    { id: "e1", name: "Grukk", attack: 2, hp: 6 },
+  const enemyCharacters: Character[] = [
+    { id: "e1", name: "Grukk", attack: 2, hp: 6, maxHp: 6 },
   ];
   const resolvedBattle = resolveBattle(playerCharacters, enemyCharacters);
 

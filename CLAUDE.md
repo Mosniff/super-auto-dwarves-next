@@ -144,6 +144,10 @@ The fundamental system's seven events:
 
 `ATTACK`, `BATTLE_START`, `TURN_START`, `TIMEOUT`, and `BATTLE_END` are state no-ops — `applyEvent` returns state unchanged for them. Only `DAMAGE` and `DROP` mutate state.
 
+### Character stat ceilings
+
+`maxHp` — every character has a `maxHp`, a hard ceiling on current `hp`. Events that would raise `hp` above `maxHp` must clamp to it, and this clamp is applied in the **resolver** when it computes an event's resulting hp — never inside `applyEvent`, which stays a pure assignment of the stated outcome. No hp-raising event exists in the fundamental system yet (damage only lowers hp), so the ceiling is currently unexercised and documented ahead of future healing/buff events. Damage's resulting hp is **not** floored at 0 — a lethal blow's negative resulting hp is load-bearing for drop detection.
+
 ### Animation beats: one event ≠ one animation
 
 Event granularity serves the **logic**; presentation granularity serves the **frontend**. Beats bridge them: every event carries a `beat: number`, and events sharing a beat are presented together as one moment.
@@ -252,11 +256,12 @@ The following are intentionally undefined and **must not be invented**. When def
 
 - Fundamental battle system: turn structure, simultaneity, drop/shuffle, win/loss/draw (`README.md` → "Battle system").
 - Battle data architecture: event stream, `applyEvent`, resolve-once/replay-many, trigger points, animation beats (this file → "Battle data architecture").
+- `maxHp`: character stat ceiling — clamped only by the resolver, never by `applyEvent` (this file → "Battle data architecture" → "Character stat ceilings").
 
 **Still undefined:**
 
 - [ ] Card model and card types
-- [ ] Character stats and progression / leveling rules
+- [ ] Character stats and progression / leveling rules (`maxHp` is now defined — see "Battle data architecture" → "Character stat ceilings")
 - [ ] Roster construction and constraints (shopping phase)
 - [ ] Character abilities and triggered effects (the listeners at the trigger points)
 - [ ] Data model (Prisma schema) for the above

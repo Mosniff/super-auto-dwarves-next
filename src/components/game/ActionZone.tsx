@@ -1,10 +1,10 @@
 import { ActiveCard } from "@/components/game/ActiveCard";
 import { InfoScroll } from "@/components/game/InfoScroll";
-import type { BattleCharacter } from "@/lib/battle/types";
+import type { Character } from "@/lib/battle/types";
 
 interface ActionZoneProps {
-  playerFrontCharacter?: BattleCharacter;
-  enemyFrontCharacter?: BattleCharacter;
+  playerFrontCharacter?: Character;
+  enemyFrontCharacter?: Character;
   currentBeatLines: string[];
   onAdvance: () => void;
   isFinished: boolean;

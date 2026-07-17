@@ -1,15 +1,15 @@
 import { describe, it, expect } from "vitest";
 import { resolveBattle } from "./resolveBattle";
 import { applyEvent } from "./applyEvent";
-import type { BattleCharacter } from "./types";
+import type { Character } from "./types";
 
 describe("resolveBattle", () => {
   it("a one-sided lethal exchange ends in a win for the surviving side", () => {
-    const playerCharacters: BattleCharacter[] = [
-      { id: "p1", name: "Borin", attack: 5, hp: 10 },
+    const playerCharacters: Character[] = [
+      { id: "p1", name: "Borin", attack: 5, hp: 10, maxHp: 10 },
     ];
-    const enemyCharacters: BattleCharacter[] = [
-      { id: "e1", name: "Grukk", attack: 2, hp: 3 },
+    const enemyCharacters: Character[] = [
+      { id: "e1", name: "Grukk", attack: 2, hp: 3, maxHp: 3 },
     ];
 
     const { initialState, events } = resolveBattle(
@@ -36,11 +36,11 @@ describe("resolveBattle", () => {
   });
 
   it("a mutual-kill exchange ends in a draw with both characters dropped", () => {
-    const playerCharacters: BattleCharacter[] = [
-      { id: "p1", name: "Borin", attack: 5, hp: 3 },
+    const playerCharacters: Character[] = [
+      { id: "p1", name: "Borin", attack: 5, hp: 3, maxHp: 3 },
     ];
-    const enemyCharacters: BattleCharacter[] = [
-      { id: "e1", name: "Grukk", attack: 5, hp: 3 },
+    const enemyCharacters: Character[] = [
+      { id: "e1", name: "Grukk", attack: 5, hp: 3, maxHp: 3 },
     ];
 
     const { initialState, events } = resolveBattle(
@@ -76,12 +76,12 @@ describe("resolveBattle", () => {
   });
 
   it("a multi-turn battle continues after a front character drops and the next steps up", () => {
-    const playerCharacters: BattleCharacter[] = [
-      { id: "p1", name: "Borin", attack: 2, hp: 3 },
-      { id: "p2", name: "Thrudi", attack: 4, hp: 5 },
+    const playerCharacters: Character[] = [
+      { id: "p1", name: "Borin", attack: 2, hp: 3, maxHp: 3 },
+      { id: "p2", name: "Thrudi", attack: 4, hp: 5, maxHp: 5 },
     ];
-    const enemyCharacters: BattleCharacter[] = [
-      { id: "e1", name: "Grukk", attack: 2, hp: 6 },
+    const enemyCharacters: Character[] = [
+      { id: "e1", name: "Grukk", attack: 2, hp: 6, maxHp: 6 },
     ];
 
     const { initialState, events } = resolveBattle(
@@ -124,11 +124,11 @@ describe("resolveBattle", () => {
   });
 
   it("a one-sided lethal exchange won by the enemy ends in enemyWin", () => {
-    const playerCharacters: BattleCharacter[] = [
-      { id: "p1", name: "Borin", attack: 2, hp: 3 },
+    const playerCharacters: Character[] = [
+      { id: "p1", name: "Borin", attack: 2, hp: 3, maxHp: 3 },
     ];
-    const enemyCharacters: BattleCharacter[] = [
-      { id: "e1", name: "Grukk", attack: 5, hp: 10 },
+    const enemyCharacters: Character[] = [
+      { id: "e1", name: "Grukk", attack: 5, hp: 10, maxHp: 10 },
     ];
 
     const { initialState, events } = resolveBattle(
@@ -155,11 +155,11 @@ describe("resolveBattle", () => {
   });
 
   it("a zero-attack character deals no damage", () => {
-    const playerCharacters: BattleCharacter[] = [
-      { id: "p1", name: "Meek", attack: 0, hp: 5 },
+    const playerCharacters: Character[] = [
+      { id: "p1", name: "Meek", attack: 0, hp: 5, maxHp: 5 },
     ];
-    const enemyCharacters: BattleCharacter[] = [
-      { id: "e1", name: "Grukk", attack: 3, hp: 4 },
+    const enemyCharacters: Character[] = [
+      { id: "e1", name: "Grukk", attack: 3, hp: 4, maxHp: 4 },
     ];
 
     const { events } = resolveBattle(playerCharacters, enemyCharacters);
@@ -175,11 +175,11 @@ describe("resolveBattle", () => {
   });
 
   it("a negative-attack character deals no damage and does not heal the target", () => {
-    const playerCharacters: BattleCharacter[] = [
-      { id: "p1", name: "Cursed", attack: -2, hp: 5 },
+    const playerCharacters: Character[] = [
+      { id: "p1", name: "Cursed", attack: -2, hp: 5, maxHp: 5 },
     ];
-    const enemyCharacters: BattleCharacter[] = [
-      { id: "e1", name: "Grukk", attack: 3, hp: 4 },
+    const enemyCharacters: Character[] = [
+      { id: "e1", name: "Grukk", attack: 3, hp: 4, maxHp: 4 },
     ];
 
     const { events } = resolveBattle(playerCharacters, enemyCharacters);
@@ -195,12 +195,12 @@ describe("resolveBattle", () => {
   });
 
   it("the resolver emits a TURN_START event at the start of each turn, numbered from 1", () => {
-    const playerCharacters: BattleCharacter[] = [
-      { id: "p1", name: "Borin", attack: 2, hp: 3 },
-      { id: "p2", name: "Thrudi", attack: 4, hp: 5 },
+    const playerCharacters: Character[] = [
+      { id: "p1", name: "Borin", attack: 2, hp: 3, maxHp: 3 },
+      { id: "p2", name: "Thrudi", attack: 4, hp: 5, maxHp: 5 },
     ];
-    const enemyCharacters: BattleCharacter[] = [
-      { id: "e1", name: "Grukk", attack: 2, hp: 6 },
+    const enemyCharacters: Character[] = [
+      { id: "e1", name: "Grukk", attack: 2, hp: 6, maxHp: 6 },
     ];
 
     const { events } = resolveBattle(playerCharacters, enemyCharacters);
@@ -220,74 +220,62 @@ describe("resolveBattle", () => {
     expect(firstTurnStartIndex).toBeLessThan(firstAttackIndex);
   });
 
-  it(
-    "a battle that never resolves is capped and ends in a draw",
-    () => {
-      const playerCharacters: BattleCharacter[] = [
-        { id: "p1", name: "Pacifist", attack: 0, hp: 5 },
-      ];
-      const enemyCharacters: BattleCharacter[] = [
-        { id: "e1", name: "Coward", attack: 0, hp: 5 },
-      ];
+  it("a battle that never resolves is capped and ends in a draw", () => {
+    const playerCharacters: Character[] = [
+      { id: "p1", name: "Pacifist", attack: 0, hp: 5, maxHp: 5 },
+    ];
+    const enemyCharacters: Character[] = [
+      { id: "e1", name: "Coward", attack: 0, hp: 5, maxHp: 5 },
+    ];
 
-      const { initialState, events } = resolveBattle(
-        playerCharacters,
-        enemyCharacters,
-        3,
-      );
+    const { initialState, events } = resolveBattle(
+      playerCharacters,
+      enemyCharacters,
+      3,
+    );
 
-      const finalState = events.reduce(
-        (state, event) => applyEvent(state, event),
-        initialState,
-      );
+    const finalState = events.reduce(
+      (state, event) => applyEvent(state, event),
+      initialState,
+    );
 
-      const turnStarts = events.filter(
-        (event) => event.type === "TURN_START",
-      );
+    const turnStarts = events.filter((event) => event.type === "TURN_START");
 
-      expect(turnStarts.length).toBe(3);
-      expect(events.at(-1)).toMatchObject({
-        type: "BATTLE_END",
-        outcome: "draw",
-      });
-      expect(finalState.player.activeCharacters.length).toBe(1);
-      expect(finalState.enemy.activeCharacters.length).toBe(1);
-    },
-    5000,
-  );
+    expect(turnStarts.length).toBe(3);
+    expect(events.at(-1)).toMatchObject({
+      type: "BATTLE_END",
+      outcome: "draw",
+    });
+    expect(finalState.player.activeCharacters.length).toBe(1);
+    expect(finalState.enemy.activeCharacters.length).toBe(1);
+  }, 5000);
 
-  it(
-    "a stalemate capped battle emits a TIMEOUT event before BATTLE_END",
-    () => {
-      const playerCharacters: BattleCharacter[] = [
-        { id: "p1", name: "Pacifist", attack: 0, hp: 5 },
-      ];
-      const enemyCharacters: BattleCharacter[] = [
-        { id: "e1", name: "Coward", attack: 0, hp: 5 },
-      ];
+  it("a stalemate capped battle emits a TIMEOUT event before BATTLE_END", () => {
+    const playerCharacters: Character[] = [
+      { id: "p1", name: "Pacifist", attack: 0, hp: 5, maxHp: 5 },
+    ];
+    const enemyCharacters: Character[] = [
+      { id: "e1", name: "Coward", attack: 0, hp: 5, maxHp: 5 },
+    ];
 
-      const { events } = resolveBattle(playerCharacters, enemyCharacters, 3);
+    const { events } = resolveBattle(playerCharacters, enemyCharacters, 3);
 
-      const timeoutEvents = events.filter(
-        (event) => event.type === "TIMEOUT",
-      );
+    const timeoutEvents = events.filter((event) => event.type === "TIMEOUT");
 
-      expect(timeoutEvents.length).toBe(1);
-      expect(events.at(-2)).toMatchObject({ type: "TIMEOUT" });
-      expect(events.at(-1)).toMatchObject({
-        type: "BATTLE_END",
-        outcome: "draw",
-      });
-    },
-    5000,
-  );
+    expect(timeoutEvents.length).toBe(1);
+    expect(events.at(-2)).toMatchObject({ type: "TIMEOUT" });
+    expect(events.at(-1)).toMatchObject({
+      type: "BATTLE_END",
+      outcome: "draw",
+    });
+  }, 5000);
 
   it("a battle won on the cap turn does NOT emit a TIMEOUT event", () => {
-    const playerCharacters: BattleCharacter[] = [
-      { id: "p1", name: "Borin", attack: 1, hp: 10 },
+    const playerCharacters: Character[] = [
+      { id: "p1", name: "Borin", attack: 1, hp: 10, maxHp: 10 },
     ];
-    const enemyCharacters: BattleCharacter[] = [
-      { id: "e1", name: "Grukk", attack: 1, hp: 3 },
+    const enemyCharacters: Character[] = [
+      { id: "e1", name: "Grukk", attack: 1, hp: 3, maxHp: 3 },
     ];
 
     const { events } = resolveBattle(playerCharacters, enemyCharacters, 3);

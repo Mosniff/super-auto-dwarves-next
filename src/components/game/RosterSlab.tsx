@@ -1,10 +1,10 @@
-import type { BattleCharacter } from "@/lib/battle/types";
+import type { Character } from "@/lib/battle/types";
 import { RosterSlot } from "./RosterSlot";
 
 const SLOT_COUNT = 7;
 
 interface RosterSlabProps {
-  characters: BattleCharacter[];
+  characters: Character[];
   variant?: "player" | "enemy";
 }
 

@@ -1,8 +1,8 @@
-import type { BattleCharacter } from "@/lib/battle/types";
+import type { Character } from "@/lib/battle/types";
 import { RosterSlab } from "./RosterSlab";
 
 interface GameScreenShellProps {
-  playerCharacters: BattleCharacter[];
+  playerCharacters: Character[];
   children: React.ReactNode;
 }
 

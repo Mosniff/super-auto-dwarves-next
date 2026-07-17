@@ -1,8 +1,8 @@
 import Image from "next/image";
-import type { BattleCharacter } from "@/lib/battle/types";
+import type { Character } from "@/lib/battle/types";
 
 interface CharacterCardProps {
-  character: BattleCharacter;
+  character: Character;
   facing?: "left" | "right";
   variant?: "compact" | "full";
 }

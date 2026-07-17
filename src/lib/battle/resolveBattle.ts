@@ -1,5 +1,5 @@
 import type {
-  BattleCharacter,
+  Character,
   BattleState,
   BattleEvent,
   BattleEventPayload,
@@ -8,8 +8,8 @@ import type {
 import { applyEvent } from "./applyEvent";
 
 export function resolveBattle(
-  playerCharacters: BattleCharacter[],
-  enemyCharacters: BattleCharacter[],
+  playerCharacters: Character[],
+  enemyCharacters: Character[],
   maxTurns: number = 20,
 ): ResolvedBattle {
   const initialState: BattleState = {

@@ -51,6 +51,8 @@ This describes the **fundamental battle system** — the base combat loop that e
 2. Damage subtracts from the target's `hp`.
 3. Any character at **0 hp or below drops** — it is removed from battle, and its roster shuffles forward so a new character fills the front.
 
+Each character also carries a `maxHp` — the full-health ceiling `hp` can never exceed. Nothing raises `hp` in the fundamental system yet, so this is unexercised until healing/buffs exist.
+
 Non-front characters do nothing in the fundamental system (abilities will later let them act).
 
 **Simultaneity.** The two front characters attack _at the same time_: both attacks are resolved against the state as it was at the start of the turn, so a character's death does not cancel the blow it already threw. If both front characters would drop each other in the same turn, **both drop**.

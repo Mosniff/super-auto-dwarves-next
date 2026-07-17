@@ -1,15 +1,17 @@
-export interface BattleCharacter {
+export interface Character {
   id: string;
   name: string;
   attack: number;
   hp: number;
+  // full-health ceiling; current hp never exceeds this
+  maxHp: number;
 }
 
 export interface Roster {
   // contiguous, front-anchored fighting line; index 0 is the front
-  activeCharacters: BattleCharacter[];
+  activeCharacters: Character[];
   // this side's dropped characters (graveyard)
-  downedCharacters: BattleCharacter[];
+  downedCharacters: Character[];
 }
 
 export interface BattleState {

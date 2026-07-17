@@ -6,11 +6,11 @@ describe("applyEvent", () => {
   it("DAMAGE updates an enemy target's hp to resultingHp", () => {
     const state: BattleState = {
       player: {
-        activeCharacters: [{ id: "p1", name: "Borin", attack: 4, hp: 7 }],
+        activeCharacters: [{ id: "p1", name: "Borin", attack: 4, hp: 7, maxHp: 7 }],
         downedCharacters: [],
       },
       enemy: {
-        activeCharacters: [{ id: "e1", name: "Grukk", attack: 5, hp: 6 }],
+        activeCharacters: [{ id: "e1", name: "Grukk", attack: 5, hp: 6, maxHp: 6 }],
         downedCharacters: [],
       },
     };
@@ -32,11 +32,11 @@ describe("applyEvent", () => {
   it("DAMAGE updates a player target's hp to resultingHp", () => {
     const state: BattleState = {
       player: {
-        activeCharacters: [{ id: "p1", name: "Borin", attack: 4, hp: 7 }],
+        activeCharacters: [{ id: "p1", name: "Borin", attack: 4, hp: 7, maxHp: 7 }],
         downedCharacters: [],
       },
       enemy: {
-        activeCharacters: [{ id: "e1", name: "Grukk", attack: 5, hp: 6 }],
+        activeCharacters: [{ id: "e1", name: "Grukk", attack: 5, hp: 6, maxHp: 6 }],
         downedCharacters: [],
       },
     };
@@ -59,15 +59,15 @@ describe("applyEvent", () => {
     const state: BattleState = {
       player: {
         activeCharacters: [
-          { id: "p1", name: "Borin", attack: 4, hp: 7 },
-          { id: "p2", name: "Thrudi", attack: 6, hp: 5 },
+          { id: "p1", name: "Borin", attack: 4, hp: 7, maxHp: 7 },
+          { id: "p2", name: "Thrudi", attack: 6, hp: 5, maxHp: 5 },
         ],
         downedCharacters: [],
       },
       enemy: {
         activeCharacters: [
-          { id: "e1", name: "Grukk", attack: 5, hp: 6 },
-          { id: "e2", name: "Skarna", attack: 3, hp: 8 },
+          { id: "e1", name: "Grukk", attack: 5, hp: 6, maxHp: 6 },
+          { id: "e2", name: "Skarna", attack: 3, hp: 8, maxHp: 8 },
         ],
         downedCharacters: [],
       },
@@ -94,13 +94,13 @@ describe("applyEvent", () => {
     const state: BattleState = {
       player: {
         activeCharacters: [
-          { id: "p1", name: "Borin", attack: 4, hp: 7 },
-          { id: "p2", name: "Thrudi", attack: 6, hp: 5 },
+          { id: "p1", name: "Borin", attack: 4, hp: 7, maxHp: 7 },
+          { id: "p2", name: "Thrudi", attack: 6, hp: 5, maxHp: 5 },
         ],
         downedCharacters: [],
       },
       enemy: {
-        activeCharacters: [{ id: "e1", name: "Grukk", attack: 5, hp: 6 }],
+        activeCharacters: [{ id: "e1", name: "Grukk", attack: 5, hp: 6, maxHp: 6 }],
         downedCharacters: [],
       },
     };
@@ -124,11 +124,11 @@ describe("applyEvent", () => {
   describe("state-no-op events", () => {
     const state: BattleState = {
       player: {
-        activeCharacters: [{ id: "p1", name: "Borin", attack: 4, hp: 7 }],
+        activeCharacters: [{ id: "p1", name: "Borin", attack: 4, hp: 7, maxHp: 7 }],
         downedCharacters: [],
       },
       enemy: {
-        activeCharacters: [{ id: "e1", name: "Grukk", attack: 5, hp: 6 }],
+        activeCharacters: [{ id: "e1", name: "Grukk", attack: 5, hp: 6, maxHp: 6 }],
         downedCharacters: [],
       },
     };

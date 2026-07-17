@@ -3,16 +3,16 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useBattlePlayback } from "./useBattlePlayback";
 import { resolveBattle } from "@/lib/battle/resolveBattle";
-import type { BattleCharacter } from "@/lib/battle/types";
+import type { Character } from "@/lib/battle/types";
 
 const AUTOPLAY_INTERVAL_MS = 800;
 
 function buildResolvedBattle() {
-  const playerCharacters: BattleCharacter[] = [
-    { id: "p1", name: "Borin", attack: 5, hp: 10 },
+  const playerCharacters: Character[] = [
+    { id: "p1", name: "Borin", attack: 5, hp: 10, maxHp: 10 },
   ];
-  const enemyCharacters: BattleCharacter[] = [
-    { id: "e1", name: "Grukk", attack: 2, hp: 3 },
+  const enemyCharacters: Character[] = [
+    { id: "e1", name: "Grukk", attack: 2, hp: 3, maxHp: 3 },
   ];
 
   return resolveBattle(playerCharacters, enemyCharacters);
