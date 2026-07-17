@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { Character } from "@/lib/battle/types";
+import { hpBarFillRatio } from "@/lib/battle/hpBarFillRatio";
 
 interface CharacterCardProps {
   character: Character;
@@ -13,12 +14,14 @@ const VARIANT_STYLES = {
     name: "text-[10px]",
     stats: "text-[10px] px-0.5",
     portraitRounding: "rounded-sm",
+    hpBarText: "text-[9px]",
   },
   full: {
     gap: "gap-2",
     name: "text-base",
     stats: "text-sm px-1",
     portraitRounding: "rounded-md",
+    hpBarText: "text-[11px]",
   },
 } as const;
 
@@ -28,6 +31,7 @@ export function CharacterCard({
   variant = "compact",
 }: CharacterCardProps) {
   const styles = VARIANT_STYLES[variant];
+  const hpFillRatio = hpBarFillRatio(character.hp, character.maxHp);
 
   return (
     <div
@@ -56,7 +60,17 @@ export function CharacterCard({
         className={`flex w-full items-center justify-between font-semibold text-slate-50 ${styles.stats}`}
       >
         <span>⚔ {character.attack}</span>
-        <span>♥ {character.hp}</span>
+        <div className="relative ml-1 h-3 flex-1 overflow-hidden rounded-full bg-slate-400/40">
+          <div
+            className="h-full rounded-full bg-emerald-500 transition-[width] duration-300 ease-out"
+            style={{ width: `${hpFillRatio * 100}%` }}
+          />
+          <span
+            className={`absolute inset-0 flex items-center justify-center font-semibold text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)] ${styles.hpBarText}`}
+          >
+            {character.hp}/{character.maxHp}
+          </span>
+        </div>
       </div>
     </div>
   );
