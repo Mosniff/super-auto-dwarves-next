@@ -19,10 +19,20 @@ export interface BattleState {
   enemy: Roster;
 }
 
+export type BeatType =
+  | "BATTLE_START"
+  | "TURN_START"
+  | "CLASH"
+  | "DROP"
+  | "TIMEOUT"
+  | "BATTLE_END";
+
 interface BeatMetadata {
   // Groups events that should be presented together as one animation beat.
   // See CLAUDE.md → "Battle data architecture" → "Animation beats".
   beatIndex: number;
+  // which kind of beat this event belongs to; stamped by the resolver
+  beatType: BeatType;
 }
 
 // The event payloads (no beat) — used by the resolver when emitting.

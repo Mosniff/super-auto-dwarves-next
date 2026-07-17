@@ -290,4 +290,54 @@ describe("resolveBattle", () => {
       outcome: "playerWin",
     });
   });
+
+  it("stamps every event with the beatType matching the kind of moment it belongs to", () => {
+    const playerCharacters: Character[] = [
+      { id: "p1", name: "Borin", attack: 5, hp: 10, maxHp: 10 },
+    ];
+    const enemyCharacters: Character[] = [
+      { id: "e1", name: "Grukk", attack: 2, hp: 3, maxHp: 3 },
+    ];
+
+    const { events } = resolveBattle(playerCharacters, enemyCharacters);
+
+    const battleStartEvents = events.filter(
+      (event) => event.type === "BATTLE_START",
+    );
+    const turnStartEvents = events.filter(
+      (event) => event.type === "TURN_START",
+    );
+    const attackEvents = events.filter((event) => event.type === "ATTACK");
+    const damageEvents = events.filter((event) => event.type === "DAMAGE");
+    const dropEvents = events.filter((event) => event.type === "DROP");
+    const battleEndEvents = events.filter(
+      (event) => event.type === "BATTLE_END",
+    );
+
+    expect(battleStartEvents.length).toBeGreaterThan(0);
+    expect(turnStartEvents.length).toBeGreaterThan(0);
+    expect(attackEvents.length).toBeGreaterThan(0);
+    expect(damageEvents.length).toBeGreaterThan(0);
+    expect(dropEvents.length).toBeGreaterThan(0);
+    expect(battleEndEvents.length).toBeGreaterThan(0);
+
+    for (const event of battleStartEvents) {
+      expect(event.beatType).toBe("BATTLE_START");
+    }
+    for (const event of turnStartEvents) {
+      expect(event.beatType).toBe("TURN_START");
+    }
+    for (const event of attackEvents) {
+      expect(event.beatType).toBe("CLASH");
+    }
+    for (const event of damageEvents) {
+      expect(event.beatType).toBe("CLASH");
+    }
+    for (const event of dropEvents) {
+      expect(event.beatType).toBe("DROP");
+    }
+    for (const event of battleEndEvents) {
+      expect(event.beatType).toBe("BATTLE_END");
+    }
+  });
 });

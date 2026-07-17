@@ -3,6 +3,7 @@ import type {
   BattleState,
   BattleEvent,
   BattleEventPayload,
+  BeatType,
   ResolvedBattle,
 } from "./types";
 import { applyEvent } from "./applyEvent";
@@ -21,12 +22,18 @@ export function resolveBattle(
   let workingState = initialState;
 
   let currentBeat = 0;
-  const startNewBeat = () => {
+  let currentBeatType: BeatType = "BATTLE_START";
+  const startNewBeat = (beatType: BeatType) => {
     currentBeat += 1;
+    currentBeatType = beatType;
   };
 
   const emitEvent = (eventPayload: BattleEventPayload) => {
-    const event: BattleEvent = { ...eventPayload, beatIndex: currentBeat };
+    const event: BattleEvent = {
+      ...eventPayload,
+      beatIndex: currentBeat,
+      beatType: currentBeatType,
+    };
     events.push(event);
     workingState = applyEvent(workingState, event);
   };
@@ -40,7 +47,7 @@ export function resolveBattle(
     workingState.enemy.activeCharacters.length > 0 &&
     currentTurn <= maxTurns
   ) {
-    startNewBeat();
+    startNewBeat("TURN_START");
     emitEvent({ type: "TURN_START", turn: currentTurn });
     currentTurn += 1;
 
@@ -50,7 +57,7 @@ export function resolveBattle(
     const playerDamageValue = Math.max(0, playerFrontCharacter.attack);
     const enemyDamageValue = Math.max(0, enemyFrontCharacter.attack);
 
-    startNewBeat();
+    startNewBeat("CLASH");
     emitEvent({
       type: "ATTACK",
       attackerId: playerFrontCharacter.id,
@@ -86,7 +93,7 @@ export function resolveBattle(
     const playerDrops = playerResultingHp <= 0;
 
     if (enemyDrops || playerDrops) {
-      startNewBeat();
+      startNewBeat("DROP");
     }
     if (enemyDrops) {
       emitEvent({ type: "DROP", characterId: enemyFrontCharacter.id });
@@ -112,11 +119,11 @@ export function resolveBattle(
     currentTurn > maxTurns && !playerWipedOut && !enemyWipedOut;
 
   if (cappedInStalemate) {
-    startNewBeat();
+    startNewBeat("TIMEOUT");
     emitEvent({ type: "TIMEOUT" });
   }
 
-  startNewBeat();
+  startNewBeat("BATTLE_END");
   emitEvent({ type: "BATTLE_END", outcome });
 
   return { initialState, events };

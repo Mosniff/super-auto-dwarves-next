@@ -26,6 +26,7 @@ describe("applyEvent", () => {
       resultingHp: 2,
       source: "p1",
       beatIndex: 0,
+      beatType: "CLASH",
     };
 
     const result = applyEvent(state, event);
@@ -56,6 +57,7 @@ describe("applyEvent", () => {
       resultingHp: 2,
       source: "e1",
       beatIndex: 0,
+      beatType: "CLASH",
     };
 
     const result = applyEvent(state, event);
@@ -88,6 +90,7 @@ describe("applyEvent", () => {
       resultingHp: 2,
       source: "p1",
       beatIndex: 0,
+      beatType: "CLASH",
     };
 
     const result = applyEvent(state, event);
@@ -119,6 +122,7 @@ describe("applyEvent", () => {
       type: "DROP",
       characterId: "p1",
       beatIndex: 0,
+      beatType: "DROP",
     };
 
     const result = applyEvent(state, event);
@@ -154,6 +158,7 @@ describe("applyEvent", () => {
         targetId: "e1",
         value: 4,
         beatIndex: 0,
+        beatType: "CLASH",
       };
 
       const result = applyEvent(state, event);
@@ -165,6 +170,7 @@ describe("applyEvent", () => {
       const event: BattleEvent = {
         type: "BATTLE_START",
         beatIndex: 0,
+        beatType: "BATTLE_START",
       };
 
       const result = applyEvent(state, event);
@@ -177,6 +183,7 @@ describe("applyEvent", () => {
         type: "BATTLE_END",
         outcome: "playerWin",
         beatIndex: 0,
+        beatType: "BATTLE_END",
       };
 
       const result = applyEvent(state, event);
@@ -189,6 +196,7 @@ describe("applyEvent", () => {
         type: "TURN_START",
         turn: 1,
         beatIndex: 0,
+        beatType: "TURN_START",
       };
 
       const result = applyEvent(state, event);
@@ -200,6 +208,7 @@ describe("applyEvent", () => {
       const event: BattleEvent = {
         type: "TIMEOUT",
         beatIndex: 0,
+        beatType: "TIMEOUT",
       };
 
       const result = applyEvent(state, event);
