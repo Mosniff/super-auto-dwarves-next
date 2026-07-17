@@ -15,6 +15,7 @@ const VARIANT_STYLES = {
     stats: "text-[10px] px-0.5",
     portraitRounding: "rounded-sm",
     hpBarText: "text-[9px]",
+    downedLabelText: "text-[9px]",
   },
   full: {
     gap: "gap-2",
@@ -22,6 +23,7 @@ const VARIANT_STYLES = {
     stats: "text-sm px-1",
     portraitRounding: "rounded-md",
     hpBarText: "text-[11px]",
+    downedLabelText: "text-sm",
   },
 } as const;
 
@@ -32,6 +34,7 @@ export function CharacterCard({
 }: CharacterCardProps) {
   const styles = VARIANT_STYLES[variant];
   const hpFillRatio = hpBarFillRatio(character.hp, character.maxHp);
+  const isDowned = character.hp <= 0;
 
   return (
     <div
@@ -39,17 +42,30 @@ export function CharacterCard({
     >
       <div
         className={`relative w-full flex-1 overflow-hidden bg-slate-300 ${styles.portraitRounding}`}
-        style={facing === "left" ? { transform: "scaleX(-1)" } : undefined}
       >
-        <Image
-          src="/character_portraits/placeholder.png"
-          alt={character.name}
-          fill
-          className="object-cover"
-          sizes="250px"
-          quality={90}
-          priority
-        />
+        <div
+          className="absolute inset-0"
+          style={facing === "left" ? { transform: "scaleX(-1)" } : undefined}
+        >
+          <Image
+            src="/character_portraits/placeholder.png"
+            alt={character.name}
+            fill
+            className={`object-cover transition-[filter,opacity] duration-200 ease-out ${
+              isDowned ? "grayscale brightness-75" : ""
+            }`}
+            sizes="250px"
+            quality={90}
+            priority
+          />
+        </div>
+        <div
+          className={`absolute inset-0 flex items-center justify-center bg-black/50 font-bold tracking-wide text-white uppercase transition-opacity duration-200 ease-out ${
+            isDowned ? "opacity-100" : "opacity-0"
+          } ${styles.downedLabelText}`}
+        >
+          Downed
+        </div>
       </div>
       <span
         className={`w-full truncate text-center font-medium text-slate-50 ${styles.name}`}
