@@ -24,7 +24,11 @@ export function RosterSlab({
       >
         {slots.map((character, i) => (
           <div key={character?.id ?? i} className="flex-1">
-            <RosterSlot character={character} facing={facing} />
+            <RosterSlot
+              character={character}
+              facing={facing}
+              isActive={i === 0 && Boolean(character)}
+            />
           </div>
         ))}
       </div>
