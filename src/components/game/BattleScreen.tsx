@@ -35,6 +35,8 @@ export function BattleScreen() {
         <ActionZone
           playerFrontCharacter={currentState.player.activeCharacters[0]}
           enemyFrontCharacter={currentState.enemy.activeCharacters[0]}
+          playerDownedCharacters={currentState.player.downedCharacters}
+          enemyDownedCharacters={currentState.enemy.downedCharacters}
           currentBeatLines={currentBeatLines}
           currentBeatType={currentBeatType}
           onAdvance={advance}
