@@ -4,15 +4,15 @@ import { CharacterCard } from "./CharacterCard";
 interface RosterSlotProps {
   character?: Character;
   facing?: "left" | "right";
-  isActive?: boolean;
+  isNext?: boolean;
 }
 
 export function RosterSlot({
   character,
   facing = "right",
-  isActive = false,
+  isNext = false,
 }: RosterSlotProps) {
-  const showActiveHalo = isActive && Boolean(character);
+  const showNextHalo = isNext && Boolean(character);
 
   return (
     <div className="relative">
@@ -28,7 +28,7 @@ export function RosterSlot({
           </span>
         )}
       </div>
-      {showActiveHalo && (
+      {showNextHalo && (
         <div
           className="pointer-events-none absolute -inset-2 rounded-lg border-2"
           style={{ borderColor: "var(--color-parchment-300)" }}
@@ -40,7 +40,7 @@ export function RosterSlot({
               color: "var(--color-parchment-300)",
             }}
           >
-            active
+            next
           </span>
         </div>
       )}

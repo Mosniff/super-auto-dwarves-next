@@ -30,7 +30,9 @@ export function BattleScreen() {
   } = useBattlePlayback(resolvedBattle);
 
   return (
-    <GameScreenShell playerCharacters={currentState.player.activeCharacters}>
+    <GameScreenShell
+      playerBenchCharacters={currentState.player.activeCharacters.slice(1)}
+    >
       <section className="flex flex-1 items-center justify-center p-6">
         <ActionZone
           playerFrontCharacter={currentState.player.activeCharacters[0]}
@@ -51,7 +53,7 @@ export function BattleScreen() {
         />
       </section>
       <RosterSlab
-        characters={currentState.enemy.activeCharacters}
+        characters={currentState.enemy.activeCharacters.slice(1)}
         variant="enemy"
       />
     </GameScreenShell>

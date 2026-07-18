@@ -27,7 +27,7 @@ export function RosterSlab({
             <RosterSlot
               character={character}
               facing={facing}
-              isActive={i === 0 && Boolean(character)}
+              isNext={i === 0 && Boolean(character)}
             />
           </div>
         ))}
