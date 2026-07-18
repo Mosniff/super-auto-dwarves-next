@@ -1,11 +1,12 @@
 import { ActiveCard } from "@/components/game/ActiveCard";
 import { InfoScroll } from "@/components/game/InfoScroll";
-import type { Character } from "@/lib/battle/types";
+import type { BeatType, Character } from "@/lib/battle/types";
 
 interface ActionZoneProps {
   playerFrontCharacter?: Character;
   enemyFrontCharacter?: Character;
   currentBeatLines: string[];
+  currentBeatType?: BeatType;
   onAdvance: () => void;
   isFinished: boolean;
   onViewPreviousBeat: () => void;
@@ -21,6 +22,7 @@ export function ActionZone({
   playerFrontCharacter,
   enemyFrontCharacter,
   currentBeatLines,
+  currentBeatType,
   onAdvance,
   isFinished,
   onViewPreviousBeat,
@@ -33,7 +35,11 @@ export function ActionZone({
 }: ActionZoneProps) {
   return (
     <div className="flex w-full items-center justify-center gap-8">
-      <ActiveCard character={playerFrontCharacter} facing="right" />
+      <ActiveCard
+        character={playerFrontCharacter}
+        facing="right"
+        currentBeatType={currentBeatType}
+      />
       <div className="h-64 max-w-md flex-1">
         <InfoScroll
           currentBeatLines={currentBeatLines}
@@ -48,7 +54,11 @@ export function ActionZone({
           onPause={onPause}
         />
       </div>
-      <ActiveCard character={enemyFrontCharacter} facing="left" />
+      <ActiveCard
+        character={enemyFrontCharacter}
+        facing="left"
+        currentBeatType={currentBeatType}
+      />
     </div>
   );
 }

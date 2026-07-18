@@ -1,4 +1,4 @@
-import type { BattleState, ResolvedBattle } from "./types";
+import type { BattleState, BeatType, ResolvedBattle } from "./types";
 import { applyEvent } from "./applyEvent";
 import { formatBattleEvent } from "./formatBattleEvent";
 import { buildNameMap } from "./buildNameMap";
@@ -8,6 +8,7 @@ interface BattlePlaybackView {
   currentBeatLines: string[];
   allBeatLines: string[][];
   isFinished: boolean;
+  currentBeatType: BeatType | undefined;
 }
 
 export function deriveBattlePlaybackState(
@@ -42,5 +43,15 @@ export function deriveBattlePlaybackState(
 
   const isFinished = playbackBeat >= highestBeat;
 
-  return { currentState, currentBeatLines, allBeatLines, isFinished };
+  const currentBeatType = resolvedBattle.events.find(
+    (event) => event.beatIndex === playbackBeat,
+  )?.beatType;
+
+  return {
+    currentState,
+    currentBeatLines,
+    allBeatLines,
+    isFinished,
+    currentBeatType,
+  };
 }

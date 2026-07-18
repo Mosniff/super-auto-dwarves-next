@@ -79,4 +79,46 @@ describe("deriveBattlePlaybackState", () => {
     expect(playbackView.currentState).toEqual(manuallyReducedState);
     expect(playbackView.currentBeatLines).toEqual(["Battle start!"]);
   });
+
+  it("at a clash beat, currentBeatType is CLASH", () => {
+    const firstAttackEvent = resolvedBattle.events.find(
+      (event) => event.type === "ATTACK",
+    );
+    const clashBeat = firstAttackEvent!.beatIndex;
+
+    const playbackView = deriveBattlePlaybackState(
+      resolvedBattle,
+      clashBeat,
+      clashBeat,
+    );
+
+    expect(playbackView.currentBeatType).toBe("CLASH");
+  });
+
+  it("at playbackBeat 0, currentBeatType is BATTLE_START", () => {
+    const playbackView = deriveBattlePlaybackState(resolvedBattle, 0, 0);
+
+    expect(playbackView.currentBeatType).toBe("BATTLE_START");
+  });
+
+  it("at playbackBeat -1, currentBeatType is undefined", () => {
+    const playbackView = deriveBattlePlaybackState(resolvedBattle, -1, -1);
+
+    expect(playbackView.currentBeatType).toBeUndefined();
+  });
+
+  it("currentBeatType follows playbackBeat, not viewingBeat, when scrubbing the log back", () => {
+    const firstAttackEvent = resolvedBattle.events.find(
+      (event) => event.type === "ATTACK",
+    );
+    const clashBeat = firstAttackEvent!.beatIndex;
+
+    const playbackView = deriveBattlePlaybackState(
+      resolvedBattle,
+      clashBeat,
+      0,
+    );
+
+    expect(playbackView.currentBeatType).toBe("CLASH");
+  });
 });
