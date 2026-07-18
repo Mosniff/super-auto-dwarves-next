@@ -6,7 +6,15 @@ interface CharacterCardProps {
   character: Character;
   facing?: "left" | "right";
   variant?: "compact" | "full";
+  animateHpDrop?: boolean;
 }
+
+// Tuned by eye later by the human.
+const HP_DRAIN_DELAY_MS = 250; // bar holds full, then drains ~at clash impact
+const HP_DRAIN_TRANSITION_MS = 300; // existing bar drain duration
+// Total number fade envelope; comfortably exceeds delay+drain so the number
+// is hidden across the whole drain (containment, not precise alignment).
+const HP_NUMBER_FADE_MS = 700;
 
 const VARIANT_STYLES = {
   compact: {
@@ -31,6 +39,7 @@ export function CharacterCard({
   character,
   facing = "right",
   variant = "compact",
+  animateHpDrop = false,
 }: CharacterCardProps) {
   const styles = VARIANT_STYLES[variant];
   const hpFillRatio = hpBarFillRatio(character.hp, character.maxHp);
@@ -78,11 +87,24 @@ export function CharacterCard({
         <span>⚔ {character.attack}</span>
         <div className="relative ml-1 h-3 flex-1 overflow-hidden rounded-full bg-slate-400/40">
           <div
-            className="h-full rounded-full bg-emerald-500 transition-[width] duration-300 ease-out"
-            style={{ width: `${hpFillRatio * 100}%` }}
+            className="h-full rounded-full bg-emerald-500 transition-[width] ease-out"
+            style={{
+              width: `${hpFillRatio * 100}%`,
+              transitionDuration: `${HP_DRAIN_TRANSITION_MS}ms`,
+              transitionDelay: animateHpDrop ? `${HP_DRAIN_DELAY_MS}ms` : "0ms",
+            }}
           />
           <span
             className={`absolute inset-0 flex items-center justify-center font-semibold text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)] ${styles.hpBarText}`}
+            // Re-triggers on every animateHpDrop false->true transition, same
+            // assumption as the ActiveCard clash re-trigger: a non-clash beat
+            // separates consecutive clashes, so the style (and thus the
+            // animation) is removed then re-applied each time.
+            style={{
+              animation: animateHpDrop
+                ? `hp-number-drop-fade ${HP_NUMBER_FADE_MS}ms ease-in-out`
+                : undefined,
+            }}
           >
             {character.hp}/{character.maxHp}
           </span>

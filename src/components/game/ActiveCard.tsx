@@ -100,7 +100,12 @@ export function ActiveCard({
         style={{ boxShadow: "var(--shadow-recess)" }}
       >
         {character ? (
-          <CharacterCard character={character} facing={facing} variant="full" />
+          <CharacterCard
+            character={character}
+            facing={facing}
+            variant="full"
+            animateHpDrop={isClashing}
+          />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-2xl text-slate-50/30">
             —

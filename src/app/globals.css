@@ -132,3 +132,21 @@
     @apply font-sans;
   }
 }
+
+/* Wide invisible plateau in the middle so it comfortably contains the hp
+   bar's delayed drain (see HP_DRAIN_DELAY_MS / HP_DRAIN_TRANSITION_MS in
+   CharacterCard.tsx) — this is containment, not precise alignment. */
+@keyframes hp-number-drop-fade {
+  0% {
+    opacity: 1;
+  }
+  25% {
+    opacity: 0;
+  }
+  75% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
