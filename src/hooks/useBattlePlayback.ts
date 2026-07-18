@@ -52,15 +52,15 @@ export function useBattlePlayback(resolvedBattle: ResolvedBattle) {
       return;
     }
 
-    const currentBeatEvents = resolvedBattle.events.filter(
+    const currentBeatType = resolvedBattle.events.find(
       (event) => event.beatIndex === playbackBeat,
-    );
+    )?.beatType;
 
     const timeoutId = setTimeout(() => {
       const nextPlaybackBeat = Math.min(playbackBeat + 1, highestBeat);
       setPlaybackBeat(nextPlaybackBeat);
       setViewingBeat(nextPlaybackBeat);
-    }, beatDurationMs(currentBeatEvents));
+    }, beatDurationMs(currentBeatType));
 
     return () => clearTimeout(timeoutId);
   }, [

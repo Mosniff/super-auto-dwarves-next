@@ -154,13 +154,20 @@ Event granularity serves the **logic**; presentation granularity serves the **fr
 
 The **resolver** assigns beats (not the frontend — grouping is explicit metadata, never inferred from event types). `resolveBattle` keeps a `currentBeat` counter and calls `startNewBeat()` at each boundary; `emitEvent` stamps the current beat onto every payload it emits.
 
-Beat boundaries in the fundamental system:
+Each beat also carries a `beatType: BeatType` — explicit metadata naming _which kind_ of beat it is, stamped by the resolver alongside `beatIndex`. The six beat types, and the resolver boundary that produces each:
 
-- `BATTLE_START` — beat 0.
-- Each turn: a new beat for `TURN_START`, then a new beat for the clash (both `ATTACK`s and both `DAMAGE`s share one beat — this is what makes simultaneity legible), then — only if someone actually drops — a new beat for the `DROP`(s) (a mutual kill puts both `DROP`s in one beat).
-- New beats for `TIMEOUT` (if emitted) and `BATTLE_END`.
+- `BATTLE_START` — the opening beat (beat 0, before any `startNewBeat` call).
+- `TURN_START` — opened before each `TURN_START` event.
+- `CLASH` — opened before the two `ATTACK`s and two `DAMAGE`s of a turn's exchange; they all share this one beat (this is what makes simultaneity legible). "Clash" names the _beat_ — do not confuse it with the `ATTACK` _event_, which is one character's individual strike.
+- `DROP` — opened before the `DROP`(s), only if someone actually drops that turn (a mutual kill puts both `DROP`s in one beat).
+- `TIMEOUT` — opened before a `TIMEOUT` event (if emitted).
+- `BATTLE_END` — opened before the `BATTLE_END` event.
 
-Playback steps one beat at a time, not one event. `deriveBattlePlaybackState(resolvedBattle, playbackBeat, viewingBeat)` applies every event with `beat <= playbackBeat`.
+**Event types describe outcomes (what changed), never presentation context.** The same event type may appear in different beat types — `beatType`, stamped per-emission by the resolver, carries the presentational grouping, not the event type. The animation dispatcher switches on `beatType`, never on event type.
+
+Playback steps one beat at a time, not one event. `deriveBattlePlaybackState(resolvedBattle, playbackBeat, viewingBeat)` applies every event with `beatIndex <= playbackBeat`.
+
+`beatDurationMs(beatType)` is the first consumer of this metadata: `CLASH` and `DROP` are "eventful" beats (longer dwell); every other beat type, and `undefined` (before the first beat), is "quiet" (shorter dwell).
 
 - **Source attribution** — the `source` field on `DAMAGE` says _where it came from_ (which attacker, later which ability). Self-describing causality, independent of beat grouping. Beats are about **pacing**; `source` is about **causality**.
 
