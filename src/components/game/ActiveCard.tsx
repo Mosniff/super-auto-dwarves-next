@@ -25,10 +25,6 @@ const CLASH_KEYFRAME_EASES: Easing[] = [
   "easeInOut",
 ];
 
-// Reduced motion keeps a subtle version rather than disabling the clash
-// entirely — a third of the distance and duration.
-const REDUCED_MOTION_SCALE = 1 / 10;
-
 export function ActiveCard({
   character,
   facing = "right",
@@ -36,6 +32,9 @@ export function ActiveCard({
 }: ActiveCardProps) {
   const prefersReducedMotion = useReducedMotion();
   const isClashing = currentBeatType === "CLASH";
+  // Reduced motion disables the clash animation entirely — cards sit fully
+  // static rather than playing a scaled-down version.
+  const shouldAnimateClash = isClashing && !prefersReducedMotion;
 
   // Player faces right and lunges toward +x; enemy faces left and lunges
   // toward -x — opposite signs make the two cards converge on each other.
@@ -44,18 +43,13 @@ export function ActiveCard({
   // clockwise. Player (facing right) leans anti-clockwise (negative); enemy (facing left)
   // leans clockwise (positive). Note this is the OPPOSITE sign to lungeDirection.
   const leanDirection = facing === "right" ? -1 : 1;
-  const motionScale = prefersReducedMotion ? REDUCED_MOTION_SCALE : 1;
 
-  const windUpOffsetPx = WIND_UP_OFFSET_PX * motionScale;
-  const lungeOffsetPx = LUNGE_OFFSET_PX * motionScale;
-  const overshootOffsetPx = OVERSHOOT_OFFSET_PX * motionScale;
-  const totalDurationSeconds = TOTAL_DURATION_S * motionScale;
-  // Rotation is the most vestibular-triggering part, so reduced-motion drops
-  // it entirely (zero lean/follow-through) rather than merely scaling it down.
-  const leanDegrees = prefersReducedMotion ? 0 : LEAN_DEGREES;
-  const followThroughDegrees = prefersReducedMotion
-    ? 0
-    : FOLLOW_THROUGH_DEGREES;
+  const windUpOffsetPx = WIND_UP_OFFSET_PX;
+  const lungeOffsetPx = LUNGE_OFFSET_PX;
+  const overshootOffsetPx = OVERSHOOT_OFFSET_PX;
+  const totalDurationSeconds = TOTAL_DURATION_S;
+  const leanDegrees = LEAN_DEGREES;
+  const followThroughDegrees = FOLLOW_THROUGH_DEGREES;
 
   const clashKeyframeOffsetsPx = [
     0,
@@ -76,17 +70,17 @@ export function ActiveCard({
   return (
     <motion.div
       className="shrink-0"
-      // Re-triggers on every isClashing false->true transition. This relies
-      // on a non-CLASH beat (TURN_START) always separating consecutive
-      // CLASH beats; if clashes ever become adjacent, this needs a keyed
-      // remount instead of a prop-driven animate transition.
+      // Re-triggers on every shouldAnimateClash false->true transition. This
+      // relies on a non-CLASH beat (TURN_START) always separating
+      // consecutive CLASH beats; if clashes ever become adjacent, this needs
+      // a keyed remount instead of a prop-driven animate transition.
       animate={
-        isClashing
+        shouldAnimateClash
           ? { x: clashKeyframeOffsetsPx, rotate: clashKeyframeRotationDegrees }
           : { x: 0, rotate: 0 }
       }
       transition={
-        isClashing
+        shouldAnimateClash
           ? {
               duration: totalDurationSeconds,
               times: CLASH_KEYFRAME_TIMES,
@@ -104,7 +98,7 @@ export function ActiveCard({
             character={character}
             facing={facing}
             variant="full"
-            animateHpDrop={isClashing}
+            animateHpDrop={shouldAnimateClash}
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center text-2xl text-slate-50/30">
