@@ -25,6 +25,9 @@ const CLASH_KEYFRAME_EASES: Easing[] = [
   "easeInOut",
 ];
 
+const ENTRANCE_DURATION_S = 0.35;
+const ENTRANCE_TILT_DEGREES = 45; // tuned by eye by the human
+
 export function ActiveCard({
   character,
   facing = "right",
@@ -67,45 +70,98 @@ export function ActiveCard({
     0, // 1 settle: neutral
   ];
 
+  // Wraparound convention: player (facing right) enters from OFF THE LEFT (negative x);
+  // enemy (facing left) enters from OFF THE RIGHT (positive x). Opposite sign to facing.
+  // Expressed in vw (not a fixed px offset) so the start position is
+  // guaranteed off-screen regardless of viewport width. Both branches are
+  // strings so Framer interpolates a homogeneous vw -> px tween.
+  const entranceInitialX = prefersReducedMotion
+    ? "0px"
+    : facing === "right"
+      ? "-100vw"
+      : "100vw";
+
+  // The card leans BACK against its travel direction (trailing edge up), a
+  // "braking into the spot" feel. Player travels rightward, so leaning back
+  // tips the top left (negative rotation); enemy travels leftward, so
+  // leaning back tips the top right (positive) — same sign pattern as the
+  // clash leanDirection and the entrance x-direction.
+  const entranceTiltDirection = facing === "right" ? -1 : 1;
+  const entranceInitialRotate = prefersReducedMotion
+    ? 0
+    : entranceTiltDirection * ENTRANCE_TILT_DEGREES;
+
   return (
     <motion.div
-      className="shrink-0"
-      // Re-triggers on every shouldAnimateClash false->true transition. This
-      // relies on a non-CLASH beat (TURN_START) always separating
-      // consecutive CLASH beats; if clashes ever become adjacent, this needs
-      // a keyed remount instead of a prop-driven animate transition.
-      animate={
-        shouldAnimateClash
-          ? { x: clashKeyframeOffsetsPx, rotate: clashKeyframeRotationDegrees }
-          : { x: 0, rotate: 0 }
-      }
+      // The key must be the character id ALONE (no beat info) — a surviving
+      // fighter keeps the same id across beats, so React keeps the same
+      // element and this entrance does not replay. A new/replacement
+      // fighter gets a new id, remounts, and slides in.
+      key={character?.id ?? "empty"}
+      // rotate's starting value comes from the first frame of its own
+      // keyframe array below (kept out of `initial` to avoid conflicting
+      // with that array), so only x needs an explicit initial here.
+      initial={{ x: entranceInitialX }}
+      // rotate HOLDS at the tilt through most of the flight (still off-screen)
+      // and only straightens in the final stretch, once the card is visible —
+      // see the per-property `rotate` transition below for its own timing.
+      animate={{ x: "0px", rotate: [entranceInitialRotate, entranceInitialRotate, 0] }}
       transition={
-        shouldAnimateClash
-          ? {
-              duration: totalDurationSeconds,
-              times: CLASH_KEYFRAME_TIMES,
-              ease: CLASH_KEYFRAME_EASES,
+        prefersReducedMotion
+          ? { duration: 0 }
+          : {
+              duration: ENTRANCE_DURATION_S,
+              ease: "easeOut",
+              rotate: {
+                duration: ENTRANCE_DURATION_S,
+                times: [0, 0.75, 1],
+                ease: "easeOut",
+              },
             }
-          : undefined
       }
+      className="shrink-0"
     >
-      <div
-        className="relative h-64 w-48 shrink-0 overflow-hidden rounded-lg bg-slate-200 p-3"
-        style={{ boxShadow: "var(--shadow-recess)" }}
+      <motion.div
+        // Re-triggers on every shouldAnimateClash false->true transition. This
+        // relies on a non-CLASH beat (TURN_START) always separating
+        // consecutive CLASH beats; if clashes ever become adjacent, this needs
+        // a keyed remount instead of a prop-driven animate transition.
+        animate={
+          shouldAnimateClash
+            ? {
+                x: clashKeyframeOffsetsPx,
+                rotate: clashKeyframeRotationDegrees,
+              }
+            : { x: 0, rotate: 0 }
+        }
+        transition={
+          shouldAnimateClash
+            ? {
+                duration: totalDurationSeconds,
+                times: CLASH_KEYFRAME_TIMES,
+                ease: CLASH_KEYFRAME_EASES,
+              }
+            : undefined
+        }
       >
-        {character ? (
-          <CharacterCard
-            character={character}
-            facing={facing}
-            variant="full"
-            animateHpDrop={shouldAnimateClash}
-          />
-        ) : (
-          <div className="flex h-full w-full items-center justify-center text-2xl text-slate-50/30">
-            —
-          </div>
-        )}
-      </div>
+        <div
+          className="relative h-64 w-48 overflow-hidden rounded-lg bg-slate-200 p-3"
+          style={{ boxShadow: "var(--shadow-recess)" }}
+        >
+          {character ? (
+            <CharacterCard
+              character={character}
+              facing={facing}
+              variant="full"
+              animateHpDrop={shouldAnimateClash}
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center text-2xl text-slate-50/30">
+              —
+            </div>
+          )}
+        </div>
+      </motion.div>
     </motion.div>
   );
 }
