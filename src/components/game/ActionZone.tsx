@@ -11,6 +11,7 @@ interface ActionZoneProps {
   currentBeatLines: string[];
   currentBeatType?: BeatType;
   onAdvance: () => void;
+  canAdvance: boolean;
   isFinished: boolean;
   onViewPreviousBeat: () => void;
   onViewNextBeat: () => void;
@@ -29,6 +30,7 @@ export function ActionZone({
   currentBeatLines,
   currentBeatType,
   onAdvance,
+  canAdvance,
   isFinished,
   onViewPreviousBeat,
   onViewNextBeat,
@@ -54,6 +56,7 @@ export function ActionZone({
           <InfoScroll
             currentBeatLines={currentBeatLines}
             onAdvance={onAdvance}
+            canAdvance={canAdvance}
             isFinished={isFinished}
             onViewPreviousBeat={onViewPreviousBeat}
             onViewNextBeat={onViewNextBeat}

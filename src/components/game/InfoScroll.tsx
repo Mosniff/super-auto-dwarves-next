@@ -16,6 +16,7 @@ const CONTROL_BUTTON_CLASS_NAME =
 interface InfoScrollProps {
   currentBeatLines: string[];
   onAdvance: () => void;
+  canAdvance: boolean;
   isFinished: boolean;
   onViewPreviousBeat: () => void;
   onViewNextBeat: () => void;
@@ -29,6 +30,7 @@ interface InfoScrollProps {
 export function InfoScroll({
   currentBeatLines,
   onAdvance,
+  canAdvance,
   isFinished,
   onViewPreviousBeat,
   onViewNextBeat,
@@ -99,7 +101,7 @@ export function InfoScroll({
             variant="outline"
             size="sm"
             onClick={onAdvance}
-            disabled={isFinished || isPlaying}
+            disabled={!canAdvance}
             className={CONTROL_BUTTON_CLASS_NAME}
           >
             Advance

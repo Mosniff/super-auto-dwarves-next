@@ -5,7 +5,6 @@
 // user-facing semantics (role/name/text), never by markup.
 import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
 import { BattleScreen } from "./BattleScreen";
 
 const AUTOPLAY_INTERVAL_MS = 800;
@@ -24,18 +23,31 @@ describe("BattleScreen", () => {
     ).toBeInTheDocument();
   });
 
-  it("clicking Advance progresses the battle log", async () => {
-    const user = userEvent.setup();
-    render(<BattleScreen />);
+  describe("clicking Advance", () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
 
-    const advanceButton = screen.getByRole("button", { name: /advance/i });
+    it("progresses the battle log", () => {
+      // fireEvent (not userEvent) so we don't need to configure userEvent
+      // for fake timers; the post-advance lock still needs releasing
+      // between clicks via vi.advanceTimersByTime.
+      vi.useFakeTimers();
+      render(<BattleScreen />);
 
-    await user.click(advanceButton);
-    expect(screen.getByText("Battle start!")).toBeInTheDocument();
+      const advanceButton = screen.getByRole("button", { name: /advance/i });
 
-    await user.click(advanceButton);
-    expect(screen.getByText("Turn 1")).toBeInTheDocument();
-    expect(screen.queryByText("Battle start!")).not.toBeInTheDocument();
+      fireEvent.click(advanceButton);
+      expect(screen.getByText("Battle start!")).toBeInTheDocument();
+
+      act(() => {
+        vi.advanceTimersByTime(AUTOPLAY_INTERVAL_MS);
+      });
+
+      fireEvent.click(advanceButton);
+      expect(screen.getByText("Turn 1")).toBeInTheDocument();
+      expect(screen.queryByText("Battle start!")).not.toBeInTheDocument();
+    });
   });
 
   describe("autoplay", () => {

@@ -20,6 +20,7 @@ export function BattleScreen() {
     currentBeatType,
     isFinished,
     advance,
+    canAdvance,
     viewPreviousBeat,
     viewNextBeat,
     canViewPrevious,
@@ -42,6 +43,7 @@ export function BattleScreen() {
           currentBeatLines={currentBeatLines}
           currentBeatType={currentBeatType}
           onAdvance={advance}
+          canAdvance={canAdvance}
           isFinished={isFinished}
           onViewPreviousBeat={viewPreviousBeat}
           onViewNextBeat={viewNextBeat}
