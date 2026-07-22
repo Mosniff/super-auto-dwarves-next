@@ -1,5 +1,5 @@
+import { motion, useReducedMotion } from "motion/react";
 import type { Character } from "@/lib/battle/types";
-import { CharacterCard } from "./CharacterCard";
 
 interface DiscardPileProps {
   downedCharacters: Character[];
@@ -9,55 +9,76 @@ interface DiscardPileProps {
 const CARD_WIDTH_PX = 192; // w-48
 const CARD_HEIGHT_PX = 256; // h-64
 
-// A few px right+down per card so earlier deaths peek out behind the most
-// recent one, which sits frontmost (highest z-index).
-const PEEK_OFFSET_PX = 6;
-const MAX_VISIBLE_DOWNED_CARDS = 3;
+const RING_INSET_PX = 12; // breathing room around the card-back
 
-// The furthest-back visible card is offset this many times over — the
-// container and ring must be at least this much larger than one base card.
-const MAX_STACK_OFFSET_PX = PEEK_OFFSET_PX * (MAX_VISIBLE_DOWNED_CARDS - 1);
-const CONTAINER_WIDTH_PX = CARD_WIDTH_PX + MAX_STACK_OFFSET_PX;
-const CONTAINER_HEIGHT_PX = CARD_HEIGHT_PX + MAX_STACK_OFFSET_PX;
-const RING_INSET_PX = 12; // breathing room outside the full stack
+const BADGE_SWELL_DURATION_S = 0.45;
+const BADGE_SWELL_SCALE = 1.45;
 
-export function DiscardPile({ downedCharacters, variant }: DiscardPileProps) {
-  const facing = variant === "enemy" ? "left" : "right";
-  // Oldest-first; the newest deaths are the last elements, so slicing from
-  // the end keeps the most recent ones and preserves their oldest->newest
-  // order within the slice — the last element of the slice stays the
-  // frontmost, most-recent card.
-  const mostRecentDownedCharacters = downedCharacters.slice(
-    -MAX_VISIBLE_DOWNED_CARDS,
-  );
+export function DiscardPile({ downedCharacters }: DiscardPileProps) {
+  const prefersReducedMotion = useReducedMotion();
+  const downedCount = downedCharacters.length;
+  const hasDowned = downedCount >= 1;
 
   return (
     <div
       className="relative shrink-0"
-      style={{ width: CONTAINER_WIDTH_PX, height: CONTAINER_HEIGHT_PX }}
+      style={{ width: CARD_WIDTH_PX, height: CARD_HEIGHT_PX }}
     >
-      {mostRecentDownedCharacters.map((character, index) => (
+      {hasDowned && (
+        // Blank card-back — no character info, no portrait, no stats. Stays
+        // exactly like this as the pile grows; only the count badge changes.
         <div
-          key={character.id}
-          className="absolute flex flex-col items-center justify-center gap-1 overflow-hidden rounded-md bg-slate-200 p-1.5"
+          className="absolute inset-0 rounded-md border"
           style={{
-            width: CARD_WIDTH_PX,
-            height: CARD_HEIGHT_PX,
-            top: index * PEEK_OFFSET_PX,
-            left: index * PEEK_OFFSET_PX,
-            zIndex: index + 1,
+            backgroundColor: "var(--color-slate-300)",
+            borderColor: "var(--color-iron-500)",
             boxShadow: "var(--shadow-recess), 0 4px 8px rgba(0,0,0,0.4)",
           }}
-        >
-          {/* Future divergence point: this is the one place that chooses the
-              inner card for a pile slot. If downed cards later get a
-              stripped-down variant, swap it in only here. */}
-          <CharacterCard character={character} facing={facing} />
-        </div>
-      ))}
+        />
+      )}
 
-      {/* Always-visible footprint — the pile's location, even when empty.
-          Sized to clear the full 3-card offset stack with a small margin. */}
+      {hasDowned && (
+        <motion.div
+          // Remounts each time the count changes, which is what fires the
+          // swell+glow — same keyed-remount trigger pattern as the active
+          // card's entrance. The badge shows the NEW number from the start
+          // of this animation.
+          key={downedCount}
+          className="absolute flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold"
+          style={{
+            top: -8,
+            right: -8,
+            backgroundColor: "var(--color-slate-300)",
+            color: "var(--color-iron-300)",
+          }}
+          initial={prefersReducedMotion ? false : { scale: 1 }}
+          animate={
+            prefersReducedMotion
+              ? { scale: 1 }
+              : {
+                  scale: [1, BADGE_SWELL_SCALE, 1],
+                  boxShadow: [
+                    "0 0 0px rgba(154,160,166,0)",
+                    "0 0 12px rgba(154,160,166,0.9)",
+                    "0 0 0px rgba(154,160,166,0)",
+                  ],
+                }
+          }
+          transition={
+            prefersReducedMotion
+              ? { duration: 0 }
+              : {
+                  duration: BADGE_SWELL_DURATION_S,
+                  times: [0, 0.4, 1],
+                  ease: "easeOut",
+                }
+          }
+        >
+          {downedCount}
+        </motion.div>
+      )}
+
+      {/* Always-visible footprint — the pile's location, even when empty. */}
       <div
         className="pointer-events-none absolute rounded-lg border-2"
         style={{

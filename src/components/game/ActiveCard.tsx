@@ -1,6 +1,11 @@
 "use client";
 
-import { motion, useReducedMotion, type Easing } from "motion/react";
+import {
+  AnimatePresence,
+  motion,
+  useReducedMotion,
+  type Easing,
+} from "motion/react";
 import type { BeatType, Character } from "@/lib/battle/types";
 import { CharacterCard } from "./CharacterCard";
 
@@ -27,6 +32,9 @@ const CLASH_KEYFRAME_EASES: Easing[] = [
 
 const ENTRANCE_DURATION_S = 0.35;
 const ENTRANCE_TILT_DEGREES = 45; // tuned by eye by the human
+
+const EXIT_DISSOLVE_DURATION_S = 0.4; // tuned by eye by the human
+const EXIT_SCALE_UP = 1.1;
 
 export function ActiveCard({
   character,
@@ -91,77 +99,109 @@ export function ActiveCard({
     ? 0
     : entranceTiltDirection * ENTRANCE_TILT_DEGREES;
 
+  const hasCharacter = Boolean(character);
+
+  // Only real fighters entrance-slide/tilt and exit-poof; the empty "—"
+  // placeholder is inert — it neither slides in nor dissolves out.
+  const outerInitial = hasCharacter ? { x: entranceInitialX } : false;
+  const outerAnimate = hasCharacter
+    ? { x: "0px", rotate: [entranceInitialRotate, entranceInitialRotate, 0] }
+    : { x: "0px" };
+  const outerTransition = hasCharacter
+    ? prefersReducedMotion
+      ? { duration: 0 }
+      : {
+          duration: ENTRANCE_DURATION_S,
+          ease: "easeOut" as const,
+          rotate: {
+            duration: ENTRANCE_DURATION_S,
+            times: [0, 0.75, 1],
+            ease: "easeOut" as const,
+          },
+        }
+    : undefined;
+  // The dying card dissolves IN PLACE (opacity + slight scale-up) — "poof" —
+  // while AnimatePresence keeps it mounted long enough to play this as the
+  // replacement's entrance plays simultaneously (default "sync" mode). x and
+  // rotate are pinned to their resting values here — without this, exit
+  // would otherwise interpolate x back toward entranceInitialX (its mount
+  // origin), producing a backward jump instead of poofing where it rests.
+  const outerExit = hasCharacter
+    ? prefersReducedMotion
+      ? { x: "0px", rotate: 0, opacity: 0, transition: { duration: 0 } }
+      : {
+          x: "0px",
+          rotate: 0,
+          opacity: 0,
+          scale: EXIT_SCALE_UP,
+          transition: { duration: EXIT_DISSOLVE_DURATION_S, ease: "easeOut" as const },
+        }
+    : { opacity: 0, transition: { duration: 0 } };
+
   return (
-    <motion.div
-      // The key must be the character id ALONE (no beat info) — a surviving
-      // fighter keeps the same id across beats, so React keeps the same
-      // element and this entrance does not replay. A new/replacement
-      // fighter gets a new id, remounts, and slides in.
-      key={character?.id ?? "empty"}
-      // rotate's starting value comes from the first frame of its own
-      // keyframe array below (kept out of `initial` to avoid conflicting
-      // with that array), so only x needs an explicit initial here.
-      initial={{ x: entranceInitialX }}
-      // rotate HOLDS at the tilt through most of the flight (still off-screen)
-      // and only straightens in the final stretch, once the card is visible —
-      // see the per-property `rotate` transition below for its own timing.
-      animate={{ x: "0px", rotate: [entranceInitialRotate, entranceInitialRotate, 0] }}
-      transition={
-        prefersReducedMotion
-          ? { duration: 0 }
-          : {
-              duration: ENTRANCE_DURATION_S,
-              ease: "easeOut",
-              rotate: {
-                duration: ENTRANCE_DURATION_S,
-                times: [0, 0.75, 1],
-                ease: "easeOut",
-              },
-            }
-      }
-      className="shrink-0"
-    >
+    <AnimatePresence mode="popLayout">
       <motion.div
-        // Re-triggers on every shouldAnimateClash false->true transition. This
-        // relies on a non-CLASH beat (TURN_START) always separating
-        // consecutive CLASH beats; if clashes ever become adjacent, this needs
-        // a keyed remount instead of a prop-driven animate transition.
-        animate={
-          shouldAnimateClash
-            ? {
-                x: clashKeyframeOffsetsPx,
-                rotate: clashKeyframeRotationDegrees,
-              }
-            : { x: 0, rotate: 0 }
-        }
-        transition={
-          shouldAnimateClash
-            ? {
-                duration: totalDurationSeconds,
-                times: CLASH_KEYFRAME_TIMES,
-                ease: CLASH_KEYFRAME_EASES,
-              }
-            : undefined
-        }
+        // The key must be the character id ALONE (no beat info) — a surviving
+        // fighter keeps the same id across beats, so React keeps the same
+        // element and this entrance does not replay. A new/replacement
+        // fighter gets a new id, remounts, and slides in.
+        key={character?.id ?? "empty"}
+        // rotate's starting value comes from the first frame of its own
+        // keyframe array below (kept out of `initial` to avoid conflicting
+        // with that array), so only x needs an explicit initial here.
+        initial={outerInitial}
+        // rotate HOLDS at the tilt through most of the flight (still off-screen)
+        // and only straightens in the final stretch, once the card is visible —
+        // see the per-property `rotate` transition below for its own timing.
+        animate={outerAnimate}
+        transition={outerTransition}
+        exit={outerExit}
+        className="shrink-0"
       >
-        <div
-          className="relative h-64 w-48 overflow-hidden rounded-lg bg-slate-200 p-3"
-          style={{ boxShadow: "var(--shadow-recess)" }}
+        <motion.div
+          // Re-triggers on every shouldAnimateClash false->true transition. This
+          // relies on a non-CLASH beat (TURN_START) always separating
+          // consecutive CLASH beats; if clashes ever become adjacent, this needs
+          // a keyed remount instead of a prop-driven animate transition.
+          animate={
+            shouldAnimateClash
+              ? {
+                  x: clashKeyframeOffsetsPx,
+                  rotate: clashKeyframeRotationDegrees,
+                }
+              : { x: 0, rotate: 0 }
+          }
+          transition={
+            shouldAnimateClash
+              ? {
+                  duration: totalDurationSeconds,
+                  times: CLASH_KEYFRAME_TIMES,
+                  ease: CLASH_KEYFRAME_EASES,
+                }
+              : undefined
+          }
         >
           {character ? (
-            <CharacterCard
-              character={character}
-              facing={facing}
-              variant="full"
-              animateHpDrop={shouldAnimateClash}
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center text-2xl text-slate-50/30">
-              —
+            <div
+              className="relative h-64 w-48 overflow-hidden rounded-lg bg-slate-200 p-3"
+              style={{ boxShadow: "var(--shadow-recess)" }}
+            >
+              <CharacterCard
+                character={character}
+                facing={facing}
+                variant="full"
+                animateHpDrop={shouldAnimateClash}
+              />
             </div>
+          ) : (
+            // A wiped side's slot: no visible box (no background/border/shadow/
+            // text) but the SAME h-64 w-48 footprint, so the flex row's layout
+            // is unaffected — otherwise justify-center would re-center around
+            // the surviving card and InfoScroll (the popLayout-class bug).
+            <div className="h-64 w-48" />
           )}
-        </div>
+        </motion.div>
       </motion.div>
-    </motion.div>
+    </AnimatePresence>
   );
 }
