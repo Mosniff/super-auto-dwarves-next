@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   beatDurationMs,
+  DROP_BEAT_DURATION_MS,
   EVENTFUL_BEAT_DURATION_MS,
   QUIET_BEAT_DURATION_MS,
 } from "./beatDurationMs";
@@ -10,8 +11,8 @@ describe("beatDurationMs", () => {
     expect(beatDurationMs("CLASH")).toBe(EVENTFUL_BEAT_DURATION_MS);
   });
 
-  it("returns the eventful duration for a DROP beat", () => {
-    expect(beatDurationMs("DROP")).toBe(EVENTFUL_BEAT_DURATION_MS);
+  it("returns the drop duration for a DROP beat", () => {
+    expect(beatDurationMs("DROP")).toBe(DROP_BEAT_DURATION_MS);
   });
 
   it("returns the quiet duration for a TURN_START beat", () => {
@@ -34,8 +35,8 @@ describe("beatDurationMs", () => {
     expect(beatDurationMs(undefined)).toBe(QUIET_BEAT_DURATION_MS);
   });
 
-  it("both durations are at most 800ms", () => {
-    expect(EVENTFUL_BEAT_DURATION_MS).toBeLessThanOrEqual(800);
-    expect(QUIET_BEAT_DURATION_MS).toBeLessThanOrEqual(800);
+  it("no beat duration exceeds the DROP ceiling (autoplay steps its fixed timer by the max beat duration, so nothing may be longer than DROP_BEAT_DURATION_MS)", () => {
+    expect(EVENTFUL_BEAT_DURATION_MS).toBeLessThanOrEqual(DROP_BEAT_DURATION_MS);
+    expect(QUIET_BEAT_DURATION_MS).toBeLessThanOrEqual(DROP_BEAT_DURATION_MS);
   });
 });

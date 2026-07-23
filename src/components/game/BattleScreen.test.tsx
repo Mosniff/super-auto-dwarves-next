@@ -7,7 +7,7 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 import { render, screen, fireEvent, act } from "@testing-library/react";
 import { BattleScreen } from "./BattleScreen";
 
-const AUTOPLAY_INTERVAL_MS = 800;
+const AUTOPLAY_INTERVAL_MS = 1100;
 // Comfortably more ticks than the dummy rosters' battle has beats.
 const AUTOPLAY_TICKS_TO_RUN_OUT_THE_BATTLE = 40;
 

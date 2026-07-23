@@ -32,6 +32,10 @@ const CLASH_KEYFRAME_EASES: Easing[] = [
 
 const ENTRANCE_DURATION_S = 0.35;
 const ENTRANCE_TILT_DEGREES = 45; // tuned by eye by the human
+// Waits for the roster's front card to finish its launch off the bench
+// before the active card flies on, so the handoff reads as "left the bench,
+// then arrived" rather than both happening at once.
+const ENTRANCE_DELAY_S = 0.5;
 
 const EXIT_DISSOLVE_DURATION_S = 0.4; // tuned by eye by the human
 const EXIT_SCALE_UP = 1.1;
@@ -111,6 +115,7 @@ export function ActiveCard({
     ? prefersReducedMotion
       ? { duration: 0 }
       : {
+          delay: ENTRANCE_DELAY_S,
           duration: ENTRANCE_DURATION_S,
           ease: "easeOut" as const,
           rotate: {

@@ -5,7 +5,7 @@ import { useBattlePlayback } from "./useBattlePlayback";
 import { resolveBattle } from "@/lib/battle/resolveBattle";
 import type { Character } from "@/lib/battle/types";
 
-const AUTOPLAY_INTERVAL_MS = 800;
+const AUTOPLAY_INTERVAL_MS = 1100;
 
 function buildResolvedBattle() {
   const playerCharacters: Character[] = [
