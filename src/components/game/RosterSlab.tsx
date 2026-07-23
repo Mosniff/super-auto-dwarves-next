@@ -23,7 +23,14 @@ export function RosterSlab({
         }`}
       >
         {slots.map((character, i) => (
-          <div key={character?.id ?? i} className="flex-1">
+          // Keyed by POSITION, not by the occupant's id: the slot is fixed
+          // furniture and must PERSIST as the same component instance while
+          // its occupant changes, so that RosterSlot's internal
+          // AnimatePresence can observe the swap and play exit+entrance.
+          // Keying by character id here would remount the whole RosterSlot
+          // (including AnimatePresence) on every occupant change, which is
+          // exactly the bug this fixes.
+          <div key={i} className="flex-1">
             <RosterSlot
               character={character}
               facing={facing}
