@@ -16,8 +16,10 @@ interface ActiveCardProps {
 }
 
 // Starting values — the human tunes these by eye.
-const WIND_UP_OFFSET_PX = 120;
-const LUNGE_OFFSET_PX = 40;
+// Scaled 1.5x to match the card's 50% size increase (h-64 w-48 -> h-96 w-72),
+// so the lunge still reads at the same proportion of card width as before.
+const WIND_UP_OFFSET_PX = 180;
+const LUNGE_OFFSET_PX = 60;
 const OVERSHOOT_OFFSET_PX = 8;
 const LEAN_DEGREES = 15; // deep lean-back during wind-up
 const FOLLOW_THROUGH_DEGREES = 5; // smaller swing past neutral on the lunge
@@ -188,8 +190,13 @@ export function ActiveCard({
         >
           {character ? (
             <div
-              className="relative h-64 w-48 overflow-hidden rounded-lg bg-slate-200 p-3"
-              style={{ boxShadow: "var(--shadow-recess)" }}
+              className="relative h-96 w-72 overflow-hidden rounded-xl border-2 p-3"
+              style={{
+                backgroundColor: "var(--color-portrait-brown)",
+                borderColor: "var(--color-portrait-brown-rim)",
+                boxShadow:
+                  "0 6px 16px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12)",
+              }}
             >
               <CharacterCard
                 character={character}
@@ -200,10 +207,10 @@ export function ActiveCard({
             </div>
           ) : (
             // A wiped side's slot: no visible box (no background/border/shadow/
-            // text) but the SAME h-64 w-48 footprint, so the flex row's layout
+            // text) but the SAME h-96 w-72 footprint, so the flex row's layout
             // is unaffected — otherwise justify-center would re-center around
             // the surviving card and InfoScroll (the popLayout-class bug).
-            <div className="h-64 w-48" />
+            <div className="h-96 w-72" />
           )}
         </motion.div>
       </motion.div>
