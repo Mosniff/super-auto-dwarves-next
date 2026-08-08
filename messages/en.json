@@ -1,0 +1,16 @@
+{
+  "common": {
+    "appName": "Super Auto Dwarves"
+  },
+  "battle": {
+    "battleStart": "Battle start!",
+    "turnStart": "Turn {turn}",
+    "attack": "{attacker} attacks {target}",
+    "damage": "{target} takes {amount} damage ({resultingHp} HP)",
+    "drop": "{character} drops",
+    "timeout": "Turn limit reached — stalemate",
+    "victory": "Victory!",
+    "defeat": "Defeat",
+    "draw": "Draw"
+  }
+}

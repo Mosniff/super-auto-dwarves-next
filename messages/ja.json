@@ -1,0 +1,16 @@
+{
+  "common": {
+    "appName": "スーパーオートドワーフ"
+  },
+  "battle": {
+    "battleStart": "バトル開始！",
+    "turnStart": "ターン{turn}",
+    "attack": "{attacker}が{target}をこうげき！",
+    "damage": "{target}に{amount}ダメージ！（残りHP {resultingHp}）",
+    "drop": "{character}が倒れた",
+    "timeout": "ターン上限に到達 — 引き分け",
+    "victory": "勝利！",
+    "defeat": "敗北",
+    "draw": "引き分け"
+  }
+}

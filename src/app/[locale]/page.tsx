@@ -1,13 +1,16 @@
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function HomePage() {
+  const t = useTranslations("common");
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-8 p-6">
       <div className="text-center">
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
-          Super Auto Dwarves
+          {t("appName")}
         </h1>
         <p className="mt-3 text-muted-foreground">
           A fantasy auto-battler. Build your roster. Delve deep.
