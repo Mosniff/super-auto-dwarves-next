@@ -77,3 +77,16 @@ export interface ResolvedBattle {
   initialState: BattleState;
   events: BattleEvent[];
 }
+
+// Structured, language-agnostic descriptors for the battle log — one per
+// BattleEvent kind, carrying only the resolved params a future per-locale
+// message layer needs. Keyed on `kind` (not `type`) to stay visually
+// distinct from BattleEventPayload's discriminant.
+export type BattleEventDescriptor =
+  | { kind: "battleStart" }
+  | { kind: "turnStart"; turn: number }
+  | { kind: "attack"; attacker: string; target: string }
+  | { kind: "damage"; target: string; amount: number; resultingHp: number }
+  | { kind: "drop"; character: string }
+  | { kind: "timeout" }
+  | { kind: "battleEnd"; outcome: "playerWin" | "enemyWin" | "draw" };

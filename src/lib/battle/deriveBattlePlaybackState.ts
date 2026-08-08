@@ -1,12 +1,17 @@
-import type { BattleState, BeatType, ResolvedBattle } from "./types";
+import type {
+  BattleEventDescriptor,
+  BattleState,
+  BeatType,
+  ResolvedBattle,
+} from "./types";
 import { applyEvent } from "./applyEvent";
-import { formatBattleEvent } from "./formatBattleEvent";
+import { describeBattleEvent } from "./describeBattleEvent";
 import { buildNameMap } from "./buildNameMap";
 
 interface BattlePlaybackView {
   currentState: BattleState;
-  currentBeatLines: string[];
-  allBeatLines: string[][];
+  currentBeatDescriptors: BattleEventDescriptor[];
+  allBeatDescriptors: BattleEventDescriptor[][];
   isFinished: boolean;
   currentBeatType: BeatType | undefined;
 }
@@ -31,15 +36,17 @@ export function deriveBattlePlaybackState(
     ...resolvedBattle.events.map((event) => event.beatIndex),
   );
 
-  const allBeatLines: string[][] = Array.from(
+  const allBeatDescriptors: BattleEventDescriptor[][] = Array.from(
     { length: highestBeat + 1 },
     () => [],
   );
   for (const event of resolvedBattle.events) {
-    allBeatLines[event.beatIndex].push(formatBattleEvent(event, nameMap));
+    allBeatDescriptors[event.beatIndex].push(
+      describeBattleEvent(event, nameMap),
+    );
   }
 
-  const currentBeatLines = allBeatLines[viewingBeat] ?? [];
+  const currentBeatDescriptors = allBeatDescriptors[viewingBeat] ?? [];
 
   const isFinished = playbackBeat >= highestBeat;
 
@@ -49,8 +56,8 @@ export function deriveBattlePlaybackState(
 
   return {
     currentState,
-    currentBeatLines,
-    allBeatLines,
+    currentBeatDescriptors,
+    allBeatDescriptors,
     isFinished,
     currentBeatType,
   };

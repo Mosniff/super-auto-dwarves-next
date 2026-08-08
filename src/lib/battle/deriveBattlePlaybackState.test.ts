@@ -22,14 +22,14 @@ describe("deriveBattlePlaybackState", () => {
     const playbackView = deriveBattlePlaybackState(resolvedBattle, -1, -1);
 
     expect(playbackView.currentState).toEqual(resolvedBattle.initialState);
-    expect(playbackView.currentBeatLines).toEqual([]);
+    expect(playbackView.currentBeatDescriptors).toEqual([]);
     expect(playbackView.isFinished).toBe(false);
   });
 
   it("at playbackBeat 0 / viewingBeat 0: only BATTLE_START is applied", () => {
     const playbackView = deriveBattlePlaybackState(resolvedBattle, 0, 0);
 
-    expect(playbackView.currentBeatLines).toEqual(["Battle start!"]);
+    expect(playbackView.currentBeatDescriptors).toEqual([{ kind: "battleStart" }]);
     expect(playbackView.isFinished).toBe(false);
   });
 
@@ -45,7 +45,7 @@ describe("deriveBattlePlaybackState", () => {
       clashBeat,
     );
 
-    expect(playbackView.currentBeatLines.length).toBe(4);
+    expect(playbackView.currentBeatDescriptors.length).toBe(4);
   });
 
   it("at the final beat, isFinished is true and the derived state matches a full manual reduce", () => {
@@ -77,7 +77,7 @@ describe("deriveBattlePlaybackState", () => {
     );
 
     expect(playbackView.currentState).toEqual(manuallyReducedState);
-    expect(playbackView.currentBeatLines).toEqual(["Battle start!"]);
+    expect(playbackView.currentBeatDescriptors).toEqual([{ kind: "battleStart" }]);
   });
 
   it("at a clash beat, currentBeatType is CLASH", () => {
