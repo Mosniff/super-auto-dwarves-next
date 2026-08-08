@@ -109,7 +109,7 @@ export function useBattlePlayback(resolvedBattle: ResolvedBattle) {
 
   return {
     currentState: view.currentState,
-    currentBeatLines: view.currentBeatLines,
+    currentBeatDescriptors: view.currentBeatDescriptors,
     currentBeatType: view.currentBeatType,
     isFinished: view.isFinished,
     advance,

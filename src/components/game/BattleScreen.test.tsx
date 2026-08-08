@@ -4,7 +4,7 @@
 // (animations, discard pile, etc.), add tests here — always querying by
 // user-facing semantics (role/name/text), never by markup.
 import { describe, it, expect, afterEach, vi } from "vitest";
-import { render, screen, fireEvent, act } from "@testing-library/react";
+import { renderWithMessages, screen, fireEvent, act } from "@/test/renderWithMessages";
 import { BattleScreen } from "./BattleScreen";
 
 const AUTOPLAY_INTERVAL_MS = 1100;
@@ -13,7 +13,7 @@ const AUTOPLAY_TICKS_TO_RUN_OUT_THE_BATTLE = 40;
 
 describe("BattleScreen", () => {
   it("renders the battle screen with the advance and autoplay controls", () => {
-    render(<BattleScreen />);
+    renderWithMessages(<BattleScreen />);
 
     expect(
       screen.getByRole("button", { name: /advance/i }),
@@ -33,7 +33,7 @@ describe("BattleScreen", () => {
       // for fake timers; the post-advance lock still needs releasing
       // between clicks via vi.advanceTimersByTime.
       vi.useFakeTimers();
-      render(<BattleScreen />);
+      renderWithMessages(<BattleScreen />);
 
       const advanceButton = screen.getByRole("button", { name: /advance/i });
 
@@ -57,7 +57,7 @@ describe("BattleScreen", () => {
 
     it("autoplay progresses and then stops at the end", () => {
       vi.useFakeTimers();
-      render(<BattleScreen />);
+      renderWithMessages(<BattleScreen />);
 
       const autoplayToggle = screen.getByRole("button", {
         name: /autoplay/i,

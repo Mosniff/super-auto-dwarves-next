@@ -3,7 +3,9 @@ import englishMessages from "../../messages/en.json";
 import japaneseMessages from "../../messages/ja.json";
 
 describe("locale message parity", () => {
-  const expectedCommonKeys = ["appName"];
+  // Extended when the battle-log control buttons (Advance, Autoplay: On/Off)
+  // were internationalized — deliberate test-data update, not a weakening.
+  const expectedCommonKeys = ["appName", "advance", "autoplayOn", "autoplayOff"];
   const expectedBattleKeys = [
     "battleStart",
     "turnStart",

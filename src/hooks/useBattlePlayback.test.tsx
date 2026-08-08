@@ -38,7 +38,9 @@ describe("useBattlePlayback", () => {
       result.current.advance();
     });
 
-    expect(result.current.currentBeatLines).toEqual(["Battle start!"]);
+    expect(result.current.currentBeatDescriptors).toEqual([
+      { kind: "battleStart" },
+    ]);
     expect(result.current.isFinished).toBe(false);
   });
 
@@ -65,7 +67,9 @@ describe("useBattlePlayback", () => {
       }
 
       expect(result.current.isFinished).toBe(true);
-      expect(result.current.currentBeatLines).toEqual(["Victory!"]);
+      expect(result.current.currentBeatDescriptors).toEqual([
+        { kind: "battleEnd", outcome: "playerWin" },
+      ]);
 
       // advancing again past the end must not error or change anything
       act(() => {
@@ -73,7 +77,9 @@ describe("useBattlePlayback", () => {
       });
 
       expect(result.current.isFinished).toBe(true);
-      expect(result.current.currentBeatLines).toEqual(["Victory!"]);
+      expect(result.current.currentBeatDescriptors).toEqual([
+        { kind: "battleEnd", outcome: "playerWin" },
+      ]);
     });
 
     it("viewPreviousBeat / viewNextBeat move the view without changing battle state", () => {
@@ -98,7 +104,9 @@ describe("useBattlePlayback", () => {
       });
 
       expect(result.current.currentState).toEqual(finalState);
-      expect(result.current.currentBeatLines).toEqual(["Grukk drops"]);
+      expect(result.current.currentBeatDescriptors).toEqual([
+        { kind: "drop", character: "Grukk" },
+      ]);
       expect(result.current.canViewNext).toBe(true);
 
       act(() => {
@@ -106,7 +114,9 @@ describe("useBattlePlayback", () => {
       });
 
       expect(result.current.currentState).toEqual(finalState);
-      expect(result.current.currentBeatLines).toEqual(["Victory!"]);
+      expect(result.current.currentBeatDescriptors).toEqual([
+        { kind: "battleEnd", outcome: "playerWin" },
+      ]);
       expect(result.current.canViewNext).toBe(false);
     });
   });
@@ -133,13 +143,17 @@ describe("useBattlePlayback", () => {
         vi.advanceTimersByTime(AUTOPLAY_INTERVAL_MS);
       });
 
-      expect(result.current.currentBeatLines).toEqual(["Battle start!"]);
+      expect(result.current.currentBeatDescriptors).toEqual([
+        { kind: "battleStart" },
+      ]);
 
       act(() => {
         vi.advanceTimersByTime(AUTOPLAY_INTERVAL_MS);
       });
 
-      expect(result.current.currentBeatLines).toEqual(["Turn 1"]);
+      expect(result.current.currentBeatDescriptors).toEqual([
+        { kind: "turnStart", turn: 1 },
+      ]);
     });
 
     it("autoplay stops at the final beat", () => {
@@ -170,7 +184,9 @@ describe("useBattlePlayback", () => {
         vi.advanceTimersByTime(AUTOPLAY_INTERVAL_MS);
       });
 
-      expect(result.current.currentBeatLines).toEqual(["Battle start!"]);
+      expect(result.current.currentBeatDescriptors).toEqual([
+        { kind: "battleStart" },
+      ]);
 
       act(() => {
         result.current.pause();
@@ -182,7 +198,9 @@ describe("useBattlePlayback", () => {
         vi.advanceTimersByTime(AUTOPLAY_INTERVAL_MS);
       });
 
-      expect(result.current.currentBeatLines).toEqual(["Battle start!"]);
+      expect(result.current.currentBeatDescriptors).toEqual([
+        { kind: "battleStart" },
+      ]);
     });
 
     it("the interval is cleaned up on unmount", () => {
@@ -230,14 +248,15 @@ describe("useBattlePlayback", () => {
         result.current.advance();
       });
 
-      const beatLinesAfterFirstAdvance = result.current.currentBeatLines;
+      const beatDescriptorsAfterFirstAdvance =
+        result.current.currentBeatDescriptors;
 
       act(() => {
         result.current.advance();
       });
 
-      expect(result.current.currentBeatLines).toEqual(
-        beatLinesAfterFirstAdvance,
+      expect(result.current.currentBeatDescriptors).toEqual(
+        beatDescriptorsAfterFirstAdvance,
       );
     });
 
@@ -258,7 +277,9 @@ describe("useBattlePlayback", () => {
         result.current.advance();
       });
 
-      expect(result.current.currentBeatLines).toEqual(["Turn 1"]);
+      expect(result.current.currentBeatDescriptors).toEqual([
+        { kind: "turnStart", turn: 1 },
+      ]);
     });
 
     it("canAdvance is false while autoplay is playing", () => {

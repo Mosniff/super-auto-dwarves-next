@@ -1,6 +1,9 @@
 {
   "common": {
-    "appName": "スーパーオートドワーフ"
+    "appName": "スーパーオートドワーフ",
+    "advance": "進む",
+    "autoplayOn": "オートプレイ：オン",
+    "autoplayOff": "オートプレイ：オフ"
   },
   "battle": {
     "battleStart": "バトル開始！",

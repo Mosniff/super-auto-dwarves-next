@@ -1,14 +1,14 @@
 import { ActiveCard } from "@/components/game/ActiveCard";
 import { DiscardPile } from "@/components/game/DiscardPile";
 import { InfoScroll } from "@/components/game/InfoScroll";
-import type { BeatType, Character } from "@/lib/battle/types";
+import type { BattleEventDescriptor, BeatType, Character } from "@/lib/battle/types";
 
 interface ActionZoneProps {
   playerFrontCharacter?: Character;
   enemyFrontCharacter?: Character;
   playerDownedCharacters: Character[];
   enemyDownedCharacters: Character[];
-  currentBeatLines: string[];
+  currentBeatDescriptors: BattleEventDescriptor[];
   currentBeatType?: BeatType;
   onAdvance: () => void;
   canAdvance: boolean;
@@ -27,7 +27,7 @@ export function ActionZone({
   enemyFrontCharacter,
   playerDownedCharacters,
   enemyDownedCharacters,
-  currentBeatLines,
+  currentBeatDescriptors,
   currentBeatType,
   onAdvance,
   canAdvance,
@@ -54,7 +54,7 @@ export function ActionZone({
         />
         <div className="h-64 w-md">
           <InfoScroll
-            currentBeatLines={currentBeatLines}
+            currentBeatDescriptors={currentBeatDescriptors}
             onAdvance={onAdvance}
             canAdvance={canAdvance}
             isFinished={isFinished}

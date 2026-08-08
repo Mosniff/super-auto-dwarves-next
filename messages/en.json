@@ -1,6 +1,9 @@
 {
   "common": {
-    "appName": "Super Auto Dwarves"
+    "appName": "Super Auto Dwarves",
+    "advance": "Advance",
+    "autoplayOn": "Autoplay: On",
+    "autoplayOff": "Autoplay: Off"
   },
   "battle": {
     "battleStart": "Battle start!",

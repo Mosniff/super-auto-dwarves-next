@@ -16,7 +16,7 @@ export function BattleScreen() {
 
   const {
     currentState,
-    currentBeatLines,
+    currentBeatDescriptors,
     currentBeatType,
     isFinished,
     advance,
@@ -40,7 +40,7 @@ export function BattleScreen() {
           enemyFrontCharacter={currentState.enemy.activeCharacters[0]}
           playerDownedCharacters={currentState.player.downedCharacters}
           enemyDownedCharacters={currentState.enemy.downedCharacters}
-          currentBeatLines={currentBeatLines}
+          currentBeatDescriptors={currentBeatDescriptors}
           currentBeatType={currentBeatType}
           onAdvance={advance}
           canAdvance={canAdvance}

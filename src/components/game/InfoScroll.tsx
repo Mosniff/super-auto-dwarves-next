@@ -1,7 +1,10 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
+import { battleLogMessage } from "@/components/game/battleLogMessage";
+import type { BattleEventDescriptor } from "@/lib/battle/types";
 
 const ROD_GRADIENT =
   "linear-gradient(to bottom, var(--color-parchment-200), var(--color-parchment-50) 45%, var(--color-parchment-400))";
@@ -14,7 +17,7 @@ const CONTROL_BUTTON_CLASS_NAME =
   "border-ink-700/40 bg-parchment-50 text-ink-700 hover:bg-parchment-200 hover:text-ink-900";
 
 interface InfoScrollProps {
-  currentBeatLines: string[];
+  currentBeatDescriptors: BattleEventDescriptor[];
   onAdvance: () => void;
   canAdvance: boolean;
   isFinished: boolean;
@@ -28,7 +31,7 @@ interface InfoScrollProps {
 }
 
 export function InfoScroll({
-  currentBeatLines,
+  currentBeatDescriptors,
   onAdvance,
   canAdvance,
   isFinished,
@@ -40,6 +43,9 @@ export function InfoScroll({
   onPlay,
   onPause,
 }: InfoScrollProps) {
+  const t = useTranslations("battle");
+  const translateCommon = useTranslations("common");
+
   return (
     <div className="flex h-full flex-col">
       <div
@@ -62,13 +68,17 @@ export function InfoScroll({
             <ChevronLeft />
           </Button>
 
-          {currentBeatLines.length > 0 ? (
+          {currentBeatDescriptors.length > 0 ? (
             <ul className="min-h-0 flex-1 space-y-1 overflow-y-auto">
-              {currentBeatLines.map((currentBeatLine, index) => (
-                <li key={index} className="text-sm text-ink-700">
-                  {currentBeatLine}
-                </li>
-              ))}
+              {currentBeatDescriptors.map((currentBeatDescriptor, index) => {
+                const message = battleLogMessage(currentBeatDescriptor);
+
+                return (
+                  <li key={index} className="text-sm text-ink-700">
+                    {t(message.key, message.params)}
+                  </li>
+                );
+              })}
             </ul>
           ) : (
             <div className="flex flex-1 items-center justify-center text-sm text-ink-700/30">
@@ -95,7 +105,9 @@ export function InfoScroll({
             disabled={isFinished}
             className={CONTROL_BUTTON_CLASS_NAME}
           >
-            {isPlaying ? "Autoplay: On" : "Autoplay: Off"}
+            {isPlaying
+              ? translateCommon("autoplayOn")
+              : translateCommon("autoplayOff")}
           </Button>
           <Button
             variant="outline"
@@ -104,7 +116,7 @@ export function InfoScroll({
             disabled={!canAdvance}
             className={CONTROL_BUTTON_CLASS_NAME}
           >
-            Advance
+            {translateCommon("advance")}
           </Button>
         </div>
       </div>
