@@ -4,8 +4,19 @@ import japaneseMessages from "../../messages/ja.json";
 
 describe("locale message parity", () => {
   // Extended when the battle-log control buttons (Advance, Autoplay: On/Off)
+  // and the menu page / game header (tagline, play, settings, menu, language)
   // were internationalized — deliberate test-data update, not a weakening.
-  const expectedCommonKeys = ["appName", "advance", "autoplayOn", "autoplayOff"];
+  const expectedCommonKeys = [
+    "appName",
+    "advance",
+    "autoplayOn",
+    "autoplayOff",
+    "tagline",
+    "play",
+    "settings",
+    "menu",
+    "language",
+  ];
   const expectedBattleKeys = [
     "battleStart",
     "turnStart",

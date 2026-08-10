@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -12,18 +12,16 @@ export default function HomePage() {
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">
           {t("appName")}
         </h1>
-        <p className="mt-3 text-muted-foreground">
-          A fantasy auto-battler. Build your roster. Delve deep.
-        </p>
+        <p className="mt-3 text-muted-foreground">{t("tagline")}</p>
       </div>
 
       <Card className="w-full max-w-sm">
         <CardContent className="flex flex-col gap-3">
           <Button className="w-full" size="lg" asChild>
-            <Link href="/play">Play</Link>
+            <Link href="/play">{t("play")}</Link>
           </Button>
           <Button className="w-full" size="lg" variant="outline">
-            Settings
+            {t("settings")}
           </Button>
         </CardContent>
       </Card>

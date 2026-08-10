@@ -3,7 +3,12 @@
     "appName": "Super Auto Dwarves",
     "advance": "Advance",
     "autoplayOn": "Autoplay: On",
-    "autoplayOff": "Autoplay: Off"
+    "autoplayOff": "Autoplay: Off",
+    "tagline": "A fantasy auto-battler. Build your roster. Delve deep.",
+    "play": "Play",
+    "settings": "Settings",
+    "menu": "← Menu",
+    "language": "Language"
   },
   "battle": {
     "battleStart": "Battle start!",

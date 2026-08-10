@@ -3,7 +3,12 @@
     "appName": "スーパーオートドワーフ",
     "advance": "進む",
     "autoplayOn": "オートプレイ：オン",
-    "autoplayOff": "オートプレイ：オフ"
+    "autoplayOff": "オートプレイ：オフ",
+    "tagline": "ファンタジーオートバトラー。ロスターを編成し、深淵へ挑め。",
+    "play": "プレイ",
+    "settings": "せってい",
+    "menu": "← メニュー",
+    "language": "言語"
   },
   "battle": {
     "battleStart": "バトル開始！",
