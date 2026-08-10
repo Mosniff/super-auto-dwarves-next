@@ -201,6 +201,22 @@ The fundamental battle system should be covered exhaustively at this level befor
 
 ---
 
+## Internationalization (i18n)
+
+The app is multilingual (currently English + Japanese) via next-intl with route-segment locales (/en/..., /ja/...). The guiding principle is the same one that governs everything else: keep language out of the pure logic. Translation is a presentation concern and lives entirely in the presentation layer.
+
+The pure layer is language-agnostic — this is load-bearing. src/lib/battle/ never produces user-facing prose. The battle log is emitted as BattleEventDescriptor values (see types.ts): structured, language-neutral descriptors carrying resolved params ({ kind: "damage", target, amount, resultingHp }), keyed on kind. The resolver and deriveBattlePlaybackState deal only in descriptors. Never put a translatable string, a locale, or a useTranslations call inside src/lib/battle/ — if you're tempted to format a sentence there, emit a descriptor instead and translate it at the edge. This is what lets battle logic stay pure, framework-free, and testable without a locale.
+
+Translation happens at the leaf, not in between. Descriptors flow untouched through the hook (useBattlePlayback) and the intermediate components; only the leaf that actually renders text (InfoScroll) translates them. It maps each descriptor to a message key + params via the pure helper battleLogMessage (descriptor → { key, params }), then renders useTranslations("battle"). Consequences that must be preserved: the hook returns descriptors, so its tests need no i18n provider; and battleLogMessage is pure, so the descriptor→key mapping (including the battleEnd outcome→key indirection: playerWin→victory, etc.) is exhaustively unit-testable without rendering. Note the descriptor carries the raw outcome; the victory/defeat/draw key choice is battleLogMessage's job, not the descriptor's.
+
+Why route segments, not a cookie. Locale is a route segment so the server knows it from the URL — no client round-trip, no flash, shareable/SEO-able URLs, and it's the App Router-native next-intl path. The whole app lives under src/app/[locale]/, which owns <html lang={locale}>; there is no root layout above it. Locale redirects and prefixing are handled by the middleware (see the proxy.ts note under the framework rules).
+
+Character names are game data, not translations — deliberately. Names stay romanized and identical across locales, resolved by the pure layer into descriptors. They are content that will live with the character rows in the database, not translation keys — keeping them out of the message files avoids two stores drifting. (A future romaji→katakana rendering for the Japanese locale was discussed and deliberately deferred; if built, it belongs as character data or a rendering helper, never as translation keys.)
+
+Message files. One flat file per locale (messages/en.json, messages/ja.json), namespaced common.* (UI chrome) and battle.* (log lines). Japanese uses full-width punctuation by convention. A parity test (src/i18n/messages.test.ts) asserts both locales have identical key sets and must be kept green by adding keys to both locales — it is the guard against one locale silently drifting. When you add a user-facing string, add its key to both files and extend the parity test's expected-key list.
+
+---
+
 ## Security / anti-cheat model
 
 **The server is always the source of truth. The client is never trusted.** Anything a player could benefit from cheating at must be computed and validated server-side, against server-held state.
@@ -232,6 +248,14 @@ Use **Vitest**. (Background: Rails fuses logic and persistence in the model laye
 - Shape is the standard **testing pyramid**: many fast pure-logic tests, fewer integration tests.
 - **Do NOT write tests against Supabase itself** — it's infrastructure. Test our own code.
 
+### Testing components under the locale tree
+
+Any component rendered in a test that calls useTranslations (or any next-intl client hook) must render inside next-intl's provider, or it throws. Use the shared renderWithMessages helper (src/test/), which wraps the component in NextIntlClientProvider with the real en.json and locale="en" and re-exports Testing Library. Because it uses the real messages, a missing translation key fails the test — which is the intended safety.
+
+Navigation is globally mocked in tests. Components using locale-aware navigation (@/i18n/navigation's Link, useRouter, usePathname) can't render in jsdom without a mounted Next App Router context. Rather than mount Next internals, @/i18n/navigation is globally mocked in vitest.setup.ts — navigation is a framework boundary (Next/next-intl own it), not our code to unit-test. A test that needs to assert a navigation call can import the mocked useRouter and check it. Do not remove this mock or replace it with per-test mounting of Next's router context.
+
+Two supporting config facts, both deliberate: vitest.config.ts inlines next-intl (test.server.deps.inline) so Vitest's resolver follows Next 16's package export map for next-intl's internal next/navigation import; and shadcn Select (Radix) renders its closed trigger cleanly in jsdom, so switcher-style tests assert the closed state and do not try to open the dropdown (Radix's portal + jsdom is flaky on open).
+
 ---
 
 ## Conventions & guardrails
@@ -246,12 +270,19 @@ Use **Vitest**. (Background: Rails fuses logic and persistence in the model laye
 - Battle logic: never mutate battle state except by creating an event and applying it via the shared `applyEvent`. This keeps the event log complete automatically and keeps backend/frontend consistent. See "Battle data architecture."
 - Use shadcn/ui for standard app UI (menus, buttons, dialogs); these components are copied into the codebase and owned here, so edit them freely.
 - Visual/UI verification is performed by the human, never by an automated agent. Do not install or invoke browser-automation tooling (Playwright, headless Chromium, chromium-cli, screenshot utilities) to check how a page renders. Agents verify with tsc --noEmit, npm test, and npm run build; the human reviews appearance. If a task's success criterion is visual, report that the code changes are complete and let the human check.
+- The locale middleware lives in src/proxy.ts, not middleware.ts. Next 16 deprecated the middleware.ts filename convention in favour of proxy.ts; next-intl's createMiddleware works identically under either name. Do not rename it back to middleware.ts to match older next-intl docs — the deprecation warning is Next's, and proxy.ts is the current convention.
 
 ---
 
 ## Permanently out of scope
 
 - **Live/real-time multiplayer of any kind** — no matchmaking sessions, no synchronous play, no WebSockets/sockets anywhere. Excluded by design, not deferred. PvP is handled via roster snapshots (see above).
+
+---
+
+## Known non-issues (don't chase these)
+
+removeChild ... not a child of this node when a browser translation extension is active. Running Google Translate (or similar) on top of the app can throw this React error, most visibly around the locale switcher's dropdown. It is a dev-environment / browser-extension artifact, not a code defect: the extension mutates the DOM outside React's knowledge, so React later fails to remove a node the extension already moved. It does not reproduce in a production build with the extension off. Do not "fix" this by adding translate="no"/notranslate or contorting components — suppressing translation tooling on an intentionally multilingual app is the wrong trade. Left as-is by design.
 
 ---
 

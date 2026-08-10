@@ -2,7 +2,7 @@
 
 A fantasy auto-battler inspired by Super Auto Pets, Choose Your Own Adventure games, and Dungeons & Dragons. The game features both PvE and asynchronous PvP battles.
 
-> **Status:** Architecture and tech stack decided; project scaffolded. The **fundamental battle system** is now specified (see [Battle system](#battle-system)). Other game systems (cards, progression, shopping, abilities) remain to be defined — see the [Roadmap](#roadmap) and `CLAUDE.md` for contributor/architecture conventions.
+> **Status:** Architecture and tech stack decided; project scaffolded. The **fundamental battle system** is now specified (see [Battle system](#battle-system)), and the app is now **internationalized** (English + Japanese, via next-intl). Other game systems (cards, progression, shopping, abilities) remain to be defined — see the [Roadmap](#roadmap) and `CLAUDE.md` for contributor/architecture conventions.
 
 ---
 
@@ -32,6 +32,7 @@ PvP works without any live connection between players. Because a battle is fully
 | ORM            | **Prisma**                                          | Schema-first, type-safe.                                                                               |
 | Auth           | **Auth.js (NextAuth)**                              | Accounts so rosters persist per user.                                                                  |
 | Data mutations | **Server Actions** (preferred) / Route Handlers     | Idiomatic modern Next.js.                                                                              |
+| Internationalization | **next-intl**                                 | Route-segment locales (/en, /ja); English + Japanese.                                                  |
 | Testing        | **Vitest**                                          | Pure-logic unit tests + lighter integration tests.                                                     |
 | Hosting        | **Vercel**                                          | Next.js's native deployment target.                                                                    |
 
@@ -110,6 +111,7 @@ The **fundamental battle system** is specified (see above). Still to be specifie
 
 - [x] Turn structure and win/loss/draw conditions _(fundamental battle system)_
 - [x] Battle resolution model — event stream, resolve-once/replay-many _(see `CLAUDE.md`)_
+- [x] Internationalization — English + Japanese via next-intl, route-segment locales _(see `CLAUDE.md` → "Internationalization (i18n)")_
 - [ ] Card model and card types
 - [ ] Character stats and progression / leveling rules
 - [ ] Roster construction and constraints (shopping phase)
