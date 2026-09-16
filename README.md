@@ -116,4 +116,4 @@ The **fundamental battle system** is specified (see above). Still to be specifie
 - [ ] Character stats and progression / leveling rules
 - [ ] Roster construction and constraints (shopping phase)
 - [ ] Character abilities and triggered effects (extends the fundamental battle system)
-- [ ] Data model (Prisma schema) for the above
+- [~] Data model (Prisma schema) — the User/Game save model is now defined _(see `CLAUDE.md` → "Persistence & save model")_; schema for the game systems below (cards, progression, abilities) still pending

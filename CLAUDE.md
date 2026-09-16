@@ -239,6 +239,36 @@ Message files. One flat file per locale (messages/en.json, messages/ja.json), na
 
 ---
 
+## Persistence & save model
+
+This defines what is persisted and how a saved game is shaped. It applies the standing rules (server authority, intents-not-outcomes, logic separated from persistence) to the concrete User and Game models. The game systems that will eventually fill these models (cards, shopping, progression, abilities) are still undefined — see "Game logic — not yet specified"; this section defines the save container, not the systems.
+
+A Game is a save-slot of run-state. It holds the durable inputs the pure logic operates on — never derived or presentational state, and never a half-finished battle (consistent with "resolve once, replay many" and "never store per-event snapshots"). Its fields, growing over time:
+
+playerRoster — stored as a JSON column mirroring the domain Roster type (src/lib/battle/types.ts), so it deserializes straight into the value object the pure layer already uses. Deliberately not normalized into related character/slot tables. The roster is always loaded as a whole for its own game, so JSON avoids an ORM-to-domain mapping layer and a relational diff on every mutation (level-up, sell, reorder), at the cost of DB-level queryability we don't need. If a future feature genuinely needs to query across rosters (e.g. global character stats), revisit then — don't pre-normalize.
+gold — the player's current gold in this game (scalar column).
+day — how many camp→battle loops the player has completed (scalar column).
+phase — which part of the loop the player is in (see phase machine below).
+
+Scalars are explicit columns (type-safe, matches Prisma's strengths); the roster is JSON (matches the domain type). This split is deliberate.
+
+One User has at most one Game. Modeled as a separate Game table with a userId and a unique constraint — not as game-state columns on the User row. It's one-to-one today, but a separate table makes the anticipated multi-slot future ("load a game" implies slots) a one-line constraint-drop rather than a table-extraction migration. create inserts a Game (the unique constraint enforces "one game" at the DB level), load fetches it, delete removes it (freeing the user to create again).
+
+The phase machine (newly defined). A game loops between two phases; a brand-new game starts at campPhase, day 1.
+
+campPhase → player advances → battlePhase
+battlePhase → player advances → campPhase, and day increments on this transition
+
+Both transitions are driven by a single player "advance" intent — the battle does not self-advance even though the player takes no material action during it; the player dictates when the loop continues. This keeps the loop consistent with intents-not-outcomes: the player's only lever is "advance," and the server computes what advancing means from the current phase. The transition is a pure function (game state → next game state), TDD'd like the battle resolver. adventurePhase (a future step between camp and battle) is deliberately excluded for now — build the two-state machine, extend later.
+
+Battle currently has no persistent consequence. When the player advances out of battlePhase, the roster carried forward is identical to the one that entered — everyone healed, restored, repositioned; the battle's effects existed only in the playback the player watched. Nothing battle-derived is persisted or consumed. Because battles are deterministic, reloading mid-battlePhase simply re-resolves the identical battle from the locked roster — there is no battle state to lose. This simplicity is a deliberate stepping stone: game-over-on-loss and win-rewards are known future seams that will hang off the battlePhase → campPhase transition (the battle outcome becomes an input to that same pure function). Do not build for them speculatively now, but do not structure the transition in a way that would prevent them.
+
+Auth is Supabase Auth (managed) — sign-up, login, sessions handled by Supabase rather than hand-built.
+
+Mutations follow the existing intents-not-outcomes rule (see "Security / anti-cheat model"): there is never an endpoint that accepts a client-supplied roster or game state. The client sends intents ("advance," later "buy slot 2," "sell slot 3"); the server reads the authoritative Game, validates, runs pure logic, and persists the result. The JSON storage format does not weaken this — cheating is prevented at the API boundary, independent of how the roster is stored.
+
+---
+
 ## Testing
 
 Use **Vitest**. (Background: Rails fuses logic and persistence in the model layer; this stack separates them — so logic is tested in isolation, with no DB.)
@@ -295,6 +325,7 @@ The following are intentionally undefined and **must not be invented**. When def
 - Fundamental battle system: turn structure, simultaneity, drop/shuffle, win/loss/draw (`README.md` → "Battle system").
 - Battle data architecture: event stream, `applyEvent`, resolve-once/replay-many, trigger points, animation beats (this file → "Battle data architecture").
 - `maxHp`: character stat ceiling — clamped only by the resolver, never by `applyEvent` (this file → "Battle data architecture" → "Character stat ceilings").
+- Persistence & save model: the User/Game schema shape, the two-phase (campPhase/battlePhase) machine, and the run-state fields (playerRoster, gold, day, phase) — this file → "Persistence & save model". Note: the save container is defined; the game systems below are not.
 
 **Still undefined:**
 
@@ -302,4 +333,4 @@ The following are intentionally undefined and **must not be invented**. When def
 - [ ] Character stats and progression / leveling rules (`maxHp` is now defined — see "Battle data architecture" → "Character stat ceilings")
 - [ ] Roster construction and constraints (shopping phase)
 - [ ] Character abilities and triggered effects (the listeners at the trigger points)
-- [ ] Data model (Prisma schema) for the above
+- [~] Data model (Prisma schema): the User/Game save container is defined (see "Persistence & save model"); the schema for the game systems below (cards, progression, abilities) remains undefined.
