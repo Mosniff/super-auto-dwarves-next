@@ -8,7 +8,11 @@
     "play": "Play",
     "settings": "Settings",
     "menu": "← Menu",
-    "language": "Language"
+    "language": "Language",
+    "downed": "Downed",
+    "appTitle": "Super Auto Dwarves",
+    "empty": "Empty",
+    "next": "next"
   },
   "battle": {
     "battleStart": "Battle start!",

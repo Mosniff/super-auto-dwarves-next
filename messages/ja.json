@@ -8,7 +8,11 @@
     "play": "プレイ",
     "settings": "せってい",
     "menu": "← メニュー",
-    "language": "言語"
+    "language": "言語",
+    "downed": "倒れた",
+    "appTitle": "スーパーオートドワーフ",
+    "empty": "空",
+    "next": "次"
   },
   "battle": {
     "battleStart": "バトル開始！",

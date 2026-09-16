@@ -5,7 +5,10 @@ import japaneseMessages from "../../messages/ja.json";
 describe("locale message parity", () => {
   // Extended when the battle-log control buttons (Advance, Autoplay: On/Off)
   // and the menu page / game header (tagline, play, settings, menu, language)
-  // were internationalized — deliberate test-data update, not a weakening.
+  // were internationalized, again for the CharacterCard downed overlay and
+  // the localized metadata title (downed, appTitle), and again for the
+  // DiscardPile footprint label and the RosterSlot empty-slot/on-deck
+  // labels (empty, next) — deliberate test-data updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
     "advance",
@@ -16,6 +19,10 @@ describe("locale message parity", () => {
     "settings",
     "menu",
     "language",
+    "downed",
+    "appTitle",
+    "empty",
+    "next",
   ];
   const expectedBattleKeys = [
     "battleStart",

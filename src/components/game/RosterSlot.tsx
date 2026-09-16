@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/battle/types";
 import { CharacterCard } from "./CharacterCard";
 
@@ -30,6 +31,7 @@ export function RosterSlot({
 }: RosterSlotProps) {
   const prefersReducedMotion = useReducedMotion();
   const showNextHalo = isNext && Boolean(character);
+  const t = useTranslations("common");
   // Only the front slot's exit is the grandiose wind-up + launch; every other
   // slot keeps the plain slide. Reduced motion overrides this to an instant
   // pin, same as the plain exit.
@@ -177,7 +179,7 @@ export function RosterSlot({
         </AnimatePresence>
         {!character && (
           <span className="select-none text-[10px] font-medium uppercase tracking-wide text-slate-50/30">
-            Empty
+            {t("empty")}
           </span>
         )}
       </div>
@@ -193,7 +195,7 @@ export function RosterSlot({
               color: "var(--color-parchment-300)",
             }}
           >
-            next
+            {t("next")}
           </span>
         </div>
       )}

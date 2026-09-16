@@ -1,4 +1,5 @@
 import { motion, useReducedMotion } from "motion/react";
+import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/battle/types";
 
 interface DiscardPileProps {
@@ -18,6 +19,7 @@ export function DiscardPile({ downedCharacters }: DiscardPileProps) {
   const prefersReducedMotion = useReducedMotion();
   const downedCount = downedCharacters.length;
   const hasDowned = downedCount >= 1;
+  const t = useTranslations("common");
 
   return (
     <div
@@ -93,7 +95,7 @@ export function DiscardPile({ downedCharacters }: DiscardPileProps) {
             color: "var(--color-iron-300)",
           }}
         >
-          downed
+          {t("downed")}
         </span>
       </div>
     </div>

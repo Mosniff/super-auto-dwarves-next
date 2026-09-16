@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/battle/types";
 import { hpBarFillRatio } from "@/lib/battle/hpBarFillRatio";
 
@@ -55,6 +56,7 @@ export function CharacterCard({
   const styles = VARIANT_STYLES[variant];
   const hpFillRatio = hpBarFillRatio(character.hp, character.maxHp);
   const isDowned = character.hp <= 0;
+  const t = useTranslations("common");
 
   return (
     <div
@@ -84,7 +86,7 @@ export function CharacterCard({
             isDowned ? "opacity-100" : "opacity-0"
           } ${styles.downedLabelText}`}
         >
-          Downed
+          {t("downed")}
         </div>
       </div>
       <div
