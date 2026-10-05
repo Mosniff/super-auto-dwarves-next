@@ -252,6 +252,8 @@ phase — which part of the loop the player is in (see phase machine below).
 
 Scalars are explicit columns (type-safe, matches Prisma's strengths); the roster is JSON (matches the domain type). This split is deliberate.
 
+**Known future seam — camp-roster gaps.** README specifies that players may arrange characters with gaps during the shopping phase, and the roster is squeezed into a gapless line when a battle begins. The saved playerRoster mirrors the battle Roster type, which cannot represent gaps: activeCharacters is a gapless line, and downedCharacters is always empty outside battle. This is accepted deliberately for now, because shopping is unspecified and nothing yet creates gaps. When shopping-phase roster arrangement is specified, revisit the saved roster shape; the squeeze-at-battle-start step is the likely conversion seam between a camp roster and the battle Roster. Do not pre-build a gapped roster type before then.
+
 One User has at most one Game. Modeled as a separate Game table with a userId and a unique constraint — not as game-state columns on the User row. It's one-to-one today, but a separate table makes the anticipated multi-slot future ("load a game" implies slots) a one-line constraint-drop rather than a table-extraction migration. create inserts a Game (the unique constraint enforces "one game" at the DB level), load fetches it, delete removes it (freeing the user to create again).
 
 The phase machine (newly defined). A game loops between two phases; a brand-new game starts at campPhase, day 1.

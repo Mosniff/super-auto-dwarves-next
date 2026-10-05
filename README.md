@@ -30,7 +30,7 @@ PvP works without any live connection between players. Because a battle is fully
 | Animation      | **Framer Motion** (now published as `motion`) + CSS | CSS transitions for trivial state changes; Framer Motion for orchestrated/sequenced game-board motion. |
 | Database       | **PostgreSQL**                                      | Hosted via **Supabase**.                                                                               |
 | ORM            | **Prisma**                                          | Schema-first, type-safe.                                                                               |
-| Auth           | **Auth.js (NextAuth)**                              | Accounts so rosters persist per user.                                                                  |
+| Auth           | **Supabase Auth**                                   | Managed sign-up, login and sessions, so rosters persist per user.                                      |
 | Data mutations | **Server Actions** (preferred) / Route Handlers     | Idiomatic modern Next.js.                                                                              |
 | Internationalization | **next-intl**                                 | Route-segment locales (/en, /ja); English + Japanese.                                                  |
 | Testing        | **Vitest**                                          | Pure-logic unit tests + lighter integration tests.                                                     |
