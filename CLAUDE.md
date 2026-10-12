@@ -267,6 +267,8 @@ Battle currently has no persistent consequence. When the player advances out of 
 
 Auth is Supabase Auth (managed) — sign-up, login, sessions handled by Supabase rather than hand-built.
 
+Identity spans two schemas. Supabase Auth owns auth.users; Prisma owns our public."User", which mirrors the auth user's uuid. There is deliberately NO foreign key between them: Prisma does not support cross-schema foreign keys, and Supabase documents that referencing its managed schemas causes schema drift as it evolves them. The link is therefore a convention, not a constraint. Deletion is reconciled by an after delete trigger on auth.users (see prisma/manual-sql/), which removes our User row and cascades to the Game. Creating our User row on first login is the matching seam, still to be built. Do not add a cross-schema foreign key, and do not list auth in the datasource's schemas property.
+
 Mutations follow the existing intents-not-outcomes rule (see "Security / anti-cheat model"): there is never an endpoint that accepts a client-supplied roster or game state. The client sends intents ("advance," later "buy slot 2," "sell slot 3"); the server reads the authoritative Game, validates, runs pure logic, and persists the result. The JSON storage format does not weaken this — cheating is prevented at the API boundary, independent of how the roster is stored.
 
 ---
