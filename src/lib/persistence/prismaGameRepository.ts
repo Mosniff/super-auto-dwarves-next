@@ -1,0 +1,46 @@
+import { prismaClient } from "./prismaClient";
+import type { Prisma } from "@/generated/prisma/client";
+import type { GameRepository } from "./gameRepository";
+
+// The real GameRepository, backed by Prisma. Deliberately not unit-tested —
+// this is pure Prisma wiring with no logic of its own; it will first be
+// exercised end-to-end in Phase 7.
+export const prismaGameRepository: GameRepository = {
+  async loadGameForUser(userId) {
+    const gameRow = await prismaClient.game.findUnique({
+      where: { userId },
+    });
+
+    if (gameRow === null) {
+      return null;
+    }
+
+    return {
+      gameId: gameRow.id,
+      // Passed straight through, deliberately NOT cast to Roster — casting
+      // here would bypass parsePersistedRoster entirely. Validation is the
+      // handler's job (advanceGameForUser.ts), not this repository's.
+      persistedPlayerRoster: gameRow.playerRoster,
+      gold: gameRow.gold,
+      day: gameRow.day,
+      phase: gameRow.phase,
+    };
+  },
+
+  async saveGameState(gameId, nextGameState) {
+    await prismaClient.game.update({
+      where: { id: gameId },
+      data: {
+        // Cast to Prisma's generic JSON input type, since Roster has no
+        // index signature. This is the opposite direction of the load-side
+        // cast this file avoids: nextGameState.playerRoster already passed
+        // through the validated pure pipeline, so this is just telling
+        // Prisma how to store it, not bypassing any validation.
+        playerRoster: nextGameState.playerRoster as unknown as Prisma.InputJsonValue,
+        gold: nextGameState.gold,
+        day: nextGameState.day,
+        phase: nextGameState.phase,
+      },
+    });
+  },
+};
