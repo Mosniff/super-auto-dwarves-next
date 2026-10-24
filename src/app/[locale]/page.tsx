@@ -1,7 +1,7 @@
 import { useTranslations } from "next-intl";
-import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { startPlayingAction } from "./startPlayingAction";
 
 export default function HomePage() {
   const t = useTranslations("common");
@@ -17,9 +17,11 @@ export default function HomePage() {
 
       <Card className="w-full max-w-sm">
         <CardContent className="flex flex-col gap-3">
-          <Button className="w-full" size="lg" asChild>
-            <Link href="/play">{t("play")}</Link>
-          </Button>
+          <form action={startPlayingAction} className="w-full">
+            <Button type="submit" className="w-full" size="lg">
+              {t("play")}
+            </Button>
+          </form>
           <Button className="w-full" size="lg" variant="outline">
             {t("settings")}
           </Button>
