@@ -21,5 +21,5 @@ export async function startPlayingAction(): Promise<void> {
 
   const locale = await getLocale();
 
-  redirect({ href: "/play", locale });
+  redirect({ href: "/saves", locale });
 }

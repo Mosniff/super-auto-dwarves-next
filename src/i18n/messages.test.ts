@@ -6,9 +6,15 @@ describe("locale message parity", () => {
   // Extended when the battle-log control buttons (Advance, Autoplay: On/Off)
   // and the menu page / game header (tagline, play, settings, menu, language)
   // were internationalized, again for the CharacterCard downed overlay and
-  // the localized metadata title (downed, appTitle), and again for the
+  // the localized metadata title (downed, appTitle), again for the
   // DiscardPile footprint label and the RosterSlot empty-slot/on-deck
-  // labels (empty, next) — deliberate test-data updates, not a weakening.
+  // labels (empty, next), and again for the saves page's SaveSlab (noSavedGame,
+  // newGame, resume, delete, cancel, startedOn, dayLabel, phaseCamp,
+  // phaseBattle, deleteSaveTitle, deleteSaveDescription), and again for the
+  // (menu) route group's Back button on the saves page (back), and again
+  // for the /play camp screen and dummy-battle label (toBattle,
+  // returnToCamp, goldLabel, dummyBattleLabel) — deliberate test-data
+  // updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
     "advance",
@@ -23,6 +29,22 @@ describe("locale message parity", () => {
     "appTitle",
     "empty",
     "next",
+    "noSavedGame",
+    "newGame",
+    "resume",
+    "delete",
+    "cancel",
+    "startedOn",
+    "dayLabel",
+    "phaseCamp",
+    "phaseBattle",
+    "deleteSaveTitle",
+    "deleteSaveDescription",
+    "back",
+    "toBattle",
+    "returnToCamp",
+    "goldLabel",
+    "dummyBattleLabel",
   ];
   const expectedBattleKeys = [
     "battleStart",

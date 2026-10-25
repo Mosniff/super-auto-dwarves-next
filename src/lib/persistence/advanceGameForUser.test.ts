@@ -55,7 +55,7 @@ describe("advanceGameForUser", () => {
     const { gameRepository, recordedSaveGameStateCalls } =
       buildFakeGameRepository(buildFixtureLoadedGameRecord("campPhase", 1));
 
-    await advanceGameForUser("fixture-user-1", gameRepository);
+    await advanceGameForUser("fixture-user-1", "campPhase", gameRepository);
 
     expect(recordedSaveGameStateCalls).toHaveLength(1);
     expect(recordedSaveGameStateCalls[0].gameId).toBe("fixture-game-1");
@@ -71,7 +71,7 @@ describe("advanceGameForUser", () => {
         buildFixtureLoadedGameRecord("battlePhase", 1),
       );
 
-    await advanceGameForUser("fixture-user-1", gameRepository);
+    await advanceGameForUser("fixture-user-1", "battlePhase", gameRepository);
 
     expect(recordedSaveGameStateCalls).toHaveLength(1);
     expect(recordedSaveGameStateCalls[0].nextGameState.phase).toBe(
@@ -84,7 +84,7 @@ describe("advanceGameForUser", () => {
     const { gameRepository, recordedSaveGameStateCalls } =
       buildFakeGameRepository(buildFixtureLoadedGameRecord("campPhase", 1));
 
-    await advanceGameForUser("fixture-user-1", gameRepository);
+    await advanceGameForUser("fixture-user-1", "campPhase", gameRepository);
 
     expect(recordedSaveGameStateCalls[0].nextGameState.playerRoster).toEqual(
       fixtureRoster,
@@ -99,7 +99,7 @@ describe("advanceGameForUser", () => {
       buildFakeGameRepository(null);
 
     await expect(
-      advanceGameForUser("fixture-user-1", gameRepository),
+      advanceGameForUser("fixture-user-1", "campPhase", gameRepository),
     ).rejects.toThrow();
 
     expect(recordedSaveGameStateCalls).toHaveLength(0);
@@ -118,8 +118,21 @@ describe("advanceGameForUser", () => {
       buildFakeGameRepository(malformedLoadedGameRecord);
 
     await expect(
-      advanceGameForUser("fixture-user-1", gameRepository),
+      advanceGameForUser("fixture-user-1", "campPhase", gameRepository),
     ).rejects.toThrow();
+
+    expect(recordedSaveGameStateCalls).toHaveLength(0);
+  });
+
+  it("does nothing when the saved phase differs from the expected current phase", async () => {
+    const { gameRepository, recordedSaveGameStateCalls } =
+      buildFakeGameRepository(
+        buildFixtureLoadedGameRecord("battlePhase", 1),
+      );
+
+    await expect(
+      advanceGameForUser("fixture-user-1", "campPhase", gameRepository),
+    ).resolves.toBeUndefined();
 
     expect(recordedSaveGameStateCalls).toHaveLength(0);
   });

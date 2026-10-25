@@ -8,13 +8,15 @@ import { prismaGameRepository } from "@/lib/persistence/prismaGameRepository";
 import { createGameForUser } from "@/lib/persistence/createGameForUser";
 import { advanceGameForUser } from "@/lib/persistence/advanceGameForUser";
 import { GameAlreadyExistsError } from "@/lib/persistence/gameAlreadyExistsError";
+import { isGamePhase } from "@/lib/game/isGamePhase";
 
-// These actions take no client input — intents, not state (CLAUDE.md,
-// "Security / anti-cheat model"). Each scopes everything to the signed-in
-// session's own user id, so a player can only ever touch their own save.
-// None of them creates a session: with no session, they redirect to the
-// home page, and guest sign-in lives only in startPlayingAction.ts. Error
-// UX beyond the duplicate-save case below is deliberately deferred.
+// These actions take no game state from the client — intents, not state
+// (CLAUDE.md, "Security / anti-cheat model"). Advance accepts only the
+// expected phase as an intent qualifier. Each scopes everything to the
+// signed-in session's own user id, so a player can only ever touch their
+// own save. None of them creates a session: with no session, they redirect
+// to the home page, and guest sign-in lives only in startPlayingAction.ts.
+// Error UX beyond the duplicate-save case below is deliberately deferred.
 
 async function redirectToLocalePath(href: string): Promise<never> {
   const locale = await getLocale();
@@ -53,10 +55,23 @@ export async function createGameAction(): Promise<void> {
   await redirectToLocalePath("/play");
 }
 
-export async function advanceGameAction(): Promise<void> {
+export async function advanceGameAction(formData: FormData): Promise<void> {
   const userId = await requireSignedInUserId();
 
-  await advanceGameForUser(userId, prismaGameRepository);
+  // The phase here is an intent qualifier, not game state: it's validated
+  // below, and the worst a tampered value can do is have the request
+  // ignored (a mismatched phase) or rejected (not a phase at all).
+  const submittedExpectedPhase = formData.get("expectedCurrentPhase");
+
+  if (!isGamePhase(submittedExpectedPhase)) {
+    throw new Error("Invalid advance intent.");
+  }
+
+  await advanceGameForUser(
+    userId,
+    submittedExpectedPhase,
+    prismaGameRepository,
+  );
 
   await redirectToLocalePath("/play");
 }
