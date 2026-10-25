@@ -4,8 +4,8 @@ import { GameAlreadyExistsError } from "./gameAlreadyExistsError";
 import type { GameRepository } from "./gameRepository";
 
 // The real GameRepository, backed by Prisma. Deliberately not unit-tested —
-// this is pure Prisma wiring with no logic of its own; it will first be
-// exercised end-to-end in Phase 7.
+// this is pure Prisma wiring with no logic of its own; first exercised
+// end-to-end in Phase 7 (save management).
 //
 // createGame translates Prisma's unique-constraint violation (P2002, from
 // Game.userId's unique constraint) into GameAlreadyExistsError, so code
