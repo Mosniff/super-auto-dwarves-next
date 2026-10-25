@@ -61,8 +61,8 @@ Draw this boundary deliberately: a rich client island for play, server-rendered 
 - **Supabase is infrastructure, not application.** It provides Postgres (+ auth/storage). **Game logic does NOT live in Supabase** — business rules live in the pure TS modules.
 - **Prisma** maps between app and Postgres. Schema-first: edit `schema.prisma`, generate migrations from the diff.
 - **Server-side validation of moves and battle resolution** (in Server Actions) keeps logic authoritative and prevents client tampering. See "Security / anti-cheat model" below for the full trust model.
-- Connection strings are URLs — percent-encode passwords. A raw % (or @ # / : ? & +, spaces) in the password inside DATABASE_URL / DIRECT_URL breaks the runtime driver with a cryptic URIError: URI malformed, even though the Prisma CLI may accept the same string. Encode special characters (% → %25, @ → %40, etc.) or use an alphanumeric password. .env.example documents the required variable names; real values live only in the gitignored .env.local.
-- Supabase and Prisma packages are exact-pinned (no ^/~), because @supabase/ssr is pre-1.0 and prerelease tags have previously appeared on these packages. Upgrade deliberately, one package at a time, and never run npm audit fix (it can silently replace pinned versions).
+- **Connection strings are URLs — percent-encode passwords**. A raw % (or @ # / : ? & +, spaces) in the password inside DATABASE_URL / DIRECT_URL breaks the runtime driver with a cryptic URIError: URI malformed, even though the Prisma CLI may accept the same string. Encode special characters (% → %25, @ → %40, etc.) or use an alphanumeric password. .env.example documents the required variable names; real values live only in the gitignored .env.local.
+- **Supabase and Prisma packages are exact-pinned (no ^/~)**, because @supabase/ssr is pre-1.0 and prerelease tags have previously appeared on these packages. Upgrade deliberately, one package at a time, and never run npm audit fix (it can silently replace pinned versions).
 
 ---
 
@@ -215,7 +215,7 @@ Why route segments, not a cookie. Locale is a route segment so the server knows 
 
 Character names are game data, not translations — deliberately. Names stay romanized and identical across locales, resolved by the pure layer into descriptors. They are content that will live with the character rows in the database, not translation keys — keeping them out of the message files avoids two stores drifting. (A future romaji→katakana rendering for the Japanese locale was discussed and deliberately deferred; if built, it belongs as character data or a rendering helper, never as translation keys.)
 
-Message files. One flat file per locale (messages/en.json, messages/ja.json), namespaced common.* (UI chrome) and battle.* (log lines). Japanese uses full-width punctuation by convention. A parity test (src/i18n/messages.test.ts) asserts both locales have identical key sets and must be kept green by adding keys to both locales — it is the guard against one locale silently drifting. When you add a user-facing string, add its key to both files and extend the parity test's expected-key list.
+Message files. One flat file per locale (messages/en.json, messages/ja.json), namespaced common._ (UI chrome) and battle._ (log lines). Japanese uses full-width punctuation by convention. A parity test (src/i18n/messages.test.ts) asserts both locales have identical key sets and must be kept green by adding keys to both locales — it is the guard against one locale silently drifting. When you add a user-facing string, add its key to both files and extend the parity test's expected-key list.
 
 ---
 

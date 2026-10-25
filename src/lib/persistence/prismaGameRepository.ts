@@ -1,10 +1,15 @@
+import { Prisma } from "@/generated/prisma/client";
 import { prismaClient } from "./prismaClient";
-import type { Prisma } from "@/generated/prisma/client";
+import { GameAlreadyExistsError } from "./gameAlreadyExistsError";
 import type { GameRepository } from "./gameRepository";
 
 // The real GameRepository, backed by Prisma. Deliberately not unit-tested —
 // this is pure Prisma wiring with no logic of its own; it will first be
 // exercised end-to-end in Phase 7.
+//
+// createGame translates Prisma's unique-constraint violation (P2002, from
+// Game.userId's unique constraint) into GameAlreadyExistsError, so code
+// above this seam never depends on Prisma's own error types.
 export const prismaGameRepository: GameRepository = {
   async loadGameForUser(userId) {
     const gameRow = await prismaClient.game.findUnique({
@@ -24,6 +29,7 @@ export const prismaGameRepository: GameRepository = {
       gold: gameRow.gold,
       day: gameRow.day,
       phase: gameRow.phase,
+      createdAt: gameRow.createdAt,
     };
   },
 
@@ -42,5 +48,33 @@ export const prismaGameRepository: GameRepository = {
         phase: nextGameState.phase,
       },
     });
+  },
+
+  async createGame(userId, initialGameState) {
+    try {
+      await prismaClient.game.create({
+        data: {
+          userId,
+          playerRoster:
+            initialGameState.playerRoster as unknown as Prisma.InputJsonValue,
+          gold: initialGameState.gold,
+          day: initialGameState.day,
+          phase: initialGameState.phase,
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === "P2002"
+      ) {
+        throw new GameAlreadyExistsError();
+      }
+
+      throw error;
+    }
+  },
+
+  async deleteGameForUser(userId) {
+    await prismaClient.game.deleteMany({ where: { userId } });
   },
 };

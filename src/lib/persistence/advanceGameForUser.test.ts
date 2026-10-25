@@ -29,6 +29,8 @@ function buildFakeGameRepository(
     saveGameState: async (gameId, nextGameState) => {
       recordedSaveGameStateCalls.push({ gameId, nextGameState });
     },
+    createGame: async () => {},
+    deleteGameForUser: async () => {},
   };
 
   return { gameRepository, recordedSaveGameStateCalls };
@@ -44,6 +46,7 @@ function buildFixtureLoadedGameRecord(
     gold: FIXTURE_GOLD,
     day,
     phase,
+    createdAt: new Date("2026-10-13T00:00:00.000Z"),
   };
 }
 
@@ -109,6 +112,7 @@ describe("advanceGameForUser", () => {
       gold: FIXTURE_GOLD,
       day: 1,
       phase: "campPhase",
+      createdAt: new Date("2026-10-13T00:00:00.000Z"),
     };
     const { gameRepository, recordedSaveGameStateCalls } =
       buildFakeGameRepository(malformedLoadedGameRecord);
