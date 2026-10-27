@@ -33,6 +33,13 @@ model Game {
   gold         Int
   day          Int
   phase        GamePhase
+  // Optimistic-concurrency counter; every mutating save is conditional on
+  // the revision the intent was based on, and increments it (CLAUDE.md ->
+  // "Persistence & save model", added Phase 8).
+  revision     Int      @default(0)
+  // Shop listing ids bought during the current camp visit; cleared at the
+  // start of each camp (Phase 8).
+  purchasedShopListingIds String[] @default([])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
