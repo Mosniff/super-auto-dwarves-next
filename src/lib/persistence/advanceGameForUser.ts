@@ -9,7 +9,9 @@ import type { GameRepository } from "./gameRepository";
 // validated, the pure advanceGame computes the next state, and the result
 // is persisted — the only place this intent's effects become real. The
 // intent now includes the phase being left, so a stale or repeated intent
-// can be recognised and ignored.
+// can be recognised and ignored. The save is also conditional on the
+// revision that was loaded, guarding against a concurrent request that
+// advanced the game in between (see saveGameState's contract).
 export async function advanceGameForUser(
   userId: string,
   expectedCurrentPhase: GamePhase,
@@ -44,5 +46,15 @@ export async function advanceGameForUser(
 
   const nextGameState = advanceGame(currentGameState);
 
-  await gameRepository.saveGameState(loadedGameRecord.gameId, nextGameState);
+  const saved = await gameRepository.saveGameState(
+    loadedGameRecord.gameId,
+    nextGameState,
+    loadedGameRecord.revision,
+  );
+
+  if (!saved) {
+    // The game changed between load and save (a concurrent request won),
+    // so this intent is ignored, like the phase-mismatch guard above.
+    return;
+  }
 }

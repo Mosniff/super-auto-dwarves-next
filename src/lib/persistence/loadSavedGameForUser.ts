@@ -5,6 +5,10 @@ import type { GameRepository } from "./gameRepository";
 export interface SavedGame {
   gameState: GameState;
   createdAt: Date;
+  // What a later intent (e.g. advanceGameAction) will send back as its
+  // expected revision, so the save can be conditional on nothing having
+  // changed underneath it since this load.
+  revision: number;
 }
 
 // This is the single tested place where a stored game is loaded for
@@ -33,5 +37,6 @@ export async function loadSavedGameForUser(
       purchasedShopListingIds: record.purchasedShopListingIds ?? [],
     },
     createdAt: record.createdAt,
+    revision: record.revision,
   };
 }

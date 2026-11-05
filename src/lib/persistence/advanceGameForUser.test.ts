@@ -20,17 +20,25 @@ const fixtureCampRoster: CampRoster = [
 interface RecordedSaveGameStateCall {
   gameId: string;
   nextGameState: GameState;
+  expectedRevision: number;
 }
 
 function buildFakeGameRepository(
   initialLoadedGameRecord: LoadedGameRecord | null,
+  options?: { saveGameStateResult?: boolean },
 ) {
+  const saveGameStateResult = options?.saveGameStateResult ?? true;
   const recordedSaveGameStateCalls: RecordedSaveGameStateCall[] = [];
 
   const gameRepository: GameRepository = {
     loadGameForUser: async () => initialLoadedGameRecord,
-    saveGameState: async (gameId, nextGameState) => {
-      recordedSaveGameStateCalls.push({ gameId, nextGameState });
+    saveGameState: async (gameId, nextGameState, expectedRevision) => {
+      recordedSaveGameStateCalls.push({
+        gameId,
+        nextGameState,
+        expectedRevision,
+      });
+      return saveGameStateResult;
     },
     createGame: async () => {},
     deleteGameForUser: async () => {},
@@ -50,6 +58,7 @@ function buildFixtureLoadedGameRecord(
     day,
     phase,
     purchasedShopListingIds: ["fixture-listing-1"],
+    revision: 5,
     createdAt: new Date("2026-10-13T00:00:00.000Z"),
   };
 }
@@ -120,6 +129,7 @@ describe("advanceGameForUser", () => {
       day: 1,
       phase: "campPhase",
       purchasedShopListingIds: [],
+      revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     };
     const { gameRepository, recordedSaveGameStateCalls } =
@@ -140,6 +150,7 @@ describe("advanceGameForUser", () => {
       day: 1,
       phase: "campPhase",
       purchasedShopListingIds: null,
+      revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     };
     const { gameRepository, recordedSaveGameStateCalls } =
@@ -152,6 +163,30 @@ describe("advanceGameForUser", () => {
         (recordedCall) => recordedCall.nextGameState.purchasedShopListingIds,
       ),
     ).toEqual([[]]);
+  });
+
+  it("saves conditionally on the loaded revision", async () => {
+    const { gameRepository, recordedSaveGameStateCalls } =
+      buildFakeGameRepository(buildFixtureLoadedGameRecord("campPhase", 1));
+
+    await advanceGameForUser("fixture-user-1", "campPhase", gameRepository);
+
+    expect(
+      recordedSaveGameStateCalls.map(
+        (recordedCall) => recordedCall.expectedRevision,
+      ),
+    ).toEqual([5]);
+  });
+
+  it("resolves without error when the conditional save finds the game changed", async () => {
+    const { gameRepository } = buildFakeGameRepository(
+      buildFixtureLoadedGameRecord("campPhase", 1),
+      { saveGameStateResult: false },
+    );
+
+    await expect(
+      advanceGameForUser("fixture-user-1", "campPhase", gameRepository),
+    ).resolves.toBeUndefined();
   });
 
   it("does nothing when the saved phase differs from the expected current phase", async () => {

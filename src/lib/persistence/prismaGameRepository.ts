@@ -31,13 +31,18 @@ export const prismaGameRepository: GameRepository = {
       day: gameRow.day,
       phase: gameRow.phase,
       purchasedShopListingIds: gameRow.purchasedShopListingIds,
+      revision: gameRow.revision,
       createdAt: gameRow.createdAt,
     };
   },
 
-  async saveGameState(gameId, nextGameState) {
-    await prismaClient.game.update({
-      where: { id: gameId },
+  async saveGameState(gameId, nextGameState, expectedRevision) {
+    // update requires a unique where and throws when nothing matches, which
+    // can't express "only if the revision is still this one" — updateMany
+    // lets the revision be part of the condition and reports how many rows
+    // it touched, so a lost race (0 rows) is a normal result, not an error.
+    const conditionalUpdateResult = await prismaClient.game.updateMany({
+      where: { id: gameId, revision: expectedRevision },
       data: {
         // Cast to Prisma's generic JSON input type, since Roster has no
         // index signature. This is the opposite direction of the load-side
@@ -49,8 +54,11 @@ export const prismaGameRepository: GameRepository = {
         day: nextGameState.day,
         phase: nextGameState.phase,
         purchasedShopListingIds: nextGameState.purchasedShopListingIds,
+        revision: { increment: 1 },
       },
     });
+
+    return conditionalUpdateResult.count === 1;
   },
 
   async createGame(userId, initialGameState) {

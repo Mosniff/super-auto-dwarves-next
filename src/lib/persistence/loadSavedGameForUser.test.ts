@@ -20,7 +20,7 @@ function buildFakeGameRepository(
 ) {
   const gameRepository: GameRepository = {
     loadGameForUser: async () => initialLoadedGameRecord,
-    saveGameState: async () => {},
+    saveGameState: async () => true,
     createGame: async () => {},
     deleteGameForUser: async () => {},
   };
@@ -48,6 +48,7 @@ describe("loadSavedGameForUser", () => {
       day: 3,
       phase: "campPhase",
       purchasedShopListingIds: ["fixture-listing-1"],
+      revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     });
 
@@ -74,6 +75,7 @@ describe("loadSavedGameForUser", () => {
       day: 1,
       phase: "campPhase",
       purchasedShopListingIds: ["fixture-listing-1"],
+      revision: 5,
       createdAt: fixtureCreatedAt,
     });
 
@@ -93,6 +95,7 @@ describe("loadSavedGameForUser", () => {
       day: 1,
       phase: "campPhase",
       purchasedShopListingIds: [],
+      revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     });
 
@@ -109,6 +112,7 @@ describe("loadSavedGameForUser", () => {
       day: 1,
       phase: "campPhase",
       purchasedShopListingIds: null,
+      revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     });
 
@@ -118,5 +122,25 @@ describe("loadSavedGameForUser", () => {
     );
 
     expect(savedGame?.gameState.purchasedShopListingIds).toEqual([]);
+  });
+
+  it("(i) resolves with the record's revision", async () => {
+    const { gameRepository } = buildFakeGameRepository({
+      gameId: "fixture-game-1",
+      persistedPlayerRoster: fixtureCampRoster,
+      gold: FIXTURE_GOLD,
+      day: 1,
+      phase: "campPhase",
+      purchasedShopListingIds: ["fixture-listing-1"],
+      revision: 5,
+      createdAt: new Date("2026-10-13T00:00:00.000Z"),
+    });
+
+    const savedGame = await loadSavedGameForUser(
+      "fixture-user-1",
+      gameRepository,
+    );
+
+    expect(savedGame?.revision).toBe(5);
   });
 });

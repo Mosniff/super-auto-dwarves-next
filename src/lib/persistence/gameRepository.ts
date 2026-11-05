@@ -12,6 +12,7 @@ export interface LoadedGameRecord {
   // (Prisma never adds NOT NULL to array columns), so handlers treat null
   // as [].
   purchasedShopListingIds: string[] | null;
+  revision: number;
   createdAt: Date;
 }
 
@@ -20,7 +21,15 @@ export interface LoadedGameRecord {
 // fake implementation; prismaGameRepository.ts supplies the real one.
 export interface GameRepository {
   loadGameForUser(userId: string): Promise<LoadedGameRecord | null>;
-  saveGameState(gameId: string, nextGameState: GameState): Promise<void>;
+  // Writes only if the stored revision still equals expectedRevision,
+  // incrementing it on success; resolves true if saved, false if the game
+  // changed since it was loaded (a lost race, not an error). See
+  // CLAUDE.md -> "Persistence & save model".
+  saveGameState(
+    gameId: string,
+    nextGameState: GameState,
+    expectedRevision: number,
+  ): Promise<boolean>;
   // Must reject with GameAlreadyExistsError if the user already has a game.
   createGame(userId: string, initialGameState: GameState): Promise<void>;
   // Deleting when no game exists is a no-op, not an error.

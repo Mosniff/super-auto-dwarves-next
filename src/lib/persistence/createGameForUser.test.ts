@@ -15,7 +15,7 @@ function buildFakeGameRepository(options?: { createGameError?: Error }) {
 
   const gameRepository: GameRepository = {
     loadGameForUser: async () => null,
-    saveGameState: async () => {},
+    saveGameState: async () => true,
     createGame: async (userId, initialGameState) => {
       recordedCreateGameCalls.push({ userId, initialGameState });
       if (options?.createGameError) {
