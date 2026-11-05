@@ -1,5 +1,5 @@
 import type { GameState } from "@/lib/game/types";
-import { parsePersistedCampRoster } from "./parsePersistedCampRoster";
+import { buildGameStateFromLoadedRecord } from "./buildGameStateFromLoadedRecord";
 import type { GameRepository } from "./gameRepository";
 
 export interface SavedGame {
@@ -24,18 +24,8 @@ export async function loadSavedGameForUser(
     return null;
   }
 
-  const validatedPlayerCampRoster = parsePersistedCampRoster(
-    record.persistedPlayerRoster,
-  );
-
   return {
-    gameState: {
-      playerRoster: validatedPlayerCampRoster,
-      gold: record.gold,
-      day: record.day,
-      phase: record.phase,
-      purchasedShopListingIds: record.purchasedShopListingIds ?? [],
-    },
+    gameState: buildGameStateFromLoadedRecord(record),
     createdAt: record.createdAt,
     revision: record.revision,
   };
