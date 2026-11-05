@@ -3,6 +3,7 @@ import { advanceGame } from "./advanceGame";
 import type { GamePhase, GameState } from "./types";
 import type { Character } from "@/lib/battle/types";
 import type { CampRoster } from "./campRoster";
+import { CAMP_STARTING_GOLD } from "./campState";
 
 // Arbitrary fixture value — starting gold is not yet specified.
 const FIXTURE_GOLD = 10;
@@ -19,13 +20,18 @@ function buildFixtureCampRoster(): CampRoster {
   return [fixtureCharacter, null, null, null, null, null, null];
 }
 
-function buildFixtureGameState(phase: GamePhase, day: number): GameState {
+function buildFixtureGameState(
+  phase: GamePhase,
+  day: number,
+  overrides: Partial<GameState> = {},
+): GameState {
   return {
     playerRoster: buildFixtureCampRoster(),
     gold: FIXTURE_GOLD,
     day,
     phase,
     purchasedShopListingIds: [],
+    ...overrides,
   };
 }
 
@@ -48,14 +54,19 @@ describe("advanceGame", () => {
     expect(nextGameState.day).toBe(2);
   });
 
-  it("carries the player roster and gold forward unchanged on both transitions", () => {
-    const campPhaseGameState = buildFixtureGameState("campPhase", 1);
+  it("carries the roster, gold and purchased listings into battle, and the roster back to camp", () => {
+    const campPhaseGameState = buildFixtureGameState("campPhase", 1, {
+      purchasedShopListingIds: ["fixture-listing-1"],
+    });
     const nextFromCampPhase = advanceGame(campPhaseGameState);
 
     expect(nextFromCampPhase.playerRoster).toEqual(
       campPhaseGameState.playerRoster,
     );
     expect(nextFromCampPhase.gold).toBe(campPhaseGameState.gold);
+    expect(nextFromCampPhase.purchasedShopListingIds).toEqual(
+      campPhaseGameState.purchasedShopListingIds,
+    );
 
     const battlePhaseGameState = buildFixtureGameState("battlePhase", 1);
     const nextFromBattlePhase = advanceGame(battlePhaseGameState);
@@ -63,7 +74,36 @@ describe("advanceGame", () => {
     expect(nextFromBattlePhase.playerRoster).toEqual(
       battlePhaseGameState.playerRoster,
     );
-    expect(nextFromBattlePhase.gold).toBe(battlePhaseGameState.gold);
+  });
+
+  it("sets gold to CAMP_STARTING_GOLD when returning to camp, discarding unspent gold", () => {
+    const battlePhaseGameState = buildFixtureGameState("battlePhase", 1, {
+      gold: 4,
+    });
+
+    const nextGameState = advanceGame(battlePhaseGameState);
+
+    expect(nextGameState.gold).toBe(CAMP_STARTING_GOLD);
+  });
+
+  it("sets gold to CAMP_STARTING_GOLD when returning to camp with no gold left", () => {
+    const battlePhaseGameState = buildFixtureGameState("battlePhase", 1, {
+      gold: 0,
+    });
+
+    const nextGameState = advanceGame(battlePhaseGameState);
+
+    expect(nextGameState.gold).toBe(CAMP_STARTING_GOLD);
+  });
+
+  it("clears purchased listings when returning to camp", () => {
+    const battlePhaseGameState = buildFixtureGameState("battlePhase", 1, {
+      purchasedShopListingIds: ["fixture-listing-1", "fixture-listing-2"],
+    });
+
+    const nextGameState = advanceGame(battlePhaseGameState);
+
+    expect(nextGameState.purchasedShopListingIds).toEqual([]);
   });
 
   it("does not mutate the input game state", () => {

@@ -132,6 +132,28 @@ describe("advanceGameForUser", () => {
     expect(recordedSaveGameStateCalls).toHaveLength(0);
   });
 
+  it("treats a missing purchased-listings value as no purchases", async () => {
+    const loadedGameRecordWithNullPurchasedListings: LoadedGameRecord = {
+      gameId: "fixture-game-1",
+      persistedPlayerRoster: fixtureCampRoster,
+      gold: FIXTURE_GOLD,
+      day: 1,
+      phase: "campPhase",
+      purchasedShopListingIds: null,
+      createdAt: new Date("2026-10-13T00:00:00.000Z"),
+    };
+    const { gameRepository, recordedSaveGameStateCalls } =
+      buildFakeGameRepository(loadedGameRecordWithNullPurchasedListings);
+
+    await advanceGameForUser("fixture-user-1", "campPhase", gameRepository);
+
+    expect(
+      recordedSaveGameStateCalls.map(
+        (recordedCall) => recordedCall.nextGameState.purchasedShopListingIds,
+      ),
+    ).toEqual([[]]);
+  });
+
   it("does nothing when the saved phase differs from the expected current phase", async () => {
     const { gameRepository, recordedSaveGameStateCalls } =
       buildFakeGameRepository(

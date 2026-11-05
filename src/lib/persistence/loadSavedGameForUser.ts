@@ -30,7 +30,7 @@ export async function loadSavedGameForUser(
       gold: record.gold,
       day: record.day,
       phase: record.phase,
-      purchasedShopListingIds: record.purchasedShopListingIds,
+      purchasedShopListingIds: record.purchasedShopListingIds ?? [],
     },
     createdAt: record.createdAt,
   };

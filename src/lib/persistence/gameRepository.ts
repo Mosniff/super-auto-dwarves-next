@@ -8,7 +8,10 @@ export interface LoadedGameRecord {
   gold: number;
   day: number;
   phase: GamePhase;
-  purchasedShopListingIds: string[];
+  // Prisma types this string[], but the Postgres column is nullable
+  // (Prisma never adds NOT NULL to array columns), so handlers treat null
+  // as [].
+  purchasedShopListingIds: string[] | null;
   createdAt: Date;
 }
 

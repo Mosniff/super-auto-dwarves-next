@@ -100,4 +100,23 @@ describe("loadSavedGameForUser", () => {
       loadSavedGameForUser("fixture-user-1", gameRepository),
     ).rejects.toThrow();
   });
+
+  it("(h) treats a missing purchased-listings value as no purchases", async () => {
+    const { gameRepository } = buildFakeGameRepository({
+      gameId: "fixture-game-1",
+      persistedPlayerRoster: fixtureCampRoster,
+      gold: FIXTURE_GOLD,
+      day: 1,
+      phase: "campPhase",
+      purchasedShopListingIds: null,
+      createdAt: new Date("2026-10-13T00:00:00.000Z"),
+    });
+
+    const savedGame = await loadSavedGameForUser(
+      "fixture-user-1",
+      gameRepository,
+    );
+
+    expect(savedGame?.gameState.purchasedShopListingIds).toEqual([]);
+  });
 });

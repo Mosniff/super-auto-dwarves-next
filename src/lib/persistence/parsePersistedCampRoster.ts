@@ -1,8 +1,8 @@
 import type { Character } from "@/lib/battle/types";
 import { CAMP_ROSTER_SLOT_COUNT, type CampRoster } from "@/lib/game/campRoster";
 
-// Duplicated from parsePersistedRoster.ts deliberately; that file is
-// deleted once nothing reads the old roster shape (Phase 8).
+// The only validator for a persisted character (the old battle-roster
+// parser was removed in Phase 8).
 function isValidPersistedCharacter(
   candidateCharacter: unknown,
 ): candidateCharacter is Character {

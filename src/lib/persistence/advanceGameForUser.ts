@@ -39,7 +39,7 @@ export async function advanceGameForUser(
     gold: loadedGameRecord.gold,
     day: loadedGameRecord.day,
     phase: loadedGameRecord.phase,
-    purchasedShopListingIds: loadedGameRecord.purchasedShopListingIds,
+    purchasedShopListingIds: loadedGameRecord.purchasedShopListingIds ?? [],
   };
 
   const nextGameState = advanceGame(currentGameState);
