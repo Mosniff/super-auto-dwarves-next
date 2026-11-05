@@ -1,12 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { advanceGame } from "./advanceGame";
 import type { GamePhase, GameState } from "./types";
-import type { Character, Roster } from "@/lib/battle/types";
+import type { Character } from "@/lib/battle/types";
+import type { CampRoster } from "./campRoster";
 
 // Arbitrary fixture value — starting gold is not yet specified.
 const FIXTURE_GOLD = 10;
 
-function buildFixtureRoster(): Roster {
+function buildFixtureCampRoster(): CampRoster {
   const fixtureCharacter: Character = {
     id: "fixture-dwarf-1",
     name: "Fixture Dwarf",
@@ -15,18 +16,16 @@ function buildFixtureRoster(): Roster {
     maxHp: 5,
   };
 
-  return {
-    activeCharacters: [fixtureCharacter],
-    downedCharacters: [],
-  };
+  return [fixtureCharacter, null, null, null, null, null, null];
 }
 
 function buildFixtureGameState(phase: GamePhase, day: number): GameState {
   return {
-    playerRoster: buildFixtureRoster(),
+    playerRoster: buildFixtureCampRoster(),
     gold: FIXTURE_GOLD,
     day,
     phase,
+    purchasedShopListingIds: [],
   };
 }
 

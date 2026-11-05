@@ -1,5 +1,5 @@
 import type { GameState } from "@/lib/game/types";
-import { parsePersistedRoster } from "./parsePersistedRoster";
+import { parsePersistedCampRoster } from "./parsePersistedCampRoster";
 import type { GameRepository } from "./gameRepository";
 
 export interface SavedGame {
@@ -20,14 +20,17 @@ export async function loadSavedGameForUser(
     return null;
   }
 
-  const validatedRoster = parsePersistedRoster(record.persistedPlayerRoster);
+  const validatedPlayerCampRoster = parsePersistedCampRoster(
+    record.persistedPlayerRoster,
+  );
 
   return {
     gameState: {
-      playerRoster: validatedRoster,
+      playerRoster: validatedPlayerCampRoster,
       gold: record.gold,
       day: record.day,
       phase: record.phase,
+      purchasedShopListingIds: record.purchasedShopListingIds,
     },
     createdAt: record.createdAt,
   };

@@ -2,17 +2,20 @@ import { describe, it, expect } from "vitest";
 import { advanceGameForUser } from "./advanceGameForUser";
 import type { GameRepository, LoadedGameRecord } from "./gameRepository";
 import type { GamePhase, GameState } from "@/lib/game/types";
-import type { Roster } from "@/lib/battle/types";
+import type { CampRoster } from "@/lib/game/campRoster";
 
 // Arbitrary fixture value — starting gold is not yet specified.
 const FIXTURE_GOLD = 10;
 
-const fixtureRoster: Roster = {
-  activeCharacters: [
-    { id: "dwarf-1", name: "Borin", attack: 3, hp: 5, maxHp: 5 },
-  ],
-  downedCharacters: [],
-};
+const fixtureCampRoster: CampRoster = [
+  { id: "dwarf-1", name: "Borin", attack: 3, hp: 5, maxHp: 5 },
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+];
 
 interface RecordedSaveGameStateCall {
   gameId: string;
@@ -42,10 +45,11 @@ function buildFixtureLoadedGameRecord(
 ): LoadedGameRecord {
   return {
     gameId: "fixture-game-1",
-    persistedPlayerRoster: fixtureRoster,
+    persistedPlayerRoster: fixtureCampRoster,
     gold: FIXTURE_GOLD,
     day,
     phase,
+    purchasedShopListingIds: ["fixture-listing-1"],
     createdAt: new Date("2026-10-13T00:00:00.000Z"),
   };
 }
@@ -80,18 +84,21 @@ describe("advanceGameForUser", () => {
     expect(recordedSaveGameStateCalls[0].nextGameState.day).toBe(2);
   });
 
-  it("carries the roster and gold through unchanged", async () => {
+  it("carries the roster, gold and purchased listings through unchanged", async () => {
     const { gameRepository, recordedSaveGameStateCalls } =
       buildFakeGameRepository(buildFixtureLoadedGameRecord("campPhase", 1));
 
     await advanceGameForUser("fixture-user-1", "campPhase", gameRepository);
 
     expect(recordedSaveGameStateCalls[0].nextGameState.playerRoster).toEqual(
-      fixtureRoster,
+      fixtureCampRoster,
     );
     expect(recordedSaveGameStateCalls[0].nextGameState.gold).toBe(
       FIXTURE_GOLD,
     );
+    expect(
+      recordedSaveGameStateCalls[0].nextGameState.purchasedShopListingIds,
+    ).toEqual(["fixture-listing-1"]);
   });
 
   it("rejects when the user has no game", async () => {
@@ -112,6 +119,7 @@ describe("advanceGameForUser", () => {
       gold: FIXTURE_GOLD,
       day: 1,
       phase: "campPhase",
+      purchasedShopListingIds: [],
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     };
     const { gameRepository, recordedSaveGameStateCalls } =

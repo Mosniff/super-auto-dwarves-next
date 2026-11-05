@@ -1,6 +1,6 @@
 import { advanceGame } from "@/lib/game/advanceGame";
 import type { GamePhase, GameState } from "@/lib/game/types";
-import { parsePersistedRoster } from "./parsePersistedRoster";
+import { parsePersistedCampRoster } from "./parsePersistedCampRoster";
 import type { GameRepository } from "./gameRepository";
 
 // Server-authority seam (CLAUDE.md -> "Security / anti-cheat model"): the
@@ -30,15 +30,16 @@ export async function advanceGameForUser(
     return;
   }
 
-  const validatedPlayerRoster = parsePersistedRoster(
+  const validatedPlayerCampRoster = parsePersistedCampRoster(
     loadedGameRecord.persistedPlayerRoster,
   );
 
   const currentGameState: GameState = {
-    playerRoster: validatedPlayerRoster,
+    playerRoster: validatedPlayerCampRoster,
     gold: loadedGameRecord.gold,
     day: loadedGameRecord.day,
     phase: loadedGameRecord.phase,
+    purchasedShopListingIds: loadedGameRecord.purchasedShopListingIds,
   };
 
   const nextGameState = advanceGame(currentGameState);

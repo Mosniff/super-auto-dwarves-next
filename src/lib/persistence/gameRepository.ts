@@ -3,11 +3,12 @@ import type { GamePhase, GameState } from "@/lib/game/types";
 export interface LoadedGameRecord {
   gameId: string;
   // Deliberately unknown — the database cannot promise this column's shape;
-  // validating it is the handler's job (see parsePersistedRoster.ts).
+  // validating it is the handler's job (see parsePersistedCampRoster.ts).
   persistedPlayerRoster: unknown;
   gold: number;
   day: number;
   phase: GamePhase;
+  purchasedShopListingIds: string[];
   createdAt: Date;
 }
 

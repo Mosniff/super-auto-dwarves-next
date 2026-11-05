@@ -1,16 +1,19 @@
 import { describe, it, expect } from "vitest";
 import { loadSavedGameForUser } from "./loadSavedGameForUser";
 import type { GameRepository, LoadedGameRecord } from "./gameRepository";
-import type { Roster } from "@/lib/battle/types";
+import type { CampRoster } from "@/lib/game/campRoster";
 
 const FIXTURE_GOLD = 10;
 
-const fixtureRoster: Roster = {
-  activeCharacters: [
-    { id: "dwarf-1", name: "Borin", attack: 3, hp: 5, maxHp: 5 },
-  ],
-  downedCharacters: [],
-};
+const fixtureCampRoster: CampRoster = [
+  { id: "dwarf-1", name: "Borin", attack: 3, hp: 5, maxHp: 5 },
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+];
 
 function buildFakeGameRepository(
   initialLoadedGameRecord: LoadedGameRecord | null,
@@ -40,10 +43,11 @@ describe("loadSavedGameForUser", () => {
   it("(e) resolves to a gameState matching the record's roster, gold, day and phase", async () => {
     const { gameRepository } = buildFakeGameRepository({
       gameId: "fixture-game-1",
-      persistedPlayerRoster: fixtureRoster,
+      persistedPlayerRoster: fixtureCampRoster,
       gold: FIXTURE_GOLD,
       day: 3,
       phase: "campPhase",
+      purchasedShopListingIds: ["fixture-listing-1"],
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     });
 
@@ -52,20 +56,24 @@ describe("loadSavedGameForUser", () => {
       gameRepository,
     );
 
-    expect(savedGame?.gameState.playerRoster).toEqual(fixtureRoster);
+    expect(savedGame?.gameState.playerRoster).toEqual(fixtureCampRoster);
     expect(savedGame?.gameState.gold).toBe(FIXTURE_GOLD);
     expect(savedGame?.gameState.day).toBe(3);
     expect(savedGame?.gameState.phase).toBe("campPhase");
+    expect(savedGame?.gameState.purchasedShopListingIds).toEqual([
+      "fixture-listing-1",
+    ]);
   });
 
   it("(f) resolves with createdAt equal to the record's createdAt", async () => {
     const fixtureCreatedAt = new Date("2026-10-13T00:00:00.000Z");
     const { gameRepository } = buildFakeGameRepository({
       gameId: "fixture-game-1",
-      persistedPlayerRoster: fixtureRoster,
+      persistedPlayerRoster: fixtureCampRoster,
       gold: FIXTURE_GOLD,
       day: 1,
       phase: "campPhase",
+      purchasedShopListingIds: ["fixture-listing-1"],
       createdAt: fixtureCreatedAt,
     });
 
@@ -84,6 +92,7 @@ describe("loadSavedGameForUser", () => {
       gold: FIXTURE_GOLD,
       day: 1,
       phase: "campPhase",
+      purchasedShopListingIds: [],
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     });
 

@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { createNewGameState } from "./createNewGameState";
 import type { Character } from "@/lib/battle/types";
+import { CAMP_ROSTER_SLOT_COUNT } from "./campRoster";
 
 describe("createNewGameState", () => {
   it("(a) returns a game in campPhase", () => {
@@ -21,11 +22,13 @@ describe("createNewGameState", () => {
     expect(newGameState.gold).toBe(10);
   });
 
-  it("(d) returns a player roster with no active characters and no downed characters", () => {
+  it("(d) returns a player camp roster of seven empty slots and no purchased listings", () => {
     const newGameState = createNewGameState();
 
-    expect(newGameState.playerRoster.activeCharacters).toHaveLength(0);
-    expect(newGameState.playerRoster.downedCharacters).toHaveLength(0);
+    expect(newGameState.playerRoster).toEqual(
+      Array.from({ length: CAMP_ROSTER_SLOT_COUNT }, () => null),
+    );
+    expect(newGameState.purchasedShopListingIds).toEqual([]);
   });
 
   it("(e) returns an independent object on each call", () => {
@@ -39,8 +42,10 @@ describe("createNewGameState", () => {
       hp: 5,
       maxHp: 5,
     };
-    firstGameState.playerRoster.activeCharacters.push(fixtureCharacter);
+    firstGameState.playerRoster[0] = fixtureCharacter;
 
-    expect(secondGameState.playerRoster.activeCharacters).toHaveLength(0);
+    expect(secondGameState.playerRoster).toEqual(
+      Array.from({ length: CAMP_ROSTER_SLOT_COUNT }, () => null),
+    );
   });
 });

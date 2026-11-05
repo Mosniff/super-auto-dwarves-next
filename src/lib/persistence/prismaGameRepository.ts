@@ -22,13 +22,15 @@ export const prismaGameRepository: GameRepository = {
 
     return {
       gameId: gameRow.id,
-      // Passed straight through, deliberately NOT cast to Roster — casting
-      // here would bypass parsePersistedRoster entirely. Validation is the
-      // handler's job (advanceGameForUser.ts), not this repository's.
+      // Passed straight through, deliberately NOT cast to CampRoster —
+      // casting here would bypass parsePersistedCampRoster entirely.
+      // Validation is the handler's job (advanceGameForUser.ts), not this
+      // repository's.
       persistedPlayerRoster: gameRow.playerRoster,
       gold: gameRow.gold,
       day: gameRow.day,
       phase: gameRow.phase,
+      purchasedShopListingIds: gameRow.purchasedShopListingIds,
       createdAt: gameRow.createdAt,
     };
   },
@@ -46,6 +48,7 @@ export const prismaGameRepository: GameRepository = {
         gold: nextGameState.gold,
         day: nextGameState.day,
         phase: nextGameState.phase,
+        purchasedShopListingIds: nextGameState.purchasedShopListingIds,
       },
     });
   },
@@ -60,6 +63,7 @@ export const prismaGameRepository: GameRepository = {
           gold: initialGameState.gold,
           day: initialGameState.day,
           phase: initialGameState.phase,
+          purchasedShopListingIds: initialGameState.purchasedShopListingIds,
         },
       });
     } catch (error) {

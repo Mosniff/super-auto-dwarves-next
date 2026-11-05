@@ -2,7 +2,7 @@ import type { Character } from "@/lib/battle/types";
 import { RosterSlab } from "./RosterSlab";
 
 interface GameScreenShellProps {
-  playerBenchCharacters: Character[];
+  playerBenchCharacters: (Character | null)[];
   children: React.ReactNode;
 }
 

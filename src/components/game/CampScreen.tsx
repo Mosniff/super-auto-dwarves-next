@@ -3,17 +3,17 @@
 import { useTranslations } from "next-intl";
 import { GameScreenShell } from "@/components/game/GameScreenShell";
 import { PendingSubmitButton } from "@/components/game/PendingSubmitButton";
-import type { Character } from "@/lib/battle/types";
+import type { CampRoster } from "@/lib/game/campRoster";
 
 interface CampScreenProps {
-  playerRosterCharacters: Character[];
+  playerCampRoster: CampRoster;
   day: number;
   gold: number;
   advanceGameAction: (formData: FormData) => Promise<void>;
 }
 
 export function CampScreen({
-  playerRosterCharacters,
+  playerCampRoster,
   day,
   gold,
   advanceGameAction,
@@ -21,7 +21,7 @@ export function CampScreen({
   const t = useTranslations("common");
 
   return (
-    <GameScreenShell playerBenchCharacters={playerRosterCharacters}>
+    <GameScreenShell playerBenchCharacters={playerCampRoster}>
       <section className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
         <h1 className="text-2xl font-bold">{t("phaseCamp")}</h1>
         <p className="text-muted-foreground">

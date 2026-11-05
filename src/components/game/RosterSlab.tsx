@@ -4,7 +4,7 @@ import { RosterSlot } from "./RosterSlot";
 const SLOT_COUNT = 7;
 
 interface RosterSlabProps {
-  characters: Character[];
+  characters: (Character | null)[];
   variant?: "player" | "enemy";
 }
 
@@ -32,7 +32,7 @@ export function RosterSlab({
           // exactly the bug this fixes.
           <div key={i} className="flex-1">
             <RosterSlot
-              character={character}
+              character={character ?? undefined}
               facing={facing}
               isNext={i === 0 && Boolean(character)}
             />

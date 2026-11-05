@@ -1,13 +1,14 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from "vitest";
 import { renderWithMessages, screen } from "@/test/renderWithMessages";
+import { createEmptyCampRoster } from "@/lib/game/campRoster";
 import { CampScreen } from "./CampScreen";
 
 describe("CampScreen", () => {
   it("(a) shows the camp heading, day, gold and a To battle button", () => {
     renderWithMessages(
       <CampScreen
-        playerRosterCharacters={[]}
+        playerCampRoster={createEmptyCampRoster()}
         day={3}
         gold={10}
         advanceGameAction={async () => {}}
@@ -25,7 +26,7 @@ describe("CampScreen", () => {
   it("(b) the To battle button's form submits expectedCurrentPhase as campPhase", () => {
     renderWithMessages(
       <CampScreen
-        playerRosterCharacters={[]}
+        playerCampRoster={createEmptyCampRoster()}
         day={3}
         gold={10}
         advanceGameAction={async () => {}}

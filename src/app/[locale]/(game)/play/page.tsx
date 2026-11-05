@@ -30,9 +30,7 @@ export default async function PlayPage() {
   if (savedGame.gameState.phase === "campPhase") {
     return (
       <CampScreen
-        playerRosterCharacters={
-          savedGame.gameState.playerRoster.activeCharacters
-        }
+        playerCampRoster={savedGame.gameState.playerRoster}
         day={savedGame.gameState.day}
         gold={savedGame.gameState.gold}
         advanceGameAction={advanceGameAction}
