@@ -2,18 +2,27 @@
 
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { DragDropProvider, DragOverlay, PointerSensor } from "@dnd-kit/react";
+import { Accessibility } from "@dnd-kit/dom";
 import { GameScreenShell } from "@/components/game/GameScreenShell";
 import { PendingSubmitButton } from "@/components/game/PendingSubmitButton";
 import { ShopPanel } from "@/components/game/ShopPanel";
+import { CharacterCard } from "@/components/game/CharacterCard";
+import type { Character } from "@/lib/battle/types";
 import type { CampRoster } from "@/lib/game/campRoster";
 import type { CampState } from "@/lib/game/campState";
 import type { ShopListing } from "@/lib/game/shop";
 import {
   isCampClickEffective,
+  isRosterSlotSelectable,
+  isShopListingSelectable,
+  presentCampTarget,
   resolveCampClick,
+  resolveCampDrop,
   type CampClickTarget,
   type CampIntent,
   type CampSelection,
+  type CampTargetPresentation,
 } from "@/components/game/campSelection";
 
 interface CampScreenProps {
@@ -26,6 +35,18 @@ interface CampScreenProps {
   advanceGameAction: (formData: FormData) => Promise<void>;
   buyCharacterAction: (formData: FormData) => Promise<void>;
   repositionCharacterAction: (formData: FormData) => Promise<void>;
+}
+
+function campSelectionFromClickTarget(
+  campClickTarget: CampClickTarget,
+): CampSelection {
+  if (campClickTarget.targetKind === "shopListing") {
+    return {
+      selectionKind: "shopListing",
+      shopListingId: campClickTarget.shopListingId,
+    };
+  }
+  return { selectionKind: "rosterSlot", slotIndex: campClickTarget.slotIndex };
 }
 
 export function CampScreen({
@@ -41,12 +62,15 @@ export function CampScreen({
 }: CampScreenProps) {
   const t = useTranslations("common");
 
-  // The selection and pending-ness below are UI state only, for click
-  // feedback and disabling tiles mid-submit. The server re-validates every
-  // intent; the page's reloaded props (from the next load) are the truth.
+  // The selection, drag-source selection and pending-ness below are UI
+  // state only, for click/drag feedback and disabling tiles mid-submit.
+  // The server re-validates every intent; the page's reloaded props (from
+  // the next load) are the truth.
   const [campSelection, setCampSelection] = useState<CampSelection>({
     selectionKind: "none",
   });
+  const [campDragSourceSelection, setCampDragSourceSelection] =
+    useState<CampSelection | null>(null);
   const [isSubmittingCampIntent, startCampIntentTransition] = useTransition();
 
   const campState: CampState = {
@@ -102,54 +126,172 @@ export function CampScreen({
     );
   }
 
+  // The item in hand: the drag source during a drag, otherwise the click
+  // selection. Every tile's presentation is derived from this single value,
+  // so click-select and drag always present identically.
+  const heldCampItem = campDragSourceSelection ?? campSelection;
+
+  function campTargetPresentation(
+    campClickTarget: CampClickTarget,
+  ): CampTargetPresentation {
+    return presentCampTarget(
+      heldCampItem,
+      campClickTarget,
+      campState,
+      shopCatalogue,
+    );
+  }
+
   return (
-    <GameScreenShell
-      playerBenchCharacters={playerCampRoster}
-      playerSlotInteraction={{
-        selectedSlotIndex:
-          campSelection.selectionKind === "rosterSlot"
-            ? campSelection.slotIndex
-            : null,
-        isSlotEnabled: (slotIndex) =>
-          isClickEnabled({ targetKind: "rosterSlot", slotIndex }),
-        onSlotClick: (slotIndex) =>
-          handleCampClick({ targetKind: "rosterSlot", slotIndex }),
-        slotButtonLabel: (slotIndex) => {
-          const character = playerCampRoster[slotIndex];
-          return character
-            ? t("rosterSlotOccupiedLabel", {
-                slotNumber: slotIndex + 1,
-                characterName: character.name,
-              })
-            : t("rosterSlotEmptyLabel", { slotNumber: slotIndex + 1 });
-        },
+    // dnd-kit's shipped files lack "use client", so DragDropProvider (and
+    // the hooks it coordinates) must only be imported from client
+    // components such as this one. The Accessibility plugin is removed
+    // because it unconditionally overwrites our tiles' aria-pressed and
+    // describes a keyboard drag that doesn't exist here — click-select,
+    // not dnd-kit's own keyboard sensor, is the accessible path.
+    <DragDropProvider
+      sensors={[PointerSensor]}
+      plugins={(defaultPlugins) =>
+        defaultPlugins.filter(
+          (defaultPlugin) => defaultPlugin !== Accessibility,
+        )
+      }
+      onDragStart={(event) => {
+        setCampSelection({ selectionKind: "none" });
+
+        const dragSourceClickTarget = event.operation.source?.data
+          .campClickTarget as CampClickTarget | undefined;
+
+        if (dragSourceClickTarget) {
+          setCampDragSourceSelection(
+            campSelectionFromClickTarget(dragSourceClickTarget),
+          );
+        }
+      }}
+      onDragEnd={(event) => {
+        setCampDragSourceSelection(null);
+
+        if (event.canceled) {
+          return;
+        }
+
+        const dropTargetClickTarget = event.operation.target?.data
+          .campClickTarget as CampClickTarget | undefined;
+        const dragSourceClickTarget = event.operation.source?.data
+          .campClickTarget as CampClickTarget | undefined;
+
+        if (!dropTargetClickTarget || !dragSourceClickTarget) {
+          return;
+        }
+
+        const campIntent = resolveCampDrop(
+          campSelectionFromClickTarget(dragSourceClickTarget),
+          dropTargetClickTarget,
+          campState,
+          shopCatalogue,
+        );
+
+        if (campIntent !== null) {
+          submitCampIntent(campIntent);
+        }
       }}
     >
-      <section className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
-        <h1 className="text-2xl font-bold">{t("phaseCamp")}</h1>
-        <ShopPanel
-          shopCatalogue={shopCatalogue}
-          purchasedShopListingIds={purchasedShopListingIds}
-          selectedShopListingId={
-            campSelection.selectionKind === "shopListing"
-              ? campSelection.shopListingId
-              : null
+      {/* This replaces the pending signal tiles used to get from disabled
+          styling (now driven by presentation alone). Tiles are
+          deliberately not dimmed, to avoid flicker on fast responses. */}
+      <div
+        aria-busy={isSubmittingCampIntent}
+        className={isSubmittingCampIntent ? "cursor-wait" : ""}
+      >
+        <GameScreenShell
+          playerBenchCharacters={playerCampRoster}
+          playerSlotInteraction={{
+            selectedSlotIndex:
+              campSelection.selectionKind === "rosterSlot"
+                ? campSelection.slotIndex
+                : null,
+            isSlotEnabled: (slotIndex) =>
+              isClickEnabled({ targetKind: "rosterSlot", slotIndex }),
+            onSlotClick: (slotIndex) =>
+              handleCampClick({ targetKind: "rosterSlot", slotIndex }),
+            slotButtonLabel: (slotIndex) => {
+              const character = playerCampRoster[slotIndex];
+              return character
+                ? t("rosterSlotOccupiedLabel", {
+                    slotNumber: slotIndex + 1,
+                    characterName: character.name,
+                  })
+                : t("rosterSlotEmptyLabel", { slotNumber: slotIndex + 1 });
+            },
+            isSlotDraggable: (slotIndex) =>
+              !isSubmittingCampIntent &&
+              isRosterSlotSelectable(playerCampRoster, slotIndex),
+            slotPresentation: (slotIndex) =>
+              campTargetPresentation({ targetKind: "rosterSlot", slotIndex }),
+          }}
+        >
+          <section className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
+            <h1 className="text-2xl font-bold">{t("phaseCamp")}</h1>
+            <ShopPanel
+              shopCatalogue={shopCatalogue}
+              purchasedShopListingIds={purchasedShopListingIds}
+              selectedShopListingId={
+                campSelection.selectionKind === "shopListing"
+                  ? campSelection.shopListingId
+                  : null
+              }
+              isListingEnabled={(shopListingId) =>
+                isClickEnabled({ targetKind: "shopListing", shopListingId })
+              }
+              isListingDraggable={(shopListingId) =>
+                !isSubmittingCampIntent &&
+                isShopListingSelectable(
+                  campState,
+                  shopCatalogue,
+                  shopListingId,
+                )
+              }
+              listingPresentation={(shopListingId) =>
+                campTargetPresentation({
+                  targetKind: "shopListing",
+                  shopListingId,
+                })
+              }
+              onListingClick={(shopListingId) =>
+                handleCampClick({ targetKind: "shopListing", shopListingId })
+              }
+            />
+            <p className="text-muted-foreground">
+              {t("dayLabel", { day })} — {t("goldLabel", { gold })}
+            </p>
+            <form action={advanceGameAction}>
+              <input
+                type="hidden"
+                name="expectedCurrentPhase"
+                value="campPhase"
+              />
+              <PendingSubmitButton size="lg">
+                {t("toBattle")}
+              </PendingSubmitButton>
+            </form>
+          </section>
+        </GameScreenShell>
+      </div>
+      <DragOverlay dropAnimation={null}>
+        {(source) => {
+          const character = source.data.character as Character | undefined;
+
+          if (!character) {
+            return null;
           }
-          isListingEnabled={(shopListingId) =>
-            isClickEnabled({ targetKind: "shopListing", shopListingId })
-          }
-          onListingClick={(shopListingId) =>
-            handleCampClick({ targetKind: "shopListing", shopListingId })
-          }
-        />
-        <p className="text-muted-foreground">
-          {t("dayLabel", { day })} — {t("goldLabel", { gold })}
-        </p>
-        <form action={advanceGameAction}>
-          <input type="hidden" name="expectedCurrentPhase" value="campPhase" />
-          <PendingSubmitButton size="lg">{t("toBattle")}</PendingSubmitButton>
-        </form>
-      </section>
-    </GameScreenShell>
+
+          return (
+            <div className="aspect-3/4 w-24">
+              <CharacterCard character={character} />
+            </div>
+          );
+        }}
+      </DragOverlay>
+    </DragDropProvider>
   );
 }

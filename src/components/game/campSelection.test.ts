@@ -9,7 +9,9 @@ import {
   isRepositionTargetSlot,
   isRosterSlotSelectable,
   isShopListingSelectable,
+  presentCampTarget,
   resolveCampClick,
+  resolveCampDrop,
   type CampSelection,
 } from "./campSelection";
 
@@ -411,5 +413,260 @@ describe("isCampClickEffective", () => {
         fixtureShopCatalogue,
       ),
     ).toBe(true);
+  });
+});
+
+describe("resolveCampDrop", () => {
+  it("(v) dropping a listing on an empty slot yields a buy intent", () => {
+    const listingOneSelected: CampSelection = {
+      selectionKind: "shopListing",
+      shopListingId: "fixture-listing-1",
+    };
+
+    expect(
+      resolveCampDrop(
+        listingOneSelected,
+        { targetKind: "rosterSlot", slotIndex: 3 },
+        baseCampState,
+        fixtureShopCatalogue,
+      ),
+    ).toEqual({
+      intentKind: "buy",
+      shopListingId: "fixture-listing-1",
+      targetSlotIndex: 3,
+    });
+  });
+
+  it("(w) dropping a listing on an occupied slot yields nothing", () => {
+    const listingOneSelected: CampSelection = {
+      selectionKind: "shopListing",
+      shopListingId: "fixture-listing-1",
+    };
+
+    expect(
+      resolveCampDrop(
+        listingOneSelected,
+        { targetKind: "rosterSlot", slotIndex: 0 },
+        baseCampState,
+        fixtureShopCatalogue,
+      ),
+    ).toBeNull();
+  });
+
+  it("(x) dropping a dwarf on another slot yields a reposition intent", () => {
+    const slotZeroSelected: CampSelection = {
+      selectionKind: "rosterSlot",
+      slotIndex: 0,
+    };
+
+    expect(
+      resolveCampDrop(
+        slotZeroSelected,
+        { targetKind: "rosterSlot", slotIndex: 5 },
+        baseCampState,
+        fixtureShopCatalogue,
+      ),
+    ).toEqual({
+      intentKind: "reposition",
+      fromSlotIndex: 0,
+      toSlotIndex: 5,
+    });
+  });
+
+  it("(y) dropping a dwarf on its own slot yields nothing", () => {
+    const slotZeroSelected: CampSelection = {
+      selectionKind: "rosterSlot",
+      slotIndex: 0,
+    };
+
+    expect(
+      resolveCampDrop(
+        slotZeroSelected,
+        { targetKind: "rosterSlot", slotIndex: 0 },
+        baseCampState,
+        fixtureShopCatalogue,
+      ),
+    ).toBeNull();
+  });
+
+  it("(z) dropping a listing already bought this visit yields nothing", () => {
+    const listingOneSelected: CampSelection = {
+      selectionKind: "shopListing",
+      shopListingId: "fixture-listing-1",
+    };
+    const campStateWithListingAlreadyPurchased: CampState = {
+      ...baseCampState,
+      purchasedShopListingIds: ["fixture-listing-1"],
+    };
+
+    expect(
+      resolveCampDrop(
+        listingOneSelected,
+        { targetKind: "rosterSlot", slotIndex: 3 },
+        campStateWithListingAlreadyPurchased,
+        fixtureShopCatalogue,
+      ),
+    ).toBeNull();
+  });
+});
+
+describe("presentCampTarget", () => {
+  const nothingHeld: CampSelection = { selectionKind: "none" };
+  const listingOneHeld: CampSelection = {
+    selectionKind: "shopListing",
+    shopListingId: "fixture-listing-1",
+  };
+  const slotZeroHeld: CampSelection = {
+    selectionKind: "rosterSlot",
+    slotIndex: 0,
+  };
+
+  it("(aa) with nothing in hand, every target is neutral", () => {
+    expect(
+      [
+        presentCampTarget(
+          nothingHeld,
+          { targetKind: "rosterSlot", slotIndex: 0 },
+          baseCampState,
+          fixtureShopCatalogue,
+        ),
+        presentCampTarget(
+          nothingHeld,
+          { targetKind: "rosterSlot", slotIndex: 3 },
+          baseCampState,
+          fixtureShopCatalogue,
+        ),
+        presentCampTarget(
+          nothingHeld,
+          { targetKind: "shopListing", shopListingId: "fixture-listing-1" },
+          baseCampState,
+          fixtureShopCatalogue,
+        ),
+      ],
+    ).toEqual(["neutral", "neutral", "neutral"]);
+  });
+
+  it("(bb) the held listing presents as held", () => {
+    expect(
+      presentCampTarget(
+        listingOneHeld,
+        { targetKind: "shopListing", shopListingId: "fixture-listing-1" },
+        baseCampState,
+        fixtureShopCatalogue,
+      ),
+    ).toBe("held");
+  });
+
+  it("(cc) with a listing in hand, empty slots are eligible", () => {
+    expect(
+      presentCampTarget(
+        listingOneHeld,
+        { targetKind: "rosterSlot", slotIndex: 3 },
+        baseCampState,
+        fixtureShopCatalogue,
+      ),
+    ).toBe("eligible");
+  });
+
+  it("(dd) with a listing in hand, occupied slots are ineligible", () => {
+    expect(
+      presentCampTarget(
+        listingOneHeld,
+        { targetKind: "rosterSlot", slotIndex: 0 },
+        baseCampState,
+        fixtureShopCatalogue,
+      ),
+    ).toBe("ineligible");
+  });
+
+  it("(ee) with a listing in hand, another buyable listing is neutral because clicking it switches", () => {
+    expect(
+      presentCampTarget(
+        listingOneHeld,
+        { targetKind: "shopListing", shopListingId: "fixture-listing-2" },
+        baseCampState,
+        fixtureShopCatalogue,
+      ),
+    ).toBe("neutral");
+  });
+
+  it("(ff) the held roster slot presents as held", () => {
+    expect(
+      presentCampTarget(
+        slotZeroHeld,
+        { targetKind: "rosterSlot", slotIndex: 0 },
+        baseCampState,
+        fixtureShopCatalogue,
+      ),
+    ).toBe("held");
+  });
+
+  it("(gg) with a dwarf in hand, every other slot is eligible", () => {
+    const otherSlotIndices = [1, 2, 3, 4, 5, 6];
+
+    expect(
+      otherSlotIndices.map((slotIndex) =>
+        presentCampTarget(
+          slotZeroHeld,
+          { targetKind: "rosterSlot", slotIndex },
+          baseCampState,
+          fixtureShopCatalogue,
+        ),
+      ),
+    ).toEqual(["eligible", "eligible", "eligible", "eligible", "eligible", "eligible"]);
+  });
+
+  it("(hh) with a dwarf in hand, a listing that can't be bought is ineligible", () => {
+    const campStateWithListingAlreadyPurchased: CampState = {
+      ...baseCampState,
+      purchasedShopListingIds: ["fixture-listing-1"],
+    };
+
+    expect(
+      presentCampTarget(
+        slotZeroHeld,
+        { targetKind: "shopListing", shopListingId: "fixture-listing-1" },
+        campStateWithListingAlreadyPurchased,
+        fixtureShopCatalogue,
+      ),
+    ).toBe("ineligible");
+  });
+
+  it("(ii) with nothing in hand, a listing the player can't afford is ineligible", () => {
+    const campStateWithTooLittleGold: CampState = {
+      ...baseCampState,
+      gold: 2,
+    };
+
+    expect(
+      presentCampTarget(
+        nothingHeld,
+        { targetKind: "shopListing", shopListingId: "fixture-listing-1" },
+        campStateWithTooLittleGold,
+        fixtureShopCatalogue,
+      ),
+    ).toBe("ineligible");
+  });
+
+  it("(jj) with nothing in hand, listings are ineligible when the roster is full", () => {
+    expect(
+      presentCampTarget(
+        nothingHeld,
+        { targetKind: "shopListing", shopListingId: "fixture-listing-1" },
+        fullCampState,
+        fixtureShopCatalogue,
+      ),
+    ).toBe("ineligible");
+  });
+
+  it("(kk) with nothing in hand, an occupied slot is neutral", () => {
+    expect(
+      presentCampTarget(
+        nothingHeld,
+        { targetKind: "rosterSlot", slotIndex: 0 },
+        baseCampState,
+        fixtureShopCatalogue,
+      ),
+    ).toBe("neutral");
   });
 });

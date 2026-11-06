@@ -1,15 +1,20 @@
 import type { Character } from "@/lib/battle/types";
+import type { CampTargetPresentation } from "./campSelection";
+import { InteractiveRosterSlotButton } from "./InteractiveRosterSlotButton";
 import { RosterSlot } from "./RosterSlot";
 
 const SLOT_COUNT = 7;
 
-// Optional click-select wiring for the player's roster slots in camp.
-// Absent entirely in battle, where slots are display-only.
+// Optional click-select (and, in camp, drag-and-drop) wiring for the
+// player's roster slots. Absent entirely in battle, where slots are
+// display-only.
 export interface RosterSlotInteraction {
   selectedSlotIndex: number | null;
   isSlotEnabled: (slotIndex: number) => boolean;
   onSlotClick: (slotIndex: number) => void;
   slotButtonLabel: (slotIndex: number) => string;
+  isSlotDraggable: (slotIndex: number) => boolean;
+  slotPresentation: (slotIndex: number) => CampTargetPresentation;
 }
 
 interface RosterSlabProps {
@@ -43,24 +48,18 @@ export function RosterSlab({
           // exactly the bug this fixes.
           <div key={i} className="flex-1">
             {slotInteraction ? (
-              <button
-                type="button"
-                aria-label={slotInteraction.slotButtonLabel(i)}
-                aria-pressed={slotInteraction.selectedSlotIndex === i}
-                disabled={!slotInteraction.isSlotEnabled(i)}
+              <InteractiveRosterSlotButton
+                slotIndex={i}
+                character={character ?? undefined}
+                facing={facing}
+                isNext={i === 0 && Boolean(character)}
+                buttonLabel={slotInteraction.slotButtonLabel(i)}
+                isSelected={slotInteraction.selectedSlotIndex === i}
+                isEnabled={slotInteraction.isSlotEnabled(i)}
                 onClick={() => slotInteraction.onSlotClick(i)}
-                className={`block w-full rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 ${
-                  slotInteraction.selectedSlotIndex === i
-                    ? "ring-2 ring-ring"
-                    : ""
-                }`}
-              >
-                <RosterSlot
-                  character={character ?? undefined}
-                  facing={facing}
-                  isNext={i === 0 && Boolean(character)}
-                />
-              </button>
+                isDraggable={slotInteraction.isSlotDraggable(i)}
+                presentation={slotInteraction.slotPresentation(i)}
+              />
             ) : (
               <RosterSlot
                 character={character ?? undefined}

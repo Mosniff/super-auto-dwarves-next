@@ -164,4 +164,70 @@ describe("CampScreen", () => {
       ).toBeDisabled();
     });
   });
+
+  it("(i) a selected tile keeps aria-pressed true", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    await user.click(screen.getByRole("button", { name: "Shop: Thrudi" }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole("button", { name: "Shop: Thrudi" }),
+      ).toHaveAttribute("aria-pressed", "true");
+    });
+  });
+
+  it("(j) no tile is given dnd-kit's draggable role description", () => {
+    renderCampScreen();
+
+    expect(
+      document.querySelectorAll('[aria-roledescription="draggable"]'),
+    ).toHaveLength(0);
+  });
+
+  it("(k) with a listing selected, empty slots present as eligible and occupied ones as ineligible", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    await user.click(screen.getByRole("button", { name: "Shop: Thrudi" }));
+
+    expect(
+      screen.getByRole("button", { name: "Slot 4: empty" }),
+    ).toHaveAttribute("data-camp-target-presentation", "eligible");
+    expect(
+      screen.getByRole("button", { name: "Slot 1: Borin" }),
+    ).toHaveAttribute("data-camp-target-presentation", "ineligible");
+  });
+
+  it("(l) with nothing selected, an empty slot presents as neutral", () => {
+    renderCampScreen();
+
+    expect(
+      screen.getByRole("button", { name: "Slot 2: empty" }),
+    ).toHaveAttribute("data-camp-target-presentation", "neutral");
+  });
+
+  it("(m) with nothing in hand, a listing the player can't afford presents as ineligible", () => {
+    renderCampScreen({ gold: 2 });
+
+    expect(
+      screen.getByRole("button", { name: "Shop: Thrudi" }),
+    ).toHaveAttribute("data-camp-target-presentation", "ineligible");
+  });
+
+  it("(n) marks the camp busy while an intent is pending", async () => {
+    const buyCharacterAction = () => new Promise<void>(() => {});
+    const user = userEvent.setup();
+    renderCampScreen({ buyCharacterAction });
+
+    await user.click(screen.getByRole("button", { name: "Shop: Thrudi" }));
+    await user.click(screen.getByRole("button", { name: "Slot 4: empty" }));
+
+    await waitFor(() => {
+      expect(
+        document.querySelector('[aria-busy="true"]'),
+      ).not.toBeNull();
+    });
+  });
 });

@@ -270,3 +270,96 @@ export function isCampClickEffective(
     !isSameCampSelection(campSelection, nextCampSelection)
   );
 }
+
+// A drop is "select the dragged item, then click the target", so drops
+// obey exactly the same rules and hints as click-select.
+export function resolveCampDrop(
+  dragSourceSelection: CampSelection,
+  dropTarget: CampClickTarget,
+  campState: CampState,
+  shopCatalogue: ShopListing[],
+): CampIntent | null {
+  return resolveCampClick(
+    dragSourceSelection,
+    dropTarget,
+    campState,
+    shopCatalogue,
+  ).campIntentToSubmit;
+}
+
+export type CampTargetPresentation =
+  | "held"
+  | "eligible"
+  | "ineligible"
+  | "neutral";
+
+// This is the single source of every tile's hint, so click-select and drag
+// can't present differently. With nothing in hand, a tile that holds a
+// pick-up-able item (an unbought listing, or an occupied roster slot)
+// shows whether it can be picked up; an empty slot holds nothing to pick
+// up, so it just looks empty ("neutral").
+export function presentCampTarget(
+  heldCampItem: CampSelection,
+  campClickTarget: CampClickTarget,
+  campState: CampState,
+  shopCatalogue: ShopListing[],
+): CampTargetPresentation {
+  if (heldCampItem.selectionKind === "none") {
+    if (campClickTarget.targetKind === "shopListing") {
+      return isShopListingSelectable(
+        campState,
+        shopCatalogue,
+        campClickTarget.shopListingId,
+      )
+        ? "neutral"
+        : "ineligible";
+    }
+
+    if (campState.campRoster[campClickTarget.slotIndex] === null) {
+      return "neutral";
+    }
+
+    return isRosterSlotSelectable(
+      campState.campRoster,
+      campClickTarget.slotIndex,
+    )
+      ? "neutral"
+      : "ineligible";
+  }
+
+  const isHeldTarget =
+    (heldCampItem.selectionKind === "shopListing" &&
+      campClickTarget.targetKind === "shopListing" &&
+      heldCampItem.shopListingId === campClickTarget.shopListingId) ||
+    (heldCampItem.selectionKind === "rosterSlot" &&
+      campClickTarget.targetKind === "rosterSlot" &&
+      heldCampItem.slotIndex === campClickTarget.slotIndex);
+
+  if (isHeldTarget) {
+    return "held";
+  }
+
+  const { campIntentToSubmit } = resolveCampClick(
+    heldCampItem,
+    campClickTarget,
+    campState,
+    shopCatalogue,
+  );
+
+  if (campIntentToSubmit !== null) {
+    return "eligible";
+  }
+
+  if (
+    isCampClickEffective(
+      heldCampItem,
+      campClickTarget,
+      campState,
+      shopCatalogue,
+    )
+  ) {
+    return "neutral";
+  }
+
+  return "ineligible";
+}
