@@ -5,7 +5,12 @@ import { CampScreen } from "@/components/game/CampScreen";
 import { readCurrentUserId } from "@/lib/supabase/readCurrentUserId";
 import { prismaGameRepository } from "@/lib/persistence/prismaGameRepository";
 import { loadSavedGameForUser } from "@/lib/persistence/loadSavedGameForUser";
-import { advanceGameAction } from "../../gameActions";
+import { DUMMY_SHOP_CATALOGUE } from "@/lib/game/dummyShopCatalogue";
+import {
+  advanceGameAction,
+  buyCharacterAction,
+  repositionCharacterAction,
+} from "../../gameActions";
 
 // Never signs anyone in. It renders whichever screen the saved phase
 // dictates — camp in campPhase, battle in battlePhase. The battle still
@@ -33,7 +38,12 @@ export default async function PlayPage() {
         playerCampRoster={savedGame.gameState.playerRoster}
         day={savedGame.gameState.day}
         gold={savedGame.gameState.gold}
+        purchasedShopListingIds={savedGame.gameState.purchasedShopListingIds}
+        shopCatalogue={DUMMY_SHOP_CATALOGUE}
+        revision={savedGame.revision}
         advanceGameAction={advanceGameAction}
+        buyCharacterAction={buyCharacterAction}
+        repositionCharacterAction={repositionCharacterAction}
       />
     );
   }

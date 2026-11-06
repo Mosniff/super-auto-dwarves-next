@@ -1,6 +1,7 @@
 "use server";
 
 import { randomUUID } from "node:crypto";
+import { refresh } from "next/cache";
 import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { readCurrentUserId } from "@/lib/supabase/readCurrentUserId";
@@ -84,9 +85,14 @@ export async function advanceGameAction(formData: FormData): Promise<void> {
   await redirectToLocalePath("/play");
 }
 
-// Accepted, rejected and stale outcomes all redirect to /play, so the
+// Accepted, rejected and stale outcomes all end with refresh(), so the
 // player sees the authoritative state. Player-facing rejection messages
 // are deferred, like the rest of error UX.
+//
+// It is refresh() rather than a redirect deliberately: a redirect to the
+// current page is a navigation and remounts the camp, replaying every
+// card's entrance animation, whereas refresh() re-renders in place, so
+// only changed slots animate.
 export async function buyCharacterAction(formData: FormData): Promise<void> {
   const userId = await requireSignedInUserId();
 
@@ -121,7 +127,7 @@ export async function buyCharacterAction(formData: FormData): Promise<void> {
     },
   );
 
-  await redirectToLocalePath("/play");
+  refresh();
 }
 
 export async function repositionCharacterAction(
@@ -157,7 +163,7 @@ export async function repositionCharacterAction(
     prismaGameRepository,
   );
 
-  await redirectToLocalePath("/play");
+  refresh();
 }
 
 export async function deleteGameAction(): Promise<void> {

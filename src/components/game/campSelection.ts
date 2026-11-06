@@ -225,3 +225,48 @@ export function resolveCampClick(
   }
   return unchanged;
 }
+
+function isSameCampSelection(
+  firstCampSelection: CampSelection,
+  secondCampSelection: CampSelection,
+): boolean {
+  if (firstCampSelection.selectionKind !== secondCampSelection.selectionKind) {
+    return false;
+  }
+  if (
+    firstCampSelection.selectionKind === "shopListing" &&
+    secondCampSelection.selectionKind === "shopListing"
+  ) {
+    return (
+      firstCampSelection.shopListingId === secondCampSelection.shopListingId
+    );
+  }
+  if (
+    firstCampSelection.selectionKind === "rosterSlot" &&
+    secondCampSelection.selectionKind === "rosterSlot"
+  ) {
+    return firstCampSelection.slotIndex === secondCampSelection.slotIndex;
+  }
+  return true;
+}
+
+// UI tiles are enabled exactly when their click is effective, so disabled
+// state can't disagree with click behaviour.
+export function isCampClickEffective(
+  campSelection: CampSelection,
+  campClickTarget: CampClickTarget,
+  campState: CampState,
+  shopCatalogue: ShopListing[],
+): boolean {
+  const { nextCampSelection, campIntentToSubmit } = resolveCampClick(
+    campSelection,
+    campClickTarget,
+    campState,
+    shopCatalogue,
+  );
+
+  return (
+    campIntentToSubmit !== null ||
+    !isSameCampSelection(campSelection, nextCampSelection)
+  );
+}

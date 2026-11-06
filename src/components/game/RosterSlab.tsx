@@ -3,14 +3,25 @@ import { RosterSlot } from "./RosterSlot";
 
 const SLOT_COUNT = 7;
 
+// Optional click-select wiring for the player's roster slots in camp.
+// Absent entirely in battle, where slots are display-only.
+export interface RosterSlotInteraction {
+  selectedSlotIndex: number | null;
+  isSlotEnabled: (slotIndex: number) => boolean;
+  onSlotClick: (slotIndex: number) => void;
+  slotButtonLabel: (slotIndex: number) => string;
+}
+
 interface RosterSlabProps {
   characters: (Character | null)[];
   variant?: "player" | "enemy";
+  slotInteraction?: RosterSlotInteraction;
 }
 
 export function RosterSlab({
   characters,
   variant = "player",
+  slotInteraction,
 }: RosterSlabProps) {
   const slots = Array.from({ length: SLOT_COUNT }, (_, i) => characters[i]);
   const facing = variant === "enemy" ? "left" : "right";
@@ -31,11 +42,32 @@ export function RosterSlab({
           // (including AnimatePresence) on every occupant change, which is
           // exactly the bug this fixes.
           <div key={i} className="flex-1">
-            <RosterSlot
-              character={character ?? undefined}
-              facing={facing}
-              isNext={i === 0 && Boolean(character)}
-            />
+            {slotInteraction ? (
+              <button
+                type="button"
+                aria-label={slotInteraction.slotButtonLabel(i)}
+                aria-pressed={slotInteraction.selectedSlotIndex === i}
+                disabled={!slotInteraction.isSlotEnabled(i)}
+                onClick={() => slotInteraction.onSlotClick(i)}
+                className={`block w-full rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 ${
+                  slotInteraction.selectedSlotIndex === i
+                    ? "ring-2 ring-ring"
+                    : ""
+                }`}
+              >
+                <RosterSlot
+                  character={character ?? undefined}
+                  facing={facing}
+                  isNext={i === 0 && Boolean(character)}
+                />
+              </button>
+            ) : (
+              <RosterSlot
+                character={character ?? undefined}
+                facing={facing}
+                isNext={i === 0 && Boolean(character)}
+              />
+            )}
           </div>
         ))}
       </div>

@@ -13,8 +13,10 @@ describe("locale message parity", () => {
   // phaseBattle, deleteSaveTitle, deleteSaveDescription), and again for the
   // (menu) route group's Back button on the saves page (back), and again
   // for the /play camp screen and dummy-battle label (toBattle,
-  // returnToCamp, goldLabel, dummyBattleLabel) — deliberate test-data
-  // updates, not a weakening.
+  // returnToCamp, goldLabel, dummyBattleLabel), and again for the Phase 8
+  // camp shop and clickable roster slots (shopHeading,
+  // shopListingSoldLabel, shopListingButtonLabel, rosterSlotOccupiedLabel,
+  // rosterSlotEmptyLabel) — deliberate test-data updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
     "advance",
@@ -45,6 +47,11 @@ describe("locale message parity", () => {
     "returnToCamp",
     "goldLabel",
     "dummyBattleLabel",
+    "shopHeading",
+    "shopListingSoldLabel",
+    "shopListingButtonLabel",
+    "rosterSlotOccupiedLabel",
+    "rosterSlotEmptyLabel",
   ];
   const expectedBattleKeys = [
     "battleStart",

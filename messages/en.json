@@ -28,7 +28,12 @@
     "toBattle": "To battle",
     "returnToCamp": "Return to camp",
     "goldLabel": "{gold} gold",
-    "dummyBattleLabel": "DUMMY BATTLE"
+    "dummyBattleLabel": "DUMMY BATTLE",
+    "shopHeading": "Shop",
+    "shopListingSoldLabel": "Sold",
+    "shopListingButtonLabel": "Shop: {characterName}",
+    "rosterSlotOccupiedLabel": "Slot {slotNumber}: {characterName}",
+    "rosterSlotEmptyLabel": "Slot {slotNumber}: empty"
   },
   "battle": {
     "battleStart": "Battle start!",

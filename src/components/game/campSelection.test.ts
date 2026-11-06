@@ -5,6 +5,7 @@ import type { CampState } from "@/lib/game/campState";
 import type { CharacterTemplate, ShopListing } from "@/lib/game/shop";
 import {
   isBuyTargetSlot,
+  isCampClickEffective,
   isRepositionTargetSlot,
   isRosterSlotSelectable,
   isShopListingSelectable,
@@ -347,5 +348,68 @@ describe("resolveCampClick", () => {
       },
       campIntentToSubmit: null,
     });
+  });
+});
+
+describe("isCampClickEffective", () => {
+  const noneSelected: CampSelection = { selectionKind: "none" };
+
+  it("(r) a click that selects something is effective", () => {
+    expect(
+      isCampClickEffective(
+        noneSelected,
+        { targetKind: "shopListing", shopListingId: "fixture-listing-1" },
+        baseCampState,
+        fixtureShopCatalogue,
+      ),
+    ).toBe(true);
+  });
+
+  it("(s) clicking the selected item again is effective, because it cancels", () => {
+    const listingOneSelected: CampSelection = {
+      selectionKind: "shopListing",
+      shopListingId: "fixture-listing-1",
+    };
+
+    expect(
+      isCampClickEffective(
+        listingOneSelected,
+        { targetKind: "shopListing", shopListingId: "fixture-listing-1" },
+        baseCampState,
+        fixtureShopCatalogue,
+      ),
+    ).toBe(true);
+  });
+
+  it("(t) a click that would change nothing is not effective", () => {
+    const listingOneSelected: CampSelection = {
+      selectionKind: "shopListing",
+      shopListingId: "fixture-listing-1",
+    };
+
+    expect(
+      isCampClickEffective(
+        listingOneSelected,
+        { targetKind: "rosterSlot", slotIndex: 0 },
+        baseCampState,
+        fixtureShopCatalogue,
+      ),
+    ).toBe(false);
+  });
+
+  it("(u) a click that submits an intent is effective", () => {
+    const listingOneSelected: CampSelection = {
+      selectionKind: "shopListing",
+      shopListingId: "fixture-listing-1",
+    };
+
+    expect(
+      isCampClickEffective(
+        listingOneSelected,
+        { targetKind: "rosterSlot", slotIndex: 3 },
+        baseCampState,
+        fixtureShopCatalogue,
+      ),
+    ).toBe(true);
   });
 });
