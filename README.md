@@ -2,7 +2,7 @@
 
 A fantasy auto-battler inspired by Super Auto Pets, Choose Your Own Adventure games, and Dungeons & Dragons. The game features both PvE and asynchronous PvP battles.
 
-> **Status:** Architecture and tech stack decided; project scaffolded. The **fundamental battle system** is specified (see [Battle system](#battle-system)), the app is **internationalized** (English + Japanese, via next-intl), and the **save loop** and a basic **camp** are playable: guest sessions, one save per user, buying and arranging dwarves from a placeholder shop. Other game systems (cards, progression, richer shopping, abilities) remain to be defined — see the [Roadmap](#roadmap) and `CLAUDE.md` for contributor/architecture conventions.
+> **Status:** Architecture and tech stack decided; project scaffolded. The **fundamental battle system** is specified (see [Battle system](#battle-system)), the app is **internationalized** (English + Japanese, via next-intl), and the **save loop** is playable end to end: guest sessions, one save per user, buying and arranging dwarves from a placeholder shop, then battling with them against a placeholder enemy. Other game systems (cards, progression, richer shopping, abilities) remain to be defined — see the [Roadmap](#roadmap) and `CLAUDE.md` for contributor/architecture conventions.
 
 ---
 
@@ -115,7 +115,9 @@ The **fundamental battle system** is specified (see above). Still to be specifie
 - [x] Internationalization — English + Japanese via next-intl, route-segment locales _(see `CLAUDE.md` → "Internationalization (i18n)")_
 - [x] Sessions & saves — anonymous guest sessions, one save per user, the camp ↔ battle loop _(Phase 7; see `CLAUDE.md` → "Persistence & save model")_
 - [x] Camp — placeholder shop, buy and arrange dwarves by click or drag, server-authoritative _(Phase 8 part one; see `CLAUDE.md` → "Camp: shop, roster and intents")_
-- [ ] Real battles — resolved on the server from the saved roster against a placeholder enemy _(Phase 8 part two)_
+- [x] Real battles — resolved on the server from the saved roster against a placeholder enemy _(Phase 8 part two)_
+- [ ] Enemy generation — PvE opponents and PvP roster snapshots
+- [ ] Battle consequences — game over on loss, rewards on win
 - [ ] Card model and card types
 - [ ] Character stats and progression / leveling rules
 - [~] Roster construction and constraints (shopping phase) — basic camp rules defined; stock, rerolls, tiers, selling and promotion still to come
