@@ -2,7 +2,7 @@
 
 A fantasy auto-battler inspired by Super Auto Pets, Choose Your Own Adventure games, and Dungeons & Dragons. The game features both PvE and asynchronous PvP battles.
 
-> **Status:** Architecture and tech stack decided; project scaffolded. The **fundamental battle system** is now specified (see [Battle system](#battle-system)), and the app is now **internationalized** (English + Japanese, via next-intl). Other game systems (cards, progression, shopping, abilities) remain to be defined — see the [Roadmap](#roadmap) and `CLAUDE.md` for contributor/architecture conventions.
+> **Status:** Architecture and tech stack decided; project scaffolded. The **fundamental battle system** is specified (see [Battle system](#battle-system)), the app is **internationalized** (English + Japanese, via next-intl), and the **save loop** and a basic **camp** are playable: guest sessions, one save per user, buying and arranging dwarves from a placeholder shop. Other game systems (cards, progression, richer shopping, abilities) remain to be defined — see the [Roadmap](#roadmap) and `CLAUDE.md` for contributor/architecture conventions.
 
 ---
 
@@ -20,21 +20,22 @@ PvP works without any live connection between players. Because a battle is fully
 
 ## Tech stack
 
-| Layer          | Choice                                              | Notes                                                                                                  |
-| -------------- | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| Framework      | **Next.js** (App Router)                            | Server Components, Server Actions, SSR, dynamic routes.                                                |
-| UI library     | **React**                                           | Game board is a client island; surrounding pages are server-rendered.                                  |
-| Language       | **TypeScript**                                      | Static typing throughout.                                                                              |
-| Styling        | **Tailwind CSS**                                    | Utility-first; ecosystem standard for Next.js.                                                         |
-| UI components  | **shadcn/ui**                                       | Copied-in components (Radix + Tailwind) for menus, buttons, dialogs. You own the code.                 |
-| Animation      | **Framer Motion** (now published as `motion`) + CSS | CSS transitions for trivial state changes; Framer Motion for orchestrated/sequenced game-board motion. |
-| Database       | **PostgreSQL**                                      | Hosted via **Supabase**.                                                                               |
-| ORM            | **Prisma**                                          | Schema-first, type-safe.                                                                               |
-| Auth           | **Supabase Auth**                                   | Managed sign-up, login and sessions, so rosters persist per user.                                      |
-| Data mutations | **Server Actions** (preferred) / Route Handlers     | Idiomatic modern Next.js.                                                                              |
-| Internationalization | **next-intl**                                 | Route-segment locales (/en, /ja); English + Japanese.                                                  |
-| Testing        | **Vitest**                                          | Pure-logic unit tests + lighter integration tests.                                                     |
-| Hosting        | **Vercel**                                          | Next.js's native deployment target.                                                                    |
+| Layer                | Choice                                              | Notes                                                                                                                                                     |
+| -------------------- | --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Framework            | **Next.js** (App Router)                            | Server Components, Server Actions, SSR, dynamic routes.                                                                                                   |
+| UI library           | **React**                                           | Game board is a client island; surrounding pages are server-rendered.                                                                                     |
+| Language             | **TypeScript**                                      | Static typing throughout.                                                                                                                                 |
+| Styling              | **Tailwind CSS**                                    | Utility-first; ecosystem standard for Next.js.                                                                                                            |
+| UI components        | **shadcn/ui**                                       | Copied-in components (Radix + Tailwind) for menus, buttons, dialogs. You own the code.                                                                    |
+| Animation            | **Framer Motion** (now published as `motion`) + CSS | CSS transitions for trivial state changes; Framer Motion for orchestrated/sequenced game-board motion.                                                    |
+| Drag and drop        | **@dnd-kit/react** (exact-pinned)                   | Pointer drag in the camp, layered over click-select (the keyboard- and screen-reader-accessible path).                                                    |
+| Database             | **PostgreSQL**                                      | Hosted via **Supabase**.                                                                                                                                  |
+| ORM                  | **Prisma**                                          | Schema-first, type-safe.                                                                                                                                  |
+| Auth                 | **Supabase Auth**                                   | Anonymous-first guest sessions — no sign-up screen. Permanent logins come later by linking an identity to the guest, keeping the same user id (and save). |
+| Data mutations       | **Server Actions** (preferred) / Route Handlers     | Idiomatic modern Next.js.                                                                                                                                 |
+| Internationalization | **next-intl**                                       | Route-segment locales (/en, /ja); English + Japanese.                                                                                                     |
+| Testing              | **Vitest**                                          | Pure-logic unit tests + lighter integration tests.                                                                                                        |
+| Hosting              | **Vercel**                                          | Next.js's native deployment target.                                                                                                                       |
 
 ---
 
@@ -84,7 +85,7 @@ See `CLAUDE.md` for the full set of architectural rules and conventions.
 
 ## Testing
 
-Tests use **Vitest**. The bulk are fast pure-logic unit tests over the framework-free game-logic modules (the battle system especially), with a smaller set of integration tests for the persistence wiring. The battle system being a deterministic function of two rosters makes it straightforward to test exhaustively.
+Tests use **Vitest**. The bulk are fast pure-logic unit tests over the framework-free game-logic modules (the battle system and camp rules especially), plus handler tests that run against fake repositories and jsdom component tests that check interaction states. The battle system being a deterministic function of two rosters makes it straightforward to test exhaustively.
 
 ---
 
@@ -112,8 +113,11 @@ The **fundamental battle system** is specified (see above). Still to be specifie
 - [x] Turn structure and win/loss/draw conditions _(fundamental battle system)_
 - [x] Battle resolution model — event stream, resolve-once/replay-many _(see `CLAUDE.md`)_
 - [x] Internationalization — English + Japanese via next-intl, route-segment locales _(see `CLAUDE.md` → "Internationalization (i18n)")_
+- [x] Sessions & saves — anonymous guest sessions, one save per user, the camp ↔ battle loop _(Phase 7; see `CLAUDE.md` → "Persistence & save model")_
+- [x] Camp — placeholder shop, buy and arrange dwarves by click or drag, server-authoritative _(Phase 8 part one; see `CLAUDE.md` → "Camp: shop, roster and intents")_
+- [ ] Real battles — resolved on the server from the saved roster against a placeholder enemy _(Phase 8 part two)_
 - [ ] Card model and card types
 - [ ] Character stats and progression / leveling rules
-- [ ] Roster construction and constraints (shopping phase)
+- [~] Roster construction and constraints (shopping phase) — basic camp rules defined; stock, rerolls, tiers, selling and promotion still to come
 - [ ] Character abilities and triggered effects (extends the fundamental battle system)
 - [~] Data model (Prisma schema) — the User/Game save model is now defined _(see `CLAUDE.md` → "Persistence & save model")_; schema for the game systems below (cards, progression, abilities) still pending
