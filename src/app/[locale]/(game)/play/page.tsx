@@ -6,6 +6,8 @@ import { readCurrentUserId } from "@/lib/supabase/readCurrentUserId";
 import { prismaGameRepository } from "@/lib/persistence/prismaGameRepository";
 import { loadSavedGameForUser } from "@/lib/persistence/loadSavedGameForUser";
 import { DUMMY_SHOP_CATALOGUE } from "@/lib/game/dummyShopCatalogue";
+import { DUMMY_ENEMY_ROSTER } from "@/lib/game/dummyEnemyRoster";
+import { resolveCampBattle } from "@/lib/game/resolveCampBattle";
 import {
   advanceGameAction,
   buyCharacterAction,
@@ -13,8 +15,10 @@ import {
 } from "../../gameActions";
 
 // Never signs anyone in. It renders whichever screen the saved phase
-// dictates — camp in campPhase, battle in battlePhase. The battle still
-// uses dummy data until Phase 8.
+// dictates — camp in campPhase, battle in battlePhase. The battle is
+// resolved here, on the server, from the saved camp roster against the
+// placeholder enemy; it is deterministic, so a reload replays the
+// identical battle and nothing battle-derived is stored.
 export default async function PlayPage() {
   const userId = await readCurrentUserId();
 
@@ -48,5 +52,15 @@ export default async function PlayPage() {
     );
   }
 
-  return <BattleScreen returnToCampAction={advanceGameAction} />;
+  const resolvedBattle = resolveCampBattle(
+    savedGame.gameState.playerRoster,
+    DUMMY_ENEMY_ROSTER,
+  );
+
+  return (
+    <BattleScreen
+      resolvedBattle={resolvedBattle}
+      returnToCampAction={advanceGameAction}
+    />
+  );
 }

@@ -1,8 +1,8 @@
 import type { ShopListing } from "./shop";
 
 // Placeholder shop data — the same fixed listings every visit — until shop
-// logic (stock, rerolls, tiers) is specified. Deliberately copied, not
-// imported, from dummy-battle.ts, which part two of Phase 8 removes.
+// logic (stock, rerolls, tiers) is specified. These stats were copied,
+// not imported, from the now-removed dummy-battle.ts.
 export const DUMMY_SHOP_CATALOGUE: ShopListing[] = [
   {
     shopListingId: "dummy-listing-1",

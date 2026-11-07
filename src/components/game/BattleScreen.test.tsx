@@ -10,15 +10,31 @@ import {
   fireEvent,
   act,
 } from "@/test/renderWithMessages";
+import { resolveBattle } from "@/lib/battle/resolveBattle";
 import { BattleScreen } from "./BattleScreen";
 
 const AUTOPLAY_INTERVAL_MS = 1100;
-// Comfortably more ticks than the dummy rosters' battle has beats.
+// Comfortably more ticks than the fixture battle has beats.
 const AUTOPLAY_TICKS_TO_RUN_OUT_THE_BATTLE = 40;
+
+const fixtureGrukk = {
+  id: "fixture-enemy-1",
+  name: "Grukk",
+  attack: 5,
+  hp: 6,
+  maxHp: 6,
+};
+
+const playerWinResolvedBattle = resolveBattle(
+  [{ id: "fixture-player-1", name: "Borin", attack: 6, hp: 10, maxHp: 10 }],
+  [fixtureGrukk],
+);
+
+const emptyRosterResolvedBattle = resolveBattle([], [fixtureGrukk]);
 
 describe("BattleScreen", () => {
   it("renders the battle screen with the advance and autoplay controls", () => {
-    renderWithMessages(<BattleScreen />);
+    renderWithMessages(<BattleScreen resolvedBattle={playerWinResolvedBattle} />);
 
     expect(
       screen.getByRole("button", { name: /advance/i }),
@@ -38,7 +54,7 @@ describe("BattleScreen", () => {
       // for fake timers; the post-advance lock still needs releasing
       // between clicks via vi.advanceTimersByTime.
       vi.useFakeTimers();
-      renderWithMessages(<BattleScreen />);
+      renderWithMessages(<BattleScreen resolvedBattle={playerWinResolvedBattle} />);
 
       const advanceButton = screen.getByRole("button", { name: /advance/i });
 
@@ -62,7 +78,7 @@ describe("BattleScreen", () => {
 
     it("autoplay progresses and then stops at the end", () => {
       vi.useFakeTimers();
-      renderWithMessages(<BattleScreen />);
+      renderWithMessages(<BattleScreen resolvedBattle={playerWinResolvedBattle} />);
 
       const autoplayToggle = screen.getByRole("button", {
         name: /autoplay/i,
@@ -87,10 +103,10 @@ describe("BattleScreen", () => {
     });
   });
 
-  it("(c) shows the DUMMY BATTLE label", () => {
-    renderWithMessages(<BattleScreen />);
+  it("(c) does not show a DUMMY BATTLE label", () => {
+    renderWithMessages(<BattleScreen resolvedBattle={playerWinResolvedBattle} />);
 
-    expect(screen.getByText("DUMMY BATTLE")).toBeInTheDocument();
+    expect(screen.queryByText("DUMMY BATTLE")).not.toBeInTheDocument();
   });
 
   describe("returning to camp", () => {
@@ -99,7 +115,12 @@ describe("BattleScreen", () => {
     });
 
     it("(d) does not show a Return to camp button before the battle finishes", () => {
-      renderWithMessages(<BattleScreen returnToCampAction={async () => {}} />);
+      renderWithMessages(
+        <BattleScreen
+          resolvedBattle={playerWinResolvedBattle}
+          returnToCampAction={async () => {}}
+        />,
+      );
 
       expect(
         screen.queryByRole("button", { name: "Return to camp" }),
@@ -108,7 +129,12 @@ describe("BattleScreen", () => {
 
     it("(e) shows a Return to camp button after the battle finishes, whose form submits expectedCurrentPhase as battlePhase", () => {
       vi.useFakeTimers();
-      renderWithMessages(<BattleScreen returnToCampAction={async () => {}} />);
+      renderWithMessages(
+        <BattleScreen
+          resolvedBattle={playerWinResolvedBattle}
+          returnToCampAction={async () => {}}
+        />,
+      );
 
       const autoplayToggle = screen.getByRole("button", {
         name: /autoplay/i,
@@ -135,6 +161,37 @@ describe("BattleScreen", () => {
       expect(
         new FormData(form as HTMLFormElement).get("expectedCurrentPhase"),
       ).toBe("battlePhase");
+    });
+  });
+
+  describe("playing back whatever battle it is given", () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("(f) plays back the battle it is given: an empty roster's instant defeat", () => {
+      vi.useFakeTimers();
+      renderWithMessages(
+        <BattleScreen resolvedBattle={emptyRosterResolvedBattle} />,
+      );
+
+      const autoplayToggle = screen.getByRole("button", {
+        name: /autoplay/i,
+      });
+
+      fireEvent.click(autoplayToggle);
+
+      for (
+        let tick = 0;
+        tick < AUTOPLAY_TICKS_TO_RUN_OUT_THE_BATTLE;
+        tick += 1
+      ) {
+        act(() => {
+          vi.advanceTimersByTime(AUTOPLAY_INTERVAL_MS);
+        });
+      }
+
+      expect(screen.getByText(/defeat/i)).toBeInTheDocument();
     });
   });
 });
