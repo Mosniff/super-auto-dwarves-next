@@ -1,11 +1,12 @@
-import type { Character, Roster } from "@/lib/battle/types";
+import type { Roster } from "@/lib/battle/types";
+import type { OwnedCharacter } from "./ownedCharacter";
 
 export const CAMP_ROSTER_SLOT_COUNT = 7;
 
 // Always exactly CAMP_ROSTER_SLOT_COUNT slots, index 0 is the front, gaps
 // (null) allowed anywhere; length is enforced where persisted data is
 // parsed, not here.
-export type CampRosterSlot = Character | null;
+export type CampRosterSlot = OwnedCharacter | null;
 export type CampRoster = CampRosterSlot[];
 
 export function createEmptyCampRoster(): CampRoster {
@@ -28,7 +29,8 @@ export function isCampRosterSlotIndex(candidateSlotIndex: number): boolean {
 // because nothing is downed outside battle.
 export function squeezeCampRoster(campRoster: CampRoster): Roster {
   const activeCharacters = campRoster.filter(
-    (campRosterSlot): campRosterSlot is Character => campRosterSlot !== null,
+    (campRosterSlot): campRosterSlot is OwnedCharacter =>
+      campRosterSlot !== null,
   );
 
   return { activeCharacters, downedCharacters: [] };

@@ -1,15 +1,18 @@
 import { describe, it, expect } from "vitest";
-import type { Character } from "@/lib/battle/types";
+import type { OwnedCharacter } from "./ownedCharacter";
 import { createEmptyCampRoster, type CampRoster } from "./campRoster";
 import { repositionCharacter } from "./repositionCharacter";
 
-function buildFixtureCharacter(id: string, name: string): Character {
+function buildFixtureCharacter(id: string, name: string): OwnedCharacter {
   return {
     id,
     name,
     attack: 1,
     hp: 10,
     maxHp: 10,
+    characterTemplateId: "fixture-dwarf",
+    tier: 1,
+    characterClassIds: ["warrior"],
   };
 }
 

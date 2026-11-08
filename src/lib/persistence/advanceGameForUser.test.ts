@@ -8,7 +8,16 @@ import type { CampRoster } from "@/lib/game/campRoster";
 const FIXTURE_GOLD = 10;
 
 const fixtureCampRoster: CampRoster = [
-  { id: "dwarf-1", name: "Borin", attack: 3, hp: 5, maxHp: 5 },
+  {
+    id: "dwarf-1",
+    name: "Borin",
+    attack: 3,
+    hp: 5,
+    maxHp: 5,
+    characterTemplateId: "fixture-dwarf",
+    tier: 1,
+    characterClassIds: ["warrior"],
+  },
   null,
   null,
   null,

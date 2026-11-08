@@ -1,11 +1,28 @@
-import type { Character } from "@/lib/battle/types";
+import { isCharacterClassId } from "@/lib/game/characterClasses";
+import { isCharacterTier } from "@/lib/game/characterTiers";
+import type { OwnedCharacter } from "@/lib/game/ownedCharacter";
 import { CAMP_ROSTER_SLOT_COUNT, type CampRoster } from "@/lib/game/campRoster";
 
+// Owned characters have no upper bound on their number of classes — only
+// templates are capped at 3 — so this only checks length >= 1, validity and
+// no duplicates.
+function hasValidCharacterClassIds(characterClassIds: unknown): boolean {
+  return (
+    Array.isArray(characterClassIds) &&
+    characterClassIds.length >= 1 &&
+    characterClassIds.every((classId) => isCharacterClassId(classId)) &&
+    new Set(characterClassIds).size === characterClassIds.length
+  );
+}
+
 // The only validator for a persisted character (the old battle-roster
-// parser was removed in Phase 8).
+// parser was removed in Phase 8). Template existence is deliberately not
+// checked here — owned characters are self-contained and may diverge from
+// their template, so characterTemplateId only needs to be a non-empty
+// string.
 function isValidPersistedCharacter(
   candidateCharacter: unknown,
-): candidateCharacter is Character {
+): candidateCharacter is OwnedCharacter {
   if (
     typeof candidateCharacter !== "object" ||
     candidateCharacter === null ||
@@ -14,10 +31,16 @@ function isValidPersistedCharacter(
     return false;
   }
 
-  const { id, name, attack, hp, maxHp } = candidateCharacter as Record<
-    string,
-    unknown
-  >;
+  const {
+    id,
+    name,
+    attack,
+    hp,
+    maxHp,
+    characterTemplateId,
+    tier,
+    characterClassIds,
+  } = candidateCharacter as Record<string, unknown>;
 
   return (
     typeof id === "string" &&
@@ -27,7 +50,11 @@ function isValidPersistedCharacter(
     typeof hp === "number" &&
     Number.isFinite(hp) &&
     typeof maxHp === "number" &&
-    Number.isFinite(maxHp)
+    Number.isFinite(maxHp) &&
+    typeof characterTemplateId === "string" &&
+    characterTemplateId.length > 0 &&
+    isCharacterTier(tier) &&
+    hasValidCharacterClassIds(characterClassIds)
   );
 }
 

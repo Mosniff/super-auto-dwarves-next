@@ -2,17 +2,20 @@
 import { describe, it, expect } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { renderWithMessages, screen, waitFor } from "@/test/renderWithMessages";
-import type { Character } from "@/lib/battle/types";
+import type { OwnedCharacter } from "@/lib/game/ownedCharacter";
 import type { CampRoster } from "@/lib/game/campRoster";
 import type { ShopListing } from "@/lib/game/shop";
 import { CampScreen } from "./CampScreen";
 
-const fixtureBorin: Character = {
+const fixtureBorin: OwnedCharacter = {
   id: "dwarf-1",
   name: "Borin",
   attack: 3,
   hp: 5,
   maxHp: 5,
+  characterTemplateId: "fixture-dwarf",
+  tier: 1,
+  characterClassIds: ["warrior"],
 };
 
 function buildFixtureCampRoster(): CampRoster {
@@ -22,11 +25,25 @@ function buildFixtureCampRoster(): CampRoster {
 const fixtureShopCatalogue: ShopListing[] = [
   {
     shopListingId: "fixture-listing-1",
-    characterTemplate: { name: "Thrudi", attack: 6, hp: 5, maxHp: 5 },
+    characterTemplate: {
+      characterTemplateId: "fixture-thrudi",
+      name: "Thrudi",
+      tier: 1,
+      characterClassIds: ["warrior"],
+      attack: 6,
+      maxHp: 5,
+    },
   },
   {
     shopListingId: "fixture-listing-2",
-    characterTemplate: { name: "Gimlok", attack: 3, hp: 9, maxHp: 9 },
+    characterTemplate: {
+      characterTemplateId: "fixture-gimlok",
+      name: "Gimlok",
+      tier: 1,
+      characterClassIds: ["miner"],
+      attack: 3,
+      maxHp: 9,
+    },
   },
 ];
 

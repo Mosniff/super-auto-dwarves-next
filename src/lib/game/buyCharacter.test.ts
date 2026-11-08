@@ -1,31 +1,39 @@
 import { describe, it, expect } from "vitest";
-import type { Character } from "@/lib/battle/types";
+import type { OwnedCharacter } from "./ownedCharacter";
 import { createEmptyCampRoster, type CampRoster } from "./campRoster";
 import type { CampState } from "./campState";
-import type { CharacterTemplate, ShopListing } from "./shop";
+import type { ShopListing } from "./shop";
+import type { CharacterTemplate } from "./characterTemplates";
 import { buyCharacter, type BuyCharacterResult } from "./buyCharacter";
 
-function buildFixtureCharacter(id: string, name: string): Character {
+function buildFixtureCharacter(id: string, name: string): OwnedCharacter {
   return {
     id,
     name,
     attack: 1,
     hp: 10,
     maxHp: 10,
+    characterTemplateId: "fixture-dwarf",
+    tier: 1,
+    characterClassIds: ["warrior"],
   };
 }
 
 const fixtureCharacterTemplateOne: CharacterTemplate = {
+  characterTemplateId: "fixture-dwarf-one",
   name: "Fixture Dwarf One",
+  tier: 1,
+  characterClassIds: ["warrior"],
   attack: 2,
-  hp: 5,
   maxHp: 5,
 };
 
 const fixtureCharacterTemplateTwo: CharacterTemplate = {
+  characterTemplateId: "fixture-dwarf-two",
   name: "Fixture Dwarf Two",
+  tier: 2,
+  characterClassIds: ["smith", "miner"],
   attack: 3,
-  hp: 8,
   maxHp: 8,
 };
 
@@ -78,7 +86,12 @@ describe("buyCharacter", () => {
     const expectedCampRoster: CampRoster = [
       null,
       null,
-      { id: "new-dwarf-1", ...fixtureCharacterTemplateTwo },
+      {
+        id: "new-dwarf-1",
+        ...fixtureCharacterTemplateTwo,
+        characterClassIds: [...fixtureCharacterTemplateTwo.characterClassIds],
+        hp: fixtureCharacterTemplateTwo.maxHp,
+      },
       null,
       null,
       null,
@@ -107,7 +120,12 @@ describe("buyCharacter", () => {
     );
 
     const expectedCampRoster: CampRoster = [
-      { id: "new-dwarf-1", ...fixtureCharacterTemplateOne },
+      {
+        id: "new-dwarf-1",
+        ...fixtureCharacterTemplateOne,
+        characterClassIds: [...fixtureCharacterTemplateOne.characterClassIds],
+        hp: fixtureCharacterTemplateOne.maxHp,
+      },
       null,
       null,
       null,
@@ -147,8 +165,18 @@ describe("buyCharacter", () => {
     );
 
     const expectedCampRoster: CampRoster = [
-      { id: "new-dwarf-1", ...fixtureCharacterTemplateOne },
-      { id: "new-dwarf-2", ...fixtureCharacterTemplateTwo },
+      {
+        id: "new-dwarf-1",
+        ...fixtureCharacterTemplateOne,
+        characterClassIds: [...fixtureCharacterTemplateOne.characterClassIds],
+        hp: fixtureCharacterTemplateOne.maxHp,
+      },
+      {
+        id: "new-dwarf-2",
+        ...fixtureCharacterTemplateTwo,
+        characterClassIds: [...fixtureCharacterTemplateTwo.characterClassIds],
+        hp: fixtureCharacterTemplateTwo.maxHp,
+      },
       null,
       null,
       null,
@@ -187,11 +215,21 @@ describe("buyCharacter", () => {
     );
 
     const expectedCampRoster: CampRoster = [
-      { id: "new-dwarf-1", ...fixtureCharacterTemplateOne },
+      {
+        id: "new-dwarf-1",
+        ...fixtureCharacterTemplateOne,
+        characterClassIds: [...fixtureCharacterTemplateOne.characterClassIds],
+        hp: fixtureCharacterTemplateOne.maxHp,
+      },
       null,
       null,
       null,
-      { id: "new-dwarf-2", ...fixtureCharacterTemplateOne },
+      {
+        id: "new-dwarf-2",
+        ...fixtureCharacterTemplateOne,
+        characterClassIds: [...fixtureCharacterTemplateOne.characterClassIds],
+        hp: fixtureCharacterTemplateOne.maxHp,
+      },
       null,
       null,
     ];

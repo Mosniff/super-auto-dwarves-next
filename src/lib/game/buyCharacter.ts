@@ -1,6 +1,7 @@
 import { isCampRosterSlotIndex } from "./campRoster";
 import type { CampState } from "./campState";
 import { SHOP_CHARACTER_PRICE, type ShopListing } from "./shop";
+import { spawnCharacterFromTemplate } from "./ownedCharacter";
 
 export type BuyCharacterRejectionReason =
   | "invalidSlot"
@@ -48,10 +49,10 @@ export function buyCharacter(
   }
 
   const newCampRoster = [...campState.campRoster];
-  newCampRoster[targetSlotIndex] = {
-    id: newCharacterId,
-    ...matchingListing.characterTemplate,
-  };
+  newCampRoster[targetSlotIndex] = spawnCharacterFromTemplate(
+    matchingListing.characterTemplate,
+    newCharacterId,
+  );
 
   return {
     outcome: "accepted",

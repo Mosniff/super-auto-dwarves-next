@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { createNewGameState } from "./createNewGameState";
-import type { Character } from "@/lib/battle/types";
+import type { OwnedCharacter } from "./ownedCharacter";
 import { CAMP_ROSTER_SLOT_COUNT } from "./campRoster";
 
 describe("createNewGameState", () => {
@@ -35,12 +35,15 @@ describe("createNewGameState", () => {
     const firstGameState = createNewGameState();
     const secondGameState = createNewGameState();
 
-    const fixtureCharacter: Character = {
+    const fixtureCharacter: OwnedCharacter = {
       id: "fixture-dwarf-1",
       name: "Fixture Dwarf",
       attack: 3,
       hp: 5,
       maxHp: 5,
+      characterTemplateId: "fixture-dwarf",
+      tier: 1,
+      characterClassIds: ["warrior"],
     };
     firstGameState.playerRoster[0] = fixtureCharacter;
 

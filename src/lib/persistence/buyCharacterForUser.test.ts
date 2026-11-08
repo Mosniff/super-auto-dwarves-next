@@ -1,19 +1,24 @@
 import { describe, it, expect } from "vitest";
 import type { GameState } from "@/lib/game/types";
 import type { CampRoster } from "@/lib/game/campRoster";
-import type { CharacterTemplate, ShopListing } from "@/lib/game/shop";
+import type { OwnedCharacter } from "@/lib/game/ownedCharacter";
+import type { ShopListing } from "@/lib/game/shop";
+import type { CharacterTemplate } from "@/lib/game/characterTemplates";
 import type { GameRepository, LoadedGameRecord } from "./gameRepository";
 import {
   buyCharacterForUser,
   type BuyCharacterIntent,
 } from "./buyCharacterForUser";
 
-const fixtureBorin = {
+const fixtureBorin: OwnedCharacter = {
   id: "dwarf-1",
   name: "Borin",
   attack: 3,
   hp: 5,
   maxHp: 5,
+  characterTemplateId: "fixture-dwarf",
+  tier: 1,
+  characterClassIds: ["warrior"],
 };
 
 const fixtureCampRoster: CampRoster = [
@@ -27,16 +32,20 @@ const fixtureCampRoster: CampRoster = [
 ];
 
 const fixtureCharacterTemplateOne: CharacterTemplate = {
+  characterTemplateId: "fixture-dwarf-one",
   name: "Fixture Dwarf One",
+  tier: 1,
+  characterClassIds: ["warrior"],
   attack: 2,
-  hp: 5,
   maxHp: 5,
 };
 
 const fixtureCharacterTemplateTwo: CharacterTemplate = {
+  characterTemplateId: "fixture-dwarf-two",
   name: "Fixture Dwarf Two",
+  tier: 2,
+  characterClassIds: ["smith", "miner"],
   attack: 3,
-  hp: 8,
   maxHp: 8,
 };
 
@@ -126,7 +135,12 @@ describe("buyCharacterForUser", () => {
       fixtureBorin,
       null,
       null,
-      { id: "generated-dwarf-1", ...fixtureCharacterTemplateTwo },
+      {
+        id: "generated-dwarf-1",
+        ...fixtureCharacterTemplateTwo,
+        characterClassIds: [...fixtureCharacterTemplateTwo.characterClassIds],
+        hp: fixtureCharacterTemplateTwo.maxHp,
+      },
       null,
       null,
       null,

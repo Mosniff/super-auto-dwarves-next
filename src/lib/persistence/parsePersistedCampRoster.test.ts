@@ -1,16 +1,32 @@
 import { describe, it, expect } from "vitest";
-import type { Character } from "@/lib/battle/types";
+import type { OwnedCharacter } from "@/lib/game/ownedCharacter";
 import { createEmptyCampRoster, type CampRoster } from "@/lib/game/campRoster";
 import { parsePersistedCampRoster } from "./parsePersistedCampRoster";
 
-function buildFixtureCharacter(id: string, name: string): Character {
+function buildFixtureCharacter(id: string, name: string): OwnedCharacter {
   return {
     id,
     name,
     attack: 1,
     hp: 10,
     maxHp: 10,
+    characterTemplateId: "fixture-dwarf",
+    tier: 1,
+    characterClassIds: ["warrior"],
   };
+}
+
+function buildRosterWithFirstSlot(candidateSlot: unknown): unknown[] {
+  return [candidateSlot, null, null, null, null, null, null];
+}
+
+function doesParseThrow(persistedValue: unknown): boolean {
+  try {
+    parsePersistedCampRoster(persistedValue);
+    return false;
+  } catch {
+    return true;
+  }
 }
 
 describe("parsePersistedCampRoster", () => {
@@ -86,7 +102,16 @@ describe("parsePersistedCampRoster", () => {
 
   it("(g) throws when a character field has the wrong type", () => {
     const campRosterWithWrongFieldType: unknown = [
-      { id: "character-a", name: "Dwarf A", attack: "3", hp: 10, maxHp: 10 },
+      {
+        id: "character-a",
+        name: "Dwarf A",
+        attack: "3",
+        hp: 10,
+        maxHp: 10,
+        characterTemplateId: "fixture-dwarf",
+        tier: 1,
+        characterClassIds: ["warrior"],
+      },
       null,
       null,
       null,
@@ -107,5 +132,76 @@ describe("parsePersistedCampRoster", () => {
     };
 
     expect(() => parsePersistedCampRoster(oldBattleRosterShape)).toThrow();
+  });
+
+  it("(i) throws when characterTemplateId is missing, the wrong type, or empty", () => {
+    const baseCharacter = buildFixtureCharacter("character-a", "Dwarf A");
+    const characterWithoutTemplateId: Record<string, unknown> = {
+      ...baseCharacter,
+    };
+    delete characterWithoutTemplateId.characterTemplateId;
+
+    const variants: unknown[] = [
+      characterWithoutTemplateId,
+      { ...baseCharacter, characterTemplateId: 5 },
+      { ...baseCharacter, characterTemplateId: "" },
+    ];
+
+    expect(variants.map(buildRosterWithFirstSlot).map(doesParseThrow)).toEqual(
+      [true, true, true],
+    );
+  });
+
+  it("(j) throws when tier is missing, out of range, or the wrong type", () => {
+    const baseCharacter = buildFixtureCharacter("character-a", "Dwarf A");
+    const characterWithoutTier: Record<string, unknown> = { ...baseCharacter };
+    delete characterWithoutTier.tier;
+
+    const variants: unknown[] = [
+      characterWithoutTier,
+      { ...baseCharacter, tier: 0 },
+      { ...baseCharacter, tier: 6 },
+      { ...baseCharacter, tier: 1.5 },
+      { ...baseCharacter, tier: "1" },
+    ];
+
+    expect(variants.map(buildRosterWithFirstSlot).map(doesParseThrow)).toEqual(
+      [true, true, true, true, true],
+    );
+  });
+
+  it("(k) throws when characterClassIds is missing, empty, invalid or has duplicates", () => {
+    const baseCharacter = buildFixtureCharacter("character-a", "Dwarf A");
+    const characterWithoutClassIds: Record<string, unknown> = {
+      ...baseCharacter,
+    };
+    delete characterWithoutClassIds.characterClassIds;
+
+    const variants: unknown[] = [
+      characterWithoutClassIds,
+      { ...baseCharacter, characterClassIds: "warrior" },
+      { ...baseCharacter, characterClassIds: [] },
+      { ...baseCharacter, characterClassIds: ["rogue"] },
+      { ...baseCharacter, characterClassIds: ["Warrior"] },
+      { ...baseCharacter, characterClassIds: ["warrior", "warrior"] },
+    ];
+
+    expect(variants.map(buildRosterWithFirstSlot).map(doesParseThrow)).toEqual(
+      [true, true, true, true, true, true],
+    );
+  });
+
+  it("(l) accepts an owned character with more than three distinct classes", () => {
+    const characterWithFourClasses: OwnedCharacter = {
+      ...buildFixtureCharacter("character-a", "Dwarf A"),
+      characterClassIds: ["warrior", "mage", "merchant", "smith"],
+    };
+    const persistedCampRoster = buildRosterWithFirstSlot(
+      characterWithFourClasses,
+    );
+
+    const parsedCampRoster = parsePersistedCampRoster(persistedCampRoster);
+
+    expect(parsedCampRoster).toEqual(persistedCampRoster);
   });
 });

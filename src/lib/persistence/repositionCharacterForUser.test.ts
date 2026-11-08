@@ -1,18 +1,22 @@
 import { describe, it, expect } from "vitest";
 import type { GameState } from "@/lib/game/types";
 import type { CampRoster } from "@/lib/game/campRoster";
+import type { OwnedCharacter } from "@/lib/game/ownedCharacter";
 import type { GameRepository, LoadedGameRecord } from "./gameRepository";
 import {
   repositionCharacterForUser,
   type RepositionCharacterIntent,
 } from "./repositionCharacterForUser";
 
-const fixtureBorin = {
+const fixtureBorin: OwnedCharacter = {
   id: "dwarf-1",
   name: "Borin",
   attack: 3,
   hp: 5,
   maxHp: 5,
+  characterTemplateId: "fixture-dwarf",
+  tier: 1,
+  characterClassIds: ["warrior"],
 };
 
 const fixtureCampRoster: CampRoster = [

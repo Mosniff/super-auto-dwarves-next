@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { useDraggable } from "@dnd-kit/react";
 import type { ShopListing } from "@/lib/game/shop";
+import { spawnCharacterFromTemplate } from "@/lib/game/ownedCharacter";
 import type { CampClickTarget, CampTargetPresentation } from "./campSelection";
 import { CharacterCard } from "./CharacterCard";
 
@@ -51,14 +52,16 @@ function DraggableShopListingTile({
     shopListingId: shopListing.shopListingId,
   };
 
+  const displayCharacter = spawnCharacterFromTemplate(
+    shopListing.characterTemplate,
+    shopListing.shopListingId,
+  );
+
   const { ref, isDragSource } = useDraggable({
     id: `shop-listing-${shopListing.shopListingId}`,
     data: {
       campClickTarget,
-      character: {
-        id: shopListing.shopListingId,
-        ...shopListing.characterTemplate,
-      },
+      character: displayCharacter,
     },
     disabled: !isDraggable,
   });
@@ -77,12 +80,7 @@ function DraggableShopListingTile({
         isEnabled,
       )} ${isDragSource ? "opacity-40" : ""}`}
     >
-      <CharacterCard
-        character={{
-          id: shopListing.shopListingId,
-          ...shopListing.characterTemplate,
-        }}
-      />
+      <CharacterCard character={displayCharacter} />
     </button>
   );
 }

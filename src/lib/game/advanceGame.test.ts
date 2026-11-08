@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { advanceGame } from "./advanceGame";
 import type { GamePhase, GameState } from "./types";
-import type { Character } from "@/lib/battle/types";
+import type { OwnedCharacter } from "./ownedCharacter";
 import type { CampRoster } from "./campRoster";
 import { CAMP_STARTING_GOLD } from "./campState";
 
@@ -9,12 +9,15 @@ import { CAMP_STARTING_GOLD } from "./campState";
 const FIXTURE_GOLD = 10;
 
 function buildFixtureCampRoster(): CampRoster {
-  const fixtureCharacter: Character = {
+  const fixtureCharacter: OwnedCharacter = {
     id: "fixture-dwarf-1",
     name: "Fixture Dwarf",
     attack: 3,
     hp: 5,
     maxHp: 5,
+    characterTemplateId: "fixture-dwarf",
+    tier: 1,
+    characterClassIds: ["warrior"],
   };
 
   return [fixtureCharacter, null, null, null, null, null, null];
