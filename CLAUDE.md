@@ -6,7 +6,7 @@ Guidance for working in this codebase. This file records **deliberate decisions 
 
 > The `@AGENTS.md` import above pulls in the create-next-app-generated Next.js framework conventions. That file covers _framework-level_ up-to-date Next.js guidance; this file (`CLAUDE.md`) covers _project-specific_ architecture and rules. The two are complementary.
 
-> **Status:** Architecture documented; project scaffolded. The **fundamental battle system** and its data architecture are defined (see "Battle data architecture"). The **save loop** (guest sessions, one save per user, camp ↔ battle) the **basic camp** (a placeholder shop, buying and arranging dwarves) and **real battles** (resolved on the server from the saved roster against a placeholder enemy) are defined and built (see "Persistence & save model" and "Camp: shop, roster and intents"). Other game rules (cards, progression, richer shopping, abilities) are **not yet defined** and must **not** be invented. See "Game logic — not yet specified" at the end.
+> **Status:** Architecture documented; project scaffolded. The **fundamental battle system** and its data architecture are defined (see "Battle data architecture"). The **save loop** (guest sessions, one save per user, camp ↔ battle) the **basic camp** (a placeholder shop, buying and arranging dwarves) and **real battles** (resolved on the server from the saved roster against a placeholder enemy) are defined and built (see "Persistence & save model" and "Camp: shop, roster and intents"). Phase 9 is making characters real game data: **character classes, tiers and templates** are defined as typed modules (see "Character data: classes, tiers and templates"); owned characters, a slotted shop and template-spawned enemies are in progress. Other game rules (cards, progression, richer shopping, abilities) are **not yet defined** and must **not** be invented. See "Game logic — not yet specified" at the end.
 
 ---
 
@@ -333,6 +333,20 @@ Phase 8 part one made the camp playable: a placeholder shop, buying dwarves into
 
 ---
 
+## Character data: classes, tiers and templates
+
+Phase 9 part one made character data real, as pure, read-only TypeScript modules in src/lib/game/. Classes and tiers are **data and display only** for now — they have no gameplay effect. Their future jobs (classes affecting shop slot counts and more; tiers gating which dwarves the shop offers) are not yet specified and must not be invented.
+
+- **Classes** (characterClasses.ts): CHARACTER_CLASS_IDS = ["warrior", "mage", "merchant", "smith", "miner"] as const, CharacterClassId derived from it, and the isCharacterClassId guard. A string-literal union defined once as a list, never a TS enum: readable in code and in saves, the compiler rejects typos, and there are no enum runtime quirks. Ids stay English in code and saves; display names will be translation keys (en + ja, parity list), because class names are interface labels — unlike character names, which are game data.
+- **Tiers** (characterTiers.ts): CHARACTER_TIERS = [1, 2, 3, 4, 5] as const, CharacterTier derived from it, and the isCharacterTier guard — the same pattern as classes.
+- **Templates** (characterTemplates.ts): CHARACTER_TEMPLATES, a read-only record keyed by template id, plus findCharacterTemplate (an own-property lookup, so a stored id like "toString" can never resolve to a prototype member) and listCharacterTemplates. A CharacterTemplate holds characterTemplateId, name, tier, characterClassIds (1 to 3) and the starting attack and maxHp; every field is readonly. Templates live in a typed module — not YAML, JSON or the database — so adding a character is still "add an entry", tsc catches typos, and server, client and tests import it with no parser or file I/O. Abilities and armour are deliberately absent until they are specified.
+- **Template ids** are lowercase kebab-case (borin, old-khaz). An id that has been used in saves is **never renamed or deleted** — only retired from the shop — because owned characters will keep their characterTemplateId.
+- **Data guards.** characterTemplates.test.ts checks every template: key equals id, kebab-case id, valid tier, 1–3 valid and distinct classes, a non-negative integer attack and a positive integer maxHp. They guard hand-written data, so they grow in value as templates are added.
+- **The templates are the human's to design.** The module holds one example (Borin: tier 1, warrior, 4 attack, 7 maxHp) as the format. Agents must not add templates.
+- Transitional: shop.ts still has its own placeholder CharacterTemplate (Omit<Character, "id">), used by the dummy catalogue. It is removed when the shop moves to slots; until then the two same-named types are never imported together.
+
+---
+
 ## Testing
 
 Use **Vitest**. (Background: Rails fuses logic and persistence in the model layer; this stack separates them — so logic is tested in isolation, with no DB.)
@@ -404,6 +418,7 @@ The following are intentionally undefined and **must not be invented**. When def
 - New game starting state: createNewGameState (src/lib/game/) returns seven empty camp slots, no purchased listings, 10 gold, day 1, campPhase (decided 13 Oct 2026; camp slots and purchases added in Phase 8).
 - Basic camp rules (decided 25–26 Oct 2026 — this file → "Camp: shop, roster and intents"): the roster has 7 slots; gaps are allowed in camp and squeezed out at battle start. The shop is a fixed placeholder catalogue (the seven dwarves from dummy-battle.ts). Every listing costs a flat 3 gold. Each listing can be bought once per camp visit; the same character may be bought again on later visits and may appear in several listings, so duplicates are allowed, each with its own id. Buying must target an empty slot. Moving onto an empty slot moves; moving onto an occupied slot swaps; moving to the same slot is rejected. At the start of every camp, gold is set (not added) to 10 — unspent gold is lost — and purchases are cleared. An empty roster fights and loses instantly (resolveBattle ends with enemyWin; pinned by resolveCampBattle's tests). Selling is out of scope for now.
 - Battles in the run (Phase 8 part two): every battlePhase fights the saved camp roster, squeezed into a gapless line, against a placeholder enemy (a single fixed Grukk). Battles still have no persistent consequence.
+- Character data (Phase 9 part one, decided 8 Nov 2026): five character classes, tiers 1–5 and character templates as typed read-only modules — this file → "Character data: classes, tiers and templates". Classes and tiers have no gameplay effect yet.
 
 **Still undefined:**
 
