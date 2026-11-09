@@ -1,7 +1,9 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { useDraggable } from "@dnd-kit/react";
+import { Lock } from "lucide-react";
 import type { CharacterShopSlots } from "@/lib/game/characterShopSlots";
 import type { CharacterTemplate } from "@/lib/game/characterTemplates";
 import { spawnCharacterFromTemplate } from "@/lib/game/ownedCharacter";
@@ -90,6 +92,28 @@ function DraggableCharacterShopSlotTile({
   );
 }
 
+interface RecessedShopSlotProps {
+  characterShopSlotState: "sold" | "unavailable" | "locked";
+  children?: ReactNode;
+}
+
+// Shared recessed-tile shell for every non-offering character shop slot
+// state (sold, unavailable, locked) so their markup can't drift apart.
+function RecessedShopSlot({
+  characterShopSlotState,
+  children,
+}: RecessedShopSlotProps) {
+  return (
+    <div
+      data-character-shop-slot-state={characterShopSlotState}
+      className="flex aspect-3/4 flex-1 flex-col items-center justify-center gap-1 rounded-md bg-slate-200 p-1.5"
+      style={{ boxShadow: "var(--shadow-recess)" }}
+    >
+      {children}
+    </div>
+  );
+}
+
 interface ShopPanelProps {
   characterShopSlots: CharacterShopSlots;
   characterTemplates: readonly CharacterTemplate[];
@@ -118,16 +142,11 @@ export function ShopPanel({
         {characterShopSlots.map((characterShopSlot, shopSlotIndex) => {
           if (characterShopSlot.slotState === "sold") {
             return (
-              <div
-                key={shopSlotIndex}
-                data-character-shop-slot-state="sold"
-                className="flex aspect-3/4 flex-1 flex-col items-center justify-center gap-1 rounded-md bg-slate-200 p-1.5"
-                style={{ boxShadow: "var(--shadow-recess)" }}
-              >
+              <RecessedShopSlot key={shopSlotIndex} characterShopSlotState="sold">
                 <span className="select-none text-[10px] font-medium uppercase tracking-wide text-slate-50/30">
                   {t("shopListingSoldLabel")}
                 </span>
-              </div>
+              </RecessedShopSlot>
             );
           }
 
@@ -157,27 +176,24 @@ export function ShopPanel({
             }
 
             // An offering whose template id matches nothing server-side is
-            // treated the same as locked here — there is nothing buyable to
-            // show. Part 5 adds the padlock and label for locked/unavailable
-            // slots.
+            // treated the same as a recessed tile here — there is nothing
+            // buyable to show, but it's deliberately not the "locked" state
+            // (no padlock/label): that marker means the slot isn't open yet.
             return (
-              <div
+              <RecessedShopSlot
                 key={shopSlotIndex}
-                data-character-shop-slot-state="unavailable"
-                className="flex aspect-3/4 flex-1 flex-col items-center justify-center gap-1 rounded-md bg-slate-200 p-1.5"
-                style={{ boxShadow: "var(--shadow-recess)" }}
+                characterShopSlotState="unavailable"
               />
             );
           }
 
-          // Locked. Part 5 adds the padlock and label.
           return (
-            <div
-              key={shopSlotIndex}
-              data-character-shop-slot-state="locked"
-              className="flex aspect-3/4 flex-1 flex-col items-center justify-center gap-1 rounded-md bg-slate-200 p-1.5"
-              style={{ boxShadow: "var(--shadow-recess)" }}
-            />
+            <RecessedShopSlot key={shopSlotIndex} characterShopSlotState="locked">
+              <Lock aria-hidden="true" className="h-4 w-4 text-slate-50/30" />
+              <span className="select-none text-[10px] font-medium uppercase tracking-wide text-slate-50/30">
+                {t("shopSlotLockedLabel")}
+              </span>
+            </RecessedShopSlot>
           );
         })}
       </div>

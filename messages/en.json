@@ -32,7 +32,15 @@
     "shopListingSoldLabel": "Sold",
     "shopListingButtonLabel": "Shop: {characterName}",
     "rosterSlotOccupiedLabel": "Slot {slotNumber}: {characterName}",
-    "rosterSlotEmptyLabel": "Slot {slotNumber}: empty"
+    "rosterSlotEmptyLabel": "Slot {slotNumber}: empty",
+    "shopSlotLockedLabel": "Locked"
+  },
+  "characterClass": {
+    "warrior": "Warrior",
+    "mage": "Mage",
+    "merchant": "Merchant",
+    "smith": "Smith",
+    "miner": "Miner"
   },
   "battle": {
     "battleStart": "Battle start!",

@@ -284,4 +284,15 @@ describe("CampScreen", () => {
       expect(slotElement.querySelector("button")).toBeNull();
     });
   });
+
+  it("(p) locked shop slots show a padlock and the Locked label", () => {
+    renderCampScreen();
+
+    expect(screen.queryAllByText("Locked")).toHaveLength(5);
+    document
+      .querySelectorAll('[data-character-shop-slot-state="locked"]')
+      .forEach((lockedSlotElement) => {
+        expect(lockedSlotElement.querySelector("svg")).not.toBeNull();
+      });
+  });
 });

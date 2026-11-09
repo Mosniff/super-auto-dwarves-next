@@ -32,7 +32,15 @@
     "shopListingSoldLabel": "売り切れ",
     "shopListingButtonLabel": "ショップ：{characterName}",
     "rosterSlotOccupiedLabel": "スロット{slotNumber}：{characterName}",
-    "rosterSlotEmptyLabel": "スロット{slotNumber}：空き"
+    "rosterSlotEmptyLabel": "スロット{slotNumber}：空き",
+    "shopSlotLockedLabel": "未解放"
+  },
+  "characterClass": {
+    "warrior": "戦士",
+    "mage": "魔法使い",
+    "merchant": "商人",
+    "smith": "鍛冶屋",
+    "miner": "鉱夫"
   },
   "battle": {
     "battleStart": "バトル開始！",

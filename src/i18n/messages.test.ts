@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import englishMessages from "../../messages/en.json";
 import japaneseMessages from "../../messages/ja.json";
+import { CHARACTER_CLASS_IDS } from "@/lib/game/characterClasses";
 
 describe("locale message parity", () => {
   // Extended when the battle-log control buttons (Advance, Autoplay: On/Off)
@@ -16,7 +17,8 @@ describe("locale message parity", () => {
   // again for the Phase 8 camp shop and clickable roster slots
   // (shopHeading, shopListingSoldLabel, shopListingButtonLabel,
   // rosterSlotOccupiedLabel, rosterSlotEmptyLabel), and dummyBattleLabel
-  // was removed when Phase 8 connected the battle to the saved roster —
+  // was removed when Phase 8 connected the battle to the saved roster, and
+  // again for Phase 9's locked shop slot label (shopSlotLockedLabel) —
   // deliberate test-data updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
@@ -52,6 +54,7 @@ describe("locale message parity", () => {
     "shopListingButtonLabel",
     "rosterSlotOccupiedLabel",
     "rosterSlotEmptyLabel",
+    "shopSlotLockedLabel",
   ];
   const expectedBattleKeys = [
     "battleStart",
@@ -105,5 +108,25 @@ describe("locale message parity", () => {
     expect(Object.keys(englishMessages.battle).sort()).toEqual(
       Object.keys(japaneseMessages.battle).sort(),
     );
+  });
+
+  // Checked against the real class list, so adding a class without
+  // translating it fails here rather than silently falling back.
+  it("english has exactly the character class keys", () => {
+    expect(
+      Object.keys(
+        (englishMessages as unknown as Record<string, Record<string, string> | undefined>)
+          .characterClass ?? {},
+      ).sort(),
+    ).toEqual([...CHARACTER_CLASS_IDS].sort());
+  });
+
+  it("japanese has exactly the character class keys", () => {
+    expect(
+      Object.keys(
+        (japaneseMessages as unknown as Record<string, Record<string, string> | undefined>)
+          .characterClass ?? {},
+      ).sort(),
+    ).toEqual([...CHARACTER_CLASS_IDS].sort());
   });
 });
