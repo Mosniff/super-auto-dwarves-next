@@ -7,13 +7,13 @@ describe("buildNameMap", () => {
     const initialState: BattleState = {
       player: {
         activeCharacters: [
-          { id: "p1", name: "Borin", attack: 4, hp: 7, maxHp: 7 },
-          { id: "p2", name: "Thrudi", attack: 6, hp: 5, maxHp: 5 },
+          { id: "p1", name: "Borin", attack: 4, hp: 7, maxHp: 7, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
+          { id: "p2", name: "Thrudi", attack: 6, hp: 5, maxHp: 5, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
         ],
         downedCharacters: [],
       },
       enemy: {
-        activeCharacters: [{ id: "e1", name: "Grukk", attack: 5, hp: 6, maxHp: 6 }],
+        activeCharacters: [{ id: "e1", name: "Grukk", attack: 5, hp: 6, maxHp: 6, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] }],
         downedCharacters: [],
       },
     };

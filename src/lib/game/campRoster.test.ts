@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { OwnedCharacter } from "./ownedCharacter";
+import type { Character } from "@/lib/battle/types";
 import {
   CAMP_ROSTER_SLOT_COUNT,
   createEmptyCampRoster,
@@ -7,7 +7,7 @@ import {
   type CampRoster,
 } from "./campRoster";
 
-function buildFixtureCharacter(id: string, name: string): OwnedCharacter {
+function buildFixtureCharacter(id: string, name: string): Character {
   return {
     id,
     name,

@@ -1,6 +1,6 @@
 import { isCharacterClassId } from "@/lib/game/characterClasses";
 import { isCharacterTier } from "@/lib/game/characterTiers";
-import type { OwnedCharacter } from "@/lib/game/ownedCharacter";
+import type { Character } from "@/lib/battle/types";
 import { CAMP_ROSTER_SLOT_COUNT, type CampRoster } from "@/lib/game/campRoster";
 
 // Owned characters have no upper bound on their number of classes — only
@@ -22,7 +22,7 @@ function hasValidCharacterClassIds(characterClassIds: unknown): boolean {
 // string.
 function isValidPersistedCharacter(
   candidateCharacter: unknown,
-): candidateCharacter is OwnedCharacter {
+): candidateCharacter is Character {
   if (
     typeof candidateCharacter !== "object" ||
     candidateCharacter === null ||

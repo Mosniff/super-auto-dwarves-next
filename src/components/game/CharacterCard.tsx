@@ -1,16 +1,11 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/battle/types";
-import type { CharacterTier } from "@/lib/game/characterTiers";
-import type { CharacterClassId } from "@/lib/game/characterClasses";
 import { hpBarFillRatio } from "@/lib/battle/hpBarFillRatio";
 import { tierRomanNumeral } from "./characterCardDisplay";
 
 interface CharacterCardProps {
-  character: Character & {
-    tier?: CharacterTier;
-    characterClassIds?: readonly CharacterClassId[];
-  };
+  character: Character;
   facing?: "left" | "right";
   variant?: "compact" | "full";
   animateHpDrop?: boolean;
@@ -72,7 +67,7 @@ export function CharacterCard({
   const t = useTranslations("common");
   const tCharacterClass = useTranslations("characterClass");
   const tier = character.tier;
-  const characterClassIds = character.characterClassIds ?? [];
+  const characterClassIds = character.characterClassIds;
 
   return (
     <div
@@ -97,37 +92,33 @@ export function CharacterCard({
             priority
           />
         </div>
-        {tier !== undefined && (
-          <span
-            data-character-tier={tier}
-            className={`absolute top-1 left-1 leading-none font-bold ${STAT_PILL_BASE_CLASS_NAME} text-(--color-parchment-50) ${badgeStyles.tier}`}
-            style={{
-              backgroundImage:
-                "linear-gradient(to bottom, var(--color-iron-300), var(--color-iron-700))",
-              boxShadow: "var(--shadow-stat-pill)",
-            }}
-          >
-            {tierRomanNumeral(tier)}
-          </span>
-        )}
-        {characterClassIds.length > 0 && (
-          <div className="absolute inset-x-0 bottom-0 flex flex-wrap justify-center gap-1 p-1">
-            {characterClassIds.map((characterClassId) => (
-              <span
-                key={characterClassId}
-                data-character-class-id={characterClassId}
-                className={`leading-none font-medium ${STAT_PILL_BASE_CLASS_NAME} text-(--color-parchment-50) ${badgeStyles.classLabel}`}
-                style={{
-                  backgroundImage:
-                    "linear-gradient(to bottom, var(--color-iron-300), var(--color-iron-700))",
-                  boxShadow: "var(--shadow-stat-pill)",
-                }}
-              >
-                {tCharacterClass(characterClassId)}
-              </span>
-            ))}
-          </div>
-        )}
+        <span
+          data-character-tier={tier}
+          className={`absolute top-1 left-1 leading-none font-bold ${STAT_PILL_BASE_CLASS_NAME} text-(--color-parchment-50) ${badgeStyles.tier}`}
+          style={{
+            backgroundImage:
+              "linear-gradient(to bottom, var(--color-iron-300), var(--color-iron-700))",
+            boxShadow: "var(--shadow-stat-pill)",
+          }}
+        >
+          {tierRomanNumeral(tier)}
+        </span>
+        <div className="absolute inset-x-0 bottom-0 flex flex-wrap justify-center gap-1 p-1">
+          {characterClassIds.map((characterClassId) => (
+            <span
+              key={characterClassId}
+              data-character-class-id={characterClassId}
+              className={`leading-none font-medium ${STAT_PILL_BASE_CLASS_NAME} text-(--color-parchment-50) ${badgeStyles.classLabel}`}
+              style={{
+                backgroundImage:
+                  "linear-gradient(to bottom, var(--color-iron-300), var(--color-iron-700))",
+                boxShadow: "var(--shadow-stat-pill)",
+              }}
+            >
+              {tCharacterClass(characterClassId)}
+            </span>
+          ))}
+        </div>
         <div
           className={`absolute inset-0 flex items-center justify-center bg-black/50 font-bold tracking-wide text-white uppercase transition-opacity duration-200 ease-out ${
             isDowned ? "opacity-100" : "opacity-0"

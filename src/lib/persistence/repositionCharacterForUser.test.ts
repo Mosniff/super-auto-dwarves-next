@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { GameState } from "@/lib/game/types";
 import type { CampRoster } from "@/lib/game/campRoster";
-import type { OwnedCharacter } from "@/lib/game/ownedCharacter";
+import type { Character } from "@/lib/battle/types";
 import type { GameRepository, LoadedGameRecord } from "./gameRepository";
 import {
   repositionCharacterForUser,
@@ -9,7 +9,7 @@ import {
 } from "./repositionCharacterForUser";
 import { buildFixtureCharacterShopSlots } from "@/test/characterShopFixtures";
 
-const fixtureBorin: OwnedCharacter = {
+const fixtureBorin: Character = {
   id: "dwarf-1",
   name: "Borin",
   attack: 3,

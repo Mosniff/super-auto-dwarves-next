@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { createNewGameState } from "./createNewGameState";
-import type { OwnedCharacter } from "./ownedCharacter";
+import type { Character } from "@/lib/battle/types";
 import { CAMP_ROSTER_SLOT_COUNT } from "./campRoster";
 import {
   buildFixtureCharacterShopRollingSources,
@@ -51,7 +51,7 @@ describe("createNewGameState", () => {
       buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
 
-    const fixtureCharacter: OwnedCharacter = {
+    const fixtureCharacter: Character = {
       id: "fixture-dwarf-1",
       name: "Fixture Dwarf",
       attack: 3,

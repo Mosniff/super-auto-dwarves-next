@@ -11,22 +11,26 @@ import {
   act,
 } from "@/test/renderWithMessages";
 import { resolveBattle } from "@/lib/battle/resolveBattle";
+import type { Character } from "@/lib/battle/types";
 import { BattleScreen } from "./BattleScreen";
 
 const AUTOPLAY_INTERVAL_MS = 1100;
 // Comfortably more ticks than the fixture battle has beats.
 const AUTOPLAY_TICKS_TO_RUN_OUT_THE_BATTLE = 40;
 
-const fixtureGrukk = {
+const fixtureGrukk: Character = {
   id: "fixture-enemy-1",
   name: "Grukk",
   attack: 5,
   hp: 6,
   maxHp: 6,
+  characterTemplateId: "fixture-dwarf",
+  tier: 1,
+  characterClassIds: ["warrior"],
 };
 
 const playerWinResolvedBattle = resolveBattle(
-  [{ id: "fixture-player-1", name: "Borin", attack: 6, hp: 10, maxHp: 10 }],
+  [{ id: "fixture-player-1", name: "Borin", attack: 6, hp: 10, maxHp: 10, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] }],
   [fixtureGrukk],
 );
 

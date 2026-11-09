@@ -6,10 +6,10 @@ import type { Character } from "./types";
 describe("resolveBattle", () => {
   it("a one-sided lethal exchange ends in a win for the surviving side", () => {
     const playerCharacters: Character[] = [
-      { id: "p1", name: "Borin", attack: 5, hp: 10, maxHp: 10 },
+      { id: "p1", name: "Borin", attack: 5, hp: 10, maxHp: 10, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
     const enemyCharacters: Character[] = [
-      { id: "e1", name: "Grukk", attack: 2, hp: 3, maxHp: 3 },
+      { id: "e1", name: "Grukk", attack: 2, hp: 3, maxHp: 3, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
 
     const { initialState, events } = resolveBattle(
@@ -37,10 +37,10 @@ describe("resolveBattle", () => {
 
   it("a mutual-kill exchange ends in a draw with both characters dropped", () => {
     const playerCharacters: Character[] = [
-      { id: "p1", name: "Borin", attack: 5, hp: 3, maxHp: 3 },
+      { id: "p1", name: "Borin", attack: 5, hp: 3, maxHp: 3, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
     const enemyCharacters: Character[] = [
-      { id: "e1", name: "Grukk", attack: 5, hp: 3, maxHp: 3 },
+      { id: "e1", name: "Grukk", attack: 5, hp: 3, maxHp: 3, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
 
     const { initialState, events } = resolveBattle(
@@ -77,11 +77,11 @@ describe("resolveBattle", () => {
 
   it("a multi-turn battle continues after a front character drops and the next steps up", () => {
     const playerCharacters: Character[] = [
-      { id: "p1", name: "Borin", attack: 2, hp: 3, maxHp: 3 },
-      { id: "p2", name: "Thrudi", attack: 4, hp: 5, maxHp: 5 },
+      { id: "p1", name: "Borin", attack: 2, hp: 3, maxHp: 3, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
+      { id: "p2", name: "Thrudi", attack: 4, hp: 5, maxHp: 5, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
     const enemyCharacters: Character[] = [
-      { id: "e1", name: "Grukk", attack: 2, hp: 6, maxHp: 6 },
+      { id: "e1", name: "Grukk", attack: 2, hp: 6, maxHp: 6, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
 
     const { initialState, events } = resolveBattle(
@@ -127,10 +127,10 @@ describe("resolveBattle", () => {
 
   it("a one-sided lethal exchange won by the enemy ends in enemyWin", () => {
     const playerCharacters: Character[] = [
-      { id: "p1", name: "Borin", attack: 2, hp: 3, maxHp: 3 },
+      { id: "p1", name: "Borin", attack: 2, hp: 3, maxHp: 3, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
     const enemyCharacters: Character[] = [
-      { id: "e1", name: "Grukk", attack: 5, hp: 10, maxHp: 10 },
+      { id: "e1", name: "Grukk", attack: 5, hp: 10, maxHp: 10, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
 
     const { initialState, events } = resolveBattle(
@@ -158,10 +158,10 @@ describe("resolveBattle", () => {
 
   it("a zero-attack character deals no damage", () => {
     const playerCharacters: Character[] = [
-      { id: "p1", name: "Meek", attack: 0, hp: 5, maxHp: 5 },
+      { id: "p1", name: "Meek", attack: 0, hp: 5, maxHp: 5, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
     const enemyCharacters: Character[] = [
-      { id: "e1", name: "Grukk", attack: 3, hp: 4, maxHp: 4 },
+      { id: "e1", name: "Grukk", attack: 3, hp: 4, maxHp: 4, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
 
     const { events } = resolveBattle(playerCharacters, enemyCharacters);
@@ -178,10 +178,10 @@ describe("resolveBattle", () => {
 
   it("a negative-attack character deals no damage and does not heal the target", () => {
     const playerCharacters: Character[] = [
-      { id: "p1", name: "Cursed", attack: -2, hp: 5, maxHp: 5 },
+      { id: "p1", name: "Cursed", attack: -2, hp: 5, maxHp: 5, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
     const enemyCharacters: Character[] = [
-      { id: "e1", name: "Grukk", attack: 3, hp: 4, maxHp: 4 },
+      { id: "e1", name: "Grukk", attack: 3, hp: 4, maxHp: 4, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
 
     const { events } = resolveBattle(playerCharacters, enemyCharacters);
@@ -198,11 +198,11 @@ describe("resolveBattle", () => {
 
   it("the resolver emits a TURN_START event at the start of each turn, numbered from 1", () => {
     const playerCharacters: Character[] = [
-      { id: "p1", name: "Borin", attack: 2, hp: 3, maxHp: 3 },
-      { id: "p2", name: "Thrudi", attack: 4, hp: 5, maxHp: 5 },
+      { id: "p1", name: "Borin", attack: 2, hp: 3, maxHp: 3, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
+      { id: "p2", name: "Thrudi", attack: 4, hp: 5, maxHp: 5, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
     const enemyCharacters: Character[] = [
-      { id: "e1", name: "Grukk", attack: 2, hp: 6, maxHp: 6 },
+      { id: "e1", name: "Grukk", attack: 2, hp: 6, maxHp: 6, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
 
     const { events } = resolveBattle(playerCharacters, enemyCharacters);
@@ -224,10 +224,10 @@ describe("resolveBattle", () => {
 
   it("a battle that never resolves is capped and ends in a draw", () => {
     const playerCharacters: Character[] = [
-      { id: "p1", name: "Pacifist", attack: 0, hp: 5, maxHp: 5 },
+      { id: "p1", name: "Pacifist", attack: 0, hp: 5, maxHp: 5, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
     const enemyCharacters: Character[] = [
-      { id: "e1", name: "Coward", attack: 0, hp: 5, maxHp: 5 },
+      { id: "e1", name: "Coward", attack: 0, hp: 5, maxHp: 5, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
 
     const { initialState, events } = resolveBattle(
@@ -254,10 +254,10 @@ describe("resolveBattle", () => {
 
   it("a stalemate capped battle emits a TIMEOUT event before BATTLE_END", () => {
     const playerCharacters: Character[] = [
-      { id: "p1", name: "Pacifist", attack: 0, hp: 5, maxHp: 5 },
+      { id: "p1", name: "Pacifist", attack: 0, hp: 5, maxHp: 5, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
     const enemyCharacters: Character[] = [
-      { id: "e1", name: "Coward", attack: 0, hp: 5, maxHp: 5 },
+      { id: "e1", name: "Coward", attack: 0, hp: 5, maxHp: 5, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
 
     const { events } = resolveBattle(playerCharacters, enemyCharacters, 3);
@@ -274,10 +274,10 @@ describe("resolveBattle", () => {
 
   it("a battle won on the cap turn does NOT emit a TIMEOUT event", () => {
     const playerCharacters: Character[] = [
-      { id: "p1", name: "Borin", attack: 1, hp: 10, maxHp: 10 },
+      { id: "p1", name: "Borin", attack: 1, hp: 10, maxHp: 10, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
     const enemyCharacters: Character[] = [
-      { id: "e1", name: "Grukk", attack: 1, hp: 3, maxHp: 3 },
+      { id: "e1", name: "Grukk", attack: 1, hp: 3, maxHp: 3, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
 
     const { events } = resolveBattle(playerCharacters, enemyCharacters, 3);
@@ -293,10 +293,10 @@ describe("resolveBattle", () => {
 
   it("stamps every event with the beatType matching the kind of moment it belongs to", () => {
     const playerCharacters: Character[] = [
-      { id: "p1", name: "Borin", attack: 5, hp: 10, maxHp: 10 },
+      { id: "p1", name: "Borin", attack: 5, hp: 10, maxHp: 10, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
     const enemyCharacters: Character[] = [
-      { id: "e1", name: "Grukk", attack: 2, hp: 3, maxHp: 3 },
+      { id: "e1", name: "Grukk", attack: 2, hp: 3, maxHp: 3, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
     ];
 
     const { events } = resolveBattle(playerCharacters, enemyCharacters);

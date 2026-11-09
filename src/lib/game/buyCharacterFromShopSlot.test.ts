@@ -5,7 +5,7 @@ import {
 } from "./buyCharacterFromShopSlot";
 import { CAMP_ROSTER_SLOT_COUNT } from "./campRoster";
 import type { CampState } from "./campState";
-import type { OwnedCharacter } from "./ownedCharacter";
+import type { Character } from "@/lib/battle/types";
 import type { CharacterTemplate } from "./characterTemplates";
 import {
   fixtureCharacterShopTemplateOne,
@@ -21,7 +21,7 @@ const fixtureCharacterTemplates: CharacterTemplate[] = [
   fixtureCharacterShopTemplateTwo,
 ];
 
-const occupiedFixtureCharacter: OwnedCharacter = {
+const occupiedFixtureCharacter: Character = {
   id: "existing-dwarf",
   name: "Existing Dwarf",
   attack: 2,
@@ -46,7 +46,7 @@ function buildFixtureShopCampState(
 function expectedSpawnedCharacter(
   characterTemplate: CharacterTemplate,
   id: string,
-): OwnedCharacter {
+): Character {
   return {
     id,
     ...characterTemplate,

@@ -1,9 +1,11 @@
 import type { Character } from "@/lib/battle/types";
+import { CHARACTER_TEMPLATES } from "./characterTemplates";
+import { spawnCharacterFromTemplate } from "./spawnCharacterFromTemplate";
 
-// Placeholder enemy — a single fixed enemy, chosen by the human to keep
-// hand-testing quick — until enemy generation (PvE logic, PvP snapshots)
-// is specified; server-side only. This stat block was copied, not
-// imported, from the now-removed dummy-battle.ts.
+// Placeholder enemy — a single Borin spawned from the borin template —
+// until enemy generation (PvE logic, PvP snapshots) is specified;
+// server-side only. Until then, the battle log will read "Borin attacks
+// Borin" in a mirror match.
 export const DUMMY_ENEMY_ROSTER: Character[] = [
-  { id: "enemy-1", name: "Grukk", attack: 5, hp: 6, maxHp: 6 },
+  spawnCharacterFromTemplate(CHARACTER_TEMPLATES.borin, "enemy-1"),
 ];

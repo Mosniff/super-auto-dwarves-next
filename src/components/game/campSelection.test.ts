@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { OwnedCharacter } from "@/lib/game/ownedCharacter";
+import type { Character } from "@/lib/battle/types";
 import { CAMP_ROSTER_SLOT_COUNT, type CampRoster } from "@/lib/game/campRoster";
 import type { CampState } from "@/lib/game/campState";
 import type { CharacterTemplate } from "@/lib/game/characterTemplates";
@@ -23,7 +23,7 @@ import {
   type CampSelection,
 } from "./campSelection";
 
-function buildFixtureCharacter(id: string, name: string): OwnedCharacter {
+function buildFixtureCharacter(id: string, name: string): Character {
   return {
     id,
     name,

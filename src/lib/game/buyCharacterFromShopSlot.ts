@@ -2,7 +2,7 @@ import { isCampRosterSlotIndex } from "./campRoster";
 import type { CampState } from "./campState";
 import { CHARACTER_SHOP_SLOT_COUNT } from "./characterShopSlots";
 import type { CharacterTemplate } from "./characterTemplates";
-import { spawnCharacterFromTemplate } from "./ownedCharacter";
+import { spawnCharacterFromTemplate } from "./spawnCharacterFromTemplate";
 import { SHOP_CHARACTER_PRICE } from "./shop";
 
 export type BuyCharacterFromShopSlotRejectionReason =

@@ -1,18 +1,10 @@
 import type { Character } from "@/lib/battle/types";
-import type { CharacterClassId } from "./characterClasses";
-import type { CharacterTier } from "./characterTiers";
 import type { CharacterTemplate } from "./characterTemplates";
-
-export interface OwnedCharacter extends Character {
-  characterTemplateId: string;
-  tier: CharacterTier;
-  characterClassIds: CharacterClassId[];
-}
 
 export function spawnCharacterFromTemplate(
   characterTemplate: CharacterTemplate,
   newCharacterId: string,
-): OwnedCharacter {
+): Character {
   return {
     id: newCharacterId,
     characterTemplateId: characterTemplate.characterTemplateId,

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import type { CharacterTemplate } from "./characterTemplates";
-import { spawnCharacterFromTemplate } from "./ownedCharacter";
+import { spawnCharacterFromTemplate } from "./spawnCharacterFromTemplate";
 
 const fixtureTemplate: CharacterTemplate = {
   characterTemplateId: "fixture-dwarf",

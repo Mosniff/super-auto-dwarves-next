@@ -2,12 +2,11 @@
 import { describe, it, expect } from "vitest";
 import { renderWithMessages, screen } from "@/test/renderWithMessages";
 import type { Character } from "@/lib/battle/types";
-import type { OwnedCharacter } from "@/lib/game/ownedCharacter";
 import { CharacterCard } from "./CharacterCard";
 
 describe("CharacterCard", () => {
   it("C1: shows the tier's Roman numeral and a data-character-tier attribute", () => {
-    const fixtureCharacter: OwnedCharacter = {
+    const fixtureCharacter: Character = {
       id: "fixture-dwarf-1",
       name: "Fixture Dwarf",
       attack: 3,
@@ -27,7 +26,7 @@ describe("CharacterCard", () => {
   });
 
   it("C2: shows each class's translated name and a data-character-class-id per class", () => {
-    const fixtureCharacter: OwnedCharacter = {
+    const fixtureCharacter: Character = {
       id: "fixture-dwarf-1",
       name: "Fixture Dwarf",
       attack: 3,
@@ -47,22 +46,5 @@ describe("CharacterCard", () => {
         document.querySelectorAll("[data-character-class-id]"),
       ).map((classElement) => classElement.getAttribute("data-character-class-id")),
     ).toEqual(["smith", "miner"]);
-  });
-
-  it("C3: a plain battle character renders no tier or class markers", () => {
-    const fixturePlainCharacter: Character = {
-      id: "fixture-enemy-1",
-      name: "Fixture Enemy",
-      attack: 4,
-      hp: 6,
-      maxHp: 6,
-    };
-
-    renderWithMessages(<CharacterCard character={fixturePlainCharacter} />);
-
-    expect(document.querySelectorAll("[data-character-tier]")).toHaveLength(0);
-    expect(
-      document.querySelectorAll("[data-character-class-id]"),
-    ).toHaveLength(0);
   });
 });

@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import type { OwnedCharacter } from "@/lib/game/ownedCharacter";
+import type { Character } from "@/lib/battle/types";
 import { createEmptyCampRoster, type CampRoster } from "@/lib/game/campRoster";
 import { parsePersistedCampRoster } from "./parsePersistedCampRoster";
 
-function buildFixtureCharacter(id: string, name: string): OwnedCharacter {
+function buildFixtureCharacter(id: string, name: string): Character {
   return {
     id,
     name,
@@ -192,7 +192,7 @@ describe("parsePersistedCampRoster", () => {
   });
 
   it("(l) accepts an owned character with more than three distinct classes", () => {
-    const characterWithFourClasses: OwnedCharacter = {
+    const characterWithFourClasses: Character = {
       ...buildFixtureCharacter("character-a", "Dwarf A"),
       characterClassIds: ["warrior", "mage", "merchant", "smith"],
     };

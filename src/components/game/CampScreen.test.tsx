@@ -2,7 +2,7 @@
 import { describe, it, expect } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { renderWithMessages, screen, waitFor } from "@/test/renderWithMessages";
-import type { OwnedCharacter } from "@/lib/game/ownedCharacter";
+import type { Character } from "@/lib/battle/types";
 import type { CampRoster } from "@/lib/game/campRoster";
 import type { CharacterShopSlots } from "@/lib/game/characterShopSlots";
 import type { CharacterTemplate } from "@/lib/game/characterTemplates";
@@ -13,7 +13,7 @@ import {
 } from "@/test/characterShopFixtures";
 import { CampScreen } from "./CampScreen";
 
-const fixtureBorin: OwnedCharacter = {
+const fixtureBorin: Character = {
   id: "dwarf-1",
   name: "Borin",
   attack: 3,

@@ -6,7 +6,7 @@ import { useDraggable } from "@dnd-kit/react";
 import { Lock } from "lucide-react";
 import type { CharacterShopSlots } from "@/lib/game/characterShopSlots";
 import type { CharacterTemplate } from "@/lib/game/characterTemplates";
-import { spawnCharacterFromTemplate } from "@/lib/game/ownedCharacter";
+import { spawnCharacterFromTemplate } from "@/lib/game/spawnCharacterFromTemplate";
 import type { CampClickTarget, CampTargetPresentation } from "./campSelection";
 import { CharacterCard } from "./CharacterCard";
 

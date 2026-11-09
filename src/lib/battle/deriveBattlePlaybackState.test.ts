@@ -6,11 +6,11 @@ import type { Character } from "./types";
 
 describe("deriveBattlePlaybackState", () => {
   const playerCharacters: Character[] = [
-    { id: "p1", name: "Borin", attack: 2, hp: 3, maxHp: 3 },
-    { id: "p2", name: "Thrudi", attack: 4, hp: 5, maxHp: 5 },
+    { id: "p1", name: "Borin", attack: 2, hp: 3, maxHp: 3, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
+    { id: "p2", name: "Thrudi", attack: 4, hp: 5, maxHp: 5, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
   ];
   const enemyCharacters: Character[] = [
-    { id: "e1", name: "Grukk", attack: 2, hp: 6, maxHp: 6 },
+    { id: "e1", name: "Grukk", attack: 2, hp: 6, maxHp: 6, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
   ];
   const resolvedBattle = resolveBattle(playerCharacters, enemyCharacters);
 

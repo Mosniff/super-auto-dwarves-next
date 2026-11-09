@@ -9,10 +9,10 @@ const AUTOPLAY_INTERVAL_MS = 1100;
 
 function buildResolvedBattle() {
   const playerCharacters: Character[] = [
-    { id: "p1", name: "Borin", attack: 5, hp: 10, maxHp: 10 },
+    { id: "p1", name: "Borin", attack: 5, hp: 10, maxHp: 10, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
   ];
   const enemyCharacters: Character[] = [
-    { id: "e1", name: "Grukk", attack: 2, hp: 3, maxHp: 3 },
+    { id: "e1", name: "Grukk", attack: 2, hp: 3, maxHp: 3, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] },
   ];
 
   return resolveBattle(playerCharacters, enemyCharacters);

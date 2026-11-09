@@ -1,9 +1,9 @@
 import { describe, it, expect } from "vitest";
-import type { OwnedCharacter } from "./ownedCharacter";
+import type { Character } from "@/lib/battle/types";
 import { createEmptyCampRoster, type CampRoster } from "./campRoster";
 import { repositionCharacter } from "./repositionCharacter";
 
-function buildFixtureCharacter(id: string, name: string): OwnedCharacter {
+function buildFixtureCharacter(id: string, name: string): Character {
   return {
     id,
     name,

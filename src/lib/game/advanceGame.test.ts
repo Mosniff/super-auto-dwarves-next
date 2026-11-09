@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { advanceGame } from "./advanceGame";
 import type { GamePhase, GameState } from "./types";
-import type { OwnedCharacter } from "./ownedCharacter";
+import type { Character } from "@/lib/battle/types";
 import type { CampRoster } from "./campRoster";
 import { CAMP_STARTING_GOLD } from "./campState";
 import {
@@ -16,7 +16,7 @@ import {
 const FIXTURE_GOLD = 10;
 
 function buildFixtureCampRoster(): CampRoster {
-  const fixtureCharacter: OwnedCharacter = {
+  const fixtureCharacter: Character = {
     id: "fixture-dwarf-1",
     name: "Fixture Dwarf",
     attack: 3,
