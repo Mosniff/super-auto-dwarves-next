@@ -1,8 +1,8 @@
-import { buyCharacter } from "@/lib/game/buyCharacter";
+import { buyCharacterFromShopSlot } from "@/lib/game/buyCharacterFromShopSlot";
 import { repositionCharacter } from "@/lib/game/repositionCharacter";
 import { CAMP_ROSTER_SLOT_COUNT, type CampRoster } from "@/lib/game/campRoster";
 import type { CampState } from "@/lib/game/campState";
-import type { ShopListing } from "@/lib/game/shop";
+import type { CharacterTemplate } from "@/lib/game/characterTemplates";
 
 // These are client-side hints derived from the same pure rules the server
 // runs; the server re-validates every intent and its result is the only
@@ -10,15 +10,19 @@ import type { ShopListing } from "@/lib/game/shop";
 
 export type CampSelection =
   | { selectionKind: "none" }
-  | { selectionKind: "shopListing"; shopListingId: string }
+  | { selectionKind: "characterShopSlot"; shopSlotIndex: number }
   | { selectionKind: "rosterSlot"; slotIndex: number };
 
 export type CampClickTarget =
-  | { targetKind: "shopListing"; shopListingId: string }
+  | { targetKind: "characterShopSlot"; shopSlotIndex: number }
   | { targetKind: "rosterSlot"; slotIndex: number };
 
 export type CampIntent =
-  | { intentKind: "buy"; shopListingId: string; targetSlotIndex: number }
+  | {
+      intentKind: "buyCharacter";
+      shopSlotIndex: number;
+      targetRosterSlotIndex: number;
+    }
   | { intentKind: "reposition"; fromSlotIndex: number; toSlotIndex: number };
 
 export interface CampClickResolution {
@@ -26,8 +30,8 @@ export interface CampClickResolution {
   campIntentToSubmit: CampIntent | null;
 }
 
-// Never actually used as an id — only buyCharacter's outcome is read, and
-// nothing it returns here is kept or saved.
+// Never actually used as an id — only buyCharacterFromShopSlot's outcome is
+// read, and nothing it returns here is kept or saved.
 const SELECTION_PREVIEW_CHARACTER_ID = "selection-preview-character";
 
 const allCampRosterSlotIndices = Array.from(
@@ -37,28 +41,33 @@ const allCampRosterSlotIndices = Array.from(
 
 export function isBuyTargetSlot(
   campState: CampState,
-  shopCatalogue: ShopListing[],
-  shopListingId: string,
-  slotIndex: number,
+  characterTemplates: readonly CharacterTemplate[],
+  shopSlotIndex: number,
+  rosterSlotIndex: number,
 ): boolean {
   return (
-    buyCharacter(
+    buyCharacterFromShopSlot(
       campState,
-      shopCatalogue,
-      shopListingId,
-      slotIndex,
+      characterTemplates,
+      shopSlotIndex,
+      rosterSlotIndex,
       SELECTION_PREVIEW_CHARACTER_ID,
     ).outcome === "accepted"
   );
 }
 
-export function isShopListingSelectable(
+export function isCharacterShopSlotSelectable(
   campState: CampState,
-  shopCatalogue: ShopListing[],
-  shopListingId: string,
+  characterTemplates: readonly CharacterTemplate[],
+  shopSlotIndex: number,
 ): boolean {
-  return allCampRosterSlotIndices.some((slotIndex) =>
-    isBuyTargetSlot(campState, shopCatalogue, shopListingId, slotIndex),
+  return allCampRosterSlotIndices.some((rosterSlotIndex) =>
+    isBuyTargetSlot(
+      campState,
+      characterTemplates,
+      shopSlotIndex,
+      rosterSlotIndex,
+    ),
   );
 }
 
@@ -86,23 +95,26 @@ export function isRosterSlotSelectable(
 
 const noSelection: CampSelection = { selectionKind: "none" };
 
-// Nothing selected: a selectable listing or slot becomes selected;
-// anything else changes nothing.
+// Nothing selected: a selectable character shop slot or roster slot becomes
+// selected; anything else changes nothing.
 //
-// A listing selected: clicking the same listing clears; a different
-// selectable listing switches; a buy-target slot submits a buy and
-// clears; any other roster slot click changes nothing (buying and
-// repositioning are separate actions on separate kinds of selection, so an
-// occupied, non-buyable slot is never itself picked up here).
+// A character shop slot selected: clicking the same slot clears; a
+// different selectable shop slot switches; a buy-target roster slot
+// submits a buy and clears; any other roster slot click changes nothing
+// (buying and repositioning are separate actions on separate kinds of
+// selection, so an occupied, non-buyable slot is never itself picked up
+// here — this is the deliberate asymmetry: a future "promotion" rule
+// accepting a buy onto an occupied slot would turn that click into a buy
+// without any change here).
 //
 // A roster slot selected: clicking the same slot clears; a
 // reposition-target slot submits a reposition and clears; a selectable
-// listing switches to it; any other roster slot click changes nothing.
+// shop slot switches to it; any other roster slot click changes nothing.
 export function resolveCampClick(
   campSelection: CampSelection,
   campClickTarget: CampClickTarget,
   campState: CampState,
-  shopCatalogue: ShopListing[],
+  characterTemplates: readonly CharacterTemplate[],
 ): CampClickResolution {
   const unchanged: CampClickResolution = {
     nextCampSelection: campSelection,
@@ -110,18 +122,18 @@ export function resolveCampClick(
   };
 
   if (campSelection.selectionKind === "none") {
-    if (campClickTarget.targetKind === "shopListing") {
+    if (campClickTarget.targetKind === "characterShopSlot") {
       if (
-        isShopListingSelectable(
+        isCharacterShopSlotSelectable(
           campState,
-          shopCatalogue,
-          campClickTarget.shopListingId,
+          characterTemplates,
+          campClickTarget.shopSlotIndex,
         )
       ) {
         return {
           nextCampSelection: {
-            selectionKind: "shopListing",
-            shopListingId: campClickTarget.shopListingId,
+            selectionKind: "characterShopSlot",
+            shopSlotIndex: campClickTarget.shopSlotIndex,
           },
           campIntentToSubmit: null,
         };
@@ -141,22 +153,22 @@ export function resolveCampClick(
     return unchanged;
   }
 
-  if (campSelection.selectionKind === "shopListing") {
-    if (campClickTarget.targetKind === "shopListing") {
-      if (campClickTarget.shopListingId === campSelection.shopListingId) {
+  if (campSelection.selectionKind === "characterShopSlot") {
+    if (campClickTarget.targetKind === "characterShopSlot") {
+      if (campClickTarget.shopSlotIndex === campSelection.shopSlotIndex) {
         return { nextCampSelection: noSelection, campIntentToSubmit: null };
       }
       if (
-        isShopListingSelectable(
+        isCharacterShopSlotSelectable(
           campState,
-          shopCatalogue,
-          campClickTarget.shopListingId,
+          characterTemplates,
+          campClickTarget.shopSlotIndex,
         )
       ) {
         return {
           nextCampSelection: {
-            selectionKind: "shopListing",
-            shopListingId: campClickTarget.shopListingId,
+            selectionKind: "characterShopSlot",
+            shopSlotIndex: campClickTarget.shopSlotIndex,
           },
           campIntentToSubmit: null,
         };
@@ -167,17 +179,17 @@ export function resolveCampClick(
     if (
       isBuyTargetSlot(
         campState,
-        shopCatalogue,
-        campSelection.shopListingId,
+        characterTemplates,
+        campSelection.shopSlotIndex,
         campClickTarget.slotIndex,
       )
     ) {
       return {
         nextCampSelection: noSelection,
         campIntentToSubmit: {
-          intentKind: "buy",
-          shopListingId: campSelection.shopListingId,
-          targetSlotIndex: campClickTarget.slotIndex,
+          intentKind: "buyCharacter",
+          shopSlotIndex: campSelection.shopSlotIndex,
+          targetRosterSlotIndex: campClickTarget.slotIndex,
         },
       };
     }
@@ -209,16 +221,16 @@ export function resolveCampClick(
   }
 
   if (
-    isShopListingSelectable(
+    isCharacterShopSlotSelectable(
       campState,
-      shopCatalogue,
-      campClickTarget.shopListingId,
+      characterTemplates,
+      campClickTarget.shopSlotIndex,
     )
   ) {
     return {
       nextCampSelection: {
-        selectionKind: "shopListing",
-        shopListingId: campClickTarget.shopListingId,
+        selectionKind: "characterShopSlot",
+        shopSlotIndex: campClickTarget.shopSlotIndex,
       },
       campIntentToSubmit: null,
     };
@@ -234,12 +246,10 @@ function isSameCampSelection(
     return false;
   }
   if (
-    firstCampSelection.selectionKind === "shopListing" &&
-    secondCampSelection.selectionKind === "shopListing"
+    firstCampSelection.selectionKind === "characterShopSlot" &&
+    secondCampSelection.selectionKind === "characterShopSlot"
   ) {
-    return (
-      firstCampSelection.shopListingId === secondCampSelection.shopListingId
-    );
+    return firstCampSelection.shopSlotIndex === secondCampSelection.shopSlotIndex;
   }
   if (
     firstCampSelection.selectionKind === "rosterSlot" &&
@@ -256,13 +266,13 @@ export function isCampClickEffective(
   campSelection: CampSelection,
   campClickTarget: CampClickTarget,
   campState: CampState,
-  shopCatalogue: ShopListing[],
+  characterTemplates: readonly CharacterTemplate[],
 ): boolean {
   const { nextCampSelection, campIntentToSubmit } = resolveCampClick(
     campSelection,
     campClickTarget,
     campState,
-    shopCatalogue,
+    characterTemplates,
   );
 
   return (
@@ -277,13 +287,13 @@ export function resolveCampDrop(
   dragSourceSelection: CampSelection,
   dropTarget: CampClickTarget,
   campState: CampState,
-  shopCatalogue: ShopListing[],
+  characterTemplates: readonly CharacterTemplate[],
 ): CampIntent | null {
   return resolveCampClick(
     dragSourceSelection,
     dropTarget,
     campState,
-    shopCatalogue,
+    characterTemplates,
   ).campIntentToSubmit;
 }
 
@@ -295,21 +305,21 @@ export type CampTargetPresentation =
 
 // This is the single source of every tile's hint, so click-select and drag
 // can't present differently. With nothing in hand, a tile that holds a
-// pick-up-able item (an unbought listing, or an occupied roster slot)
+// pick-up-able item (an offering shop slot, or an occupied roster slot)
 // shows whether it can be picked up; an empty slot holds nothing to pick
 // up, so it just looks empty ("neutral").
 export function presentCampTarget(
   heldCampItem: CampSelection,
   campClickTarget: CampClickTarget,
   campState: CampState,
-  shopCatalogue: ShopListing[],
+  characterTemplates: readonly CharacterTemplate[],
 ): CampTargetPresentation {
   if (heldCampItem.selectionKind === "none") {
-    if (campClickTarget.targetKind === "shopListing") {
-      return isShopListingSelectable(
+    if (campClickTarget.targetKind === "characterShopSlot") {
+      return isCharacterShopSlotSelectable(
         campState,
-        shopCatalogue,
-        campClickTarget.shopListingId,
+        characterTemplates,
+        campClickTarget.shopSlotIndex,
       )
         ? "neutral"
         : "ineligible";
@@ -328,9 +338,9 @@ export function presentCampTarget(
   }
 
   const isHeldTarget =
-    (heldCampItem.selectionKind === "shopListing" &&
-      campClickTarget.targetKind === "shopListing" &&
-      heldCampItem.shopListingId === campClickTarget.shopListingId) ||
+    (heldCampItem.selectionKind === "characterShopSlot" &&
+      campClickTarget.targetKind === "characterShopSlot" &&
+      heldCampItem.shopSlotIndex === campClickTarget.shopSlotIndex) ||
     (heldCampItem.selectionKind === "rosterSlot" &&
       campClickTarget.targetKind === "rosterSlot" &&
       heldCampItem.slotIndex === campClickTarget.slotIndex);
@@ -343,7 +353,7 @@ export function presentCampTarget(
     heldCampItem,
     campClickTarget,
     campState,
-    shopCatalogue,
+    characterTemplates,
   );
 
   if (campIntentToSubmit !== null) {
@@ -355,7 +365,7 @@ export function presentCampTarget(
       heldCampItem,
       campClickTarget,
       campState,
-      shopCatalogue,
+      characterTemplates,
     )
   ) {
     return "neutral";

@@ -1,19 +1,9 @@
 import { isCampRosterSlotIndex } from "./campRoster";
-import type { CampRoster } from "./campRoster";
-import {
-  CHARACTER_SHOP_SLOT_COUNT,
-  type CharacterShopSlots,
-} from "./characterShopSlots";
+import type { CampState } from "./campState";
+import { CHARACTER_SHOP_SLOT_COUNT } from "./characterShopSlots";
 import type { CharacterTemplate } from "./characterTemplates";
 import { spawnCharacterFromTemplate } from "./ownedCharacter";
 import { SHOP_CHARACTER_PRICE } from "./shop";
-
-// Temporary name: Phase 9 part 4c renames this to CampState, replacing the old one.
-export interface ShopCampState {
-  campRoster: CampRoster;
-  gold: number;
-  characterShopSlots: CharacterShopSlots;
-}
 
 export type BuyCharacterFromShopSlotRejectionReason =
   | "invalidRosterSlot"
@@ -25,7 +15,7 @@ export type BuyCharacterFromShopSlotRejectionReason =
   | "notEnoughGold";
 
 export type BuyCharacterFromShopSlotResult =
-  | { outcome: "accepted"; nextShopCampState: ShopCampState }
+  | { outcome: "accepted"; nextCampState: CampState }
   | {
       outcome: "rejected";
       rejectionReason: BuyCharacterFromShopSlotRejectionReason;
@@ -48,7 +38,7 @@ function isCharacterShopSlotIndex(candidateSlotIndex: number): boolean {
 // rosterSlotOccupied), then notEnoughGold last, so the most specific
 // reason wins.
 export function buyCharacterFromShopSlot(
-  shopCampState: ShopCampState,
+  campState: CampState,
   characterTemplates: readonly CharacterTemplate[],
   shopSlotIndex: number,
   targetRosterSlotIndex: number,
@@ -62,7 +52,7 @@ export function buyCharacterFromShopSlot(
     return { outcome: "rejected", rejectionReason: "invalidShopSlot" };
   }
 
-  const targetShopSlot = shopCampState.characterShopSlots[shopSlotIndex];
+  const targetShopSlot = campState.characterShopSlots[shopSlotIndex];
 
   if (targetShopSlot.slotState === "locked") {
     return { outcome: "rejected", rejectionReason: "shopSlotLocked" };
@@ -88,28 +78,28 @@ export function buyCharacterFromShopSlot(
 
   // Buying onto an occupied slot is a rejection until a "promotion" rule
   // is specified (CLAUDE.md -> "Camp: shop, roster and intents").
-  if (shopCampState.campRoster[targetRosterSlotIndex] !== null) {
+  if (campState.campRoster[targetRosterSlotIndex] !== null) {
     return { outcome: "rejected", rejectionReason: "rosterSlotOccupied" };
   }
 
-  if (shopCampState.gold < SHOP_CHARACTER_PRICE) {
+  if (campState.gold < SHOP_CHARACTER_PRICE) {
     return { outcome: "rejected", rejectionReason: "notEnoughGold" };
   }
 
-  const nextCampRoster = [...shopCampState.campRoster];
+  const nextCampRoster = [...campState.campRoster];
   nextCampRoster[targetRosterSlotIndex] = spawnCharacterFromTemplate(
     matchedCharacterTemplate,
     newCharacterId,
   );
 
-  const nextCharacterShopSlots = [...shopCampState.characterShopSlots];
+  const nextCharacterShopSlots = [...campState.characterShopSlots];
   nextCharacterShopSlots[shopSlotIndex] = { slotState: "sold" };
 
   return {
     outcome: "accepted",
-    nextShopCampState: {
+    nextCampState: {
       campRoster: nextCampRoster,
-      gold: shopCampState.gold - SHOP_CHARACTER_PRICE,
+      gold: campState.gold - SHOP_CHARACTER_PRICE,
       characterShopSlots: nextCharacterShopSlots,
     },
   };

@@ -2,7 +2,8 @@
 
 import { useTranslations } from "next-intl";
 import { useDraggable } from "@dnd-kit/react";
-import type { ShopListing } from "@/lib/game/shop";
+import type { CharacterShopSlots } from "@/lib/game/characterShopSlots";
+import type { CharacterTemplate } from "@/lib/game/characterTemplates";
 import { spawnCharacterFromTemplate } from "@/lib/game/ownedCharacter";
 import type { CampClickTarget, CampTargetPresentation } from "./campSelection";
 import { CharacterCard } from "./CharacterCard";
@@ -10,8 +11,9 @@ import { CharacterCard } from "./CharacterCard";
 // Visual classes come from the presentation state only (plus dimming the
 // drag source), never from the native disabled attribute or isSelected
 // alone — this keeps click-select and drag from ever presenting a tile
-// differently. A shop listing is never itself a drop target, so unlike a
-// roster slot there is no stronger "under the pointer" variant here.
+// differently. A character shop slot is never itself a drop target, so
+// unlike a roster slot there is no stronger "under the pointer" variant
+// here.
 function presentationClassName(
   presentation: CampTargetPresentation,
   isEnabled: boolean,
@@ -28,8 +30,9 @@ function presentationClassName(
   }
 }
 
-interface DraggableShopListingTileProps {
-  shopListing: ShopListing;
+interface DraggableCharacterShopSlotTileProps {
+  shopSlotIndex: number;
+  characterTemplate: CharacterTemplate;
   isSelected: boolean;
   isEnabled: boolean;
   isDraggable: boolean;
@@ -38,27 +41,28 @@ interface DraggableShopListingTileProps {
   buttonLabel: string;
 }
 
-function DraggableShopListingTile({
-  shopListing,
+function DraggableCharacterShopSlotTile({
+  shopSlotIndex,
+  characterTemplate,
   isSelected,
   isEnabled,
   isDraggable,
   presentation,
   onClick,
   buttonLabel,
-}: DraggableShopListingTileProps) {
+}: DraggableCharacterShopSlotTileProps) {
   const campClickTarget: CampClickTarget = {
-    targetKind: "shopListing",
-    shopListingId: shopListing.shopListingId,
+    targetKind: "characterShopSlot",
+    shopSlotIndex,
   };
 
   const displayCharacter = spawnCharacterFromTemplate(
-    shopListing.characterTemplate,
-    shopListing.shopListingId,
+    characterTemplate,
+    `character-shop-slot-${shopSlotIndex}`,
   );
 
   const { ref, isDragSource } = useDraggable({
-    id: `shop-listing-${shopListing.shopListingId}`,
+    id: `character-shop-slot-${shopSlotIndex}`,
     data: {
       campClickTarget,
       character: displayCharacter,
@@ -74,6 +78,7 @@ function DraggableShopListingTile({
       aria-pressed={isSelected}
       disabled={!isEnabled}
       onClick={onClick}
+      data-character-shop-slot-state="offering"
       data-camp-target-presentation={presentation}
       className={`block aspect-3/4 flex-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${presentationClassName(
         presentation,
@@ -86,23 +91,23 @@ function DraggableShopListingTile({
 }
 
 interface ShopPanelProps {
-  shopCatalogue: ShopListing[];
-  purchasedShopListingIds: string[];
-  selectedShopListingId: string | null;
-  isListingEnabled: (shopListingId: string) => boolean;
-  isListingDraggable: (shopListingId: string) => boolean;
-  listingPresentation: (shopListingId: string) => CampTargetPresentation;
-  onListingClick: (shopListingId: string) => void;
+  characterShopSlots: CharacterShopSlots;
+  characterTemplates: readonly CharacterTemplate[];
+  selectedShopSlotIndex: number | null;
+  isShopSlotEnabled: (shopSlotIndex: number) => boolean;
+  isShopSlotDraggable: (shopSlotIndex: number) => boolean;
+  shopSlotPresentation: (shopSlotIndex: number) => CampTargetPresentation;
+  onShopSlotClick: (shopSlotIndex: number) => void;
 }
 
 export function ShopPanel({
-  shopCatalogue,
-  purchasedShopListingIds,
-  selectedShopListingId,
-  isListingEnabled,
-  isListingDraggable,
-  listingPresentation,
-  onListingClick,
+  characterShopSlots,
+  characterTemplates,
+  selectedShopSlotIndex,
+  isShopSlotEnabled,
+  isShopSlotDraggable,
+  shopSlotPresentation,
+  onShopSlotClick,
 }: ShopPanelProps) {
   const t = useTranslations("common");
 
@@ -110,15 +115,12 @@ export function ShopPanel({
     <section className="w-full max-w-5xl">
       <h2 className="mb-2 text-lg font-bold">{t("shopHeading")}</h2>
       <div className="flex gap-3">
-        {shopCatalogue.map((shopListing) => {
-          const isSold = purchasedShopListingIds.includes(
-            shopListing.shopListingId,
-          );
-
-          if (isSold) {
+        {characterShopSlots.map((characterShopSlot, shopSlotIndex) => {
+          if (characterShopSlot.slotState === "sold") {
             return (
               <div
-                key={shopListing.shopListingId}
+                key={shopSlotIndex}
+                data-character-shop-slot-state="sold"
                 className="flex aspect-3/4 flex-1 flex-col items-center justify-center gap-1 rounded-md bg-slate-200 p-1.5"
                 style={{ boxShadow: "var(--shadow-recess)" }}
               >
@@ -129,18 +131,52 @@ export function ShopPanel({
             );
           }
 
+          if (characterShopSlot.slotState === "offering") {
+            const matchedCharacterTemplate = characterTemplates.find(
+              (characterTemplate) =>
+                characterTemplate.characterTemplateId ===
+                characterShopSlot.characterTemplateId,
+            );
+
+            if (matchedCharacterTemplate !== undefined) {
+              return (
+                <DraggableCharacterShopSlotTile
+                  key={shopSlotIndex}
+                  shopSlotIndex={shopSlotIndex}
+                  characterTemplate={matchedCharacterTemplate}
+                  isSelected={selectedShopSlotIndex === shopSlotIndex}
+                  isEnabled={isShopSlotEnabled(shopSlotIndex)}
+                  isDraggable={isShopSlotDraggable(shopSlotIndex)}
+                  presentation={shopSlotPresentation(shopSlotIndex)}
+                  onClick={() => onShopSlotClick(shopSlotIndex)}
+                  buttonLabel={t("shopListingButtonLabel", {
+                    characterName: matchedCharacterTemplate.name,
+                  })}
+                />
+              );
+            }
+
+            // An offering whose template id matches nothing server-side is
+            // treated the same as locked here — there is nothing buyable to
+            // show. Part 5 adds the padlock and label for locked/unavailable
+            // slots.
+            return (
+              <div
+                key={shopSlotIndex}
+                data-character-shop-slot-state="unavailable"
+                className="flex aspect-3/4 flex-1 flex-col items-center justify-center gap-1 rounded-md bg-slate-200 p-1.5"
+                style={{ boxShadow: "var(--shadow-recess)" }}
+              />
+            );
+          }
+
+          // Locked. Part 5 adds the padlock and label.
           return (
-            <DraggableShopListingTile
-              key={shopListing.shopListingId}
-              shopListing={shopListing}
-              isSelected={selectedShopListingId === shopListing.shopListingId}
-              isEnabled={isListingEnabled(shopListing.shopListingId)}
-              isDraggable={isListingDraggable(shopListing.shopListingId)}
-              presentation={listingPresentation(shopListing.shopListingId)}
-              onClick={() => onListingClick(shopListing.shopListingId)}
-              buttonLabel={t("shopListingButtonLabel", {
-                characterName: shopListing.characterTemplate.name,
-              })}
+            <div
+              key={shopSlotIndex}
+              data-character-shop-slot-state="locked"
+              className="flex aspect-3/4 flex-1 flex-col items-center justify-center gap-1 rounded-md bg-slate-200 p-1.5"
+              style={{ boxShadow: "var(--shadow-recess)" }}
             />
           );
         })}

@@ -2,14 +2,21 @@ import { describe, it, expect } from "vitest";
 import type { OwnedCharacter } from "@/lib/game/ownedCharacter";
 import { CAMP_ROSTER_SLOT_COUNT, type CampRoster } from "@/lib/game/campRoster";
 import type { CampState } from "@/lib/game/campState";
-import type { ShopListing } from "@/lib/game/shop";
 import type { CharacterTemplate } from "@/lib/game/characterTemplates";
+import {
+  fixtureCharacterShopTemplateOne,
+  fixtureCharacterShopTemplateTwo,
+  buildFixtureCharacterShopSlots,
+  buildOfferingCharacterShopSlot,
+  LOCKED_CHARACTER_SHOP_SLOT,
+  SOLD_CHARACTER_SHOP_SLOT,
+} from "@/test/characterShopFixtures";
 import {
   isBuyTargetSlot,
   isCampClickEffective,
+  isCharacterShopSlotSelectable,
   isRepositionTargetSlot,
   isRosterSlotSelectable,
-  isShopListingSelectable,
   presentCampTarget,
   resolveCampClick,
   resolveCampDrop,
@@ -29,41 +36,20 @@ function buildFixtureCharacter(id: string, name: string): OwnedCharacter {
   };
 }
 
-const fixtureCharacterTemplateOne: CharacterTemplate = {
-  characterTemplateId: "fixture-dwarf-one",
-  name: "Fixture Dwarf One",
-  tier: 1,
-  characterClassIds: ["warrior"],
-  attack: 2,
-  maxHp: 5,
-};
-
-const fixtureCharacterTemplateTwo: CharacterTemplate = {
-  characterTemplateId: "fixture-dwarf-two",
-  name: "Fixture Dwarf Two",
-  tier: 2,
-  characterClassIds: ["smith", "miner"],
-  attack: 3,
-  maxHp: 8,
-};
-
-const fixtureShopCatalogue: ShopListing[] = [
-  {
-    shopListingId: "fixture-listing-1",
-    characterTemplate: fixtureCharacterTemplateOne,
-  },
-  {
-    shopListingId: "fixture-listing-2",
-    characterTemplate: fixtureCharacterTemplateTwo,
-  },
+const fixtureCharacterTemplates: CharacterTemplate[] = [
+  fixtureCharacterShopTemplateOne,
+  fixtureCharacterShopTemplateTwo,
 ];
 
 const fixtureBorin = buildFixtureCharacter("dwarf-1", "Borin");
 
+// characterShopSlots: [offering "fixture-dwarf-one", offering
+// "fixture-dwarf-two", SOLD, five LOCKED] — matches
+// buildFixtureCharacterShopSlots() exactly.
 const baseCampState: CampState = {
   campRoster: [fixtureBorin, null, null, null, null, null, null],
   gold: 10,
-  purchasedShopListingIds: [],
+  characterShopSlots: buildFixtureCharacterShopSlots(),
 };
 
 const fullCampRoster: CampRoster = [
@@ -79,7 +65,7 @@ const fullCampRoster: CampRoster = [
 const fullCampState: CampState = {
   campRoster: fullCampRoster,
   gold: 10,
-  purchasedShopListingIds: [],
+  characterShopSlots: buildFixtureCharacterShopSlots(),
 };
 
 const allSlotIndices = Array.from(
@@ -88,65 +74,61 @@ const allSlotIndices = Array.from(
 );
 
 describe("availability", () => {
-  it("(a) a listing is selectable when it can be bought into some slot", () => {
+  it("(a) a character shop slot is selectable when it can be bought into some roster slot", () => {
     expect(
-      isShopListingSelectable(
-        baseCampState,
-        fixtureShopCatalogue,
-        "fixture-listing-1",
-      ),
+      isCharacterShopSlotSelectable(baseCampState, fixtureCharacterTemplates, 0),
     ).toBe(true);
   });
 
-  it("(b) a listing is not selectable once bought this visit", () => {
-    const campStateWithListingAlreadyPurchased: CampState = {
+  it("(b) a sold slot is not selectable", () => {
+    const campStateWithSoldSlot: CampState = {
       ...baseCampState,
-      purchasedShopListingIds: ["fixture-listing-1"],
+      characterShopSlots: [
+        SOLD_CHARACTER_SHOP_SLOT,
+        buildOfferingCharacterShopSlot("fixture-dwarf-two"),
+        SOLD_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+      ],
     };
 
     expect(
-      isShopListingSelectable(
-        campStateWithListingAlreadyPurchased,
-        fixtureShopCatalogue,
-        "fixture-listing-1",
+      isCharacterShopSlotSelectable(
+        campStateWithSoldSlot,
+        fixtureCharacterTemplates,
+        0,
       ),
     ).toBe(false);
   });
 
-  it("(c) a listing is not selectable without enough gold", () => {
+  it("(c) a character shop slot is not selectable without enough gold", () => {
     const campStateWithTooLittleGold: CampState = {
       ...baseCampState,
       gold: 2,
     };
 
     expect(
-      isShopListingSelectable(
+      isCharacterShopSlotSelectable(
         campStateWithTooLittleGold,
-        fixtureShopCatalogue,
-        "fixture-listing-1",
+        fixtureCharacterTemplates,
+        0,
       ),
     ).toBe(false);
   });
 
-  it("(d) a listing is not selectable when every slot is occupied", () => {
+  it("(d) a character shop slot is not selectable when every roster slot is occupied", () => {
     expect(
-      isShopListingSelectable(
-        fullCampState,
-        fixtureShopCatalogue,
-        "fixture-listing-1",
-      ),
+      isCharacterShopSlotSelectable(fullCampState, fixtureCharacterTemplates, 0),
     ).toBe(false);
   });
 
   it("(e) the buy targets are exactly the empty slots", () => {
     expect(
       allSlotIndices.map((slotIndex) =>
-        isBuyTargetSlot(
-          baseCampState,
-          fixtureShopCatalogue,
-          "fixture-listing-1",
-          slotIndex,
-        ),
+        isBuyTargetSlot(baseCampState, fixtureCharacterTemplates, 0, slotIndex),
       ),
     ).toEqual([false, true, true, true, true, true, true]);
   });
@@ -166,39 +148,78 @@ describe("availability", () => {
       ),
     ).toEqual([false, true, true, true, true, true, true]);
   });
+
+  it("(ll) a locked slot is not selectable, and with nothing in hand presents as ineligible", () => {
+    expect(
+      isCharacterShopSlotSelectable(baseCampState, fixtureCharacterTemplates, 3),
+    ).toBe(false);
+
+    expect(
+      presentCampTarget(
+        { selectionKind: "none" },
+        { targetKind: "characterShopSlot", shopSlotIndex: 3 },
+        baseCampState,
+        fixtureCharacterTemplates,
+      ),
+    ).toBe("ineligible");
+  });
+
+  it("(mm) an offering whose template id isn't in characterTemplates is not selectable", () => {
+    const campStateWithUnknownTemplateOffering: CampState = {
+      ...baseCampState,
+      characterShopSlots: [
+        buildOfferingCharacterShopSlot("no-such-dwarf"),
+        buildOfferingCharacterShopSlot("fixture-dwarf-two"),
+        SOLD_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+      ],
+    };
+
+    expect(
+      isCharacterShopSlotSelectable(
+        campStateWithUnknownTemplateOffering,
+        fixtureCharacterTemplates,
+        0,
+      ),
+    ).toBe(false);
+  });
 });
 
 describe("resolveCampClick", () => {
   const noneSelected: CampSelection = { selectionKind: "none" };
 
-  it("(h) selecting a buyable listing", () => {
+  it("(h) selecting a buyable character shop slot", () => {
     const resolution = resolveCampClick(
       noneSelected,
-      { targetKind: "shopListing", shopListingId: "fixture-listing-1" },
+      { targetKind: "characterShopSlot", shopSlotIndex: 0 },
       baseCampState,
-      fixtureShopCatalogue,
+      fixtureCharacterTemplates,
     );
 
     expect(resolution).toEqual({
       nextCampSelection: {
-        selectionKind: "shopListing",
-        shopListingId: "fixture-listing-1",
+        selectionKind: "characterShopSlot",
+        shopSlotIndex: 0,
       },
       campIntentToSubmit: null,
     });
   });
 
-  it("(i) clicking the selected listing again clears the selection", () => {
-    const listingSelected: CampSelection = {
-      selectionKind: "shopListing",
-      shopListingId: "fixture-listing-1",
+  it("(i) clicking the selected shop slot again clears the selection", () => {
+    const shopSlotSelected: CampSelection = {
+      selectionKind: "characterShopSlot",
+      shopSlotIndex: 0,
     };
 
     const resolution = resolveCampClick(
-      listingSelected,
-      { targetKind: "shopListing", shopListingId: "fixture-listing-1" },
+      shopSlotSelected,
+      { targetKind: "characterShopSlot", shopSlotIndex: 0 },
       baseCampState,
-      fixtureShopCatalogue,
+      fixtureCharacterTemplates,
     );
 
     expect(resolution).toEqual({
@@ -207,44 +228,44 @@ describe("resolveCampClick", () => {
     });
   });
 
-  it("(j) clicking an empty slot with a listing selected submits a buy and clears the selection", () => {
-    const listingSelected: CampSelection = {
-      selectionKind: "shopListing",
-      shopListingId: "fixture-listing-1",
+  it("(j) clicking an empty slot with a shop slot selected submits a buy and clears the selection", () => {
+    const shopSlotSelected: CampSelection = {
+      selectionKind: "characterShopSlot",
+      shopSlotIndex: 0,
     };
 
     const resolution = resolveCampClick(
-      listingSelected,
+      shopSlotSelected,
       { targetKind: "rosterSlot", slotIndex: 3 },
       baseCampState,
-      fixtureShopCatalogue,
+      fixtureCharacterTemplates,
     );
 
     expect(resolution).toEqual({
       nextCampSelection: noneSelected,
       campIntentToSubmit: {
-        intentKind: "buy",
-        shopListingId: "fixture-listing-1",
-        targetSlotIndex: 3,
+        intentKind: "buyCharacter",
+        shopSlotIndex: 0,
+        targetRosterSlotIndex: 3,
       },
     });
   });
 
-  it("(k) clicking an occupied slot with a listing selected changes nothing", () => {
-    const listingSelected: CampSelection = {
-      selectionKind: "shopListing",
-      shopListingId: "fixture-listing-1",
+  it("(k) clicking an occupied slot with a shop slot selected changes nothing", () => {
+    const shopSlotSelected: CampSelection = {
+      selectionKind: "characterShopSlot",
+      shopSlotIndex: 0,
     };
 
     const resolution = resolveCampClick(
-      listingSelected,
+      shopSlotSelected,
       { targetKind: "rosterSlot", slotIndex: 0 },
       baseCampState,
-      fixtureShopCatalogue,
+      fixtureCharacterTemplates,
     );
 
     expect(resolution).toEqual({
-      nextCampSelection: listingSelected,
+      nextCampSelection: shopSlotSelected,
       campIntentToSubmit: null,
     });
   });
@@ -254,7 +275,7 @@ describe("resolveCampClick", () => {
       noneSelected,
       { targetKind: "rosterSlot", slotIndex: 0 },
       baseCampState,
-      fixtureShopCatalogue,
+      fixtureCharacterTemplates,
     );
 
     expect(resolution).toEqual({
@@ -268,7 +289,7 @@ describe("resolveCampClick", () => {
       noneSelected,
       { targetKind: "rosterSlot", slotIndex: 4 },
       baseCampState,
-      fixtureShopCatalogue,
+      fixtureCharacterTemplates,
     );
 
     expect(resolution).toEqual({
@@ -287,7 +308,7 @@ describe("resolveCampClick", () => {
       slotZeroSelected,
       { targetKind: "rosterSlot", slotIndex: 5 },
       baseCampState,
-      fixtureShopCatalogue,
+      fixtureCharacterTemplates,
     );
 
     expect(resolution).toEqual({
@@ -310,7 +331,7 @@ describe("resolveCampClick", () => {
       slotZeroSelected,
       { targetKind: "rosterSlot", slotIndex: 0 },
       baseCampState,
-      fixtureShopCatalogue,
+      fixtureCharacterTemplates,
     );
 
     expect(resolution).toEqual({
@@ -319,17 +340,26 @@ describe("resolveCampClick", () => {
     });
   });
 
-  it("(p) clicking an unselectable listing with nothing selected changes nothing", () => {
-    const campStateWithListingAlreadyPurchased: CampState = {
+  it("(p) clicking an unselectable shop slot with nothing selected changes nothing", () => {
+    const campStateWithSoldSlot: CampState = {
       ...baseCampState,
-      purchasedShopListingIds: ["fixture-listing-1"],
+      characterShopSlots: [
+        SOLD_CHARACTER_SHOP_SLOT,
+        buildOfferingCharacterShopSlot("fixture-dwarf-two"),
+        SOLD_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+      ],
     };
 
     const resolution = resolveCampClick(
       noneSelected,
-      { targetKind: "shopListing", shopListingId: "fixture-listing-1" },
-      campStateWithListingAlreadyPurchased,
-      fixtureShopCatalogue,
+      { targetKind: "characterShopSlot", shopSlotIndex: 0 },
+      campStateWithSoldSlot,
+      fixtureCharacterTemplates,
     );
 
     expect(resolution).toEqual({
@@ -338,23 +368,23 @@ describe("resolveCampClick", () => {
     });
   });
 
-  it("(q) clicking a different selectable listing switches the selection", () => {
-    const listingOneSelected: CampSelection = {
-      selectionKind: "shopListing",
-      shopListingId: "fixture-listing-1",
+  it("(q) clicking a different selectable shop slot switches the selection", () => {
+    const shopSlotZeroSelected: CampSelection = {
+      selectionKind: "characterShopSlot",
+      shopSlotIndex: 0,
     };
 
     const resolution = resolveCampClick(
-      listingOneSelected,
-      { targetKind: "shopListing", shopListingId: "fixture-listing-2" },
+      shopSlotZeroSelected,
+      { targetKind: "characterShopSlot", shopSlotIndex: 1 },
       baseCampState,
-      fixtureShopCatalogue,
+      fixtureCharacterTemplates,
     );
 
     expect(resolution).toEqual({
       nextCampSelection: {
-        selectionKind: "shopListing",
-        shopListingId: "fixture-listing-2",
+        selectionKind: "characterShopSlot",
+        shopSlotIndex: 1,
       },
       campIntentToSubmit: null,
     });
@@ -368,95 +398,95 @@ describe("isCampClickEffective", () => {
     expect(
       isCampClickEffective(
         noneSelected,
-        { targetKind: "shopListing", shopListingId: "fixture-listing-1" },
+        { targetKind: "characterShopSlot", shopSlotIndex: 0 },
         baseCampState,
-        fixtureShopCatalogue,
+        fixtureCharacterTemplates,
       ),
     ).toBe(true);
   });
 
   it("(s) clicking the selected item again is effective, because it cancels", () => {
-    const listingOneSelected: CampSelection = {
-      selectionKind: "shopListing",
-      shopListingId: "fixture-listing-1",
+    const shopSlotZeroSelected: CampSelection = {
+      selectionKind: "characterShopSlot",
+      shopSlotIndex: 0,
     };
 
     expect(
       isCampClickEffective(
-        listingOneSelected,
-        { targetKind: "shopListing", shopListingId: "fixture-listing-1" },
+        shopSlotZeroSelected,
+        { targetKind: "characterShopSlot", shopSlotIndex: 0 },
         baseCampState,
-        fixtureShopCatalogue,
+        fixtureCharacterTemplates,
       ),
     ).toBe(true);
   });
 
   it("(t) a click that would change nothing is not effective", () => {
-    const listingOneSelected: CampSelection = {
-      selectionKind: "shopListing",
-      shopListingId: "fixture-listing-1",
+    const shopSlotZeroSelected: CampSelection = {
+      selectionKind: "characterShopSlot",
+      shopSlotIndex: 0,
     };
 
     expect(
       isCampClickEffective(
-        listingOneSelected,
+        shopSlotZeroSelected,
         { targetKind: "rosterSlot", slotIndex: 0 },
         baseCampState,
-        fixtureShopCatalogue,
+        fixtureCharacterTemplates,
       ),
     ).toBe(false);
   });
 
   it("(u) a click that submits an intent is effective", () => {
-    const listingOneSelected: CampSelection = {
-      selectionKind: "shopListing",
-      shopListingId: "fixture-listing-1",
+    const shopSlotZeroSelected: CampSelection = {
+      selectionKind: "characterShopSlot",
+      shopSlotIndex: 0,
     };
 
     expect(
       isCampClickEffective(
-        listingOneSelected,
+        shopSlotZeroSelected,
         { targetKind: "rosterSlot", slotIndex: 3 },
         baseCampState,
-        fixtureShopCatalogue,
+        fixtureCharacterTemplates,
       ),
     ).toBe(true);
   });
 });
 
 describe("resolveCampDrop", () => {
-  it("(v) dropping a listing on an empty slot yields a buy intent", () => {
-    const listingOneSelected: CampSelection = {
-      selectionKind: "shopListing",
-      shopListingId: "fixture-listing-1",
+  it("(v) dropping a shop slot on an empty slot yields a buy intent", () => {
+    const shopSlotZeroSelected: CampSelection = {
+      selectionKind: "characterShopSlot",
+      shopSlotIndex: 0,
     };
 
     expect(
       resolveCampDrop(
-        listingOneSelected,
+        shopSlotZeroSelected,
         { targetKind: "rosterSlot", slotIndex: 3 },
         baseCampState,
-        fixtureShopCatalogue,
+        fixtureCharacterTemplates,
       ),
     ).toEqual({
-      intentKind: "buy",
-      shopListingId: "fixture-listing-1",
-      targetSlotIndex: 3,
+      intentKind: "buyCharacter",
+      shopSlotIndex: 0,
+      targetRosterSlotIndex: 3,
     });
   });
 
-  it("(w) dropping a listing on an occupied slot yields nothing", () => {
-    const listingOneSelected: CampSelection = {
-      selectionKind: "shopListing",
-      shopListingId: "fixture-listing-1",
+  it("(w) dropping a shop slot on an occupied slot yields nothing", () => {
+    const shopSlotZeroSelected: CampSelection = {
+      selectionKind: "characterShopSlot",
+      shopSlotIndex: 0,
     };
 
     expect(
       resolveCampDrop(
-        listingOneSelected,
+        shopSlotZeroSelected,
         { targetKind: "rosterSlot", slotIndex: 0 },
         baseCampState,
-        fixtureShopCatalogue,
+        fixtureCharacterTemplates,
       ),
     ).toBeNull();
   });
@@ -472,7 +502,7 @@ describe("resolveCampDrop", () => {
         slotZeroSelected,
         { targetKind: "rosterSlot", slotIndex: 5 },
         baseCampState,
-        fixtureShopCatalogue,
+        fixtureCharacterTemplates,
       ),
     ).toEqual({
       intentKind: "reposition",
@@ -492,27 +522,36 @@ describe("resolveCampDrop", () => {
         slotZeroSelected,
         { targetKind: "rosterSlot", slotIndex: 0 },
         baseCampState,
-        fixtureShopCatalogue,
+        fixtureCharacterTemplates,
       ),
     ).toBeNull();
   });
 
-  it("(z) dropping a listing already bought this visit yields nothing", () => {
-    const listingOneSelected: CampSelection = {
-      selectionKind: "shopListing",
-      shopListingId: "fixture-listing-1",
+  it("(z) dropping with a sold slot as the drag source yields nothing", () => {
+    const shopSlotZeroSelected: CampSelection = {
+      selectionKind: "characterShopSlot",
+      shopSlotIndex: 0,
     };
-    const campStateWithListingAlreadyPurchased: CampState = {
+    const campStateWithSoldSlot: CampState = {
       ...baseCampState,
-      purchasedShopListingIds: ["fixture-listing-1"],
+      characterShopSlots: [
+        SOLD_CHARACTER_SHOP_SLOT,
+        buildOfferingCharacterShopSlot("fixture-dwarf-two"),
+        SOLD_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+      ],
     };
 
     expect(
       resolveCampDrop(
-        listingOneSelected,
+        shopSlotZeroSelected,
         { targetKind: "rosterSlot", slotIndex: 3 },
-        campStateWithListingAlreadyPurchased,
-        fixtureShopCatalogue,
+        campStateWithSoldSlot,
+        fixtureCharacterTemplates,
       ),
     ).toBeNull();
   });
@@ -520,9 +559,9 @@ describe("resolveCampDrop", () => {
 
 describe("presentCampTarget", () => {
   const nothingHeld: CampSelection = { selectionKind: "none" };
-  const listingOneHeld: CampSelection = {
-    selectionKind: "shopListing",
-    shopListingId: "fixture-listing-1",
+  const shopSlotZeroHeld: CampSelection = {
+    selectionKind: "characterShopSlot",
+    shopSlotIndex: 0,
   };
   const slotZeroHeld: CampSelection = {
     selectionKind: "rosterSlot",
@@ -530,70 +569,68 @@ describe("presentCampTarget", () => {
   };
 
   it("(aa) with nothing in hand, every target is neutral", () => {
-    expect(
-      [
-        presentCampTarget(
-          nothingHeld,
-          { targetKind: "rosterSlot", slotIndex: 0 },
-          baseCampState,
-          fixtureShopCatalogue,
-        ),
-        presentCampTarget(
-          nothingHeld,
-          { targetKind: "rosterSlot", slotIndex: 3 },
-          baseCampState,
-          fixtureShopCatalogue,
-        ),
-        presentCampTarget(
-          nothingHeld,
-          { targetKind: "shopListing", shopListingId: "fixture-listing-1" },
-          baseCampState,
-          fixtureShopCatalogue,
-        ),
-      ],
-    ).toEqual(["neutral", "neutral", "neutral"]);
+    expect([
+      presentCampTarget(
+        nothingHeld,
+        { targetKind: "rosterSlot", slotIndex: 0 },
+        baseCampState,
+        fixtureCharacterTemplates,
+      ),
+      presentCampTarget(
+        nothingHeld,
+        { targetKind: "rosterSlot", slotIndex: 3 },
+        baseCampState,
+        fixtureCharacterTemplates,
+      ),
+      presentCampTarget(
+        nothingHeld,
+        { targetKind: "characterShopSlot", shopSlotIndex: 0 },
+        baseCampState,
+        fixtureCharacterTemplates,
+      ),
+    ]).toEqual(["neutral", "neutral", "neutral"]);
   });
 
-  it("(bb) the held listing presents as held", () => {
+  it("(bb) the held shop slot presents as held", () => {
     expect(
       presentCampTarget(
-        listingOneHeld,
-        { targetKind: "shopListing", shopListingId: "fixture-listing-1" },
+        shopSlotZeroHeld,
+        { targetKind: "characterShopSlot", shopSlotIndex: 0 },
         baseCampState,
-        fixtureShopCatalogue,
+        fixtureCharacterTemplates,
       ),
     ).toBe("held");
   });
 
-  it("(cc) with a listing in hand, empty slots are eligible", () => {
+  it("(cc) with a shop slot in hand, empty slots are eligible", () => {
     expect(
       presentCampTarget(
-        listingOneHeld,
+        shopSlotZeroHeld,
         { targetKind: "rosterSlot", slotIndex: 3 },
         baseCampState,
-        fixtureShopCatalogue,
+        fixtureCharacterTemplates,
       ),
     ).toBe("eligible");
   });
 
-  it("(dd) with a listing in hand, occupied slots are ineligible", () => {
+  it("(dd) with a shop slot in hand, occupied slots are ineligible", () => {
     expect(
       presentCampTarget(
-        listingOneHeld,
+        shopSlotZeroHeld,
         { targetKind: "rosterSlot", slotIndex: 0 },
         baseCampState,
-        fixtureShopCatalogue,
+        fixtureCharacterTemplates,
       ),
     ).toBe("ineligible");
   });
 
-  it("(ee) with a listing in hand, another buyable listing is neutral because clicking it switches", () => {
+  it("(ee) with a shop slot in hand, another buyable shop slot is neutral because clicking it switches", () => {
     expect(
       presentCampTarget(
-        listingOneHeld,
-        { targetKind: "shopListing", shopListingId: "fixture-listing-2" },
+        shopSlotZeroHeld,
+        { targetKind: "characterShopSlot", shopSlotIndex: 1 },
         baseCampState,
-        fixtureShopCatalogue,
+        fixtureCharacterTemplates,
       ),
     ).toBe("neutral");
   });
@@ -604,7 +641,7 @@ describe("presentCampTarget", () => {
         slotZeroHeld,
         { targetKind: "rosterSlot", slotIndex: 0 },
         baseCampState,
-        fixtureShopCatalogue,
+        fixtureCharacterTemplates,
       ),
     ).toBe("held");
   });
@@ -618,29 +655,45 @@ describe("presentCampTarget", () => {
           slotZeroHeld,
           { targetKind: "rosterSlot", slotIndex },
           baseCampState,
-          fixtureShopCatalogue,
+          fixtureCharacterTemplates,
         ),
       ),
-    ).toEqual(["eligible", "eligible", "eligible", "eligible", "eligible", "eligible"]);
+    ).toEqual([
+      "eligible",
+      "eligible",
+      "eligible",
+      "eligible",
+      "eligible",
+      "eligible",
+    ]);
   });
 
-  it("(hh) with a dwarf in hand, a listing that can't be bought is ineligible", () => {
-    const campStateWithListingAlreadyPurchased: CampState = {
+  it("(hh) with a dwarf in hand, a shop slot that can't be bought is ineligible", () => {
+    const campStateWithSoldSlot: CampState = {
       ...baseCampState,
-      purchasedShopListingIds: ["fixture-listing-1"],
+      characterShopSlots: [
+        SOLD_CHARACTER_SHOP_SLOT,
+        buildOfferingCharacterShopSlot("fixture-dwarf-two"),
+        SOLD_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+      ],
     };
 
     expect(
       presentCampTarget(
         slotZeroHeld,
-        { targetKind: "shopListing", shopListingId: "fixture-listing-1" },
-        campStateWithListingAlreadyPurchased,
-        fixtureShopCatalogue,
+        { targetKind: "characterShopSlot", shopSlotIndex: 0 },
+        campStateWithSoldSlot,
+        fixtureCharacterTemplates,
       ),
     ).toBe("ineligible");
   });
 
-  it("(ii) with nothing in hand, a listing the player can't afford is ineligible", () => {
+  it("(ii) with nothing in hand, a shop slot the player can't afford is ineligible", () => {
     const campStateWithTooLittleGold: CampState = {
       ...baseCampState,
       gold: 2,
@@ -649,20 +702,20 @@ describe("presentCampTarget", () => {
     expect(
       presentCampTarget(
         nothingHeld,
-        { targetKind: "shopListing", shopListingId: "fixture-listing-1" },
+        { targetKind: "characterShopSlot", shopSlotIndex: 0 },
         campStateWithTooLittleGold,
-        fixtureShopCatalogue,
+        fixtureCharacterTemplates,
       ),
     ).toBe("ineligible");
   });
 
-  it("(jj) with nothing in hand, listings are ineligible when the roster is full", () => {
+  it("(jj) with nothing in hand, shop slots are ineligible when the roster is full", () => {
     expect(
       presentCampTarget(
         nothingHeld,
-        { targetKind: "shopListing", shopListingId: "fixture-listing-1" },
+        { targetKind: "characterShopSlot", shopSlotIndex: 0 },
         fullCampState,
-        fixtureShopCatalogue,
+        fixtureCharacterTemplates,
       ),
     ).toBe("ineligible");
   });
@@ -673,7 +726,7 @@ describe("presentCampTarget", () => {
         nothingHeld,
         { targetKind: "rosterSlot", slotIndex: 0 },
         baseCampState,
-        fixtureShopCatalogue,
+        fixtureCharacterTemplates,
       ),
     ).toBe("neutral");
   });

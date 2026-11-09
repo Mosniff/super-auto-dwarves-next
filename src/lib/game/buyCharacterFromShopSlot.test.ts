@@ -2,9 +2,9 @@ import { describe, it, expect } from "vitest";
 import {
   buyCharacterFromShopSlot,
   type BuyCharacterFromShopSlotResult,
-  type ShopCampState,
 } from "./buyCharacterFromShopSlot";
 import { CAMP_ROSTER_SLOT_COUNT } from "./campRoster";
+import type { CampState } from "./campState";
 import type { OwnedCharacter } from "./ownedCharacter";
 import type { CharacterTemplate } from "./characterTemplates";
 import {
@@ -33,8 +33,8 @@ const occupiedFixtureCharacter: OwnedCharacter = {
 };
 
 function buildFixtureShopCampState(
-  overrides: Partial<ShopCampState> = {},
-): ShopCampState {
+  overrides: Partial<CampState> = {},
+): CampState {
   return {
     campRoster: Array.from({ length: CAMP_ROSTER_SLOT_COUNT }, () => null),
     gold: 10,
@@ -76,7 +76,7 @@ describe("buyCharacterFromShopSlot", () => {
 
     expect(result).toEqual({
       outcome: "accepted",
-      nextShopCampState: {
+      nextCampState: {
         campRoster: [
           null,
           null,
@@ -117,7 +117,7 @@ describe("buyCharacterFromShopSlot", () => {
 
     expect(result).toEqual({
       outcome: "accepted",
-      nextShopCampState: {
+      nextCampState: {
         campRoster: [
           expectedSpawnedCharacter(
             fixtureCharacterShopTemplateOne,
@@ -160,7 +160,7 @@ describe("buyCharacterFromShopSlot", () => {
     }
 
     const secondResult = buyCharacterFromShopSlot(
-      firstResult.nextShopCampState,
+      firstResult.nextCampState,
       fixtureCharacterTemplates,
       1,
       1,
@@ -169,7 +169,7 @@ describe("buyCharacterFromShopSlot", () => {
 
     expect(secondResult).toEqual({
       outcome: "accepted",
-      nextShopCampState: {
+      nextCampState: {
         campRoster: [
           expectedSpawnedCharacter(
             fixtureCharacterShopTemplateOne,
@@ -226,7 +226,7 @@ describe("buyCharacterFromShopSlot", () => {
     }
 
     const secondResult = buyCharacterFromShopSlot(
-      firstResult.nextShopCampState,
+      firstResult.nextCampState,
       fixtureCharacterTemplates,
       1,
       1,
@@ -237,7 +237,7 @@ describe("buyCharacterFromShopSlot", () => {
     }
 
     const [firstBoughtCharacter, secondBoughtCharacter] =
-      secondResult.nextShopCampState.campRoster;
+      secondResult.nextCampState.campRoster;
 
     expect(firstBoughtCharacter).toEqual(
       expectedSpawnedCharacter(fixtureCharacterShopTemplateOne, "new-dwarf-1"),
@@ -247,7 +247,7 @@ describe("buyCharacterFromShopSlot", () => {
     );
     expect(firstBoughtCharacter?.id).not.toBe(secondBoughtCharacter?.id);
     expect(
-      secondResult.nextShopCampState.characterShopSlots.slice(0, 2),
+      secondResult.nextCampState.characterShopSlots.slice(0, 2),
     ).toEqual([SOLD_CHARACTER_SHOP_SLOT, SOLD_CHARACTER_SHOP_SLOT]);
   });
 

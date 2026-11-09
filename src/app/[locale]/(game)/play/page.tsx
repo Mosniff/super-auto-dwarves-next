@@ -5,7 +5,7 @@ import { CampScreen } from "@/components/game/CampScreen";
 import { readCurrentUserId } from "@/lib/supabase/readCurrentUserId";
 import { prismaGameRepository } from "@/lib/persistence/prismaGameRepository";
 import { loadSavedGameForUser } from "@/lib/persistence/loadSavedGameForUser";
-import { DUMMY_SHOP_CATALOGUE } from "@/lib/game/dummyShopCatalogue";
+import { listCharacterTemplates } from "@/lib/game/characterTemplates";
 import { DUMMY_ENEMY_ROSTER } from "@/lib/game/dummyEnemyRoster";
 import { resolveCampBattle } from "@/lib/game/resolveCampBattle";
 import {
@@ -42,8 +42,8 @@ export default async function PlayPage() {
         playerCampRoster={savedGame.gameState.playerRoster}
         day={savedGame.gameState.day}
         gold={savedGame.gameState.gold}
-        purchasedShopListingIds={savedGame.gameState.purchasedShopListingIds}
-        shopCatalogue={DUMMY_SHOP_CATALOGUE}
+        characterShopSlots={savedGame.gameState.characterShopSlots}
+        characterTemplates={listCharacterTemplates()}
         revision={savedGame.revision}
         advanceGameAction={advanceGameAction}
         buyCharacterAction={buyCharacterAction}

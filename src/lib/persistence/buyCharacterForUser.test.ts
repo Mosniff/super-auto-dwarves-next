@@ -2,14 +2,21 @@ import { describe, it, expect } from "vitest";
 import type { GameState } from "@/lib/game/types";
 import type { CampRoster } from "@/lib/game/campRoster";
 import type { OwnedCharacter } from "@/lib/game/ownedCharacter";
-import type { ShopListing } from "@/lib/game/shop";
 import type { CharacterTemplate } from "@/lib/game/characterTemplates";
+import type { CharacterShopSlots } from "@/lib/game/characterShopSlots";
 import type { GameRepository, LoadedGameRecord } from "./gameRepository";
 import {
   buyCharacterForUser,
   type BuyCharacterIntent,
 } from "./buyCharacterForUser";
-import { buildFixtureCharacterShopSlots } from "@/test/characterShopFixtures";
+import {
+  buildFixtureCharacterShopSlots,
+  buildOfferingCharacterShopSlot,
+  fixtureCharacterShopTemplateOne,
+  fixtureCharacterShopTemplateTwo,
+  LOCKED_CHARACTER_SHOP_SLOT,
+  SOLD_CHARACTER_SHOP_SLOT,
+} from "@/test/characterShopFixtures";
 
 const fixtureBorin: OwnedCharacter = {
   id: "dwarf-1",
@@ -32,33 +39,9 @@ const fixtureCampRoster: CampRoster = [
   null,
 ];
 
-const fixtureCharacterTemplateOne: CharacterTemplate = {
-  characterTemplateId: "fixture-dwarf-one",
-  name: "Fixture Dwarf One",
-  tier: 1,
-  characterClassIds: ["warrior"],
-  attack: 2,
-  maxHp: 5,
-};
-
-const fixtureCharacterTemplateTwo: CharacterTemplate = {
-  characterTemplateId: "fixture-dwarf-two",
-  name: "Fixture Dwarf Two",
-  tier: 2,
-  characterClassIds: ["smith", "miner"],
-  attack: 3,
-  maxHp: 8,
-};
-
-const fixtureShopCatalogue: ShopListing[] = [
-  {
-    shopListingId: "fixture-listing-1",
-    characterTemplate: fixtureCharacterTemplateOne,
-  },
-  {
-    shopListingId: "fixture-listing-2",
-    characterTemplate: fixtureCharacterTemplateTwo,
-  },
+const fixtureCharacterTemplates: CharacterTemplate[] = [
+  fixtureCharacterShopTemplateOne,
+  fixtureCharacterShopTemplateTwo,
 ];
 
 interface RecordedSaveGameStateCall {
@@ -108,22 +91,24 @@ function buildFixtureLoadedGameRecord(
   };
 }
 
+// buildFixtureCharacterShopSlots() offers "fixture-dwarf-one" at slot 0 and
+// "fixture-dwarf-two" at slot 1, with slot 2 already sold.
 const fixtureBuyIntent: BuyCharacterIntent = {
-  shopListingId: "fixture-listing-2",
-  targetSlotIndex: 3,
+  shopSlotIndex: 1,
+  targetRosterSlotIndex: 3,
   expectedRevision: 5,
 };
 
 function buildFixtureDependencies(gameRepository: GameRepository) {
   return {
     gameRepository,
-    shopCatalogue: fixtureShopCatalogue,
+    characterTemplates: fixtureCharacterTemplates,
     generateCharacterId: () => "generated-dwarf-1",
   };
 }
 
 describe("buyCharacterForUser", () => {
-  it("(a) saves the bought character, spent gold and recorded listing, and reports accepted", async () => {
+  it("(a) saves the bought character, spent gold and sold shop slot, and reports accepted", async () => {
     const { gameRepository, recordedSaveGameStateCalls } =
       buildFakeGameRepository(buildFixtureLoadedGameRecord());
 
@@ -139,21 +124,33 @@ describe("buyCharacterForUser", () => {
       null,
       {
         id: "generated-dwarf-1",
-        ...fixtureCharacterTemplateTwo,
-        characterClassIds: [...fixtureCharacterTemplateTwo.characterClassIds],
-        hp: fixtureCharacterTemplateTwo.maxHp,
+        ...fixtureCharacterShopTemplateTwo,
+        characterClassIds: [
+          ...fixtureCharacterShopTemplateTwo.characterClassIds,
+        ],
+        hp: fixtureCharacterShopTemplateTwo.maxHp,
       },
       null,
       null,
       null,
+    ];
+    const expectedCharacterShopSlots: CharacterShopSlots = [
+      buildOfferingCharacterShopSlot("fixture-dwarf-one"),
+      SOLD_CHARACTER_SHOP_SLOT,
+      SOLD_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
     ];
     const expectedGameState: GameState = {
       playerRoster: expectedCampRoster,
       gold: 7,
       day: 2,
       phase: "campPhase",
-      purchasedShopListingIds: ["fixture-listing-2"],
-      characterShopSlots: buildFixtureCharacterShopSlots(),
+      purchasedShopListingIds: [],
+      characterShopSlots: expectedCharacterShopSlots,
     };
 
     expect(result).toEqual({ outcome: "accepted" });
@@ -183,17 +180,17 @@ describe("buyCharacterForUser", () => {
 
   it("(c) returns the rule's rejection and saves nothing", async () => {
     const { gameRepository, recordedSaveGameStateCalls } =
-      buildFakeGameRepository(buildFixtureLoadedGameRecord({ gold: 2 }));
+      buildFakeGameRepository(buildFixtureLoadedGameRecord());
 
     const result = await buyCharacterForUser(
       "fixture-user-1",
-      fixtureBuyIntent,
+      { ...fixtureBuyIntent, shopSlotIndex: 2 },
       buildFixtureDependencies(gameRepository),
     );
 
     expect(result).toEqual({
       outcome: "rejected",
-      rejectionReason: "notEnoughGold",
+      rejectionReason: "shopSlotSold",
     });
     expect(
       recordedSaveGameStateCalls.map(

@@ -11,11 +11,12 @@ import { CharacterCard } from "@/components/game/CharacterCard";
 import type { Character } from "@/lib/battle/types";
 import type { CampRoster } from "@/lib/game/campRoster";
 import type { CampState } from "@/lib/game/campState";
-import type { ShopListing } from "@/lib/game/shop";
+import type { CharacterShopSlots } from "@/lib/game/characterShopSlots";
+import type { CharacterTemplate } from "@/lib/game/characterTemplates";
 import {
   isCampClickEffective,
+  isCharacterShopSlotSelectable,
   isRosterSlotSelectable,
-  isShopListingSelectable,
   presentCampTarget,
   resolveCampClick,
   resolveCampDrop,
@@ -29,8 +30,8 @@ interface CampScreenProps {
   playerCampRoster: CampRoster;
   day: number;
   gold: number;
-  purchasedShopListingIds: string[];
-  shopCatalogue: ShopListing[];
+  characterShopSlots: CharacterShopSlots;
+  characterTemplates: readonly CharacterTemplate[];
   revision: number;
   advanceGameAction: (formData: FormData) => Promise<void>;
   buyCharacterAction: (formData: FormData) => Promise<void>;
@@ -40,10 +41,10 @@ interface CampScreenProps {
 function campSelectionFromClickTarget(
   campClickTarget: CampClickTarget,
 ): CampSelection {
-  if (campClickTarget.targetKind === "shopListing") {
+  if (campClickTarget.targetKind === "characterShopSlot") {
     return {
-      selectionKind: "shopListing",
-      shopListingId: campClickTarget.shopListingId,
+      selectionKind: "characterShopSlot",
+      shopSlotIndex: campClickTarget.shopSlotIndex,
     };
   }
   return { selectionKind: "rosterSlot", slotIndex: campClickTarget.slotIndex };
@@ -53,8 +54,8 @@ export function CampScreen({
   playerCampRoster,
   day,
   gold,
-  purchasedShopListingIds,
-  shopCatalogue,
+  characterShopSlots,
+  characterTemplates,
   revision,
   advanceGameAction,
   buyCharacterAction,
@@ -76,15 +77,18 @@ export function CampScreen({
   const campState: CampState = {
     campRoster: playerCampRoster,
     gold,
-    purchasedShopListingIds,
+    characterShopSlots,
   };
 
   function submitCampIntent(campIntent: CampIntent): void {
     const formData = new FormData();
 
-    if (campIntent.intentKind === "buy") {
-      formData.set("shopListingId", campIntent.shopListingId);
-      formData.set("targetSlotIndex", String(campIntent.targetSlotIndex));
+    if (campIntent.intentKind === "buyCharacter") {
+      formData.set("shopSlotIndex", String(campIntent.shopSlotIndex));
+      formData.set(
+        "targetRosterSlotIndex",
+        String(campIntent.targetRosterSlotIndex),
+      );
       formData.set("expectedRevision", String(revision));
       startCampIntentTransition(async () => {
         await buyCharacterAction(formData);
@@ -104,7 +108,7 @@ export function CampScreen({
       campSelection,
       campClickTarget,
       campState,
-      shopCatalogue,
+      characterTemplates,
     );
 
     setCampSelection(resolution.nextCampSelection);
@@ -121,7 +125,7 @@ export function CampScreen({
         campSelection,
         campClickTarget,
         campState,
-        shopCatalogue,
+        characterTemplates,
       )
     );
   }
@@ -138,7 +142,7 @@ export function CampScreen({
       heldCampItem,
       campClickTarget,
       campState,
-      shopCatalogue,
+      characterTemplates,
     );
   }
 
@@ -188,7 +192,7 @@ export function CampScreen({
           campSelectionFromClickTarget(dragSourceClickTarget),
           dropTargetClickTarget,
           campState,
-          shopCatalogue,
+          characterTemplates,
         );
 
         if (campIntent !== null) {
@@ -233,32 +237,32 @@ export function CampScreen({
           <section className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
             <h1 className="text-2xl font-bold">{t("phaseCamp")}</h1>
             <ShopPanel
-              shopCatalogue={shopCatalogue}
-              purchasedShopListingIds={purchasedShopListingIds}
-              selectedShopListingId={
-                campSelection.selectionKind === "shopListing"
-                  ? campSelection.shopListingId
+              characterShopSlots={characterShopSlots}
+              characterTemplates={characterTemplates}
+              selectedShopSlotIndex={
+                campSelection.selectionKind === "characterShopSlot"
+                  ? campSelection.shopSlotIndex
                   : null
               }
-              isListingEnabled={(shopListingId) =>
-                isClickEnabled({ targetKind: "shopListing", shopListingId })
+              isShopSlotEnabled={(shopSlotIndex) =>
+                isClickEnabled({ targetKind: "characterShopSlot", shopSlotIndex })
               }
-              isListingDraggable={(shopListingId) =>
+              isShopSlotDraggable={(shopSlotIndex) =>
                 !isSubmittingCampIntent &&
-                isShopListingSelectable(
+                isCharacterShopSlotSelectable(
                   campState,
-                  shopCatalogue,
-                  shopListingId,
+                  characterTemplates,
+                  shopSlotIndex,
                 )
               }
-              listingPresentation={(shopListingId) =>
+              shopSlotPresentation={(shopSlotIndex) =>
                 campTargetPresentation({
-                  targetKind: "shopListing",
-                  shopListingId,
+                  targetKind: "characterShopSlot",
+                  shopSlotIndex,
                 })
               }
-              onListingClick={(shopListingId) =>
-                handleCampClick({ targetKind: "shopListing", shopListingId })
+              onShopSlotClick={(shopSlotIndex) =>
+                handleCampClick({ targetKind: "characterShopSlot", shopSlotIndex })
               }
             />
             <p className="text-muted-foreground">

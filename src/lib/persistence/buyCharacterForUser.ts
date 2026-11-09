@@ -1,42 +1,48 @@
-import { buyCharacter, type BuyCharacterRejectionReason } from "@/lib/game/buyCharacter";
-import type { ShopListing } from "@/lib/game/shop";
+import {
+  buyCharacterFromShopSlot,
+  type BuyCharacterFromShopSlotRejectionReason,
+} from "@/lib/game/buyCharacterFromShopSlot";
+import type { CharacterTemplate } from "@/lib/game/characterTemplates";
 import { buildGameStateFromLoadedRecord } from "./buildGameStateFromLoadedRecord";
 import type { GameRepository } from "./gameRepository";
 
 export interface BuyCharacterIntent {
-  shopListingId: string;
-  targetSlotIndex: number;
+  shopSlotIndex: number;
+  targetRosterSlotIndex: number;
   expectedRevision: number;
 }
 
 export interface BuyCharacterDependencies {
   gameRepository: GameRepository;
-  shopCatalogue: ShopListing[];
+  characterTemplates: readonly CharacterTemplate[];
   generateCharacterId: () => string;
 }
 
 export type BuyCharacterForUserResult =
   | { outcome: "accepted" }
-  | { outcome: "rejected"; rejectionReason: BuyCharacterRejectionReason }
+  | {
+      outcome: "rejected";
+      rejectionReason: BuyCharacterFromShopSlotRejectionReason;
+    }
   | { outcome: "stale" };
 
 // Server-authority seam (CLAUDE.md -> "Security / anti-cheat model"): the
-// caller supplies only the user id and an intent, never state. Prices and
-// the catalogue come from the server (buyCharacterDependencies), never the
+// caller supplies only the user id and an intent, never state. Templates
+// and prices come from the server (buyCharacterDependencies), never the
 // client.
 //
 // Check order: load; no game throws; an intent outside campPhase, or a
 // stale expected revision, is treated as stale; the loaded record is built
-// into trusted game state (a malformed roster throws); the pure rule runs
-// and a rejection is returned without saving; an accepted rule result is
-// saved conditionally on the loaded revision, and a lost race (false) is
-// also reported as stale.
+// into trusted game state (a malformed roster or shop throws); the pure
+// rule runs and a rejection is returned without saving; an accepted rule
+// result is saved conditionally on the loaded revision, and a lost race
+// (false) is also reported as stale.
 export async function buyCharacterForUser(
   userId: string,
   buyCharacterIntent: BuyCharacterIntent,
   buyCharacterDependencies: BuyCharacterDependencies,
 ): Promise<BuyCharacterForUserResult> {
-  const { gameRepository, shopCatalogue, generateCharacterId } =
+  const { gameRepository, characterTemplates, generateCharacterId } =
     buyCharacterDependencies;
 
   const loadedGameRecord = await gameRepository.loadGameForUser(userId);
@@ -57,15 +63,15 @@ export async function buyCharacterForUser(
 
   const currentGameState = buildGameStateFromLoadedRecord(loadedGameRecord);
 
-  const buyResult = buyCharacter(
+  const buyResult = buyCharacterFromShopSlot(
     {
       campRoster: currentGameState.playerRoster,
       gold: currentGameState.gold,
-      purchasedShopListingIds: currentGameState.purchasedShopListingIds,
+      characterShopSlots: currentGameState.characterShopSlots,
     },
-    shopCatalogue,
-    buyCharacterIntent.shopListingId,
-    buyCharacterIntent.targetSlotIndex,
+    characterTemplates,
+    buyCharacterIntent.shopSlotIndex,
+    buyCharacterIntent.targetRosterSlotIndex,
     generateCharacterId(),
   );
 
@@ -77,7 +83,7 @@ export async function buyCharacterForUser(
     ...currentGameState,
     playerRoster: buyResult.nextCampState.campRoster,
     gold: buyResult.nextCampState.gold,
-    purchasedShopListingIds: buyResult.nextCampState.purchasedShopListingIds,
+    characterShopSlots: buyResult.nextCampState.characterShopSlots,
   };
 
   const saved = await gameRepository.saveGameState(

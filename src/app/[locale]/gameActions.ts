@@ -13,7 +13,6 @@ import { buyCharacterForUser } from "@/lib/persistence/buyCharacterForUser";
 import { repositionCharacterForUser } from "@/lib/persistence/repositionCharacterForUser";
 import { GameAlreadyExistsError } from "@/lib/persistence/gameAlreadyExistsError";
 import { isGamePhase } from "@/lib/game/isGamePhase";
-import { DUMMY_SHOP_CATALOGUE } from "@/lib/game/dummyShopCatalogue";
 import { listCharacterTemplates } from "@/lib/game/characterTemplates";
 import type { CharacterShopRollingSources } from "@/lib/game/characterShopSlots";
 import { parseIntegerFormValue } from "@/lib/forms/parseIntegerFormValue";
@@ -112,18 +111,19 @@ export async function advanceGameAction(formData: FormData): Promise<void> {
 export async function buyCharacterAction(formData: FormData): Promise<void> {
   const userId = await requireSignedInUserId();
 
-  const submittedShopListingId = formData.get("shopListingId");
-  const submittedTargetSlotIndex = parseIntegerFormValue(
-    formData.get("targetSlotIndex"),
+  const submittedShopSlotIndex = parseIntegerFormValue(
+    formData.get("shopSlotIndex"),
+  );
+  const submittedTargetRosterSlotIndex = parseIntegerFormValue(
+    formData.get("targetRosterSlotIndex"),
   );
   const submittedExpectedRevision = parseIntegerFormValue(
     formData.get("expectedRevision"),
   );
 
   if (
-    typeof submittedShopListingId !== "string" ||
-    submittedShopListingId === "" ||
-    submittedTargetSlotIndex === null ||
+    submittedShopSlotIndex === null ||
+    submittedTargetRosterSlotIndex === null ||
     submittedExpectedRevision === null
   ) {
     throw new Error("Invalid buy intent.");
@@ -132,13 +132,13 @@ export async function buyCharacterAction(formData: FormData): Promise<void> {
   await buyCharacterForUser(
     userId,
     {
-      shopListingId: submittedShopListingId,
-      targetSlotIndex: submittedTargetSlotIndex,
+      shopSlotIndex: submittedShopSlotIndex,
+      targetRosterSlotIndex: submittedTargetRosterSlotIndex,
       expectedRevision: submittedExpectedRevision,
     },
     {
       gameRepository: prismaGameRepository,
-      shopCatalogue: DUMMY_SHOP_CATALOGUE,
+      characterTemplates: listCharacterTemplates(),
       generateCharacterId: () => randomUUID(),
     },
   );

@@ -4,7 +4,13 @@ import userEvent from "@testing-library/user-event";
 import { renderWithMessages, screen, waitFor } from "@/test/renderWithMessages";
 import type { OwnedCharacter } from "@/lib/game/ownedCharacter";
 import type { CampRoster } from "@/lib/game/campRoster";
-import type { ShopListing } from "@/lib/game/shop";
+import type { CharacterShopSlots } from "@/lib/game/characterShopSlots";
+import type { CharacterTemplate } from "@/lib/game/characterTemplates";
+import {
+  buildOfferingCharacterShopSlot,
+  LOCKED_CHARACTER_SHOP_SLOT,
+  SOLD_CHARACTER_SHOP_SLOT,
+} from "@/test/characterShopFixtures";
 import { CampScreen } from "./CampScreen";
 
 const fixtureBorin: OwnedCharacter = {
@@ -22,35 +28,44 @@ function buildFixtureCampRoster(): CampRoster {
   return [fixtureBorin, null, null, null, null, null, null];
 }
 
-const fixtureShopCatalogue: ShopListing[] = [
-  {
-    shopListingId: "fixture-listing-1",
-    characterTemplate: {
-      characterTemplateId: "fixture-thrudi",
-      name: "Thrudi",
-      tier: 1,
-      characterClassIds: ["warrior"],
-      attack: 6,
-      maxHp: 5,
-    },
-  },
-  {
-    shopListingId: "fixture-listing-2",
-    characterTemplate: {
-      characterTemplateId: "fixture-gimlok",
-      name: "Gimlok",
-      tier: 1,
-      characterClassIds: ["miner"],
-      attack: 3,
-      maxHp: 9,
-    },
-  },
+const fixtureThrudiTemplate: CharacterTemplate = {
+  characterTemplateId: "fixture-thrudi",
+  name: "Thrudi",
+  tier: 1,
+  characterClassIds: ["warrior"],
+  attack: 6,
+  maxHp: 5,
+};
+
+const fixtureGimlokTemplate: CharacterTemplate = {
+  characterTemplateId: "fixture-gimlok",
+  name: "Gimlok",
+  tier: 1,
+  characterClassIds: ["miner"],
+  attack: 3,
+  maxHp: 9,
+};
+
+const fixtureCharacterTemplates: CharacterTemplate[] = [
+  fixtureThrudiTemplate,
+  fixtureGimlokTemplate,
+];
+
+const fixtureCharacterShopSlots: CharacterShopSlots = [
+  buildOfferingCharacterShopSlot("fixture-thrudi"),
+  buildOfferingCharacterShopSlot("fixture-gimlok"),
+  SOLD_CHARACTER_SHOP_SLOT,
+  LOCKED_CHARACTER_SHOP_SLOT,
+  LOCKED_CHARACTER_SHOP_SLOT,
+  LOCKED_CHARACTER_SHOP_SLOT,
+  LOCKED_CHARACTER_SHOP_SLOT,
+  LOCKED_CHARACTER_SHOP_SLOT,
 ];
 
 interface RenderCampScreenOverrides {
   playerCampRoster?: CampRoster;
-  shopCatalogue?: ShopListing[];
-  purchasedShopListingIds?: string[];
+  characterShopSlots?: CharacterShopSlots;
+  characterTemplates?: CharacterTemplate[];
   day?: number;
   gold?: number;
   revision?: number;
@@ -63,8 +78,12 @@ function renderCampScreen(overrides: RenderCampScreenOverrides = {}) {
   return renderWithMessages(
     <CampScreen
       playerCampRoster={overrides.playerCampRoster ?? buildFixtureCampRoster()}
-      shopCatalogue={overrides.shopCatalogue ?? fixtureShopCatalogue}
-      purchasedShopListingIds={overrides.purchasedShopListingIds ?? []}
+      characterShopSlots={
+        overrides.characterShopSlots ?? fixtureCharacterShopSlots
+      }
+      characterTemplates={
+        overrides.characterTemplates ?? fixtureCharacterTemplates
+      }
       day={overrides.day ?? 3}
       gold={overrides.gold ?? 10}
       revision={overrides.revision ?? 5}
@@ -101,19 +120,22 @@ describe("CampScreen", () => {
     ).toBe("campPhase");
   });
 
-  it("(c) shows a shop tile for each unbought listing and a sold slot for each bought one", () => {
-    renderCampScreen({ purchasedShopListingIds: ["fixture-listing-1"] });
+  it("(c) shows a tile for each offering slot, a sold slot for each sold one, and a locked slot for each locked one", () => {
+    renderCampScreen();
 
     expect(
-      screen.getByRole("button", { name: "Shop: Gimlok" }),
-    ).toBeInTheDocument();
+      document.querySelectorAll('[data-character-shop-slot-state="offering"]'),
+    ).toHaveLength(2);
     expect(
-      screen.queryByRole("button", { name: "Shop: Thrudi" }),
-    ).toBeNull();
+      document.querySelectorAll('[data-character-shop-slot-state="sold"]'),
+    ).toHaveLength(1);
+    expect(
+      document.querySelectorAll('[data-character-shop-slot-state="locked"]'),
+    ).toHaveLength(5);
     expect(screen.getByText("Sold")).toBeInTheDocument();
   });
 
-  it("(d) buying: clicking a listing then an empty slot submits the buy intent with the expected revision", async () => {
+  it("(d) buying: clicking an offering then an empty slot submits the buy intent with the expected revision", async () => {
     const recordedBuyFormValues: Record<string, FormDataEntryValue>[] = [];
     const buyCharacterAction = async (formData: FormData) => {
       recordedBuyFormValues.push(Object.fromEntries(formData));
@@ -126,8 +148,8 @@ describe("CampScreen", () => {
 
     expect(recordedBuyFormValues).toEqual([
       {
-        shopListingId: "fixture-listing-1",
-        targetSlotIndex: "3",
+        shopSlotIndex: "0",
+        targetRosterSlotIndex: "3",
         expectedRevision: "5",
       },
     ]);
@@ -152,7 +174,7 @@ describe("CampScreen", () => {
     ]);
   });
 
-  it("(f) with a listing selected, occupied slots are disabled", async () => {
+  it("(f) with an offering selected, occupied slots are disabled", async () => {
     const user = userEvent.setup();
     renderCampScreen();
 
@@ -203,7 +225,7 @@ describe("CampScreen", () => {
     ).toHaveLength(0);
   });
 
-  it("(k) with a listing selected, empty slots present as eligible and occupied ones as ineligible", async () => {
+  it("(k) with an offering selected, empty slots present as eligible and occupied ones as ineligible", async () => {
     const user = userEvent.setup();
     renderCampScreen();
 
@@ -225,7 +247,7 @@ describe("CampScreen", () => {
     ).toHaveAttribute("data-camp-target-presentation", "neutral");
   });
 
-  it("(m) with nothing in hand, a listing the player can't afford presents as ineligible", () => {
+  it("(m) with nothing in hand, an offering the player can't afford presents as ineligible", () => {
     renderCampScreen({ gold: 2 });
 
     expect(
@@ -245,6 +267,21 @@ describe("CampScreen", () => {
       expect(
         document.querySelector('[aria-busy="true"]'),
       ).not.toBeNull();
+    });
+  });
+
+  it("(o) locked and sold slots are not buttons", () => {
+    renderCampScreen();
+
+    const lockedAndSoldSlotElements = [
+      ...document.querySelectorAll('[data-character-shop-slot-state="locked"]'),
+      ...document.querySelectorAll('[data-character-shop-slot-state="sold"]'),
+    ];
+
+    expect(lockedAndSoldSlotElements.length).toBe(6);
+    lockedAndSoldSlotElements.forEach((slotElement) => {
+      expect(slotElement.tagName).not.toBe("BUTTON");
+      expect(slotElement.querySelector("button")).toBeNull();
     });
   });
 });
