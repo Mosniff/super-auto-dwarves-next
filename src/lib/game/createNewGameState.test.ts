@@ -33,7 +33,7 @@ describe("createNewGameState", () => {
     expect(newGameState.gold).toBe(10);
   });
 
-  it("(d) returns a player camp roster of seven empty slots and no purchased listings", () => {
+  it("(d) returns a player camp roster of seven empty slots", () => {
     const newGameState = createNewGameState(
       buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
@@ -41,7 +41,6 @@ describe("createNewGameState", () => {
     expect(newGameState.playerRoster).toEqual(
       Array.from({ length: CAMP_ROSTER_SLOT_COUNT }, () => null),
     );
-    expect(newGameState.purchasedShopListingIds).toEqual([]);
   });
 
   it("(e) returns an independent object on each call", () => {

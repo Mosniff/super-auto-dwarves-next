@@ -40,7 +40,6 @@ function buildFixtureGameState(
     gold: FIXTURE_GOLD,
     day,
     phase,
-    purchasedShopListingIds: [],
     characterShopSlots: buildFixtureCharacterShopSlots(),
     ...overrides,
   };
@@ -71,10 +70,8 @@ describe("advanceGame", () => {
     expect(nextGameState.day).toBe(2);
   });
 
-  it("carries the roster, gold and purchased listings into battle, and the roster back to camp", () => {
-    const campPhaseGameState = buildFixtureGameState("campPhase", 1, {
-      purchasedShopListingIds: ["fixture-listing-1"],
-    });
+  it("carries the roster and gold into battle, and the roster back to camp", () => {
+    const campPhaseGameState = buildFixtureGameState("campPhase", 1);
     const nextFromCampPhase = advanceGame(
       campPhaseGameState,
       buildFixtureCharacterShopRollingSources().characterShopRollingSources,
@@ -84,9 +81,6 @@ describe("advanceGame", () => {
       campPhaseGameState.playerRoster,
     );
     expect(nextFromCampPhase.gold).toBe(campPhaseGameState.gold);
-    expect(nextFromCampPhase.purchasedShopListingIds).toEqual(
-      campPhaseGameState.purchasedShopListingIds,
-    );
 
     const battlePhaseGameState = buildFixtureGameState("battlePhase", 1);
     const nextFromBattlePhase = advanceGame(
@@ -123,19 +117,6 @@ describe("advanceGame", () => {
     );
 
     expect(nextGameState.gold).toBe(CAMP_STARTING_GOLD);
-  });
-
-  it("clears purchased listings when returning to camp", () => {
-    const battlePhaseGameState = buildFixtureGameState("battlePhase", 1, {
-      purchasedShopListingIds: ["fixture-listing-1", "fixture-listing-2"],
-    });
-
-    const nextGameState = advanceGame(
-      battlePhaseGameState,
-      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
-    );
-
-    expect(nextGameState.purchasedShopListingIds).toEqual([]);
   });
 
   it("does not mutate the input game state", () => {

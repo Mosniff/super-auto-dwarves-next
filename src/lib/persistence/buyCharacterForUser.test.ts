@@ -83,7 +83,6 @@ function buildFixtureLoadedGameRecord(
     gold: 10,
     day: 2,
     phase: "campPhase",
-    purchasedShopListingIds: [],
     persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
     revision: 5,
     createdAt: new Date("2026-10-13T00:00:00.000Z"),
@@ -149,7 +148,6 @@ describe("buyCharacterForUser", () => {
       gold: 7,
       day: 2,
       phase: "campPhase",
-      purchasedShopListingIds: [],
       characterShopSlots: expectedCharacterShopSlots,
     };
 

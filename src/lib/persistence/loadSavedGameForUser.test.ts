@@ -57,7 +57,6 @@ describe("loadSavedGameForUser", () => {
       gold: FIXTURE_GOLD,
       day: 3,
       phase: "campPhase",
-      purchasedShopListingIds: ["fixture-listing-1"],
       persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
@@ -72,9 +71,6 @@ describe("loadSavedGameForUser", () => {
     expect(savedGame?.gameState.gold).toBe(FIXTURE_GOLD);
     expect(savedGame?.gameState.day).toBe(3);
     expect(savedGame?.gameState.phase).toBe("campPhase");
-    expect(savedGame?.gameState.purchasedShopListingIds).toEqual([
-      "fixture-listing-1",
-    ]);
   });
 
   it("(f) resolves with createdAt equal to the record's createdAt", async () => {
@@ -85,7 +81,6 @@ describe("loadSavedGameForUser", () => {
       gold: FIXTURE_GOLD,
       day: 1,
       phase: "campPhase",
-      purchasedShopListingIds: ["fixture-listing-1"],
       persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
       revision: 5,
       createdAt: fixtureCreatedAt,
@@ -106,7 +101,6 @@ describe("loadSavedGameForUser", () => {
       gold: FIXTURE_GOLD,
       day: 1,
       phase: "campPhase",
-      purchasedShopListingIds: [],
       persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
@@ -117,27 +111,6 @@ describe("loadSavedGameForUser", () => {
     ).rejects.toThrow();
   });
 
-  it("(h) treats a missing purchased-listings value as no purchases", async () => {
-    const { gameRepository } = buildFakeGameRepository({
-      gameId: "fixture-game-1",
-      persistedPlayerRoster: fixtureCampRoster,
-      gold: FIXTURE_GOLD,
-      day: 1,
-      phase: "campPhase",
-      purchasedShopListingIds: null,
-      persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
-      revision: 5,
-      createdAt: new Date("2026-10-13T00:00:00.000Z"),
-    });
-
-    const savedGame = await loadSavedGameForUser(
-      "fixture-user-1",
-      gameRepository,
-    );
-
-    expect(savedGame?.gameState.purchasedShopListingIds).toEqual([]);
-  });
-
   it("(i) resolves with the record's revision", async () => {
     const { gameRepository } = buildFakeGameRepository({
       gameId: "fixture-game-1",
@@ -145,7 +118,6 @@ describe("loadSavedGameForUser", () => {
       gold: FIXTURE_GOLD,
       day: 1,
       phase: "campPhase",
-      purchasedShopListingIds: ["fixture-listing-1"],
       persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
@@ -166,7 +138,6 @@ describe("loadSavedGameForUser", () => {
       gold: FIXTURE_GOLD,
       day: 1,
       phase: "campPhase",
-      purchasedShopListingIds: ["fixture-listing-1"],
       persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
@@ -187,7 +158,6 @@ describe("loadSavedGameForUser", () => {
       gold: FIXTURE_GOLD,
       day: 1,
       phase: "campPhase",
-      purchasedShopListingIds: ["fixture-listing-1"],
       persistedCharacterShopSlots: "not-a-shop",
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),

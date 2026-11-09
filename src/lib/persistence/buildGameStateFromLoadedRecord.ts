@@ -4,9 +4,8 @@ import { parsePersistedCharacterShopSlots } from "./parsePersistedCharacterShopS
 import type { LoadedGameRecord } from "./gameRepository";
 
 // The single place a stored record becomes trusted game state: it
-// validates the roster and the character shop (throwing on either
-// malformed one) and defaults a missing purchased-listings value to no
-// purchases.
+// validates the roster and the character shop, throwing on either
+// malformed one.
 export function buildGameStateFromLoadedRecord(
   loadedGameRecord: LoadedGameRecord,
 ): GameState {
@@ -22,7 +21,6 @@ export function buildGameStateFromLoadedRecord(
     gold: loadedGameRecord.gold,
     day: loadedGameRecord.day,
     phase: loadedGameRecord.phase,
-    purchasedShopListingIds: loadedGameRecord.purchasedShopListingIds ?? [],
     characterShopSlots: validatedCharacterShopSlots,
   };
 }

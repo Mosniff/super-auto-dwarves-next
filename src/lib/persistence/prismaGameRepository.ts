@@ -30,14 +30,11 @@ export const prismaGameRepository: GameRepository = {
       gold: gameRow.gold,
       day: gameRow.day,
       phase: gameRow.phase,
-      purchasedShopListingIds: gameRow.purchasedShopListingIds,
       // Passed straight through, deliberately NOT cast to
       // CharacterShopSlots — casting here would bypass
       // parsePersistedCharacterShopSlots entirely. Validation is the
-      // handler's job, not this repository's. The Prisma column is still
-      // named shopSlots; it is renamed to characterShopSlots in Phase 9
-      // part 4d.
-      persistedCharacterShopSlots: gameRow.shopSlots,
+      // handler's job, not this repository's.
+      persistedCharacterShopSlots: gameRow.characterShopSlots,
       revision: gameRow.revision,
       createdAt: gameRow.createdAt,
     };
@@ -60,12 +57,9 @@ export const prismaGameRepository: GameRepository = {
         gold: nextGameState.gold,
         day: nextGameState.day,
         phase: nextGameState.phase,
-        purchasedShopListingIds: nextGameState.purchasedShopListingIds,
         // Same cast as playerRoster above: telling Prisma how to store
-        // already-validated data, not bypassing validation. The Prisma
-        // column is still named shopSlots; it is renamed to
-        // characterShopSlots in Phase 9 part 4d.
-        shopSlots:
+        // already-validated data, not bypassing validation.
+        characterShopSlots:
           nextGameState.characterShopSlots as unknown as Prisma.InputJsonValue,
         revision: { increment: 1 },
       },
@@ -84,12 +78,9 @@ export const prismaGameRepository: GameRepository = {
           gold: initialGameState.gold,
           day: initialGameState.day,
           phase: initialGameState.phase,
-          purchasedShopListingIds: initialGameState.purchasedShopListingIds,
           // Same cast as playerRoster above: telling Prisma how to store
-          // already-validated data, not bypassing validation. The Prisma
-          // column is still named shopSlots; it is renamed to
-          // characterShopSlots in Phase 9 part 4d.
-          shopSlots:
+          // already-validated data, not bypassing validation.
+          characterShopSlots:
             initialGameState.characterShopSlots as unknown as Prisma.InputJsonValue,
         },
       });

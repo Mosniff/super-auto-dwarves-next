@@ -8,10 +8,6 @@ export interface LoadedGameRecord {
   gold: number;
   day: number;
   phase: GamePhase;
-  // Prisma types this string[], but the Postgres column is nullable
-  // (Prisma never adds NOT NULL to array columns), so handlers treat null
-  // as [].
-  purchasedShopListingIds: string[] | null;
   // Deliberately unknown — the database cannot promise this column's shape;
   // validating it is the handler's job (see parsePersistedCharacterShopSlots.ts).
   persistedCharacterShopSlots: unknown;

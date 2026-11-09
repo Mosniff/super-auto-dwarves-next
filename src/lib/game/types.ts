@@ -11,7 +11,5 @@ export interface GameState {
   gold: number;
   day: number;
   phase: GamePhase;
-  // Superseded by characterShopSlots (Phase 9 part 3b); removed in Phase 9 part 4.
-  purchasedShopListingIds: string[];
   characterShopSlots: CharacterShopSlots;
 }
