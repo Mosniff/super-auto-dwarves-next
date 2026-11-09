@@ -4,12 +4,12 @@ import type { GameRepository, LoadedGameRecord } from "./gameRepository";
 import type { GamePhase, GameState } from "@/lib/game/types";
 import type { CampRoster } from "@/lib/game/campRoster";
 import {
-  buildFixtureShopRollingSources,
-  buildFixtureShopSlots,
-  buildOfferingShopSlot,
-  LOCKED_SHOP_SLOT,
-  SOLD_SHOP_SLOT,
-} from "@/test/shopFixtures";
+  buildFixtureCharacterShopRollingSources,
+  buildFixtureCharacterShopSlots,
+  buildOfferingCharacterShopSlot,
+  LOCKED_CHARACTER_SHOP_SLOT,
+  SOLD_CHARACTER_SHOP_SLOT,
+} from "@/test/characterShopFixtures";
 
 // Arbitrary fixture value — starting gold is not yet specified.
 const FIXTURE_GOLD = 10;
@@ -74,7 +74,7 @@ function buildFixtureLoadedGameRecord(
     day,
     phase,
     purchasedShopListingIds: ["fixture-listing-1"],
-    persistedShopSlots: buildFixtureShopSlots(),
+    persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
     revision: 5,
     createdAt: new Date("2026-10-13T00:00:00.000Z"),
   };
@@ -85,7 +85,7 @@ describe("advanceGameForUser", () => {
     const { gameRepository, recordedSaveGameStateCalls } =
       buildFakeGameRepository(buildFixtureLoadedGameRecord("campPhase", 1));
 
-    await advanceGameForUser("fixture-user-1", "campPhase", gameRepository, buildFixtureShopRollingSources().shopRollingSources);
+    await advanceGameForUser("fixture-user-1", "campPhase", gameRepository, buildFixtureCharacterShopRollingSources().characterShopRollingSources);
 
     expect(recordedSaveGameStateCalls).toHaveLength(1);
     expect(recordedSaveGameStateCalls[0].gameId).toBe("fixture-game-1");
@@ -101,7 +101,7 @@ describe("advanceGameForUser", () => {
         buildFixtureLoadedGameRecord("battlePhase", 1),
       );
 
-    await advanceGameForUser("fixture-user-1", "battlePhase", gameRepository, buildFixtureShopRollingSources().shopRollingSources);
+    await advanceGameForUser("fixture-user-1", "battlePhase", gameRepository, buildFixtureCharacterShopRollingSources().characterShopRollingSources);
 
     expect(recordedSaveGameStateCalls).toHaveLength(1);
     expect(recordedSaveGameStateCalls[0].nextGameState.phase).toBe(
@@ -114,7 +114,7 @@ describe("advanceGameForUser", () => {
     const { gameRepository, recordedSaveGameStateCalls } =
       buildFakeGameRepository(buildFixtureLoadedGameRecord("campPhase", 1));
 
-    await advanceGameForUser("fixture-user-1", "campPhase", gameRepository, buildFixtureShopRollingSources().shopRollingSources);
+    await advanceGameForUser("fixture-user-1", "campPhase", gameRepository, buildFixtureCharacterShopRollingSources().characterShopRollingSources);
 
     expect(recordedSaveGameStateCalls[0].nextGameState.playerRoster).toEqual(
       fixtureCampRoster,
@@ -132,7 +132,7 @@ describe("advanceGameForUser", () => {
       buildFakeGameRepository(null);
 
     await expect(
-      advanceGameForUser("fixture-user-1", "campPhase", gameRepository, buildFixtureShopRollingSources().shopRollingSources),
+      advanceGameForUser("fixture-user-1", "campPhase", gameRepository, buildFixtureCharacterShopRollingSources().characterShopRollingSources),
     ).rejects.toThrow();
 
     expect(recordedSaveGameStateCalls).toHaveLength(0);
@@ -146,7 +146,7 @@ describe("advanceGameForUser", () => {
       day: 1,
       phase: "campPhase",
       purchasedShopListingIds: [],
-      persistedShopSlots: buildFixtureShopSlots(),
+      persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     };
@@ -154,7 +154,7 @@ describe("advanceGameForUser", () => {
       buildFakeGameRepository(malformedLoadedGameRecord);
 
     await expect(
-      advanceGameForUser("fixture-user-1", "campPhase", gameRepository, buildFixtureShopRollingSources().shopRollingSources),
+      advanceGameForUser("fixture-user-1", "campPhase", gameRepository, buildFixtureCharacterShopRollingSources().characterShopRollingSources),
     ).rejects.toThrow();
 
     expect(recordedSaveGameStateCalls).toHaveLength(0);
@@ -168,14 +168,14 @@ describe("advanceGameForUser", () => {
       day: 1,
       phase: "campPhase",
       purchasedShopListingIds: null,
-      persistedShopSlots: buildFixtureShopSlots(),
+      persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     };
     const { gameRepository, recordedSaveGameStateCalls } =
       buildFakeGameRepository(loadedGameRecordWithNullPurchasedListings);
 
-    await advanceGameForUser("fixture-user-1", "campPhase", gameRepository, buildFixtureShopRollingSources().shopRollingSources);
+    await advanceGameForUser("fixture-user-1", "campPhase", gameRepository, buildFixtureCharacterShopRollingSources().characterShopRollingSources);
 
     expect(
       recordedSaveGameStateCalls.map(
@@ -188,7 +188,7 @@ describe("advanceGameForUser", () => {
     const { gameRepository, recordedSaveGameStateCalls } =
       buildFakeGameRepository(buildFixtureLoadedGameRecord("campPhase", 1));
 
-    await advanceGameForUser("fixture-user-1", "campPhase", gameRepository, buildFixtureShopRollingSources().shopRollingSources);
+    await advanceGameForUser("fixture-user-1", "campPhase", gameRepository, buildFixtureCharacterShopRollingSources().characterShopRollingSources);
 
     expect(
       recordedSaveGameStateCalls.map(
@@ -204,7 +204,7 @@ describe("advanceGameForUser", () => {
     );
 
     await expect(
-      advanceGameForUser("fixture-user-1", "campPhase", gameRepository, buildFixtureShopRollingSources().shopRollingSources),
+      advanceGameForUser("fixture-user-1", "campPhase", gameRepository, buildFixtureCharacterShopRollingSources().characterShopRollingSources),
     ).resolves.toBeUndefined();
   });
 
@@ -215,7 +215,7 @@ describe("advanceGameForUser", () => {
       );
 
     await expect(
-      advanceGameForUser("fixture-user-1", "campPhase", gameRepository, buildFixtureShopRollingSources().shopRollingSources),
+      advanceGameForUser("fixture-user-1", "campPhase", gameRepository, buildFixtureCharacterShopRollingSources().characterShopRollingSources),
     ).resolves.toBeUndefined();
 
     expect(recordedSaveGameStateCalls).toHaveLength(0);
@@ -229,44 +229,44 @@ describe("advanceGameForUser", () => {
       day: 1,
       phase: "battlePhase",
       purchasedShopListingIds: [],
-      persistedShopSlots: [
-        SOLD_SHOP_SLOT,
-        buildOfferingShopSlot("fixture-dwarf-one"),
-        buildOfferingShopSlot("fixture-dwarf-two"),
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
+      persistedCharacterShopSlots: [
+        SOLD_CHARACTER_SHOP_SLOT,
+        buildOfferingCharacterShopSlot("fixture-dwarf-one"),
+        buildOfferingCharacterShopSlot("fixture-dwarf-two"),
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
       ],
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     };
     const { gameRepository, recordedSaveGameStateCalls } =
       buildFakeGameRepository(battlePhaseLoadedGameRecord);
-    const { shopRollingSources } = buildFixtureShopRollingSources([1, 1, 1]);
+    const { characterShopRollingSources } = buildFixtureCharacterShopRollingSources([1, 1, 1]);
 
     await advanceGameForUser(
       "fixture-user-1",
       "battlePhase",
       gameRepository,
-      shopRollingSources,
+      characterShopRollingSources,
     );
 
     expect(
       recordedSaveGameStateCalls.map(
-        (recordedCall) => recordedCall.nextGameState.shopSlots,
+        (recordedCall) => recordedCall.nextGameState.characterShopSlots,
       ),
     ).toEqual([
       [
-        buildOfferingShopSlot("fixture-dwarf-two"),
-        buildOfferingShopSlot("fixture-dwarf-two"),
-        buildOfferingShopSlot("fixture-dwarf-two"),
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
+        buildOfferingCharacterShopSlot("fixture-dwarf-two"),
+        buildOfferingCharacterShopSlot("fixture-dwarf-two"),
+        buildOfferingCharacterShopSlot("fixture-dwarf-two"),
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
       ],
     ]);
   });
@@ -279,7 +279,7 @@ describe("advanceGameForUser", () => {
       day: 1,
       phase: "campPhase",
       purchasedShopListingIds: [],
-      persistedShopSlots: "not-a-shop",
+      persistedCharacterShopSlots: "not-a-shop",
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     };
@@ -291,7 +291,7 @@ describe("advanceGameForUser", () => {
         "fixture-user-1",
         "campPhase",
         gameRepository,
-        buildFixtureShopRollingSources().shopRollingSources,
+        buildFixtureCharacterShopRollingSources().characterShopRollingSources,
       ),
     ).rejects.toThrow();
 

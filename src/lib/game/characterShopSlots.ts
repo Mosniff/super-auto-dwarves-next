@@ -1,34 +1,31 @@
 import type { CharacterTemplate } from "./characterTemplates";
+import type { ChooseRandomIndex } from "./chooseRandomIndex";
 
-export const SHOP_SLOT_COUNT = 8;
-export const STARTING_OPEN_SHOP_SLOT_COUNT = 3;
+export const CHARACTER_SHOP_SLOT_COUNT = 8;
+export const STARTING_OPEN_CHARACTER_SHOP_SLOT_COUNT = 3;
 
-export type ShopSlot =
+export type CharacterShopSlot =
   | { slotState: "locked" }
   | { slotState: "offering"; characterTemplateId: string }
   | { slotState: "sold" };
 
-export type ShopSlots = ShopSlot[];
+export type CharacterShopSlots = CharacterShopSlot[];
 
-// Returns an integer from 0 to optionCount - 1; injected so pure code never
-// calls a random source.
-export type ChooseRandomIndex = (optionCount: number) => number;
-
-export interface ShopRollingSources {
+export interface CharacterShopRollingSources {
   availableCharacterTemplates: readonly CharacterTemplate[];
   chooseRandomIndex: ChooseRandomIndex;
 }
 
-export function rollShopSlots(
+export function rollCharacterShopSlots(
   openShopSlotCount: number,
   availableCharacterTemplates: readonly CharacterTemplate[],
   chooseRandomIndex: ChooseRandomIndex,
-): ShopSlots {
+): CharacterShopSlots {
   // These throws are programmer errors (bad wiring), not rule rejections.
   if (
     !Number.isInteger(openShopSlotCount) ||
     openShopSlotCount < 0 ||
-    openShopSlotCount > SHOP_SLOT_COUNT
+    openShopSlotCount > CHARACTER_SHOP_SLOT_COUNT
   ) {
     throw new Error(`invalid open shop slot count: ${openShopSlotCount}`);
   }
@@ -37,7 +34,7 @@ export function rollShopSlots(
     throw new Error("cannot roll an open shop slot with no available character templates");
   }
 
-  const shopSlots: ShopSlots = [];
+  const characterShopSlots: CharacterShopSlots = [];
 
   for (let slotIndex = 0; slotIndex < openShopSlotCount; slotIndex += 1) {
     const templateCount = availableCharacterTemplates.length;
@@ -52,23 +49,31 @@ export function rollShopSlots(
     }
 
     const chosenCharacterTemplate = availableCharacterTemplates[chosenIndex];
-    shopSlots.push({
+    characterShopSlots.push({
       slotState: "offering",
       characterTemplateId: chosenCharacterTemplate.characterTemplateId,
     });
   }
 
-  for (let slotIndex = openShopSlotCount; slotIndex < SHOP_SLOT_COUNT; slotIndex += 1) {
-    shopSlots.push({ slotState: "locked" });
+  for (
+    let slotIndex = openShopSlotCount;
+    slotIndex < CHARACTER_SHOP_SLOT_COUNT;
+    slotIndex += 1
+  ) {
+    characterShopSlots.push({ slotState: "locked" });
   }
 
-  return shopSlots;
+  return characterShopSlots;
 }
 
 // The open-slot count is derived from the slots, never stored separately;
 // sold slots are still open.
-export function countOpenShopSlots(shopSlots: ShopSlots): number {
-  return shopSlots.filter(
-    (shopSlot) => shopSlot.slotState === "offering" || shopSlot.slotState === "sold",
+export function countOpenCharacterShopSlots(
+  characterShopSlots: CharacterShopSlots,
+): number {
+  return characterShopSlots.filter(
+    (characterShopSlot) =>
+      characterShopSlot.slotState === "offering" ||
+      characterShopSlot.slotState === "sold",
   ).length;
 }

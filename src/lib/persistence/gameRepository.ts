@@ -13,8 +13,8 @@ export interface LoadedGameRecord {
   // as [].
   purchasedShopListingIds: string[] | null;
   // Deliberately unknown — the database cannot promise this column's shape;
-  // validating it is the handler's job (see parsePersistedShopSlots.ts).
-  persistedShopSlots: unknown;
+  // validating it is the handler's job (see parsePersistedCharacterShopSlots.ts).
+  persistedCharacterShopSlots: unknown;
   revision: number;
   createdAt: Date;
 }

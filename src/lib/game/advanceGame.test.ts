@@ -5,12 +5,12 @@ import type { OwnedCharacter } from "./ownedCharacter";
 import type { CampRoster } from "./campRoster";
 import { CAMP_STARTING_GOLD } from "./campState";
 import {
-  buildFixtureShopRollingSources,
-  buildFixtureShopSlots,
-  buildOfferingShopSlot,
-  LOCKED_SHOP_SLOT,
-  SOLD_SHOP_SLOT,
-} from "@/test/shopFixtures";
+  buildFixtureCharacterShopRollingSources,
+  buildFixtureCharacterShopSlots,
+  buildOfferingCharacterShopSlot,
+  LOCKED_CHARACTER_SHOP_SLOT,
+  SOLD_CHARACTER_SHOP_SLOT,
+} from "@/test/characterShopFixtures";
 
 // Arbitrary fixture value — starting gold is not yet specified.
 const FIXTURE_GOLD = 10;
@@ -41,7 +41,7 @@ function buildFixtureGameState(
     day,
     phase,
     purchasedShopListingIds: [],
-    shopSlots: buildFixtureShopSlots(),
+    characterShopSlots: buildFixtureCharacterShopSlots(),
     ...overrides,
   };
 }
@@ -52,7 +52,7 @@ describe("advanceGame", () => {
 
     const nextGameState = advanceGame(
       campPhaseGameState,
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
 
     expect(nextGameState.phase).toBe("battlePhase");
@@ -64,7 +64,7 @@ describe("advanceGame", () => {
 
     const nextGameState = advanceGame(
       battlePhaseGameState,
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
 
     expect(nextGameState.phase).toBe("campPhase");
@@ -77,7 +77,7 @@ describe("advanceGame", () => {
     });
     const nextFromCampPhase = advanceGame(
       campPhaseGameState,
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
 
     expect(nextFromCampPhase.playerRoster).toEqual(
@@ -91,7 +91,7 @@ describe("advanceGame", () => {
     const battlePhaseGameState = buildFixtureGameState("battlePhase", 1);
     const nextFromBattlePhase = advanceGame(
       battlePhaseGameState,
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
 
     expect(nextFromBattlePhase.playerRoster).toEqual(
@@ -106,7 +106,7 @@ describe("advanceGame", () => {
 
     const nextGameState = advanceGame(
       battlePhaseGameState,
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
 
     expect(nextGameState.gold).toBe(CAMP_STARTING_GOLD);
@@ -119,7 +119,7 @@ describe("advanceGame", () => {
 
     const nextGameState = advanceGame(
       battlePhaseGameState,
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
 
     expect(nextGameState.gold).toBe(CAMP_STARTING_GOLD);
@@ -132,7 +132,7 @@ describe("advanceGame", () => {
 
     const nextGameState = advanceGame(
       battlePhaseGameState,
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
 
     expect(nextGameState.purchasedShopListingIds).toEqual([]);
@@ -143,7 +143,7 @@ describe("advanceGame", () => {
     const campPhaseGameStateClone = structuredClone(campPhaseGameState);
     advanceGame(
       campPhaseGameState,
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
     expect(campPhaseGameState).toEqual(campPhaseGameStateClone);
 
@@ -151,7 +151,7 @@ describe("advanceGame", () => {
     const battlePhaseGameStateClone = structuredClone(battlePhaseGameState);
     advanceGame(
       battlePhaseGameState,
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
     expect(battlePhaseGameState).toEqual(battlePhaseGameStateClone);
   });
@@ -161,19 +161,19 @@ describe("advanceGame", () => {
 
     const afterFirstAdvance = advanceGame(
       newGameState,
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
     const afterSecondAdvance = advanceGame(
       afterFirstAdvance,
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
     const afterThirdAdvance = advanceGame(
       afterSecondAdvance,
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
     const afterFourthAdvance = advanceGame(
       afterThirdAdvance,
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
 
     expect(afterFourthAdvance.phase).toBe("campPhase");
@@ -182,73 +182,73 @@ describe("advanceGame", () => {
 
   it("A1: re-rolls the shop when returning to camp, keeping the open-slot count", () => {
     const campPhaseGameState = buildFixtureGameState("campPhase", 1);
-    const { shopRollingSources, recordedOptionCounts } =
-      buildFixtureShopRollingSources();
+    const { characterShopRollingSources, recordedOptionCounts } =
+      buildFixtureCharacterShopRollingSources();
 
-    const nextGameState = advanceGame(campPhaseGameState, shopRollingSources);
+    const nextGameState = advanceGame(campPhaseGameState, characterShopRollingSources);
 
-    expect(nextGameState.shopSlots).toEqual(buildFixtureShopSlots());
+    expect(nextGameState.characterShopSlots).toEqual(buildFixtureCharacterShopSlots());
     expect(recordedOptionCounts).toEqual([]);
   });
 
   it("A2: re-rolls every open slot (sold or offering), keeping the open-slot count", () => {
     const battlePhaseGameState = buildFixtureGameState("battlePhase", 1, {
-      shopSlots: [
-        SOLD_SHOP_SLOT,
-        buildOfferingShopSlot("fixture-dwarf-one"),
-        buildOfferingShopSlot("fixture-dwarf-two"),
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
+      characterShopSlots: [
+        SOLD_CHARACTER_SHOP_SLOT,
+        buildOfferingCharacterShopSlot("fixture-dwarf-one"),
+        buildOfferingCharacterShopSlot("fixture-dwarf-two"),
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
       ],
     });
-    const { shopRollingSources, recordedOptionCounts } =
-      buildFixtureShopRollingSources([0, 1, 0]);
+    const { characterShopRollingSources, recordedOptionCounts } =
+      buildFixtureCharacterShopRollingSources([0, 1, 0]);
 
-    const nextGameState = advanceGame(battlePhaseGameState, shopRollingSources);
+    const nextGameState = advanceGame(battlePhaseGameState, characterShopRollingSources);
 
-    expect(nextGameState.shopSlots).toEqual([
-      buildOfferingShopSlot("fixture-dwarf-one"),
-      buildOfferingShopSlot("fixture-dwarf-two"),
-      buildOfferingShopSlot("fixture-dwarf-one"),
-      LOCKED_SHOP_SLOT,
-      LOCKED_SHOP_SLOT,
-      LOCKED_SHOP_SLOT,
-      LOCKED_SHOP_SLOT,
-      LOCKED_SHOP_SLOT,
+    expect(nextGameState.characterShopSlots).toEqual([
+      buildOfferingCharacterShopSlot("fixture-dwarf-one"),
+      buildOfferingCharacterShopSlot("fixture-dwarf-two"),
+      buildOfferingCharacterShopSlot("fixture-dwarf-one"),
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
     ]);
     expect(recordedOptionCounts).toEqual([2, 2, 2]);
   });
 
   it("A3: re-rolls all sold slots when every slot was open", () => {
     const battlePhaseGameState = buildFixtureGameState("battlePhase", 1, {
-      shopSlots: [
-        SOLD_SHOP_SLOT,
-        SOLD_SHOP_SLOT,
-        SOLD_SHOP_SLOT,
-        SOLD_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
+      characterShopSlots: [
+        SOLD_CHARACTER_SHOP_SLOT,
+        SOLD_CHARACTER_SHOP_SLOT,
+        SOLD_CHARACTER_SHOP_SLOT,
+        SOLD_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
       ],
     });
-    const { shopRollingSources, recordedOptionCounts } =
-      buildFixtureShopRollingSources([]);
+    const { characterShopRollingSources, recordedOptionCounts } =
+      buildFixtureCharacterShopRollingSources([]);
 
-    const nextGameState = advanceGame(battlePhaseGameState, shopRollingSources);
+    const nextGameState = advanceGame(battlePhaseGameState, characterShopRollingSources);
 
-    expect(nextGameState.shopSlots).toEqual([
-      buildOfferingShopSlot("fixture-dwarf-one"),
-      buildOfferingShopSlot("fixture-dwarf-one"),
-      buildOfferingShopSlot("fixture-dwarf-one"),
-      buildOfferingShopSlot("fixture-dwarf-one"),
-      LOCKED_SHOP_SLOT,
-      LOCKED_SHOP_SLOT,
-      LOCKED_SHOP_SLOT,
-      LOCKED_SHOP_SLOT,
+    expect(nextGameState.characterShopSlots).toEqual([
+      buildOfferingCharacterShopSlot("fixture-dwarf-one"),
+      buildOfferingCharacterShopSlot("fixture-dwarf-one"),
+      buildOfferingCharacterShopSlot("fixture-dwarf-one"),
+      buildOfferingCharacterShopSlot("fixture-dwarf-one"),
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
     ]);
     expect(recordedOptionCounts).toEqual([2, 2, 2, 2]);
   });

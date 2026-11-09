@@ -1,13 +1,13 @@
 import { describe, it, expect } from "vitest";
 import type { CharacterTemplate } from "./characterTemplates";
 import {
-  SHOP_SLOT_COUNT,
-  STARTING_OPEN_SHOP_SLOT_COUNT,
-  rollShopSlots,
-  countOpenShopSlots,
-  type ChooseRandomIndex,
-  type ShopSlots,
-} from "./shopSlots";
+  CHARACTER_SHOP_SLOT_COUNT,
+  STARTING_OPEN_CHARACTER_SHOP_SLOT_COUNT,
+  rollCharacterShopSlots,
+  countOpenCharacterShopSlots,
+  type CharacterShopSlots,
+} from "./characterShopSlots";
+import type { ChooseRandomIndex } from "./chooseRandomIndex";
 
 const fixtureTemplateOne: CharacterTemplate = {
   characterTemplateId: "fixture-dwarf-one",
@@ -55,21 +55,24 @@ function doesThrow(action: () => unknown): boolean {
   }
 }
 
-describe("shopSlots", () => {
+describe("characterShopSlots", () => {
   it("K1: exposes the slot count and starting open slot count", () => {
-    expect([SHOP_SLOT_COUNT, STARTING_OPEN_SHOP_SLOT_COUNT]).toEqual([8, 3]);
+    expect([
+      CHARACTER_SHOP_SLOT_COUNT,
+      STARTING_OPEN_CHARACTER_SHOP_SLOT_COUNT,
+    ]).toEqual([8, 3]);
   });
 
   it("R1: rolls open slots in order, then fills the rest with locked slots", () => {
     const { chooseRandomIndex } = buildScriptedChooseRandomIndex([1, 0, 1]);
 
-    const shopSlots = rollShopSlots(
+    const characterShopSlots = rollCharacterShopSlots(
       3,
       [fixtureTemplateOne, fixtureTemplateTwo],
       chooseRandomIndex,
     );
 
-    expect(shopSlots).toEqual([
+    expect(characterShopSlots).toEqual([
       { slotState: "offering", characterTemplateId: "fixture-dwarf-two" },
       { slotState: "offering", characterTemplateId: "fixture-dwarf-one" },
       { slotState: "offering", characterTemplateId: "fixture-dwarf-two" },
@@ -85,7 +88,7 @@ describe("shopSlots", () => {
     const { chooseRandomIndex, recordedOptionCounts } =
       buildScriptedChooseRandomIndex([1, 0, 1]);
 
-    rollShopSlots(
+    rollCharacterShopSlots(
       3,
       [fixtureTemplateOne, fixtureTemplateTwo],
       chooseRandomIndex,
@@ -98,18 +101,28 @@ describe("shopSlots", () => {
     const { chooseRandomIndex, recordedOptionCounts } =
       buildScriptedChooseRandomIndex([]);
 
-    const shopSlots = rollShopSlots(0, [fixtureTemplateOne], chooseRandomIndex);
+    const characterShopSlots = rollCharacterShopSlots(
+      0,
+      [fixtureTemplateOne],
+      chooseRandomIndex,
+    );
 
-    expect(shopSlots).toEqual(Array.from({ length: 8 }, () => LOCKED_SLOT));
+    expect(characterShopSlots).toEqual(
+      Array.from({ length: 8 }, () => LOCKED_SLOT),
+    );
     expect(recordedOptionCounts).toEqual([]);
   });
 
   it("R4: every slot open rolls eight offerings and locks none", () => {
     const { chooseRandomIndex } = buildScriptedChooseRandomIndex([]);
 
-    const shopSlots = rollShopSlots(8, [fixtureTemplateOne], chooseRandomIndex);
+    const characterShopSlots = rollCharacterShopSlots(
+      8,
+      [fixtureTemplateOne],
+      chooseRandomIndex,
+    );
 
-    expect(shopSlots).toEqual(
+    expect(characterShopSlots).toEqual(
       Array.from({ length: 8 }, () => ({
         slotState: "offering",
         characterTemplateId: "fixture-dwarf-one",
@@ -124,7 +137,7 @@ describe("shopSlots", () => {
       invalidOpenCounts.map((openCount) =>
         doesThrow(() => {
           const { chooseRandomIndex } = buildScriptedChooseRandomIndex([]);
-          return rollShopSlots(
+          return rollCharacterShopSlots(
             openCount,
             [fixtureTemplateOne],
             chooseRandomIndex,
@@ -137,7 +150,7 @@ describe("shopSlots", () => {
   it("R6: throws when there are open slots but no available templates", () => {
     const { chooseRandomIndex } = buildScriptedChooseRandomIndex([]);
 
-    expect(doesThrow(() => rollShopSlots(3, [], chooseRandomIndex))).toBe(
+    expect(doesThrow(() => rollCharacterShopSlots(3, [], chooseRandomIndex))).toBe(
       true,
     );
   });
@@ -151,7 +164,7 @@ describe("shopSlots", () => {
           invalidIndex,
         ]);
         return doesThrow(() =>
-          rollShopSlots(
+          rollCharacterShopSlots(
             1,
             [fixtureTemplateOne, fixtureTemplateTwo],
             chooseRandomIndex,
@@ -162,7 +175,7 @@ describe("shopSlots", () => {
   });
 
   it("C1: counts offering and sold slots as open", () => {
-    const shopSlots: ShopSlots = [
+    const characterShopSlots: CharacterShopSlots = [
       { slotState: "offering", characterTemplateId: "fixture-dwarf-one" },
       { slotState: "sold" },
       { slotState: "offering", characterTemplateId: "fixture-dwarf-two" },
@@ -173,15 +186,15 @@ describe("shopSlots", () => {
       LOCKED_SLOT,
     ];
 
-    expect(countOpenShopSlots(shopSlots)).toBe(3);
+    expect(countOpenCharacterShopSlots(characterShopSlots)).toBe(3);
   });
 
   it("C2: counts zero when every slot is locked", () => {
-    const allLockedShopSlots: ShopSlots = Array.from(
+    const allLockedShopSlots: CharacterShopSlots = Array.from(
       { length: 8 },
       () => LOCKED_SLOT,
     );
 
-    expect(countOpenShopSlots(allLockedShopSlots)).toBe(0);
+    expect(countOpenCharacterShopSlots(allLockedShopSlots)).toBe(0);
   });
 });

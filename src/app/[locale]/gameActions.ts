@@ -15,7 +15,7 @@ import { GameAlreadyExistsError } from "@/lib/persistence/gameAlreadyExistsError
 import { isGamePhase } from "@/lib/game/isGamePhase";
 import { DUMMY_SHOP_CATALOGUE } from "@/lib/game/dummyShopCatalogue";
 import { listCharacterTemplates } from "@/lib/game/characterTemplates";
-import type { ShopRollingSources } from "@/lib/game/shopSlots";
+import type { CharacterShopRollingSources } from "@/lib/game/characterShopSlots";
 import { parseIntegerFormValue } from "@/lib/forms/parseIntegerFormValue";
 
 // These actions take no game state from the client — intents, not state
@@ -31,7 +31,7 @@ import { parseIntegerFormValue } from "@/lib/forms/parseIntegerFormValue";
 
 // The single place real randomness enters, on the server only — every pure
 // game module takes it injected (CLAUDE.md -> "Persistence & save model").
-function buildServerShopRollingSources(): ShopRollingSources {
+function buildServerCharacterShopRollingSources(): CharacterShopRollingSources {
   return {
     availableCharacterTemplates: listCharacterTemplates(),
     chooseRandomIndex: (optionCount) => randomInt(optionCount),
@@ -64,7 +64,7 @@ export async function createGameAction(): Promise<void> {
     await createGameForUser(
       userId,
       prismaGameRepository,
-      buildServerShopRollingSources(),
+      buildServerCharacterShopRollingSources(),
     );
   } catch (error) {
     // The save slab only ever offers "New game" when the player has no
@@ -95,7 +95,7 @@ export async function advanceGameAction(formData: FormData): Promise<void> {
     userId,
     submittedExpectedPhase,
     prismaGameRepository,
-    buildServerShopRollingSources(),
+    buildServerCharacterShopRollingSources(),
   );
 
   await redirectToLocalePath("/play");

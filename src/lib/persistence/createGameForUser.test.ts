@@ -5,10 +5,10 @@ import { GameAlreadyExistsError } from "./gameAlreadyExistsError";
 import type { GameRepository } from "./gameRepository";
 import type { GameState } from "@/lib/game/types";
 import {
-  buildFixtureShopRollingSources,
-  buildOfferingShopSlot,
-  LOCKED_SHOP_SLOT,
-} from "@/test/shopFixtures";
+  buildFixtureCharacterShopRollingSources,
+  buildOfferingCharacterShopSlot,
+  LOCKED_CHARACTER_SHOP_SLOT,
+} from "@/test/characterShopFixtures";
 
 interface RecordedCreateGameCall {
   userId: string;
@@ -41,7 +41,7 @@ describe("createGameForUser", () => {
     await createGameForUser(
       "fixture-user-1",
       gameRepository,
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
 
     expect(recordedCreateGameCalls).toHaveLength(1);
@@ -55,13 +55,13 @@ describe("createGameForUser", () => {
     await createGameForUser(
       "fixture-user-1",
       gameRepository,
-      buildFixtureShopRollingSources([0, 0, 0]).shopRollingSources,
+      buildFixtureCharacterShopRollingSources([0, 0, 0]).characterShopRollingSources,
     );
 
     expect(
       recordedCreateGameCalls.map((recordedCall) => recordedCall.initialGameState),
     ).toEqual([
-      createNewGameState(buildFixtureShopRollingSources([0, 0, 0]).shopRollingSources),
+      createNewGameState(buildFixtureCharacterShopRollingSources([0, 0, 0]).characterShopRollingSources),
     ]);
   });
 
@@ -74,7 +74,7 @@ describe("createGameForUser", () => {
       createGameForUser(
         "fixture-user-1",
         gameRepository,
-        buildFixtureShopRollingSources().shopRollingSources,
+        buildFixtureCharacterShopRollingSources().characterShopRollingSources,
       ),
     ).rejects.toBeInstanceOf(GameAlreadyExistsError);
   });
@@ -86,23 +86,23 @@ describe("createGameForUser", () => {
     await createGameForUser(
       "fixture-user-1",
       gameRepository,
-      buildFixtureShopRollingSources([1, 0, 0]).shopRollingSources,
+      buildFixtureCharacterShopRollingSources([1, 0, 0]).characterShopRollingSources,
     );
 
     expect(
       recordedCreateGameCalls.map(
-        (recordedCall) => recordedCall.initialGameState.shopSlots,
+        (recordedCall) => recordedCall.initialGameState.characterShopSlots,
       ),
     ).toEqual([
       [
-        buildOfferingShopSlot("fixture-dwarf-two"),
-        buildOfferingShopSlot("fixture-dwarf-one"),
-        buildOfferingShopSlot("fixture-dwarf-one"),
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
-        LOCKED_SHOP_SLOT,
+        buildOfferingCharacterShopSlot("fixture-dwarf-two"),
+        buildOfferingCharacterShopSlot("fixture-dwarf-one"),
+        buildOfferingCharacterShopSlot("fixture-dwarf-one"),
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
+        LOCKED_CHARACTER_SHOP_SLOT,
       ],
     ]);
   });

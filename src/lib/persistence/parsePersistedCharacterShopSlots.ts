@@ -1,9 +1,12 @@
-import { SHOP_SLOT_COUNT, type ShopSlots } from "@/lib/game/shopSlots";
+import {
+  CHARACTER_SHOP_SLOT_COUNT,
+  type CharacterShopSlots,
+} from "@/lib/game/characterShopSlots";
 
 // Template existence is deliberately not checked here, same reasoning as
 // parsePersistedCampRoster: a stored offering is self-contained and this
 // parser's job is shape validation, not a template-module lookup.
-function isValidPersistedShopSlot(candidateSlot: unknown): boolean {
+function isValidPersistedCharacterShopSlot(candidateSlot: unknown): boolean {
   if (
     typeof candidateSlot !== "object" ||
     candidateSlot === null ||
@@ -30,23 +33,25 @@ function isValidPersistedShopSlot(candidateSlot: unknown): boolean {
   return false;
 }
 
-export function parsePersistedShopSlots(persistedValue: unknown): ShopSlots {
+export function parsePersistedCharacterShopSlots(
+  persistedValue: unknown,
+): CharacterShopSlots {
   if (!Array.isArray(persistedValue)) {
-    throw new Error("Persisted shop slots must be an array.");
+    throw new Error("Persisted character shop slots must be an array.");
   }
 
-  if (persistedValue.length !== SHOP_SLOT_COUNT) {
+  if (persistedValue.length !== CHARACTER_SHOP_SLOT_COUNT) {
     throw new Error(
-      `Persisted shop slots must have exactly ${SHOP_SLOT_COUNT} slots.`,
+      `Persisted character shop slots must have exactly ${CHARACTER_SHOP_SLOT_COUNT} slots.`,
     );
   }
 
   let hasSeenLockedSlot = false;
 
   persistedValue.forEach((candidateSlot, slotIndex) => {
-    if (!isValidPersistedShopSlot(candidateSlot)) {
+    if (!isValidPersistedCharacterShopSlot(candidateSlot)) {
       throw new Error(
-        `Persisted shop slots has an invalid slot at index ${slotIndex}.`,
+        `Persisted character shop slots has an invalid slot at index ${slotIndex}.`,
       );
     }
 
@@ -56,10 +61,10 @@ export function parsePersistedShopSlots(persistedValue: unknown): ShopSlots {
       hasSeenLockedSlot = true;
     } else if (hasSeenLockedSlot) {
       throw new Error(
-        `Persisted shop slots has a non-locked slot after a locked one, at index ${slotIndex}.`,
+        `Persisted character shop slots has a non-locked slot after a locked one, at index ${slotIndex}.`,
       );
     }
   });
 
-  return persistedValue as ShopSlots;
+  return persistedValue as CharacterShopSlots;
 }

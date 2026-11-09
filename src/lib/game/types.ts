@@ -1,5 +1,5 @@
 import type { CampRoster } from "./campRoster";
-import type { ShopSlots } from "./shopSlots";
+import type { CharacterShopSlots } from "./characterShopSlots";
 
 export type GamePhase = "campPhase" | "battlePhase";
 
@@ -11,7 +11,7 @@ export interface GameState {
   gold: number;
   day: number;
   phase: GamePhase;
-  // Superseded by shopSlots (Phase 9 part 3b); removed in Phase 9 part 4.
+  // Superseded by characterShopSlots (Phase 9 part 3b); removed in Phase 9 part 4.
   purchasedShopListingIds: string[];
-  shopSlots: ShopSlots;
+  characterShopSlots: CharacterShopSlots;
 }

@@ -3,15 +3,15 @@ import { createNewGameState } from "./createNewGameState";
 import type { OwnedCharacter } from "./ownedCharacter";
 import { CAMP_ROSTER_SLOT_COUNT } from "./campRoster";
 import {
-  buildFixtureShopRollingSources,
-  buildOfferingShopSlot,
-  LOCKED_SHOP_SLOT,
-} from "@/test/shopFixtures";
+  buildFixtureCharacterShopRollingSources,
+  buildOfferingCharacterShopSlot,
+  LOCKED_CHARACTER_SHOP_SLOT,
+} from "@/test/characterShopFixtures";
 
 describe("createNewGameState", () => {
   it("(a) returns a game in campPhase", () => {
     const newGameState = createNewGameState(
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
 
     expect(newGameState.phase).toBe("campPhase");
@@ -19,7 +19,7 @@ describe("createNewGameState", () => {
 
   it("(b) returns day 1", () => {
     const newGameState = createNewGameState(
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
 
     expect(newGameState.day).toBe(1);
@@ -27,7 +27,7 @@ describe("createNewGameState", () => {
 
   it("(c) returns 10 gold", () => {
     const newGameState = createNewGameState(
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
 
     expect(newGameState.gold).toBe(10);
@@ -35,7 +35,7 @@ describe("createNewGameState", () => {
 
   it("(d) returns a player camp roster of seven empty slots and no purchased listings", () => {
     const newGameState = createNewGameState(
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
 
     expect(newGameState.playerRoster).toEqual(
@@ -46,10 +46,10 @@ describe("createNewGameState", () => {
 
   it("(e) returns an independent object on each call", () => {
     const firstGameState = createNewGameState(
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
     const secondGameState = createNewGameState(
-      buildFixtureShopRollingSources().shopRollingSources,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
     );
 
     const fixtureCharacter: OwnedCharacter = {
@@ -69,21 +69,21 @@ describe("createNewGameState", () => {
     );
   });
 
-  it("N1: rolls the starting shop", () => {
-    const { shopRollingSources, recordedOptionCounts } =
-      buildFixtureShopRollingSources([1, 0, 1]);
+  it("N1: rolls the starting character shop", () => {
+    const { characterShopRollingSources, recordedOptionCounts } =
+      buildFixtureCharacterShopRollingSources([1, 0, 1]);
 
-    const newGameState = createNewGameState(shopRollingSources);
+    const newGameState = createNewGameState(characterShopRollingSources);
 
-    expect(newGameState.shopSlots).toEqual([
-      buildOfferingShopSlot("fixture-dwarf-two"),
-      buildOfferingShopSlot("fixture-dwarf-one"),
-      buildOfferingShopSlot("fixture-dwarf-two"),
-      LOCKED_SHOP_SLOT,
-      LOCKED_SHOP_SLOT,
-      LOCKED_SHOP_SLOT,
-      LOCKED_SHOP_SLOT,
-      LOCKED_SHOP_SLOT,
+    expect(newGameState.characterShopSlots).toEqual([
+      buildOfferingCharacterShopSlot("fixture-dwarf-two"),
+      buildOfferingCharacterShopSlot("fixture-dwarf-one"),
+      buildOfferingCharacterShopSlot("fixture-dwarf-two"),
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
     ]);
     expect(recordedOptionCounts).toEqual([2, 2, 2]);
   });

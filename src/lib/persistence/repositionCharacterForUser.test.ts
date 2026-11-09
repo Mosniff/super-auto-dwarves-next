@@ -7,7 +7,7 @@ import {
   repositionCharacterForUser,
   type RepositionCharacterIntent,
 } from "./repositionCharacterForUser";
-import { buildFixtureShopSlots } from "@/test/shopFixtures";
+import { buildFixtureCharacterShopSlots } from "@/test/characterShopFixtures";
 
 const fixtureBorin: OwnedCharacter = {
   id: "dwarf-1",
@@ -70,7 +70,7 @@ function buildFixtureLoadedGameRecord(
     day: 2,
     phase: "campPhase",
     purchasedShopListingIds: [],
-    persistedShopSlots: buildFixtureShopSlots(),
+    persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
     revision: 5,
     createdAt: new Date("2026-10-13T00:00:00.000Z"),
     ...overrides,
@@ -109,7 +109,7 @@ describe("repositionCharacterForUser", () => {
       day: 2,
       phase: "campPhase",
       purchasedShopListingIds: [],
-      shopSlots: buildFixtureShopSlots(),
+      characterShopSlots: buildFixtureCharacterShopSlots(),
     };
 
     expect(result).toEqual({ outcome: "accepted" });

@@ -1,5 +1,5 @@
 import { createNewGameState } from "@/lib/game/createNewGameState";
-import type { ShopRollingSources } from "@/lib/game/shopSlots";
+import type { CharacterShopRollingSources } from "@/lib/game/characterShopSlots";
 import type { GameRepository } from "./gameRepository";
 
 // Creates a new save from createNewGameState(). The one-save-per-user rule
@@ -10,7 +10,10 @@ import type { GameRepository } from "./gameRepository";
 export async function createGameForUser(
   userId: string,
   gameRepository: GameRepository,
-  shopRollingSources: ShopRollingSources,
+  characterShopRollingSources: CharacterShopRollingSources,
 ): Promise<void> {
-  await gameRepository.createGame(userId, createNewGameState(shopRollingSources));
+  await gameRepository.createGame(
+    userId,
+    createNewGameState(characterShopRollingSources),
+  );
 }

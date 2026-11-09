@@ -1,14 +1,14 @@
 import { CAMP_STARTING_GOLD } from "./campState";
 import {
-  countOpenShopSlots,
-  rollShopSlots,
-  type ShopRollingSources,
-} from "./shopSlots";
+  countOpenCharacterShopSlots,
+  rollCharacterShopSlots,
+  type CharacterShopRollingSources,
+} from "./characterShopSlots";
 import type { GameState } from "./types";
 
 export function advanceGame(
   gameState: GameState,
-  shopRollingSources: ShopRollingSources,
+  characterShopRollingSources: CharacterShopRollingSources,
 ): GameState {
   switch (gameState.phase) {
     case "campPhase":
@@ -25,10 +25,10 @@ export function advanceGame(
         day: gameState.day + 1,
         gold: CAMP_STARTING_GOLD,
         purchasedShopListingIds: [],
-        shopSlots: rollShopSlots(
-          countOpenShopSlots(gameState.shopSlots),
-          shopRollingSources.availableCharacterTemplates,
-          shopRollingSources.chooseRandomIndex,
+        characterShopSlots: rollCharacterShopSlots(
+          countOpenCharacterShopSlots(gameState.characterShopSlots),
+          characterShopRollingSources.availableCharacterTemplates,
+          characterShopRollingSources.chooseRandomIndex,
         ),
       };
     default: {
