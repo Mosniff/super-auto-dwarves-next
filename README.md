@@ -2,7 +2,7 @@
 
 A fantasy auto-battler inspired by Super Auto Pets, Choose Your Own Adventure games, and Dungeons & Dragons. The game features both PvE and asynchronous PvP battles.
 
-> **Status:** Architecture and tech stack decided; project scaffolded. The **fundamental battle system** is specified (see [Battle system](#battle-system)), the app is **internationalized** (English + Japanese, via next-intl), and the **save loop** is playable end to end: guest sessions, one save per user, buying and arranging dwarves from a placeholder shop, then battling with them against a placeholder enemy. Characters are becoming real game data: classes, tiers and character templates are defined, and the dwarves you buy are spawned from those templates. An 8-slot shop (3 open, 5 locked) is rolled on the server at every camp start and stored with the game; buying from it comes next. Other game systems (cards, progression, richer shopping, abilities) remain to be defined — see the [Roadmap](#roadmap) and `CLAUDE.md` for contributor/architecture conventions.
+> **Status:** Architecture and tech stack decided; project scaffolded. The **fundamental battle system** is specified (see [Battle system](#battle-system)), the app is **internationalized** (English + Japanese, via next-intl), and the **save loop** is playable end to end: guest sessions, one save per user, buying and arranging dwarves, then battling with them against a placeholder enemy. Characters are becoming real game data: classes, tiers and character templates are defined, and the dwarves you buy are spawned from those templates. The character shop has 8 slots (3 open, 5 locked), rolled on the server at every camp start and stored with the game, and dwarves are bought from it slot by slot. Other game systems (cards, progression, richer shopping, abilities) remain to be defined — see the [Roadmap](#roadmap) and `CLAUDE.md` for contributor/architecture conventions.
 
 ---
 
@@ -116,11 +116,11 @@ The **fundamental battle system** is specified (see above). Still to be specifie
 - [x] Sessions & saves — anonymous guest sessions, one save per user, the camp ↔ battle loop _(Phase 7; see `CLAUDE.md` → "Persistence & save model")_
 - [x] Camp — placeholder shop, buy and arrange dwarves by click or drag, server-authoritative _(Phase 8 part one; see `CLAUDE.md` → "Camp: shop, roster and intents")_
 - [x] Real battles — resolved on the server from the saved roster against a placeholder enemy _(Phase 8 part two)_
-- [~] Character data — classes, tiers and templates as typed data _(Phase 9 part one; see `CLAUDE.md` → "Character data: classes, tiers and templates")_, owned characters spawned from them _(part two)_, and an 8-slot shop rolled and stored on the server _(part three)_; buying from shop slots and template-spawned enemies still to come
+- [~] Character data — classes, tiers and templates as typed data _(Phase 9 part one; see `CLAUDE.md` → "Character data: classes, tiers and templates")_, owned characters spawned from them _(part two)_, and an 8-slot character shop rolled on the server and bought from by slot _(parts three and four)_; showing classes, tiers and locked slots, and template-spawned enemies, still to come
 - [ ] Enemy generation — PvE opponents and PvP roster snapshots
 - [ ] Battle consequences — game over on loss, rewards on win
 - [ ] Card model and card types
 - [ ] Character stats and progression / leveling rules
-- [~] Roster construction and constraints (shopping phase) — basic camp rules defined; stock, rerolls, tiers, selling and promotion still to come
+- [~] Roster construction and constraints (shopping phase) — camp rules and the character shop defined; paid rerolls, tier gating, open-slot growth, other shop sections, selling and promotion still to come
 - [ ] Character abilities and triggered effects (extends the fundamental battle system)
 - [~] Data model (Prisma schema) — the User/Game save model is now defined _(see `CLAUDE.md` → "Persistence & save model")_; schema for the game systems below (cards, progression, abilities) still pending
