@@ -12,6 +12,9 @@ export interface LoadedGameRecord {
   // (Prisma never adds NOT NULL to array columns), so handlers treat null
   // as [].
   purchasedShopListingIds: string[] | null;
+  // Deliberately unknown — the database cannot promise this column's shape;
+  // validating it is the handler's job (see parsePersistedShopSlots.ts).
+  persistedShopSlots: unknown;
   revision: number;
   createdAt: Date;
 }

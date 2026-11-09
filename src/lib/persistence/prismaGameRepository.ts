@@ -31,6 +31,10 @@ export const prismaGameRepository: GameRepository = {
       day: gameRow.day,
       phase: gameRow.phase,
       purchasedShopListingIds: gameRow.purchasedShopListingIds,
+      // Passed straight through, deliberately NOT cast to ShopSlots —
+      // casting here would bypass parsePersistedShopSlots entirely.
+      // Validation is the handler's job, not this repository's.
+      persistedShopSlots: gameRow.shopSlots,
       revision: gameRow.revision,
       createdAt: gameRow.createdAt,
     };
@@ -54,6 +58,9 @@ export const prismaGameRepository: GameRepository = {
         day: nextGameState.day,
         phase: nextGameState.phase,
         purchasedShopListingIds: nextGameState.purchasedShopListingIds,
+        // Same cast as playerRoster above: telling Prisma how to store
+        // already-validated data, not bypassing validation.
+        shopSlots: nextGameState.shopSlots as unknown as Prisma.InputJsonValue,
         revision: { increment: 1 },
       },
     });
@@ -72,6 +79,10 @@ export const prismaGameRepository: GameRepository = {
           day: initialGameState.day,
           phase: initialGameState.phase,
           purchasedShopListingIds: initialGameState.purchasedShopListingIds,
+          // Same cast as playerRoster above: telling Prisma how to store
+          // already-validated data, not bypassing validation.
+          shopSlots:
+            initialGameState.shopSlots as unknown as Prisma.InputJsonValue,
         },
       });
     } catch (error) {

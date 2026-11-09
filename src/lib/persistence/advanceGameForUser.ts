@@ -1,5 +1,6 @@
 import { advanceGame } from "@/lib/game/advanceGame";
 import type { GamePhase } from "@/lib/game/types";
+import type { ShopRollingSources } from "@/lib/game/shopSlots";
 import { buildGameStateFromLoadedRecord } from "./buildGameStateFromLoadedRecord";
 import type { GameRepository } from "./gameRepository";
 
@@ -16,6 +17,7 @@ export async function advanceGameForUser(
   userId: string,
   expectedCurrentPhase: GamePhase,
   gameRepository: GameRepository,
+  shopRollingSources: ShopRollingSources,
 ): Promise<void> {
   const loadedGameRecord = await gameRepository.loadGameForUser(userId);
 
@@ -34,7 +36,7 @@ export async function advanceGameForUser(
 
   const currentGameState = buildGameStateFromLoadedRecord(loadedGameRecord);
 
-  const nextGameState = advanceGame(currentGameState);
+  const nextGameState = advanceGame(currentGameState, shopRollingSources);
 
   const saved = await gameRepository.saveGameState(
     loadedGameRecord.gameId,

@@ -14,6 +14,11 @@ export type ShopSlots = ShopSlot[];
 // calls a random source.
 export type ChooseRandomIndex = (optionCount: number) => number;
 
+export interface ShopRollingSources {
+  availableCharacterTemplates: readonly CharacterTemplate[];
+  chooseRandomIndex: ChooseRandomIndex;
+}
+
 export function rollShopSlots(
   openShopSlotCount: number,
   availableCharacterTemplates: readonly CharacterTemplate[],

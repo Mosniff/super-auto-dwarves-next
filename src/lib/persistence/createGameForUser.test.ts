@@ -4,6 +4,11 @@ import { createNewGameState } from "@/lib/game/createNewGameState";
 import { GameAlreadyExistsError } from "./gameAlreadyExistsError";
 import type { GameRepository } from "./gameRepository";
 import type { GameState } from "@/lib/game/types";
+import {
+  buildFixtureShopRollingSources,
+  buildOfferingShopSlot,
+  LOCKED_SHOP_SLOT,
+} from "@/test/shopFixtures";
 
 interface RecordedCreateGameCall {
   userId: string;
@@ -33,7 +38,11 @@ describe("createGameForUser", () => {
     const { gameRepository, recordedCreateGameCalls } =
       buildFakeGameRepository();
 
-    await createGameForUser("fixture-user-1", gameRepository);
+    await createGameForUser(
+      "fixture-user-1",
+      gameRepository,
+      buildFixtureShopRollingSources().shopRollingSources,
+    );
 
     expect(recordedCreateGameCalls).toHaveLength(1);
     expect(recordedCreateGameCalls[0].userId).toBe("fixture-user-1");
@@ -43,11 +52,17 @@ describe("createGameForUser", () => {
     const { gameRepository, recordedCreateGameCalls } =
       buildFakeGameRepository();
 
-    await createGameForUser("fixture-user-1", gameRepository);
+    await createGameForUser(
+      "fixture-user-1",
+      gameRepository,
+      buildFixtureShopRollingSources([0, 0, 0]).shopRollingSources,
+    );
 
     expect(
       recordedCreateGameCalls.map((recordedCall) => recordedCall.initialGameState),
-    ).toEqual([createNewGameState()]);
+    ).toEqual([
+      createNewGameState(buildFixtureShopRollingSources([0, 0, 0]).shopRollingSources),
+    ]);
   });
 
   it("(c) rejects with the GameAlreadyExistsError thrown by createGame", async () => {
@@ -56,7 +71,39 @@ describe("createGameForUser", () => {
     });
 
     await expect(
-      createGameForUser("fixture-user-1", gameRepository),
+      createGameForUser(
+        "fixture-user-1",
+        gameRepository,
+        buildFixtureShopRollingSources().shopRollingSources,
+      ),
     ).rejects.toBeInstanceOf(GameAlreadyExistsError);
+  });
+
+  it("G1: passes the rolled shop through to the initial game state", async () => {
+    const { gameRepository, recordedCreateGameCalls } =
+      buildFakeGameRepository();
+
+    await createGameForUser(
+      "fixture-user-1",
+      gameRepository,
+      buildFixtureShopRollingSources([1, 0, 0]).shopRollingSources,
+    );
+
+    expect(
+      recordedCreateGameCalls.map(
+        (recordedCall) => recordedCall.initialGameState.shopSlots,
+      ),
+    ).toEqual([
+      [
+        buildOfferingShopSlot("fixture-dwarf-two"),
+        buildOfferingShopSlot("fixture-dwarf-one"),
+        buildOfferingShopSlot("fixture-dwarf-one"),
+        LOCKED_SHOP_SLOT,
+        LOCKED_SHOP_SLOT,
+        LOCKED_SHOP_SLOT,
+        LOCKED_SHOP_SLOT,
+        LOCKED_SHOP_SLOT,
+      ],
+    ]);
   });
 });

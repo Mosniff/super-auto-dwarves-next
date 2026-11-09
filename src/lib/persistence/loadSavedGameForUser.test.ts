@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { loadSavedGameForUser } from "./loadSavedGameForUser";
 import type { GameRepository, LoadedGameRecord } from "./gameRepository";
 import type { CampRoster } from "@/lib/game/campRoster";
+import { buildFixtureShopSlots } from "@/test/shopFixtures";
 
 const FIXTURE_GOLD = 10;
 
@@ -57,6 +58,7 @@ describe("loadSavedGameForUser", () => {
       day: 3,
       phase: "campPhase",
       purchasedShopListingIds: ["fixture-listing-1"],
+      persistedShopSlots: buildFixtureShopSlots(),
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     });
@@ -84,6 +86,7 @@ describe("loadSavedGameForUser", () => {
       day: 1,
       phase: "campPhase",
       purchasedShopListingIds: ["fixture-listing-1"],
+      persistedShopSlots: buildFixtureShopSlots(),
       revision: 5,
       createdAt: fixtureCreatedAt,
     });
@@ -104,6 +107,7 @@ describe("loadSavedGameForUser", () => {
       day: 1,
       phase: "campPhase",
       purchasedShopListingIds: [],
+      persistedShopSlots: buildFixtureShopSlots(),
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     });
@@ -121,6 +125,7 @@ describe("loadSavedGameForUser", () => {
       day: 1,
       phase: "campPhase",
       purchasedShopListingIds: null,
+      persistedShopSlots: buildFixtureShopSlots(),
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     });
@@ -141,6 +146,7 @@ describe("loadSavedGameForUser", () => {
       day: 1,
       phase: "campPhase",
       purchasedShopListingIds: ["fixture-listing-1"],
+      persistedShopSlots: buildFixtureShopSlots(),
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     });
@@ -151,5 +157,44 @@ describe("loadSavedGameForUser", () => {
     );
 
     expect(savedGame?.revision).toBe(5);
+  });
+
+  it("L1: resolves with the record's shop slots", async () => {
+    const { gameRepository } = buildFakeGameRepository({
+      gameId: "fixture-game-1",
+      persistedPlayerRoster: fixtureCampRoster,
+      gold: FIXTURE_GOLD,
+      day: 1,
+      phase: "campPhase",
+      purchasedShopListingIds: ["fixture-listing-1"],
+      persistedShopSlots: buildFixtureShopSlots(),
+      revision: 5,
+      createdAt: new Date("2026-10-13T00:00:00.000Z"),
+    });
+
+    const savedGame = await loadSavedGameForUser(
+      "fixture-user-1",
+      gameRepository,
+    );
+
+    expect(savedGame?.gameState.shopSlots).toEqual(buildFixtureShopSlots());
+  });
+
+  it("L2: rejects when the record's persistedShopSlots is malformed", async () => {
+    const { gameRepository } = buildFakeGameRepository({
+      gameId: "fixture-game-1",
+      persistedPlayerRoster: fixtureCampRoster,
+      gold: FIXTURE_GOLD,
+      day: 1,
+      phase: "campPhase",
+      purchasedShopListingIds: ["fixture-listing-1"],
+      persistedShopSlots: "not-a-shop",
+      revision: 5,
+      createdAt: new Date("2026-10-13T00:00:00.000Z"),
+    });
+
+    await expect(
+      loadSavedGameForUser("fixture-user-1", gameRepository),
+    ).rejects.toThrow();
   });
 });

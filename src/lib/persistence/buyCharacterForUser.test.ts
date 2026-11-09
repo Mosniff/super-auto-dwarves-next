@@ -9,6 +9,7 @@ import {
   buyCharacterForUser,
   type BuyCharacterIntent,
 } from "./buyCharacterForUser";
+import { buildFixtureShopSlots } from "@/test/shopFixtures";
 
 const fixtureBorin: OwnedCharacter = {
   id: "dwarf-1",
@@ -100,6 +101,7 @@ function buildFixtureLoadedGameRecord(
     day: 2,
     phase: "campPhase",
     purchasedShopListingIds: [],
+    persistedShopSlots: buildFixtureShopSlots(),
     revision: 5,
     createdAt: new Date("2026-10-13T00:00:00.000Z"),
     ...overrides,
@@ -151,6 +153,7 @@ describe("buyCharacterForUser", () => {
       day: 2,
       phase: "campPhase",
       purchasedShopListingIds: ["fixture-listing-2"],
+      shopSlots: buildFixtureShopSlots(),
     };
 
     expect(result).toEqual({ outcome: "accepted" });

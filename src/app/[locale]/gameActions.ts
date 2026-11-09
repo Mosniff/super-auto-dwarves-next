@@ -1,6 +1,6 @@
 "use server";
 
-import { randomUUID } from "node:crypto";
+import { randomUUID, randomInt } from "node:crypto";
 import { refresh } from "next/cache";
 import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
@@ -14,6 +14,8 @@ import { repositionCharacterForUser } from "@/lib/persistence/repositionCharacte
 import { GameAlreadyExistsError } from "@/lib/persistence/gameAlreadyExistsError";
 import { isGamePhase } from "@/lib/game/isGamePhase";
 import { DUMMY_SHOP_CATALOGUE } from "@/lib/game/dummyShopCatalogue";
+import { listCharacterTemplates } from "@/lib/game/characterTemplates";
+import type { ShopRollingSources } from "@/lib/game/shopSlots";
 import { parseIntegerFormValue } from "@/lib/forms/parseIntegerFormValue";
 
 // These actions take no game state from the client — intents, not state
@@ -26,6 +28,15 @@ import { parseIntegerFormValue } from "@/lib/forms/parseIntegerFormValue";
 // redirect to the home page, and guest sign-in lives only in
 // startPlayingAction.ts. Error UX beyond the duplicate-save case below is
 // deliberately deferred.
+
+// The single place real randomness enters, on the server only — every pure
+// game module takes it injected (CLAUDE.md -> "Persistence & save model").
+function buildServerShopRollingSources(): ShopRollingSources {
+  return {
+    availableCharacterTemplates: listCharacterTemplates(),
+    chooseRandomIndex: (optionCount) => randomInt(optionCount),
+  };
+}
 
 async function redirectToLocalePath(href: string): Promise<never> {
   const locale = await getLocale();
@@ -50,7 +61,11 @@ export async function createGameAction(): Promise<void> {
   await prismaUserRepository.ensureUserExists(userId);
 
   try {
-    await createGameForUser(userId, prismaGameRepository);
+    await createGameForUser(
+      userId,
+      prismaGameRepository,
+      buildServerShopRollingSources(),
+    );
   } catch (error) {
     // The save slab only ever offers "New game" when the player has no
     // save, so a duplicate here can only come from a double-submit or a
@@ -80,6 +95,7 @@ export async function advanceGameAction(formData: FormData): Promise<void> {
     userId,
     submittedExpectedPhase,
     prismaGameRepository,
+    buildServerShopRollingSources(),
   );
 
   await redirectToLocalePath("/play");

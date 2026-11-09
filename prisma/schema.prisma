@@ -38,8 +38,13 @@ model Game {
   // "Persistence & save model", added Phase 8).
   revision     Int      @default(0)
   // Shop listing ids bought during the current camp visit; cleared at the
-  // start of each camp (Phase 8).
+  // start of each camp (Phase 8). Superseded by shopSlots and removed in
+  // Phase 9 part 4.
   purchasedShopListingIds String[] @default([])
+  // The shop's eight slots (locked / offering a template id / sold), rolled
+  // on the server at every camp start; validated by parsePersistedShopSlots
+  // (Phase 9).
+  shopSlots               Json
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
