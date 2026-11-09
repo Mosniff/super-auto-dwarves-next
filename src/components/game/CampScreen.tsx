@@ -8,7 +8,7 @@ import { GameScreenShell } from "@/components/game/GameScreenShell";
 import { PendingSubmitButton } from "@/components/game/PendingSubmitButton";
 import { ShopPanel } from "@/components/game/ShopPanel";
 import { CharacterCard } from "@/components/game/CharacterCard";
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "@/lib/game/character";
 import type { CampRoster } from "@/lib/game/campRoster";
 import type { CampState } from "@/lib/game/campState";
 import type { CharacterShopSlots } from "@/lib/game/characterShopSlots";

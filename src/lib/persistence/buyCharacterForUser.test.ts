@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import type { GameState } from "@/lib/game/types";
 import type { CampRoster } from "@/lib/game/campRoster";
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "@/lib/game/character";
 import type { CharacterTemplate } from "@/lib/game/characterTemplates";
 import type { CharacterShopSlots } from "@/lib/game/characterShopSlots";
 import type { GameRepository, LoadedGameRecord } from "./gameRepository";

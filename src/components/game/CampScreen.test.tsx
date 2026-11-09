@@ -2,7 +2,7 @@
 import { describe, it, expect } from "vitest";
 import userEvent from "@testing-library/user-event";
 import { renderWithMessages, screen, waitFor } from "@/test/renderWithMessages";
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "@/lib/game/character";
 import type { CampRoster } from "@/lib/game/campRoster";
 import type { CharacterShopSlots } from "@/lib/game/characterShopSlots";
 import type { CharacterTemplate } from "@/lib/game/characterTemplates";

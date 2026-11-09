@@ -1,6 +1,6 @@
 import Image from "next/image";
 import { useTranslations } from "next-intl";
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "@/lib/game/character";
 import { hpBarFillRatio } from "@/lib/battle/hpBarFillRatio";
 import { tierRomanNumeral } from "./characterCardDisplay";
 

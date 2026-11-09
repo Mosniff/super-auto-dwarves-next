@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/react";
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "@/lib/game/character";
 import type { CampClickTarget, CampTargetPresentation } from "./campSelection";
 import { RosterSlot } from "./RosterSlot";
 

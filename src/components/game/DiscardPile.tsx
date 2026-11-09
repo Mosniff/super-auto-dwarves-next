@@ -1,6 +1,6 @@
 import { motion, useReducedMotion } from "motion/react";
 import { useTranslations } from "next-intl";
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "@/lib/game/character";
 
 interface DiscardPileProps {
   downedCharacters: Character[];

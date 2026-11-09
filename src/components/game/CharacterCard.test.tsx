@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from "vitest";
 import { renderWithMessages, screen } from "@/test/renderWithMessages";
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "@/lib/game/character";
 import { CharacterCard } from "./CharacterCard";
 
 describe("CharacterCard", () => {

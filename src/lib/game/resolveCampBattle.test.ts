@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "./character";
 import { resolveBattle } from "@/lib/battle/resolveBattle";
 import { createEmptyCampRoster, squeezeCampRoster, type CampRoster } from "./campRoster";
 import { resolveCampBattle } from "./resolveCampBattle";

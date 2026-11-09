@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { advanceGame } from "./advanceGame";
 import type { GamePhase, GameState } from "./types";
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "./character";
 import type { CampRoster } from "./campRoster";
 import { CAMP_STARTING_GOLD } from "./campState";
 import {

@@ -1,4 +1,4 @@
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "@/lib/game/character";
 import type { CampTargetPresentation } from "./campSelection";
 import { InteractiveRosterSlotButton } from "./InteractiveRosterSlotButton";
 import { RosterSlot } from "./RosterSlot";

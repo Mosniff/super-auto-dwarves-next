@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { resolveBattle } from "./resolveBattle";
 import { applyEvent } from "./applyEvent";
-import type { Character } from "./types";
+import type { Character } from "@/lib/game/character";
 
 describe("resolveBattle", () => {
   it("a one-sided lethal exchange ends in a win for the surviving side", () => {

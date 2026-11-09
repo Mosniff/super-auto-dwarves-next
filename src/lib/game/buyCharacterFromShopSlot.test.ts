@@ -5,7 +5,7 @@ import {
 } from "./buyCharacterFromShopSlot";
 import { CAMP_ROSTER_SLOT_COUNT } from "./campRoster";
 import type { CampState } from "./campState";
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "./character";
 import type { CharacterTemplate } from "./characterTemplates";
 import {
   fixtureCharacterShopTemplateOne,

@@ -1,4 +1,4 @@
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "./character";
 import type { CharacterTemplate } from "./characterTemplates";
 
 export function spawnCharacterFromTemplate(

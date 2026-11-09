@@ -3,7 +3,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useBattlePlayback } from "./useBattlePlayback";
 import { resolveBattle } from "@/lib/battle/resolveBattle";
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "@/lib/game/character";
 
 const AUTOPLAY_INTERVAL_MS = 1100;
 

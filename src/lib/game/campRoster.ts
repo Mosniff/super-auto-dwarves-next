@@ -1,4 +1,5 @@
-import type { Character, Roster } from "@/lib/battle/types";
+import type { Roster } from "@/lib/battle/types";
+import type { Character } from "./character";
 
 export const CAMP_ROSTER_SLOT_COUNT = 7;
 

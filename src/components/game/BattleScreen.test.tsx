@@ -11,7 +11,7 @@ import {
   act,
 } from "@/test/renderWithMessages";
 import { resolveBattle } from "@/lib/battle/resolveBattle";
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "@/lib/game/character";
 import { BattleScreen } from "./BattleScreen";
 
 const AUTOPLAY_INTERVAL_MS = 1100;

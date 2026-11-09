@@ -1,7 +1,8 @@
 import { ActiveCard } from "@/components/game/ActiveCard";
 import { DiscardPile } from "@/components/game/DiscardPile";
 import { InfoScroll } from "@/components/game/InfoScroll";
-import type { BattleEventDescriptor, BeatType, Character } from "@/lib/battle/types";
+import type { BattleEventDescriptor, BeatType } from "@/lib/battle/types";
+import type { Character } from "@/lib/game/character";
 
 interface ActionZoneProps {
   playerFrontCharacter?: Character;

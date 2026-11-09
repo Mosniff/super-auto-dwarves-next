@@ -1,6 +1,6 @@
 import { isCharacterClassId } from "@/lib/game/characterClasses";
 import { isCharacterTier } from "@/lib/game/characterTiers";
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "@/lib/game/character";
 import { CAMP_ROSTER_SLOT_COUNT, type CampRoster } from "@/lib/game/campRoster";
 
 // Owned characters have no upper bound on their number of classes — only

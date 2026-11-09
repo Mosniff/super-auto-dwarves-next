@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { createNewGameState } from "./createNewGameState";
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "./character";
 import { CAMP_ROSTER_SLOT_COUNT } from "./campRoster";
 import {
   buildFixtureCharacterShopRollingSources,

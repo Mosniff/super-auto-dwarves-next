@@ -1,4 +1,4 @@
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "./character";
 import { resolveBattle } from "@/lib/battle/resolveBattle";
 import type { ResolvedBattle } from "@/lib/battle/types";
 import { squeezeCampRoster, type CampRoster } from "./campRoster";

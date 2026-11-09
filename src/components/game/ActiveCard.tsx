@@ -6,7 +6,8 @@ import {
   useReducedMotion,
   type Easing,
 } from "motion/react";
-import type { BeatType, Character } from "@/lib/battle/types";
+import type { BeatType } from "@/lib/battle/types";
+import type { Character } from "@/lib/game/character";
 import { CharacterCard } from "./CharacterCard";
 
 interface ActiveCardProps {

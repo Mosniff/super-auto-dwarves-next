@@ -1,11 +1,11 @@
 import type {
-  Character,
   BattleState,
   BattleEvent,
   BattleEventPayload,
   BeatType,
   ResolvedBattle,
 } from "./types";
+import type { Character } from "@/lib/game/character";
 import { applyEvent } from "./applyEvent";
 
 export function resolveBattle(

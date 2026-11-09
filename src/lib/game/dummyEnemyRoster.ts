@@ -1,4 +1,4 @@
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "./character";
 import { CHARACTER_TEMPLATES } from "./characterTemplates";
 import { spawnCharacterFromTemplate } from "./spawnCharacterFromTemplate";
 

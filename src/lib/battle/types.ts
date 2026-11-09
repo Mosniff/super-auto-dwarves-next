@@ -1,20 +1,4 @@
-import type { CharacterTier } from "@/lib/game/characterTiers";
-import type { CharacterClassId } from "@/lib/game/characterClasses";
-
-// One character type for camp, shop and battle; every character comes from
-// a template and stores everything on itself. The battle engine fights with
-// attack and hp only — tier and classes have no battle effect yet.
-export interface Character {
-  id: string;
-  characterTemplateId: string;
-  name: string;
-  tier: CharacterTier;
-  characterClassIds: CharacterClassId[];
-  attack: number;
-  hp: number;
-  // full-health ceiling; current hp never exceeds this
-  maxHp: number;
-}
+import type { Character } from "@/lib/game/character";
 
 export interface Roster {
   // contiguous, front-anchored fighting line; index 0 is the front

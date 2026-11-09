@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "./character";
 import { createEmptyCampRoster, type CampRoster } from "./campRoster";
 import { repositionCharacter } from "./repositionCharacter";
 

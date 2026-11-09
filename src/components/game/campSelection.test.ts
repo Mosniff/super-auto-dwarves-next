@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "@/lib/game/character";
 import { CAMP_ROSTER_SLOT_COUNT, type CampRoster } from "@/lib/game/campRoster";
 import type { CampState } from "@/lib/game/campState";
 import type { CharacterTemplate } from "@/lib/game/characterTemplates";

@@ -1,4 +1,4 @@
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "@/lib/game/character";
 import { RosterSlab, type RosterSlotInteraction } from "./RosterSlab";
 
 export type { RosterSlotInteraction };

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import type { Character } from "@/lib/battle/types";
+import type { Character } from "@/lib/game/character";
 import { createEmptyCampRoster, type CampRoster } from "@/lib/game/campRoster";
 import { parsePersistedCampRoster } from "./parsePersistedCampRoster";
 
