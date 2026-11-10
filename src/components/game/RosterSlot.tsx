@@ -90,7 +90,11 @@ export function RosterSlot({
             wrapper itself also carries its own overflow-hidden rounded-md
             (matching the recess's), so it already looks rounded on its own
             terms when the recess's clip lifts — no corner "pop". */}
+        {/* initial={false}: a card already present when the slot mounts
+            appears in place, with no slide-in; only a card added later
+            animates its entrance. */}
         <AnimatePresence
+          initial={false}
           onExitComplete={() => setIsLaunchingCardOut(false)}
         >
           {character && (

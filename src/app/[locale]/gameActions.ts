@@ -97,7 +97,11 @@ export async function advanceGameAction(formData: FormData): Promise<void> {
     buildServerCharacterShopRollingSources(),
   );
 
-  await redirectToLocalePath("/play");
+  // Advance keeps the player on /play, so like the camp actions it
+  // re-renders in place rather than redirecting. A redirect is a
+  // navigation that remounts the page, and a later transition depends on
+  // components staying mounted across a phase change.
+  refresh();
 }
 
 // Accepted, rejected and stale outcomes all end with refresh(), so the
