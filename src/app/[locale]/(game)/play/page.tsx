@@ -2,6 +2,7 @@ import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { BattleScreen } from "@/components/game/BattleScreen";
 import { CampScreen } from "@/components/game/CampScreen";
+import { GameScreen } from "@/components/game/GameScreen";
 import { readCurrentUserId } from "@/lib/supabase/readCurrentUserId";
 import { prismaGameRepository } from "@/lib/persistence/prismaGameRepository";
 import { loadSavedGameForUser } from "@/lib/persistence/loadSavedGameForUser";
@@ -38,17 +39,19 @@ export default async function PlayPage() {
 
   if (savedGame.gameState.phase === "campPhase") {
     return (
-      <CampScreen
-        playerCampRoster={savedGame.gameState.playerRoster}
-        day={savedGame.gameState.day}
-        gold={savedGame.gameState.gold}
-        characterShopSlots={savedGame.gameState.characterShopSlots}
-        characterTemplates={listCharacterTemplates()}
-        revision={savedGame.revision}
-        advanceGameAction={advanceGameAction}
-        buyCharacterAction={buyCharacterAction}
-        repositionCharacterAction={repositionCharacterAction}
-      />
+      <GameScreen phase={savedGame.gameState.phase}>
+        <CampScreen
+          playerCampRoster={savedGame.gameState.playerRoster}
+          day={savedGame.gameState.day}
+          gold={savedGame.gameState.gold}
+          characterShopSlots={savedGame.gameState.characterShopSlots}
+          characterTemplates={listCharacterTemplates()}
+          revision={savedGame.revision}
+          advanceGameAction={advanceGameAction}
+          buyCharacterAction={buyCharacterAction}
+          repositionCharacterAction={repositionCharacterAction}
+        />
+      </GameScreen>
     );
   }
 
@@ -58,10 +61,12 @@ export default async function PlayPage() {
   );
 
   return (
-    <BattleScreen
-      resolvedBattle={resolvedBattle}
-      playerCampRoster={savedGame.gameState.playerRoster}
-      returnToCampAction={advanceGameAction}
-    />
+    <GameScreen phase={savedGame.gameState.phase}>
+      <BattleScreen
+        resolvedBattle={resolvedBattle}
+        playerCampRoster={savedGame.gameState.playerRoster}
+        returnToCampAction={advanceGameAction}
+      />
+    </GameScreen>
   );
 }
