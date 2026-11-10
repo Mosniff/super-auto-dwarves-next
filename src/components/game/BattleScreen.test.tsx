@@ -12,6 +12,7 @@ import {
 } from "@/test/renderWithMessages";
 import { resolveBattle } from "@/lib/battle/resolveBattle";
 import type { Character } from "@/lib/game/character";
+import { createEmptyCampRoster, type CampRoster } from "@/lib/game/campRoster";
 import { BattleScreen } from "./BattleScreen";
 
 const AUTOPLAY_INTERVAL_MS = 1100;
@@ -29,16 +30,41 @@ const fixtureGrukk: Character = {
   characterClassIds: ["warrior"],
 };
 
-const playerWinResolvedBattle = resolveBattle(
-  [{ id: "fixture-player-1", name: "Borin", attack: 6, hp: 10, maxHp: 10, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"] }],
-  [fixtureGrukk],
-);
+const fixtureBorin: Character = {
+  id: "fixture-player-1",
+  name: "Borin",
+  attack: 6,
+  hp: 10,
+  maxHp: 10,
+  characterTemplateId: "fixture-dwarf",
+  tier: 1,
+  characterClassIds: ["warrior"],
+};
+
+const playerWinResolvedBattle = resolveBattle([fixtureBorin], [fixtureGrukk]);
+
+const playerWinCampRoster: CampRoster = [
+  fixtureBorin,
+  null,
+  null,
+  null,
+  null,
+  null,
+  null,
+];
+
+const emptyCampRoster = createEmptyCampRoster();
 
 const emptyRosterResolvedBattle = resolveBattle([], [fixtureGrukk]);
 
 describe("BattleScreen", () => {
   it("renders the battle screen with the advance and autoplay controls", () => {
-    renderWithMessages(<BattleScreen resolvedBattle={playerWinResolvedBattle} />);
+    renderWithMessages(
+      <BattleScreen
+        resolvedBattle={playerWinResolvedBattle}
+        playerCampRoster={playerWinCampRoster}
+      />,
+    );
 
     expect(
       screen.getByRole("button", { name: /advance/i }),
@@ -58,7 +84,12 @@ describe("BattleScreen", () => {
       // for fake timers; the post-advance lock still needs releasing
       // between clicks via vi.advanceTimersByTime.
       vi.useFakeTimers();
-      renderWithMessages(<BattleScreen resolvedBattle={playerWinResolvedBattle} />);
+      renderWithMessages(
+        <BattleScreen
+          resolvedBattle={playerWinResolvedBattle}
+          playerCampRoster={playerWinCampRoster}
+        />,
+      );
 
       const advanceButton = screen.getByRole("button", { name: /advance/i });
 
@@ -82,7 +113,12 @@ describe("BattleScreen", () => {
 
     it("autoplay progresses and then stops at the end", () => {
       vi.useFakeTimers();
-      renderWithMessages(<BattleScreen resolvedBattle={playerWinResolvedBattle} />);
+      renderWithMessages(
+        <BattleScreen
+          resolvedBattle={playerWinResolvedBattle}
+          playerCampRoster={playerWinCampRoster}
+        />,
+      );
 
       const autoplayToggle = screen.getByRole("button", {
         name: /autoplay/i,
@@ -108,7 +144,12 @@ describe("BattleScreen", () => {
   });
 
   it("(c) does not show a DUMMY BATTLE label", () => {
-    renderWithMessages(<BattleScreen resolvedBattle={playerWinResolvedBattle} />);
+    renderWithMessages(
+      <BattleScreen
+        resolvedBattle={playerWinResolvedBattle}
+        playerCampRoster={playerWinCampRoster}
+      />,
+    );
 
     expect(screen.queryByText("DUMMY BATTLE")).not.toBeInTheDocument();
   });
@@ -122,6 +163,7 @@ describe("BattleScreen", () => {
       renderWithMessages(
         <BattleScreen
           resolvedBattle={playerWinResolvedBattle}
+          playerCampRoster={playerWinCampRoster}
           returnToCampAction={async () => {}}
         />,
       );
@@ -136,6 +178,7 @@ describe("BattleScreen", () => {
       renderWithMessages(
         <BattleScreen
           resolvedBattle={playerWinResolvedBattle}
+          playerCampRoster={playerWinCampRoster}
           returnToCampAction={async () => {}}
         />,
       );
@@ -176,7 +219,10 @@ describe("BattleScreen", () => {
     it("(f) plays back the battle it is given: an empty roster's instant defeat", () => {
       vi.useFakeTimers();
       renderWithMessages(
-        <BattleScreen resolvedBattle={emptyRosterResolvedBattle} />,
+        <BattleScreen
+          resolvedBattle={emptyRosterResolvedBattle}
+          playerCampRoster={emptyCampRoster}
+        />,
       );
 
       const autoplayToggle = screen.getByRole("button", {

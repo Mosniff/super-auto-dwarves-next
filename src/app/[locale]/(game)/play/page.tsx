@@ -60,6 +60,7 @@ export default async function PlayPage() {
   return (
     <BattleScreen
       resolvedBattle={resolvedBattle}
+      playerCampRoster={savedGame.gameState.playerRoster}
       returnToCampAction={advanceGameAction}
     />
   );

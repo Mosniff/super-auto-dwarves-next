@@ -112,6 +112,8 @@ export function useBattlePlayback(resolvedBattle: ResolvedBattle) {
     currentBeatDescriptors: view.currentBeatDescriptors,
     currentBeatType: view.currentBeatType,
     isFinished: view.isFinished,
+    // true once the first beat, BATTLE_START, has been applied
+    hasBattleStarted: playbackBeat >= 0,
     advance,
     canAdvance,
     viewPreviousBeat,

@@ -6,10 +6,15 @@ import { GameScreenShell } from "@/components/game/GameScreenShell";
 import { PendingSubmitButton } from "@/components/game/PendingSubmitButton";
 import { RosterSlab } from "@/components/game/RosterSlab";
 import type { ResolvedBattle } from "@/lib/battle/types";
+import type { CampRoster } from "@/lib/game/campRoster";
 import { useBattlePlayback } from "@/hooks/useBattlePlayback";
+import { presentBattleBoard } from "@/components/game/battleBoardPresentation";
 
 interface BattleScreenProps {
   resolvedBattle: ResolvedBattle;
+  // The saved camp roster the battle was resolved from, shown as-is before
+  // the first beat.
+  playerCampRoster: CampRoster;
   returnToCampAction?: (formData: FormData) => Promise<void>;
 }
 
@@ -18,6 +23,7 @@ interface BattleScreenProps {
 // "Security / anti-cheat model").
 export function BattleScreen({
   resolvedBattle,
+  playerCampRoster,
   returnToCampAction,
 }: BattleScreenProps) {
   const t = useTranslations("common");
@@ -27,6 +33,7 @@ export function BattleScreen({
     currentBeatDescriptors,
     currentBeatType,
     isFinished,
+    hasBattleStarted,
     advance,
     canAdvance,
     viewPreviousBeat,
@@ -38,14 +45,23 @@ export function BattleScreen({
     pause,
   } = useBattlePlayback(resolvedBattle);
 
+  const {
+    playerBenchCharacters,
+    playerFrontCharacter,
+    enemyBenchCharacters,
+    enemyFrontCharacter,
+  } = presentBattleBoard({
+    battleState: currentState,
+    hasBattleStarted,
+    playerCampRoster,
+  });
+
   return (
-    <GameScreenShell
-      playerBenchCharacters={currentState.player.activeCharacters.slice(1)}
-    >
+    <GameScreenShell playerBenchCharacters={playerBenchCharacters}>
       <section className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
         <ActionZone
-          playerFrontCharacter={currentState.player.activeCharacters[0]}
-          enemyFrontCharacter={currentState.enemy.activeCharacters[0]}
+          playerFrontCharacter={playerFrontCharacter}
+          enemyFrontCharacter={enemyFrontCharacter}
           playerDownedCharacters={currentState.player.downedCharacters}
           enemyDownedCharacters={currentState.enemy.downedCharacters}
           currentBeatDescriptors={currentBeatDescriptors}
@@ -74,10 +90,7 @@ export function BattleScreen({
           </form>
         )}
       </section>
-      <RosterSlab
-        characters={currentState.enemy.activeCharacters.slice(1)}
-        variant="enemy"
-      />
+      <RosterSlab characters={enemyBenchCharacters} variant="enemy" />
     </GameScreenShell>
   );
 }

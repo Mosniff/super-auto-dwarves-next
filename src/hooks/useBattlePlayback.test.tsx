@@ -44,6 +44,22 @@ describe("useBattlePlayback", () => {
     expect(result.current.isFinished).toBe(false);
   });
 
+  it("(e) reports that the battle has not started before any beat", () => {
+    const { result } = renderHook(() => useBattlePlayback(resolvedBattle));
+
+    expect(result.current.hasBattleStarted).toBe(false);
+  });
+
+  it("(f) reports that the battle has started after the first advance()", () => {
+    const { result } = renderHook(() => useBattlePlayback(resolvedBattle));
+
+    act(() => {
+      result.current.advance();
+    });
+
+    expect(result.current.hasBattleStarted).toBe(true);
+  });
+
   describe("advancing repeatedly through fake time", () => {
     beforeEach(() => {
       vi.useFakeTimers();
