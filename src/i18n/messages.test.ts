@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import englishMessages from "../../messages/en.json";
 import japaneseMessages from "../../messages/ja.json";
 import { CHARACTER_CLASS_IDS } from "@/lib/game/characterClasses";
+import { LOCKED_SHOP_SECTION_IDS } from "@/lib/game/lockedShopSections";
 
 describe("locale message parity", () => {
   // Extended when the battle-log control buttons (Advance, Autoplay: On/Off)
@@ -18,8 +19,10 @@ describe("locale message parity", () => {
   // (shopHeading, shopListingSoldLabel, shopListingButtonLabel,
   // rosterSlotOccupiedLabel, rosterSlotEmptyLabel), and dummyBattleLabel
   // was removed when Phase 8 connected the battle to the saved roster, and
-  // again for Phase 9's locked shop slot label (shopSlotLockedLabel) —
-  // deliberate test-data updates, not a weakening.
+  // again for Phase 9's locked shop slot label (shopSlotLockedLabel), and
+  // again for the shopSection namespace naming the character/equipment/
+  // magic/food shop sections — deliberate test-data updates, not a
+  // weakening.
   const expectedCommonKeys = [
     "appName",
     "advance",
@@ -128,5 +131,26 @@ describe("locale message parity", () => {
           .characterClass ?? {},
       ).sort(),
     ).toEqual([...CHARACTER_CLASS_IDS].sort());
+  });
+
+  // Checked against "characters" plus the real locked-section list, so
+  // adding a section without translating it fails here rather than
+  // silently falling back.
+  it("english has exactly the shopSection keys", () => {
+    expect(
+      Object.keys(
+        (englishMessages as unknown as Record<string, Record<string, string> | undefined>)
+          .shopSection ?? {},
+      ).sort(),
+    ).toEqual(["characters", ...LOCKED_SHOP_SECTION_IDS].sort());
+  });
+
+  it("japanese has exactly the shopSection keys", () => {
+    expect(
+      Object.keys(
+        (japaneseMessages as unknown as Record<string, Record<string, string> | undefined>)
+          .shopSection ?? {},
+      ).sort(),
+    ).toEqual(["characters", ...LOCKED_SHOP_SECTION_IDS].sort());
   });
 });

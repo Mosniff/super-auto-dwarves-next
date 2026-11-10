@@ -288,11 +288,66 @@ describe("CampScreen", () => {
   it("(p) locked shop slots show a padlock and the Locked label", () => {
     renderCampScreen();
 
-    expect(screen.queryAllByText("Locked")).toHaveLength(5);
-    document
-      .querySelectorAll('[data-character-shop-slot-state="locked"]')
-      .forEach((lockedSlotElement) => {
-        expect(lockedSlotElement.querySelector("svg")).not.toBeNull();
-      });
+    // Rescoped to character-shop-slot locked tiles specifically (rather
+    // than a whole-document queryAllByText("Locked")), because the locked
+    // placeholder sections (equipment/magic/food) also render a padlock
+    // and "Locked" label, which would otherwise inflate the count.
+    const lockedCharacterShopSlots = document.querySelectorAll(
+      '[data-character-shop-slot-state="locked"]',
+    );
+
+    expect(lockedCharacterShopSlots).toHaveLength(5);
+    lockedCharacterShopSlots.forEach((lockedSlotElement) => {
+      expect(lockedSlotElement.querySelector("svg")).not.toBeNull();
+      expect(lockedSlotElement.textContent).toContain("Locked");
+    });
+  });
+
+  it("(q) shows the character, equipment, magic and food sections, with every new section slot locked", () => {
+    renderCampScreen();
+
+    ["Characters", "Equipment", "Magic", "Food"].forEach((sectionName) => {
+      expect(
+        screen.queryByRole("region", { name: sectionName }),
+      ).not.toBeNull();
+    });
+
+    const charactersRegion = screen.getByRole("region", {
+      name: "Characters",
+    });
+    const equipmentRegion = screen.getByRole("region", { name: "Equipment" });
+    const magicRegion = screen.getByRole("region", { name: "Magic" });
+    const foodRegion = screen.getByRole("region", { name: "Food" });
+
+    expect(
+      charactersRegion.querySelectorAll("[data-character-shop-slot-state]"),
+    ).toHaveLength(8);
+
+    const equipmentLockedSlots = equipmentRegion.querySelectorAll(
+      '[data-shop-section-slot-state="locked"]',
+    );
+    const magicLockedSlots = magicRegion.querySelectorAll(
+      '[data-shop-section-slot-state="locked"]',
+    );
+    const foodLockedSlots = foodRegion.querySelectorAll(
+      '[data-shop-section-slot-state="locked"]',
+    );
+
+    expect(equipmentLockedSlots).toHaveLength(4);
+    expect(magicLockedSlots).toHaveLength(4);
+    expect(foodLockedSlots).toHaveLength(2);
+
+    const allLockedSectionSlots = [
+      ...equipmentLockedSlots,
+      ...magicLockedSlots,
+      ...foodLockedSlots,
+    ];
+
+    allLockedSectionSlots.forEach((slotElement) => {
+      expect(slotElement.tagName).not.toBe("BUTTON");
+      expect(slotElement.querySelector("button")).toBeNull();
+      expect(slotElement.querySelector("svg")).not.toBeNull();
+      expect(slotElement.textContent).toContain("Locked");
+    });
   });
 });

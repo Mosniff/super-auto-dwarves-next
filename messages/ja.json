@@ -42,6 +42,12 @@
     "smith": "鍛冶屋",
     "miner": "鉱夫"
   },
+  "shopSection": {
+    "characters": "キャラクター",
+    "equipment": "装備",
+    "magic": "魔法",
+    "food": "食料"
+  },
   "battle": {
     "battleStart": "バトル開始！",
     "turnStart": "ターン{turn}",

@@ -1,12 +1,17 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useId, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { useDraggable } from "@dnd-kit/react";
 import { Lock } from "lucide-react";
 import type { CharacterShopSlots } from "@/lib/game/characterShopSlots";
 import type { CharacterTemplate } from "@/lib/game/characterTemplates";
 import { spawnCharacterFromTemplate } from "@/lib/game/spawnCharacterFromTemplate";
+import {
+  LOCKED_SHOP_SECTION_IDS,
+  LOCKED_SHOP_SECTION_SLOT_COUNTS,
+  type LockedShopSectionId,
+} from "@/lib/game/lockedShopSections";
 import type { CampClickTarget, CampTargetPresentation } from "./campSelection";
 import { CharacterCard } from "./CharacterCard";
 
@@ -92,20 +97,33 @@ function DraggableCharacterShopSlotTile({
   );
 }
 
+// Shared padlock + label markup for any permanently locked recessed slot —
+// character shop slots not yet open, and every slot in the placeholder
+// equipment/magic/food sections.
+function LockedSlotContents({ label }: { label: string }) {
+  return (
+    <>
+      <Lock aria-hidden="true" className="h-4 w-4 text-slate-50/30" />
+      <span className="select-none text-[10px] font-medium uppercase tracking-wide text-slate-50/30">
+        {label}
+      </span>
+    </>
+  );
+}
+
 interface RecessedShopSlotProps {
-  characterShopSlotState: "sold" | "unavailable" | "locked";
+  dataAttributes: Record<string, string>;
   children?: ReactNode;
 }
 
-// Shared recessed-tile shell for every non-offering character shop slot
-// state (sold, unavailable, locked) so their markup can't drift apart.
-function RecessedShopSlot({
-  characterShopSlotState,
-  children,
-}: RecessedShopSlotProps) {
+// Shared recessed-tile shell for every non-offering shop slot (sold,
+// unavailable or locked character slots; locked placeholder-section
+// slots) so their markup can't drift apart. The caller supplies whichever
+// data-* attribute identifies its own slot kind and state.
+function RecessedShopSlot({ dataAttributes, children }: RecessedShopSlotProps) {
   return (
     <div
-      data-character-shop-slot-state={characterShopSlotState}
+      {...dataAttributes}
       className="flex aspect-3/4 flex-1 flex-col items-center justify-center gap-1 rounded-md bg-slate-200 p-1.5"
       style={{ boxShadow: "var(--shadow-recess)" }}
     >
@@ -113,6 +131,54 @@ function RecessedShopSlot({
     </div>
   );
 }
+
+interface ShopSectionProps {
+  headingId: string;
+  heading: string;
+  gridClassName: string;
+  flexClassName: string;
+  children: ReactNode;
+}
+
+// One named band in the shop (characters, equipment, magic, food). The
+// section element gets its accessible name from the heading it points to
+// via aria-labelledby, giving it the implicit "region" role tests query by
+// name.
+function ShopSection({
+  headingId,
+  heading,
+  gridClassName,
+  flexClassName,
+  children,
+}: ShopSectionProps) {
+  return (
+    <section
+      className={`flex flex-col gap-2 ${flexClassName}`}
+      aria-labelledby={headingId}
+    >
+      <h3 id={headingId} className="text-sm font-semibold">
+        {heading}
+      </h3>
+      <div className={gridClassName}>{children}</div>
+    </section>
+  );
+}
+
+const LOCKED_SHOP_SECTION_GRID_CLASS_NAMES: Readonly<
+  Record<LockedShopSectionId, string>
+> = {
+  equipment: "grid grid-cols-2 grid-rows-2 gap-3",
+  magic: "grid grid-cols-2 grid-rows-2 gap-3",
+  food: "grid grid-cols-1 grid-rows-2 gap-3",
+};
+
+const LOCKED_SHOP_SECTION_FLEX_CLASS_NAMES: Readonly<
+  Record<LockedShopSectionId, string>
+> = {
+  equipment: "flex-[2]",
+  magic: "flex-[2]",
+  food: "flex-[1]",
+};
 
 interface ShopPanelProps {
   characterShopSlots: CharacterShopSlots;
@@ -134,68 +200,116 @@ export function ShopPanel({
   onShopSlotClick,
 }: ShopPanelProps) {
   const t = useTranslations("common");
+  const shopSectionTranslations = useTranslations("shopSection");
+
+  const charactersHeadingId = useId();
+  const equipmentHeadingId = useId();
+  const magicHeadingId = useId();
+  const foodHeadingId = useId();
+
+  const lockedShopSectionHeadingIds: Readonly<
+    Record<LockedShopSectionId, string>
+  > = {
+    equipment: equipmentHeadingId,
+    magic: magicHeadingId,
+    food: foodHeadingId,
+  };
 
   return (
     <section className="w-full max-w-5xl">
       <h2 className="mb-2 text-lg font-bold">{t("shopHeading")}</h2>
-      <div className="flex gap-3">
-        {characterShopSlots.map((characterShopSlot, shopSlotIndex) => {
-          if (characterShopSlot.slotState === "sold") {
-            return (
-              <RecessedShopSlot key={shopSlotIndex} characterShopSlotState="sold">
-                <span className="select-none text-[10px] font-medium uppercase tracking-wide text-slate-50/30">
-                  {t("shopListingSoldLabel")}
-                </span>
-              </RecessedShopSlot>
-            );
-          }
-
-          if (characterShopSlot.slotState === "offering") {
-            const matchedCharacterTemplate = characterTemplates.find(
-              (characterTemplate) =>
-                characterTemplate.characterTemplateId ===
-                characterShopSlot.characterTemplateId,
-            );
-
-            if (matchedCharacterTemplate !== undefined) {
+      <div className="flex gap-6">
+        <ShopSection
+          headingId={charactersHeadingId}
+          heading={shopSectionTranslations("characters")}
+          gridClassName="grid grid-cols-4 grid-rows-2 gap-3"
+          flexClassName="flex-[4]"
+        >
+          {characterShopSlots.map((characterShopSlot, shopSlotIndex) => {
+            if (characterShopSlot.slotState === "sold") {
               return (
-                <DraggableCharacterShopSlotTile
+                <RecessedShopSlot
                   key={shopSlotIndex}
-                  shopSlotIndex={shopSlotIndex}
-                  characterTemplate={matchedCharacterTemplate}
-                  isSelected={selectedShopSlotIndex === shopSlotIndex}
-                  isEnabled={isShopSlotEnabled(shopSlotIndex)}
-                  isDraggable={isShopSlotDraggable(shopSlotIndex)}
-                  presentation={shopSlotPresentation(shopSlotIndex)}
-                  onClick={() => onShopSlotClick(shopSlotIndex)}
-                  buttonLabel={t("shopListingButtonLabel", {
-                    characterName: matchedCharacterTemplate.name,
-                  })}
+                  dataAttributes={{ "data-character-shop-slot-state": "sold" }}
+                >
+                  <span className="select-none text-[10px] font-medium uppercase tracking-wide text-slate-50/30">
+                    {t("shopListingSoldLabel")}
+                  </span>
+                </RecessedShopSlot>
+              );
+            }
+
+            if (characterShopSlot.slotState === "offering") {
+              const matchedCharacterTemplate = characterTemplates.find(
+                (characterTemplate) =>
+                  characterTemplate.characterTemplateId ===
+                  characterShopSlot.characterTemplateId,
+              );
+
+              if (matchedCharacterTemplate !== undefined) {
+                return (
+                  <DraggableCharacterShopSlotTile
+                    key={shopSlotIndex}
+                    shopSlotIndex={shopSlotIndex}
+                    characterTemplate={matchedCharacterTemplate}
+                    isSelected={selectedShopSlotIndex === shopSlotIndex}
+                    isEnabled={isShopSlotEnabled(shopSlotIndex)}
+                    isDraggable={isShopSlotDraggable(shopSlotIndex)}
+                    presentation={shopSlotPresentation(shopSlotIndex)}
+                    onClick={() => onShopSlotClick(shopSlotIndex)}
+                    buttonLabel={t("shopListingButtonLabel", {
+                      characterName: matchedCharacterTemplate.name,
+                    })}
+                  />
+                );
+              }
+
+              // An offering whose template id matches nothing server-side is
+              // treated the same as a recessed tile here — there is nothing
+              // buyable to show, but it's deliberately not the "locked"
+              // state (no padlock/label): that marker means the slot isn't
+              // open yet.
+              return (
+                <RecessedShopSlot
+                  key={shopSlotIndex}
+                  dataAttributes={{
+                    "data-character-shop-slot-state": "unavailable",
+                  }}
                 />
               );
             }
 
-            // An offering whose template id matches nothing server-side is
-            // treated the same as a recessed tile here — there is nothing
-            // buyable to show, but it's deliberately not the "locked" state
-            // (no padlock/label): that marker means the slot isn't open yet.
             return (
               <RecessedShopSlot
                 key={shopSlotIndex}
-                characterShopSlotState="unavailable"
-              />
+                dataAttributes={{ "data-character-shop-slot-state": "locked" }}
+              >
+                <LockedSlotContents label={t("shopSlotLockedLabel")} />
+              </RecessedShopSlot>
             );
-          }
+          })}
+        </ShopSection>
 
-          return (
-            <RecessedShopSlot key={shopSlotIndex} characterShopSlotState="locked">
-              <Lock aria-hidden="true" className="h-4 w-4 text-slate-50/30" />
-              <span className="select-none text-[10px] font-medium uppercase tracking-wide text-slate-50/30">
-                {t("shopSlotLockedLabel")}
-              </span>
-            </RecessedShopSlot>
-          );
-        })}
+        {LOCKED_SHOP_SECTION_IDS.map((lockedShopSectionId) => (
+          <ShopSection
+            key={lockedShopSectionId}
+            headingId={lockedShopSectionHeadingIds[lockedShopSectionId]}
+            heading={shopSectionTranslations(lockedShopSectionId)}
+            gridClassName={LOCKED_SHOP_SECTION_GRID_CLASS_NAMES[lockedShopSectionId]}
+            flexClassName={LOCKED_SHOP_SECTION_FLEX_CLASS_NAMES[lockedShopSectionId]}
+          >
+            {Array.from({
+              length: LOCKED_SHOP_SECTION_SLOT_COUNTS[lockedShopSectionId],
+            }).map((_, lockedSlotIndex) => (
+              <RecessedShopSlot
+                key={lockedSlotIndex}
+                dataAttributes={{ "data-shop-section-slot-state": "locked" }}
+              >
+                <LockedSlotContents label={t("shopSlotLockedLabel")} />
+              </RecessedShopSlot>
+            ))}
+          </ShopSection>
+        ))}
       </div>
     </section>
   );

@@ -42,6 +42,12 @@
     "smith": "Smith",
     "miner": "Miner"
   },
+  "shopSection": {
+    "characters": "Characters",
+    "equipment": "Equipment",
+    "magic": "Magic",
+    "food": "Food"
+  },
   "battle": {
     "battleStart": "Battle start!",
     "turnStart": "Turn {turn}",
