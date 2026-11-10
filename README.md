@@ -117,6 +117,7 @@ The **fundamental battle system** is specified (see above). Still to be specifie
 - [x] Camp — placeholder shop, buy and arrange dwarves by click or drag, server-authoritative _(Phase 8 part one; see `CLAUDE.md` → "Camp: shop, roster and intents")_
 - [x] Real battles — resolved on the server from the saved roster against a placeholder enemy _(Phase 8 part two)_
 - [x] Character data — classes, tiers and templates as typed data _(Phase 9 part one; see `CLAUDE.md` → "Character data: classes, tiers and templates")_, owned characters spawned from them _(part two)_, and an 8-slot character shop rolled on the server and bought from by slot _(parts three and four)_, cards that show each dwarf's tier and translated classes _(part five)_, and one character type everywhere, with the placeholder enemy spawned from a template too _(part six)_
+- [x] Phase transitions — phase changes swipe the content forward under a fixed roster, and a battle opens with an empty action zone the front characters enter on the first beat _(Phase 10; see `CLAUDE.md` → "Phase transitions: the game frame and the swipe")_
 - [ ] Enemy generation — PvE opponents and PvP roster snapshots
 - [ ] Battle consequences — game over on loss, rewards on win
 - [ ] Card model and card types
