@@ -38,6 +38,14 @@ const BADGE_BASE_CLASS_NAME = "inline-flex items-center rounded-md";
 const HOVER_REVEAL_CLASS_NAME =
   "opacity-0 transition-opacity duration-150 group-hover/character-card:opacity-100 in-focus-visible:opacity-100";
 
+// The card draws its own frame, so it looks the same in the roster, shop,
+// drag overlay and action zone. rounded-md deliberately matches
+// RosterSlot's card wrapper, so the wrapper's clip and the card's corners
+// coincide and the border isn't shaved at the corners. The human tunes the
+// colour and width here.
+const CARD_FRAME_CLASS_NAME =
+  "overflow-hidden rounded-md border-2 border-iron-100";
+
 const VARIANT_STYLES = {
   compact: {
     gap: "gap-1",
@@ -83,7 +91,7 @@ export function CharacterCard({
 
   return (
     <div
-      className={`group/character-card flex h-full w-full flex-col items-center bg-(--color-portrait-brown) justify-center ${styles.gap}`}
+      className={`group/character-card flex h-full w-full flex-col items-center bg-(--color-portrait-brown) justify-center ${styles.gap} ${CARD_FRAME_CLASS_NAME}`}
     >
       <div
         className={`relative w-full flex-1 overflow-hidden ${styles.portraitRounding}`}
