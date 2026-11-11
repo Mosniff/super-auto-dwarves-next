@@ -25,23 +25,22 @@ const ACTIVE_CARD_RENDERED_WIDTH_PX = "288px";
 
 // Shared by both stat pills (attack and max-HP) so they cannot drift apart:
 // padded, slightly rounded, glyph and number on a common inline baseline.
-const STAT_PILL_BASE_CLASS_NAME = "inline-flex items-center rounded-md px-2 py-1";
+const STAT_PILL_BASE_CLASS_NAME =
+  "inline-flex items-center rounded-md px-4 py-1";
 
 const VARIANT_STYLES = {
   compact: {
     gap: "gap-1",
-    name: "text-[10px]",
-    stats: "text-[10px] px-0.5",
-    attack: "text-[10px]",
+    name: "text-lg tracking-wide",
+    stats: "text-sm px-2",
     portraitRounding: "rounded-sm",
-    hpBarText: "text-[9px]",
-    downedLabelText: "text-[9px]",
+    hpBarText: "text-sm",
+    downedLabelText: "text-sm",
   },
   full: {
     gap: "gap-3",
-    name: "text-2xl",
-    stats: "text-lg px-1",
-    attack: "text-3xl",
+    name: "text-xl",
+    stats: "text-xl px-2",
     portraitRounding: "rounded-md",
     hpBarText: "text-base",
     downedLabelText: "text-xl",
@@ -50,14 +49,17 @@ const VARIANT_STYLES = {
 
 // Tier/class marker sizes, tuned by eye separately from the stat pills above.
 const TIER_AND_CLASS_BADGE_STYLES = {
-  compact: { tier: "text-[8px] px-1 py-0.5", classLabel: "text-[7px] px-1 py-0.5" },
+  compact: {
+    tier: "text-[8px] px-1 py-0.5",
+    classLabel: "text-[7px] px-1 py-0.5",
+  },
   full: { tier: "text-sm px-2 py-1", classLabel: "text-xs px-2 py-1" },
 } as const;
 
 export function CharacterCard({
   character,
   facing = "right",
-  variant = "compact",
+  variant = "full",
   animateHpDrop = false,
 }: CharacterCardProps) {
   const styles = VARIANT_STYLES[variant];
@@ -71,10 +73,10 @@ export function CharacterCard({
 
   return (
     <div
-      className={`flex h-full w-full flex-col items-center justify-center ${styles.gap}`}
+      className={`flex h-full w-full flex-col items-center bg-(--color-portrait-brown) justify-center ${styles.gap}`}
     >
       <div
-        className={`relative w-full flex-1 overflow-hidden bg-(--color-portrait-brown) ${styles.portraitRounding}`}
+        className={`relative w-full flex-1 overflow-hidden ${styles.portraitRounding}`}
       >
         <div
           className="absolute inset-0"
@@ -92,7 +94,7 @@ export function CharacterCard({
             priority
           />
         </div>
-        <span
+        {/* <span
           data-character-tier={tier}
           className={`absolute top-1 left-1 leading-none font-bold ${STAT_PILL_BASE_CLASS_NAME} text-(--color-parchment-50) ${badgeStyles.tier}`}
           style={{
@@ -102,9 +104,9 @@ export function CharacterCard({
           }}
         >
           {tierRomanNumeral(tier)}
-        </span>
+        </span> */}
         <div className="absolute inset-x-0 bottom-0 flex flex-wrap justify-center gap-1 p-1">
-          {characterClassIds.map((characterClassId) => (
+          {/* {characterClassIds.map((characterClassId) => (
             <span
               key={characterClassId}
               data-character-class-id={characterClassId}
@@ -117,7 +119,14 @@ export function CharacterCard({
             >
               {tCharacterClass(characterClassId)}
             </span>
-          ))}
+          ))} */}
+          <div>
+            <span
+              className={`min-w-0 flex-1 truncate bg-slate-200 border border-parchment-200 px-4 py-0.5 rounded-3xl font-semibold text-center text-parchment-200 ${styles.name}`}
+            >
+              {character.name}
+            </span>
+          </div>
         </div>
         <div
           className={`absolute inset-0 flex items-center justify-center bg-black/50 font-bold tracking-wide text-white uppercase transition-opacity duration-200 ease-out ${
@@ -127,11 +136,9 @@ export function CharacterCard({
           {t("downed")}
         </div>
       </div>
-      <div
-        className={`flex w-full items-center justify-between font-semibold ${styles.stats}`}
-      >
+      <div className={`w-full flex justify-between gap-1 ${styles.stats}`}>
         <span
-          className={`shrink-0 leading-none ${STAT_PILL_BASE_CLASS_NAME} text-(--color-parchment-50) ${styles.attack}`}
+          className={`shrink-0 leading-none ${STAT_PILL_BASE_CLASS_NAME} text-(--color-parchment-50)`}
           style={{
             backgroundImage:
               "linear-gradient(to bottom, var(--color-iron-300), var(--color-iron-700))",
@@ -141,14 +148,7 @@ export function CharacterCard({
           ⚔ {character.attack}
         </span>
         <span
-          className={`min-w-0 flex-1 truncate text-center font-medium text-(--color-parchment-50) ${styles.name}`}
-        >
-          {character.name}
-        </span>
-        {/* Placeholder text glyphs for the attack/max-hp stats — likely to be
-            replaced with real icon assets later. */}
-        <span
-          className={`shrink-0 leading-none ${STAT_PILL_BASE_CLASS_NAME} text-(--color-parchment-50) ${styles.attack}`}
+          className={`shrink-0 leading-none ${STAT_PILL_BASE_CLASS_NAME} text-(--color-parchment-50)`}
           style={{
             backgroundImage:
               "linear-gradient(to bottom, var(--color-heart-red-400), var(--color-heart-red-700))",
@@ -158,29 +158,31 @@ export function CharacterCard({
           ❤ {character.maxHp}
         </span>
       </div>
-      <div className="relative h-4 w-full overflow-hidden rounded-full bg-slate-400/40">
-        <div
-          className="h-full rounded-full bg-emerald-500 transition-[width] ease-out"
-          style={{
-            width: `${hpFillRatio * 100}%`,
-            transitionDuration: `${HP_DRAIN_TRANSITION_MS}ms`,
-            transitionDelay: animateHpDrop ? `${HP_DRAIN_DELAY_MS}ms` : "0ms",
-          }}
-        />
-        <span
-          className={`absolute inset-0 flex items-center justify-center font-semibold text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)] ${styles.hpBarText}`}
-          // Re-triggers on every animateHpDrop false->true transition, same
-          // assumption as the ActiveCard clash re-trigger: a non-clash beat
-          // separates consecutive clashes, so the style (and thus the
-          // animation) is removed then re-applied each time.
-          style={{
-            animation: animateHpDrop
-              ? `hp-number-drop-fade ${HP_NUMBER_FADE_MS}ms ease-in-out`
-              : undefined,
-          }}
-        >
-          {character.hp}/{character.maxHp}
-        </span>
+      <div className="px-2 py-1 w-full">
+        <div className="relative h-6 w-full overflow-hidden rounded-full bg-slate-400/40">
+          <div
+            className="h-full rounded-full bg-emerald-500 transition-[width] ease-out"
+            style={{
+              width: `${hpFillRatio * 100}%`,
+              transitionDuration: `${HP_DRAIN_TRANSITION_MS}ms`,
+              transitionDelay: animateHpDrop ? `${HP_DRAIN_DELAY_MS}ms` : "0ms",
+            }}
+          />
+          <span
+            className={`absolute inset-0 flex items-center justify-center font-semibold text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)] ${styles.hpBarText}`}
+            // Re-triggers on every animateHpDrop false->true transition, same
+            // assumption as the ActiveCard clash re-trigger: a non-clash beat
+            // separates consecutive clashes, so the style (and thus the
+            // animation) is removed then re-applied each time.
+            style={{
+              animation: animateHpDrop
+                ? `hp-number-drop-fade ${HP_NUMBER_FADE_MS}ms ease-in-out`
+                : undefined,
+            }}
+          >
+            {character.hp}/{character.maxHp}
+          </span>
+        </div>
       </div>
     </div>
   );

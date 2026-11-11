@@ -32,9 +32,9 @@ export function RosterSlab({
   const facing = variant === "enemy" ? "left" : "right";
 
   return (
-    <div className="w-full bg-linear-to-b from-slate-100 via-slate-200 to-slate-300 px-5 py-4">
+    <div className="w-full h-72 bg-linear-to-b from-slate-100 via-slate-200 to-slate-300 px-5 py-4">
       <div
-        className={`mx-auto flex max-w-5xl gap-3 ${
+        className={`flex h-full justify-center gap-12 ${
           variant === "player" ? "flex-row-reverse" : "flex-row"
         }`}
       >
@@ -46,7 +46,7 @@ export function RosterSlab({
           // Keying by character id here would remount the whole RosterSlot
           // (including AnimatePresence) on every occupant change, which is
           // exactly the bug this fixes.
-          <div key={i} className="flex-1">
+          <div key={i} className="h-full aspect-3/4">
             {slotInteraction ? (
               <InteractiveRosterSlotButton
                 slotIndex={i}

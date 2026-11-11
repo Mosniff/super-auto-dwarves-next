@@ -101,9 +101,7 @@ export function RosterSlot({
             <motion.div
               key={character.id}
               className="absolute inset-0 overflow-hidden rounded-md"
-              initial={
-                prefersReducedMotion ? false : { x: cardEnterInitialX }
-              }
+              initial={prefersReducedMotion ? false : { x: cardEnterInitialX }}
               animate={{ x: "0%" }}
               exit={
                 prefersReducedMotion

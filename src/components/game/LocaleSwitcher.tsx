@@ -31,9 +31,8 @@ export function LocaleSwitcher() {
   return (
     <Select value={currentLocale} onValueChange={handleLocaleChange}>
       <SelectTrigger
-        size="sm"
         aria-label={t("language")}
-        className="h-7 border-iron-900/40 bg-slate-200 text-sm text-slate-50 hover:bg-slate-100"
+        className="h-7 border-iron-900/40 bg-slate-200 text-lg text-slate-50 hover:bg-slate-100"
       >
         <SelectValue />
       </SelectTrigger>
