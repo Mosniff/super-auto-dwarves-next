@@ -28,6 +28,16 @@ const ACTIVE_CARD_RENDERED_WIDTH_PX = "288px";
 const STAT_PILL_BASE_CLASS_NAME =
   "inline-flex items-center rounded-md px-4 py-1";
 
+// The tier and class badges use their own padding (from
+// TIER_AND_CLASS_BADGE_STYLES below), not the stat pills'.
+const BADGE_BASE_CLASS_NAME = "inline-flex items-center rounded-md";
+
+// The tier and class markers stay in the DOM (so screen readers and tests
+// still see them) but are hidden until the card is hovered or its slot
+// button has keyboard focus. Touch has no hover and is to be revisited.
+const HOVER_REVEAL_CLASS_NAME =
+  "opacity-0 transition-opacity duration-150 group-hover/character-card:opacity-100 in-focus-visible:opacity-100";
+
 const VARIANT_STYLES = {
   compact: {
     gap: "gap-1",
@@ -73,7 +83,7 @@ export function CharacterCard({
 
   return (
     <div
-      className={`flex h-full w-full flex-col items-center bg-(--color-portrait-brown) justify-center ${styles.gap}`}
+      className={`group/character-card flex h-full w-full flex-col items-center bg-(--color-portrait-brown) justify-center ${styles.gap}`}
     >
       <div
         className={`relative w-full flex-1 overflow-hidden ${styles.portraitRounding}`}
@@ -94,9 +104,9 @@ export function CharacterCard({
             priority
           />
         </div>
-        {/* <span
+        <span
           data-character-tier={tier}
-          className={`absolute top-1 left-1 leading-none font-bold ${STAT_PILL_BASE_CLASS_NAME} text-(--color-parchment-50) ${badgeStyles.tier}`}
+          className={`absolute top-1 left-1 leading-none font-bold ${BADGE_BASE_CLASS_NAME} text-(--color-parchment-50) ${badgeStyles.tier} ${HOVER_REVEAL_CLASS_NAME}`}
           style={{
             backgroundImage:
               "linear-gradient(to bottom, var(--color-iron-300), var(--color-iron-700))",
@@ -104,13 +114,13 @@ export function CharacterCard({
           }}
         >
           {tierRomanNumeral(tier)}
-        </span> */}
-        <div className="absolute inset-x-0 bottom-0 flex flex-wrap justify-center gap-1 p-1">
-          {/* {characterClassIds.map((characterClassId) => (
+        </span>
+        <div className="absolute top-1 right-1 flex flex-col items-end gap-1">
+          {characterClassIds.map((characterClassId) => (
             <span
               key={characterClassId}
               data-character-class-id={characterClassId}
-              className={`leading-none font-medium ${STAT_PILL_BASE_CLASS_NAME} text-(--color-parchment-50) ${badgeStyles.classLabel}`}
+              className={`leading-none font-medium ${BADGE_BASE_CLASS_NAME} text-(--color-parchment-50) ${badgeStyles.classLabel} ${HOVER_REVEAL_CLASS_NAME}`}
               style={{
                 backgroundImage:
                   "linear-gradient(to bottom, var(--color-iron-300), var(--color-iron-700))",
@@ -119,7 +129,9 @@ export function CharacterCard({
             >
               {tCharacterClass(characterClassId)}
             </span>
-          ))} */}
+          ))}
+        </div>
+        <div className="absolute inset-x-0 bottom-0 flex flex-wrap justify-center gap-1 p-1">
           <div>
             <span
               className={`min-w-0 flex-1 truncate bg-slate-200 border border-parchment-200 px-4 py-0.5 rounded-3xl font-semibold text-center text-parchment-200 ${styles.name}`}
