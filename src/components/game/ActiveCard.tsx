@@ -202,7 +202,7 @@ export function ActiveCard({
               <CharacterCard
                 character={character}
                 facing={facing}
-                variant="full"
+                showHpBar
                 animateHpDrop={shouldAnimateClash}
               />
             </div>
