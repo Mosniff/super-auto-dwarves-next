@@ -1,6 +1,7 @@
 "use client";
 
 import { AnimatePresence } from "motion/react";
+import { PhaseAdvanceAvailabilityProvider } from "@/components/game/phaseAdvanceAvailability";
 import type { GamePhase } from "@/lib/game/types";
 
 interface GameScreenProps {
@@ -21,19 +22,21 @@ interface GameScreenProps {
 // across phase changes along with the rest of this frame.
 export function GameScreen({ phase, header, children }: GameScreenProps) {
   return (
-    <div className="flex flex-1 flex-col">
-      {header}
-      <div className="grid flex-1 grid-cols-1 grid-rows-1 overflow-hidden">
-        <AnimatePresence initial={false}>
-          <div
-            key={phase}
-            className="col-start-1 row-start-1 flex min-h-0 flex-col"
-            data-game-screen-phase={phase}
-          >
-            {children}
-          </div>
-        </AnimatePresence>
+    <PhaseAdvanceAvailabilityProvider>
+      <div className="flex flex-1 flex-col">
+        {header}
+        <div className="grid flex-1 grid-cols-1 grid-rows-1 overflow-hidden">
+          <AnimatePresence initial={false}>
+            <div
+              key={phase}
+              className="col-start-1 row-start-1 flex min-h-0 flex-col"
+              data-game-screen-phase={phase}
+            >
+              {children}
+            </div>
+          </AnimatePresence>
+        </div>
       </div>
-    </div>
+    </PhaseAdvanceAvailabilityProvider>
   );
 }

@@ -15,6 +15,8 @@ import type { Character } from "@/lib/game/character";
 import { createEmptyCampRoster, type CampRoster } from "@/lib/game/campRoster";
 import englishMessages from "../../../messages/en.json";
 import { BattleScreen } from "./BattleScreen";
+import { GameScreen } from "./GameScreen";
+import { PhaseAdvanceButton } from "./PhaseAdvanceButton";
 
 const englishPhaseBattleLabel = englishMessages.common.phaseBattle;
 
@@ -162,27 +164,12 @@ describe("BattleScreen", () => {
       vi.useRealTimers();
     });
 
-    it("(d) does not show a Return to camp button before the battle finishes", () => {
-      renderWithMessages(
-        <BattleScreen
-          resolvedBattle={playerWinResolvedBattle}
-          playerCampRoster={playerWinCampRoster}
-          returnToCampAction={async () => {}}
-        />,
-      );
-
-      expect(
-        screen.queryByRole("button", { name: "Return to camp" }),
-      ).not.toBeInTheDocument();
-    });
-
-    it("(e) shows a Return to camp button after the battle finishes, whose form submits expectedCurrentPhase as battlePhase", () => {
+    it("(d) renders no Return to camp button itself, even after the battle finishes (that's the header's job now)", () => {
       vi.useFakeTimers();
       renderWithMessages(
         <BattleScreen
           resolvedBattle={playerWinResolvedBattle}
           playerCampRoster={playerWinCampRoster}
-          returnToCampAction={async () => {}}
         />,
       );
 
@@ -202,15 +189,67 @@ describe("BattleScreen", () => {
         });
       }
 
-      const returnToCampButton = screen.getByRole("button", {
+      expect(
+        screen.queryByRole("button", { name: "Return to camp" }),
+      ).toBeNull();
+    });
+
+    // (e) ("shows a Return to camp button after the battle finishes, whose
+    // form submits expectedCurrentPhase as battlePhase") moved to
+    // PhaseAdvanceButton.test.tsx (q): the button now lives in the header,
+    // not here.
+
+    it("(u) the header's advance button is disabled until the battle finishes, then enabled", () => {
+      vi.useFakeTimers();
+      renderWithMessages(
+        <BattleScreen
+          resolvedBattle={playerWinResolvedBattle}
+          playerCampRoster={playerWinCampRoster}
+        />,
+        {
+          wrapper: ({ children }) => (
+            <GameScreen
+              phase="battlePhase"
+              header={
+                <PhaseAdvanceButton
+                  gamePhase="battlePhase"
+                  advanceGameAction={async () => {}}
+                />
+              }
+            >
+              {children}
+            </GameScreen>
+          ),
+        },
+      );
+
+      const headerAdvanceForm = document.querySelector(
+        "[data-phase-advance]",
+      );
+      expect(headerAdvanceForm).not.toBeNull();
+
+      const headerAdvanceButton = screen.getByRole("button", {
         name: "Return to camp",
       });
-      const form = returnToCampButton.closest("form");
+      expect(headerAdvanceButton).toBeDisabled();
 
-      expect(form).not.toBeNull();
-      expect(
-        new FormData(form as HTMLFormElement).get("expectedCurrentPhase"),
-      ).toBe("battlePhase");
+      const autoplayToggle = screen.getByRole("button", {
+        name: /autoplay/i,
+      });
+
+      fireEvent.click(autoplayToggle);
+
+      for (
+        let tick = 0;
+        tick < AUTOPLAY_TICKS_TO_RUN_OUT_THE_BATTLE;
+        tick += 1
+      ) {
+        act(() => {
+          vi.advanceTimersByTime(AUTOPLAY_INTERVAL_MS);
+        });
+      }
+
+      expect(headerAdvanceButton).toBeEnabled();
     });
   });
 

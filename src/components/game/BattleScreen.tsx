@@ -1,9 +1,8 @@
 "use client";
 
-import { useTranslations } from "next-intl";
 import { ActionZone } from "@/components/game/ActionZone";
 import { GameScreenShell } from "@/components/game/GameScreenShell";
-import { PendingSubmitButton } from "@/components/game/PendingSubmitButton";
+import { useReportPhaseAdvanceAvailability } from "@/components/game/phaseAdvanceAvailability";
 import { RosterSlab } from "@/components/game/RosterSlab";
 import type { ResolvedBattle } from "@/lib/battle/types";
 import type { CampRoster } from "@/lib/game/campRoster";
@@ -15,7 +14,6 @@ interface BattleScreenProps {
   // The saved camp roster the battle was resolved from, shown as-is before
   // the first beat.
   playerCampRoster: CampRoster;
-  returnToCampAction?: (formData: FormData) => Promise<void>;
 }
 
 // The battle is resolved on the server from the saved roster and only
@@ -24,10 +22,7 @@ interface BattleScreenProps {
 export function BattleScreen({
   resolvedBattle,
   playerCampRoster,
-  returnToCampAction,
 }: BattleScreenProps) {
-  const t = useTranslations("common");
-
   const {
     currentState,
     currentBeatDescriptors,
@@ -44,6 +39,8 @@ export function BattleScreen({
     play,
     pause,
   } = useBattlePlayback(resolvedBattle);
+
+  useReportPhaseAdvanceAvailability("battlePhase", isFinished);
 
   const {
     playerBenchCharacters,
@@ -81,18 +78,6 @@ export function BattleScreen({
           onPlay={play}
           onPause={pause}
         />
-        {isFinished && returnToCampAction && (
-          <form action={returnToCampAction}>
-            <input
-              type="hidden"
-              name="expectedCurrentPhase"
-              value="battlePhase"
-            />
-            <PendingSubmitButton size="lg">
-              {t("returnToCamp")}
-            </PendingSubmitButton>
-          </form>
-        )}
       </section>
       <RosterSlab
         characters={enemyBenchCharacters}

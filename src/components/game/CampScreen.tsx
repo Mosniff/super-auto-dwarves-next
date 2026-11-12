@@ -5,7 +5,7 @@ import { useTranslations } from "next-intl";
 import { DragDropProvider, DragOverlay, PointerSensor } from "@dnd-kit/react";
 import { Accessibility } from "@dnd-kit/dom";
 import { GameScreenShell } from "@/components/game/GameScreenShell";
-import { PendingSubmitButton } from "@/components/game/PendingSubmitButton";
+import { useReportPhaseAdvanceAvailability } from "@/components/game/phaseAdvanceAvailability";
 import { ShopPanel } from "@/components/game/ShopPanel";
 import { CharacterCard } from "@/components/game/CharacterCard";
 import type { Character } from "@/lib/game/character";
@@ -32,7 +32,6 @@ interface CampScreenProps {
   characterShopSlots: CharacterShopSlots;
   characterTemplates: readonly CharacterTemplate[];
   revision: number;
-  advanceGameAction: (formData: FormData) => Promise<void>;
   buyCharacterAction: (formData: FormData) => Promise<void>;
   repositionCharacterAction: (formData: FormData) => Promise<void>;
 }
@@ -55,7 +54,6 @@ export function CampScreen({
   characterShopSlots,
   characterTemplates,
   revision,
-  advanceGameAction,
   buyCharacterAction,
   repositionCharacterAction,
 }: CampScreenProps) {
@@ -71,6 +69,8 @@ export function CampScreen({
   const [campDragSourceSelection, setCampDragSourceSelection] =
     useState<CampSelection | null>(null);
   const [isSubmittingCampIntent, startCampIntentTransition] = useTransition();
+
+  useReportPhaseAdvanceAvailability("campPhase", !isSubmittingCampIntent);
 
   const campState: CampState = {
     campRoster: playerCampRoster,
@@ -263,16 +263,6 @@ export function CampScreen({
                 handleCampClick({ targetKind: "characterShopSlot", shopSlotIndex })
               }
             />
-            <form action={advanceGameAction}>
-              <input
-                type="hidden"
-                name="expectedCurrentPhase"
-                value="campPhase"
-              />
-              <PendingSubmitButton size="lg">
-                {t("toBattle")}
-              </PendingSubmitButton>
-            </form>
           </section>
         </GameScreenShell>
       </div>

@@ -46,6 +46,8 @@ export default async function PlayPage() {
           <GameHeader
             day={savedGame.gameState.day}
             gold={savedGame.gameState.gold}
+            gamePhase={savedGame.gameState.phase}
+            advanceGameAction={advanceGameAction}
           />
         }
       >
@@ -55,7 +57,6 @@ export default async function PlayPage() {
           characterShopSlots={savedGame.gameState.characterShopSlots}
           characterTemplates={listCharacterTemplates()}
           revision={savedGame.revision}
-          advanceGameAction={advanceGameAction}
           buyCharacterAction={buyCharacterAction}
           repositionCharacterAction={repositionCharacterAction}
         />
@@ -75,13 +76,14 @@ export default async function PlayPage() {
         <GameHeader
           day={savedGame.gameState.day}
           gold={savedGame.gameState.gold}
+          gamePhase={savedGame.gameState.phase}
+          advanceGameAction={advanceGameAction}
         />
       }
     >
       <BattleScreen
         resolvedBattle={resolvedBattle}
         playerCampRoster={savedGame.gameState.playerRoster}
-        returnToCampAction={advanceGameAction}
       />
     </GameScreen>
   );

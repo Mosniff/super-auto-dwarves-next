@@ -1,7 +1,14 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from "vitest";
 import userEvent from "@testing-library/user-event";
-import { renderWithMessages, screen, waitFor } from "@/test/renderWithMessages";
+import {
+  renderWithMessages,
+  screen,
+  waitFor,
+  within,
+} from "@/test/renderWithMessages";
+import { GameScreen } from "./GameScreen";
+import { PhaseAdvanceButton } from "./PhaseAdvanceButton";
 import type { Character } from "@/lib/game/character";
 import type { CampRoster } from "@/lib/game/campRoster";
 import type { CharacterShopSlots } from "@/lib/game/characterShopSlots";
@@ -68,7 +75,6 @@ interface RenderCampScreenOverrides {
   characterTemplates?: CharacterTemplate[];
   gold?: number;
   revision?: number;
-  advanceGameAction?: (formData: FormData) => Promise<void>;
   buyCharacterAction?: (formData: FormData) => Promise<void>;
   repositionCharacterAction?: (formData: FormData) => Promise<void>;
 }
@@ -85,7 +91,6 @@ function renderCampScreen(overrides: RenderCampScreenOverrides = {}) {
       }
       gold={overrides.gold ?? 10}
       revision={overrides.revision ?? 5}
-      advanceGameAction={overrides.advanceGameAction ?? (async () => {})}
       buyCharacterAction={overrides.buyCharacterAction ?? (async () => {})}
       repositionCharacterAction={
         overrides.repositionCharacterAction ?? (async () => {})
@@ -95,28 +100,20 @@ function renderCampScreen(overrides: RenderCampScreenOverrides = {}) {
 }
 
 describe("CampScreen", () => {
-  it("(a) shows the camp heading and a To battle button, and no longer shows day or gold itself", () => {
+  it("(a) shows the camp heading, and renders no To battle button itself (that's the header's job now)", () => {
     renderCampScreen();
 
     expect(screen.getByText("Camp")).toBeInTheDocument();
     expect(screen.queryByText(/Day 3/)).toBeNull();
     expect(screen.queryByText(/10 gold/)).toBeNull();
     expect(
-      screen.getByRole("button", { name: "To battle" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("button", { name: "To battle" }),
+    ).toBeNull();
   });
 
-  it("(b) the To battle button's form submits expectedCurrentPhase as campPhase", () => {
-    renderCampScreen();
-
-    const toBattleButton = screen.getByRole("button", { name: "To battle" });
-    const form = toBattleButton.closest("form");
-
-    expect(form).not.toBeNull();
-    expect(
-      new FormData(form as HTMLFormElement).get("expectedCurrentPhase"),
-    ).toBe("campPhase");
-  });
+  // (b) ("the To battle button's form submits expectedCurrentPhase as
+  // campPhase") moved to PhaseAdvanceButton.test.tsx (o): the button now
+  // lives in the header, not here.
 
   it("(c) shows a tile for each offering slot, a sold slot for each sold one, and a locked slot for each locked one", () => {
     renderCampScreen();
@@ -361,5 +358,45 @@ describe("CampScreen", () => {
     renderCampScreen();
 
     expect(document.querySelector("[data-roster-slot-on-deck-halo]")).toBeNull();
+  });
+
+  it("(t) the header's advance button is enabled while the camp is idle", () => {
+    renderWithMessages(
+      <CampScreen
+        playerCampRoster={buildFixtureCampRoster()}
+        characterShopSlots={fixtureCharacterShopSlots}
+        characterTemplates={fixtureCharacterTemplates}
+        gold={10}
+        revision={5}
+        buyCharacterAction={async () => {}}
+        repositionCharacterAction={async () => {}}
+      />,
+      {
+        wrapper: ({ children }) => (
+          <GameScreen
+            phase="campPhase"
+            header={
+              <PhaseAdvanceButton
+                gamePhase="campPhase"
+                advanceGameAction={async () => {}}
+              />
+            }
+          >
+            {children}
+          </GameScreen>
+        ),
+      },
+    );
+
+    // Scope to the header's own form, rather than finding by name, so this
+    // test doesn't depend on whether CampScreen also renders a button with
+    // the same name.
+    const headerAdvanceForm = document.querySelector("[data-phase-advance]");
+    expect(headerAdvanceForm).not.toBeNull();
+
+    const headerAdvanceButton = within(
+      headerAdvanceForm as HTMLElement,
+    ).getByRole("button");
+    expect(headerAdvanceButton).toBeEnabled();
   });
 });
