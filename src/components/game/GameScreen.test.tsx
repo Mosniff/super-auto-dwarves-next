@@ -29,4 +29,16 @@ describe("GameScreen", () => {
 
     expect(screen.getByText("Battle content")).toBeInTheDocument();
   });
+
+  it("(n) renders the header outside the swiping screen", () => {
+    render(
+      <GameScreen phase="campPhase" header={<p>Header content</p>}>
+        <p>Camp content</p>
+      </GameScreen>,
+    );
+
+    const headerElement = screen.queryByText("Header content");
+    expect(headerElement).not.toBeNull();
+    expect(headerElement?.closest("[data-game-screen-phase]")).toBeNull();
+  });
 });

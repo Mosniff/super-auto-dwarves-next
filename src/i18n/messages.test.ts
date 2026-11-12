@@ -16,7 +16,7 @@ describe("locale message parity", () => {
   // (menu) route group's Back button on the saves page (back), and again
   // for the /play camp screen (toBattle, returnToCamp, goldLabel), and
   // again for the Phase 8 camp shop and clickable roster slots
-  // (shopHeading, shopListingSoldLabel, shopListingButtonLabel,
+  // (shopListingSoldLabel, shopListingButtonLabel,
   // rosterSlotOccupiedLabel, rosterSlotEmptyLabel), and dummyBattleLabel
   // was removed when Phase 8 connected the battle to the saved roster, and
   // again for Phase 9's locked shop slot label (shopSlotLockedLabel), and
@@ -52,7 +52,6 @@ describe("locale message parity", () => {
     "toBattle",
     "returnToCamp",
     "goldLabel",
-    "shopHeading",
     "shopListingSoldLabel",
     "shopListingButtonLabel",
     "rosterSlotOccupiedLabel",
@@ -118,8 +117,12 @@ describe("locale message parity", () => {
   it("english has exactly the character class keys", () => {
     expect(
       Object.keys(
-        (englishMessages as unknown as Record<string, Record<string, string> | undefined>)
-          .characterClass ?? {},
+        (
+          englishMessages as unknown as Record<
+            string,
+            Record<string, string> | undefined
+          >
+        ).characterClass ?? {},
       ).sort(),
     ).toEqual([...CHARACTER_CLASS_IDS].sort());
   });
@@ -127,8 +130,12 @@ describe("locale message parity", () => {
   it("japanese has exactly the character class keys", () => {
     expect(
       Object.keys(
-        (japaneseMessages as unknown as Record<string, Record<string, string> | undefined>)
-          .characterClass ?? {},
+        (
+          japaneseMessages as unknown as Record<
+            string,
+            Record<string, string> | undefined
+          >
+        ).characterClass ?? {},
       ).sort(),
     ).toEqual([...CHARACTER_CLASS_IDS].sort());
   });
@@ -139,8 +146,12 @@ describe("locale message parity", () => {
   it("english has exactly the shopSection keys", () => {
     expect(
       Object.keys(
-        (englishMessages as unknown as Record<string, Record<string, string> | undefined>)
-          .shopSection ?? {},
+        (
+          englishMessages as unknown as Record<
+            string,
+            Record<string, string> | undefined
+          >
+        ).shopSection ?? {},
       ).sort(),
     ).toEqual(["characters", ...LOCKED_SHOP_SECTION_IDS].sort());
   });
@@ -148,8 +159,12 @@ describe("locale message parity", () => {
   it("japanese has exactly the shopSection keys", () => {
     expect(
       Object.keys(
-        (japaneseMessages as unknown as Record<string, Record<string, string> | undefined>)
-          .shopSection ?? {},
+        (
+          japaneseMessages as unknown as Record<
+            string,
+            Record<string, string> | undefined
+          >
+        ).shopSection ?? {},
       ).sort(),
     ).toEqual(["characters", ...LOCKED_SHOP_SECTION_IDS].sort());
   });

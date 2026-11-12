@@ -28,7 +28,6 @@
     "toBattle": "To battle",
     "returnToCamp": "Return to camp",
     "goldLabel": "{gold} gold",
-    "shopHeading": "Shop",
     "shopListingSoldLabel": "Sold",
     "shopListingButtonLabel": "Shop: {characterName}",
     "rosterSlotOccupiedLabel": "Slot {slotNumber}: {characterName}",

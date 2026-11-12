@@ -28,7 +28,6 @@ import {
 
 interface CampScreenProps {
   playerCampRoster: CampRoster;
-  day: number;
   gold: number;
   characterShopSlots: CharacterShopSlots;
   characterTemplates: readonly CharacterTemplate[];
@@ -52,7 +51,6 @@ function campSelectionFromClickTarget(
 
 export function CampScreen({
   playerCampRoster,
-  day,
   gold,
   characterShopSlots,
   characterTemplates,
@@ -265,9 +263,6 @@ export function CampScreen({
                 handleCampClick({ targetKind: "characterShopSlot", shopSlotIndex })
               }
             />
-            <p className="text-muted-foreground">
-              {t("dayLabel", { day })} — {t("goldLabel", { gold })}
-            </p>
             <form action={advanceGameAction}>
               <input
                 type="hidden"

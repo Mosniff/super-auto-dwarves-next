@@ -2,6 +2,7 @@ import { getLocale } from "next-intl/server";
 import { redirect } from "@/i18n/navigation";
 import { BattleScreen } from "@/components/game/BattleScreen";
 import { CampScreen } from "@/components/game/CampScreen";
+import { GameHeader } from "@/components/game/GameHeader";
 import { GameScreen } from "@/components/game/GameScreen";
 import { readCurrentUserId } from "@/lib/supabase/readCurrentUserId";
 import { prismaGameRepository } from "@/lib/persistence/prismaGameRepository";
@@ -39,10 +40,17 @@ export default async function PlayPage() {
 
   if (savedGame.gameState.phase === "campPhase") {
     return (
-      <GameScreen phase={savedGame.gameState.phase}>
+      <GameScreen
+        phase={savedGame.gameState.phase}
+        header={
+          <GameHeader
+            day={savedGame.gameState.day}
+            gold={savedGame.gameState.gold}
+          />
+        }
+      >
         <CampScreen
           playerCampRoster={savedGame.gameState.playerRoster}
-          day={savedGame.gameState.day}
           gold={savedGame.gameState.gold}
           characterShopSlots={savedGame.gameState.characterShopSlots}
           characterTemplates={listCharacterTemplates()}
@@ -61,7 +69,15 @@ export default async function PlayPage() {
   );
 
   return (
-    <GameScreen phase={savedGame.gameState.phase}>
+    <GameScreen
+      phase={savedGame.gameState.phase}
+      header={
+        <GameHeader
+          day={savedGame.gameState.day}
+          gold={savedGame.gameState.gold}
+        />
+      }
+    >
       <BattleScreen
         resolvedBattle={resolvedBattle}
         playerCampRoster={savedGame.gameState.playerRoster}

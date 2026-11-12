@@ -66,7 +66,6 @@ interface RenderCampScreenOverrides {
   playerCampRoster?: CampRoster;
   characterShopSlots?: CharacterShopSlots;
   characterTemplates?: CharacterTemplate[];
-  day?: number;
   gold?: number;
   revision?: number;
   advanceGameAction?: (formData: FormData) => Promise<void>;
@@ -84,7 +83,6 @@ function renderCampScreen(overrides: RenderCampScreenOverrides = {}) {
       characterTemplates={
         overrides.characterTemplates ?? fixtureCharacterTemplates
       }
-      day={overrides.day ?? 3}
       gold={overrides.gold ?? 10}
       revision={overrides.revision ?? 5}
       advanceGameAction={overrides.advanceGameAction ?? (async () => {})}
@@ -97,12 +95,12 @@ function renderCampScreen(overrides: RenderCampScreenOverrides = {}) {
 }
 
 describe("CampScreen", () => {
-  it("(a) shows the camp heading, day, gold and a To battle button", () => {
+  it("(a) shows the camp heading and a To battle button, and no longer shows day or gold itself", () => {
     renderCampScreen();
 
     expect(screen.getByText("Camp")).toBeInTheDocument();
-    expect(screen.getByText(/Day 3/)).toBeInTheDocument();
-    expect(screen.getByText(/10 gold/)).toBeInTheDocument();
+    expect(screen.queryByText(/Day 3/)).toBeNull();
+    expect(screen.queryByText(/10 gold/)).toBeNull();
     expect(
       screen.getByRole("button", { name: "To battle" }),
     ).toBeInTheDocument();

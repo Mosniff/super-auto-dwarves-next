@@ -217,7 +217,6 @@ export function ShopPanel({
 
   return (
     <section className="w-full max-w-5xl">
-      <h2 className="mb-2 text-lg font-bold">{t("shopHeading")}</h2>
       <div className="flex gap-6">
         <ShopSection
           headingId={charactersHeadingId}
@@ -295,8 +294,12 @@ export function ShopPanel({
             key={lockedShopSectionId}
             headingId={lockedShopSectionHeadingIds[lockedShopSectionId]}
             heading={shopSectionTranslations(lockedShopSectionId)}
-            gridClassName={LOCKED_SHOP_SECTION_GRID_CLASS_NAMES[lockedShopSectionId]}
-            flexClassName={LOCKED_SHOP_SECTION_FLEX_CLASS_NAMES[lockedShopSectionId]}
+            gridClassName={
+              LOCKED_SHOP_SECTION_GRID_CLASS_NAMES[lockedShopSectionId]
+            }
+            flexClassName={
+              LOCKED_SHOP_SECTION_FLEX_CLASS_NAMES[lockedShopSectionId]
+            }
           >
             {Array.from({
               length: LOCKED_SHOP_SECTION_SLOT_COUNTS[lockedShopSectionId],
