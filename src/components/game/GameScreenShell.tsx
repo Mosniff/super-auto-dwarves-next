@@ -12,6 +12,7 @@ interface GameScreenShellProps {
   gamePhase: GamePhase;
   playerBenchCharacters: (Character | null)[];
   playerSlotInteraction?: RosterSlotInteraction;
+  presentsPlayerFrontSlotAsOnDeck?: boolean;
   children: React.ReactNode;
 }
 
@@ -19,6 +20,7 @@ export function GameScreenShell({
   gamePhase,
   playerBenchCharacters,
   playerSlotInteraction,
+  presentsPlayerFrontSlotAsOnDeck = false,
   children,
 }: GameScreenShellProps) {
   const prefersReducedMotion = useReducedMotion();
@@ -48,6 +50,7 @@ export function GameScreenShell({
             characters={playerBenchCharacters}
             variant="player"
             slotInteraction={playerSlotInteraction}
+            presentsFrontSlotAsOnDeck={presentsPlayerFrontSlotAsOnDeck}
           />
         </div>
         <GamePhaseBanner gamePhase={gamePhase} />

@@ -187,6 +187,7 @@ export function RosterSlot({
       </div>
       {showNextHalo && (
         <div
+          data-roster-slot-on-deck-halo
           className="pointer-events-none absolute -inset-2 rounded-lg border-2"
           style={{ borderColor: "var(--color-parchment-300)" }}
         >

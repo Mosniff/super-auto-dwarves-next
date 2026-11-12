@@ -358,4 +358,10 @@ describe("CampScreen", () => {
       screen.getAllByRole("heading", { level: 1 }).map((headingElement) => headingElement.textContent),
     ).toEqual(["Camp"]);
   });
+
+  it("(k) the front roster card has no on-deck halo in camp", () => {
+    renderCampScreen();
+
+    expect(document.querySelector("[data-roster-slot-on-deck-halo]")).toBeNull();
+  });
 });

@@ -260,4 +260,17 @@ describe("BattleScreen", () => {
       screen.queryByRole("heading", { level: 1, name: englishPhaseBattleLabel }),
     ).not.toBeNull();
   });
+
+  it("(l) the front bench card shows the on-deck halo in battle", () => {
+    renderWithMessages(
+      <BattleScreen
+        resolvedBattle={playerWinResolvedBattle}
+        playerCampRoster={playerWinCampRoster}
+      />,
+    );
+
+    expect(
+      document.querySelector("[data-roster-slot-on-deck-halo]"),
+    ).not.toBeNull();
+  });
 });

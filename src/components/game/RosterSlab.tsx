@@ -21,12 +21,19 @@ interface RosterSlabProps {
   characters: (Character | null)[];
   variant?: "player" | "enemy";
   slotInteraction?: RosterSlotInteraction;
+  // When true, slot 0's card is "on deck" (the NEXT halo, and the launch
+  // exit when it leaves for the action zone); battle turns this on; camp
+  // leaves it off, so its front card moves like any other. The screen
+  // decides, and the slab doesn't know the game phase (same principle as
+  // slotInteraction).
+  presentsFrontSlotAsOnDeck?: boolean;
 }
 
 export function RosterSlab({
   characters,
   variant = "player",
   slotInteraction,
+  presentsFrontSlotAsOnDeck = false,
 }: RosterSlabProps) {
   const slots = Array.from({ length: SLOT_COUNT }, (_, i) => characters[i]);
   const facing = variant === "enemy" ? "left" : "right";
@@ -52,7 +59,7 @@ export function RosterSlab({
                 slotIndex={i}
                 character={character ?? undefined}
                 facing={facing}
-                isNext={i === 0 && Boolean(character)}
+                isNext={presentsFrontSlotAsOnDeck && i === 0 && Boolean(character)}
                 buttonLabel={slotInteraction.slotButtonLabel(i)}
                 isSelected={slotInteraction.selectedSlotIndex === i}
                 isEnabled={slotInteraction.isSlotEnabled(i)}
@@ -64,7 +71,7 @@ export function RosterSlab({
               <RosterSlot
                 character={character ?? undefined}
                 facing={facing}
-                isNext={i === 0 && Boolean(character)}
+                isNext={presentsFrontSlotAsOnDeck && i === 0 && Boolean(character)}
               />
             )}
           </div>

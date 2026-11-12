@@ -60,6 +60,7 @@ export function BattleScreen({
     <GameScreenShell
       gamePhase="battlePhase"
       playerBenchCharacters={playerBenchCharacters}
+      presentsPlayerFrontSlotAsOnDeck
     >
       <section className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
         <ActionZone
@@ -93,7 +94,11 @@ export function BattleScreen({
           </form>
         )}
       </section>
-      <RosterSlab characters={enemyBenchCharacters} variant="enemy" />
+      <RosterSlab
+        characters={enemyBenchCharacters}
+        variant="enemy"
+        presentsFrontSlotAsOnDeck
+      />
     </GameScreenShell>
   );
 }
