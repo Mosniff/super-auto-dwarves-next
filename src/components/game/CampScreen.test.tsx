@@ -350,4 +350,12 @@ describe("CampScreen", () => {
       expect(slotElement.textContent).toContain("Locked");
     });
   });
+
+  it("(g) has exactly one page heading, the camp phase", () => {
+    renderCampScreen();
+
+    expect(
+      screen.getAllByRole("heading", { level: 1 }).map((headingElement) => headingElement.textContent),
+    ).toEqual(["Camp"]);
+  });
 });

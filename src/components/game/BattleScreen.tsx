@@ -57,7 +57,10 @@ export function BattleScreen({
   });
 
   return (
-    <GameScreenShell playerBenchCharacters={playerBenchCharacters}>
+    <GameScreenShell
+      gamePhase="battlePhase"
+      playerBenchCharacters={playerBenchCharacters}
+    >
       <section className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
         <ActionZone
           playerFrontCharacter={playerFrontCharacter}

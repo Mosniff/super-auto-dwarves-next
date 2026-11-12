@@ -2,17 +2,21 @@
 
 import { motion, useIsPresent, useReducedMotion } from "motion/react";
 import type { Character } from "@/lib/game/character";
+import type { GamePhase } from "@/lib/game/types";
+import { GamePhaseBanner } from "./GamePhaseBanner";
 import { RosterSlab, type RosterSlotInteraction } from "./RosterSlab";
 
 export type { RosterSlotInteraction };
 
 interface GameScreenShellProps {
+  gamePhase: GamePhase;
   playerBenchCharacters: (Character | null)[];
   playerSlotInteraction?: RosterSlotInteraction;
   children: React.ReactNode;
 }
 
 export function GameScreenShell({
+  gamePhase,
   playerBenchCharacters,
   playerSlotInteraction,
   children,
@@ -21,8 +25,9 @@ export function GameScreenShell({
   const isPresent = useIsPresent();
 
   // During a swipe both screens share one grid cell (see GameScreen).
-  // Hiding the outgoing roster keeps the roster visually fixed; inert
-  // stops clicks and focus on the departing screen.
+  // Hiding the outgoing roster (and the phase banner hanging from it)
+  // keeps them visually fixed; inert stops clicks and focus on the
+  // departing screen.
   return (
     <main
       className="flex flex-1 flex-col"
@@ -31,17 +36,21 @@ export function GameScreenShell({
       <div
         data-game-screen-region="roster"
         inert={!isPresent}
-        style={{
-          boxShadow: "var(--shadow-slab)",
-          borderBottom: "var(--slab-base-border)",
-          visibility: isPresent ? "visible" : "hidden",
-        }}
+        style={{ visibility: isPresent ? "visible" : "hidden" }}
       >
-        <RosterSlab
-          characters={playerBenchCharacters}
-          variant="player"
-          slotInteraction={playerSlotInteraction}
-        />
+        <div
+          style={{
+            boxShadow: "var(--shadow-slab)",
+            borderBottom: "var(--slab-base-border)",
+          }}
+        >
+          <RosterSlab
+            characters={playerBenchCharacters}
+            variant="player"
+            slotInteraction={playerSlotInteraction}
+          />
+        </div>
+        <GamePhaseBanner gamePhase={gamePhase} />
       </div>
       {/* The phase swipe, always forward: the outgoing screen's content
           slides out to the left while the incoming screen's content slides

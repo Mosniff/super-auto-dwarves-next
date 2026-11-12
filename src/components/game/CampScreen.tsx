@@ -208,6 +208,7 @@ export function CampScreen({
         className={isSubmittingCampIntent ? "cursor-wait" : ""}
       >
         <GameScreenShell
+          gamePhase="campPhase"
           playerBenchCharacters={playerCampRoster}
           playerSlotInteraction={{
             selectedSlotIndex:
@@ -235,7 +236,6 @@ export function CampScreen({
           }}
         >
           <section className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
-            <h1 className="text-2xl font-bold">{t("phaseCamp")}</h1>
             <ShopPanel
               characterShopSlots={characterShopSlots}
               characterTemplates={characterTemplates}

@@ -13,7 +13,10 @@ import {
 import { resolveBattle } from "@/lib/battle/resolveBattle";
 import type { Character } from "@/lib/game/character";
 import { createEmptyCampRoster, type CampRoster } from "@/lib/game/campRoster";
+import englishMessages from "../../../messages/en.json";
 import { BattleScreen } from "./BattleScreen";
+
+const englishPhaseBattleLabel = englishMessages.common.phaseBattle;
 
 const AUTOPLAY_INTERVAL_MS = 1100;
 // Comfortably more ticks than the fixture battle has beats.
@@ -243,5 +246,18 @@ describe("BattleScreen", () => {
 
       expect(screen.getByText(/defeat/i)).toBeInTheDocument();
     });
+  });
+
+  it("(h) shows the battle phase as the page heading", () => {
+    renderWithMessages(
+      <BattleScreen
+        resolvedBattle={playerWinResolvedBattle}
+        playerCampRoster={playerWinCampRoster}
+      />,
+    );
+
+    expect(
+      screen.queryByRole("heading", { level: 1, name: englishPhaseBattleLabel }),
+    ).not.toBeNull();
   });
 });
