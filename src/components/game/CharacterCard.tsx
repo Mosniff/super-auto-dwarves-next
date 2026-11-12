@@ -10,10 +10,11 @@ import {
 
 // The layout borrows a trading-card frame structure: a bordered, textured
 // body holding a name bar, the portrait, a class bar and an empty text box
-// with a stats pill overlapping its corner. Every size inside the frame is
-// in cqw (relative to the card's own width), so one layout serves every
-// card size — a ~100px shop tile and a 288px action card alike. The human
-// tunes the numbers by eye.
+// with a stats pill overlapping its corner. Every size inside the frame
+// comes from a card-* theme token defined in globals.css, each expressed
+// relative to the card's own width (a CSS container query length), so one
+// layout serves every card size — a ~100px shop tile and a 288px action
+// card alike. The human tunes the numbers there, in one place.
 
 interface CharacterCardProps {
   character: Character;
@@ -39,7 +40,7 @@ const CARD_FRAME_BORDER_CLASS_NAME = "border-iron-900";
 
 const DARK_TEXT_CLASS_NAME = "text-(--color-iron-900)";
 
-const PANEL_BAR_CLASS_NAME = `flex shrink-0 items-center gap-[2cqw] rounded-[2.5cqw] px-[3cqw] py-[1.5cqw] ${DARK_TEXT_CLASS_NAME}`;
+const PANEL_BAR_CLASS_NAME = `flex shrink-0 items-center gap-card-bar-gap rounded-card-bar px-card-bar-x py-card-bar-y ${DARK_TEXT_CLASS_NAME}`;
 
 const HP_TONE_TEXT_CLASS_NAME: Record<HpDisplayTone, string> = {
   full: "text-(--color-parchment-50)",
@@ -62,14 +63,16 @@ export function CharacterCard({
   const hpTone = hpDisplayTone(character.hp, character.maxHp);
 
   return (
-    // @container, carrying no cqw-based styles itself: an element can't
-    // resolve cqw against itself, only against the nearest ancestor
-    // container, so this element is that container and the frame inside it
-    // carries the cqw-sized styles. rounded-md still matches RosterSlot's
-    // card wrapper, so the wrapper's clip and the card's corners coincide.
+    // @container, carrying no container-relative sizing of its own: an
+    // element can't resolve a container query length against itself, only
+    // against the nearest ancestor container, so this element is that
+    // container and the frame inside it carries the container-relative
+    // sizes (the card-* theme tokens). rounded-md still matches
+    // RosterSlot's card wrapper, so the wrapper's clip and the card's
+    // corners coincide.
     <div className="@container h-full w-full overflow-hidden rounded-md">
       <div
-        className={`flex h-full w-full flex-col gap-[2cqw] rounded-md border-[3cqw] p-[2.5cqw] ${CARD_FRAME_BORDER_CLASS_NAME}`}
+        className={`flex h-full w-full flex-col gap-card-frame-gap rounded-md border-card-frame p-card-frame-padding ${CARD_FRAME_BORDER_CLASS_NAME}`}
         style={{ background: "var(--texture-card-frame)" }}
       >
         <div
@@ -79,18 +82,18 @@ export function CharacterCard({
             boxShadow: "var(--shadow-stat-pill)",
           }}
         >
-          <span className="min-w-0 truncate text-[7cqw] font-semibold leading-none">
+          <span className="min-w-0 truncate text-card-title font-semibold leading-none">
             {character.name}
           </span>
           <span
             data-character-tier={tier}
-            className="shrink-0 text-[7cqw] font-bold leading-none"
+            className="shrink-0 text-card-title font-bold leading-none"
           >
             {tierRomanNumeral(tier)}
           </span>
         </div>
 
-        <div className="relative mx-[2cqw] min-h-0 flex-1 overflow-hidden rounded-[1cqw]">
+        <div className="relative mx-card-inset min-h-0 flex-1 overflow-hidden rounded-card-portrait">
           <div
             className="absolute inset-0"
             style={facing === "left" ? { transform: "scaleX(-1)" } : undefined}
@@ -110,9 +113,9 @@ export function CharacterCard({
           {showHpBar && (
             <div
               data-character-hp-bar
-              className="absolute inset-x-[3cqw] bottom-[3cqw]"
+              className="absolute inset-x-card-hp-bar-inset bottom-card-hp-bar-inset"
             >
-              <div className="relative h-[6cqw] w-full overflow-hidden rounded-full bg-slate-400/40">
+              <div className="relative h-card-hp-bar-height w-full overflow-hidden rounded-full bg-slate-400/40">
                 <div
                   className="h-full rounded-full bg-emerald-500 transition-[width] ease-out"
                   style={{
@@ -124,7 +127,7 @@ export function CharacterCard({
                   }}
                 />
                 <span
-                  className="absolute inset-0 flex items-center justify-center text-[5cqw] font-semibold text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]"
+                  className="absolute inset-0 flex items-center justify-center text-card-hp font-semibold text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]"
                   // Re-triggers on every animateHpDrop false->true transition, same
                   // assumption as the ActiveCard clash re-trigger: a non-clash beat
                   // separates consecutive clashes, so the style (and thus the
@@ -141,7 +144,7 @@ export function CharacterCard({
             </div>
           )}
           <div
-            className={`absolute inset-0 flex items-center justify-center bg-black/50 text-[8cqw] font-bold tracking-wide text-white uppercase transition-opacity duration-200 ease-out ${
+            className={`absolute inset-0 flex items-center justify-center bg-black/50 text-card-overlay font-bold tracking-wide text-white uppercase transition-opacity duration-200 ease-out ${
               isDowned ? "opacity-100" : "opacity-0"
             }`}
           >
@@ -150,7 +153,7 @@ export function CharacterCard({
         </div>
 
         <div
-          className={`justify-start text-[6cqw] font-medium ${PANEL_BAR_CLASS_NAME}`}
+          className={`justify-start text-card-label font-medium ${PANEL_BAR_CLASS_NAME}`}
           style={{
             background: "var(--texture-card-panel)",
             boxShadow: "var(--shadow-stat-pill)",
@@ -159,7 +162,7 @@ export function CharacterCard({
           {characterClassIds.map((characterClassId, characterClassIndex) => (
             <span
               key={characterClassId}
-              className="flex items-center gap-[2cqw]"
+              className="flex items-center gap-card-label-gap"
             >
               {characterClassIndex > 0 && <span aria-hidden="true">·</span>}
               <span data-character-class-id={characterClassId}>
@@ -173,20 +176,20 @@ export function CharacterCard({
             content here. */}
         <div
           data-character-text-box
-          className="relative mx-[2cqw] h-[20cqw] shrink-0 rounded-[1.5cqw]"
+          className="relative mx-card-inset h-card-text-box-height shrink-0 rounded-card-panel"
           style={{
             background: "var(--texture-card-panel)",
             boxShadow: "var(--shadow-recess)",
           }}
         >
           <div
-            className="absolute -right-[2cqw] -bottom-[2cqw] flex overflow-hidden rounded-[2cqw] text-[7cqw] font-bold leading-none"
+            className="absolute -right-card-pill-offset -bottom-card-pill-offset flex overflow-hidden rounded-card-pill text-card-stat font-bold leading-none"
             style={{ boxShadow: "var(--shadow-stat-pill)" }}
           >
             <span
               data-character-stat="attack"
               data-character-stat-value={String(character.attack)}
-              className="flex items-center gap-[1cqw] px-[2.5cqw] py-[1.5cqw]"
+              className="flex items-center gap-card-pill-gap px-card-pill-x py-card-pill-y"
               style={{
                 backgroundImage:
                   "linear-gradient(to bottom, var(--color-iron-300), var(--color-iron-700))",
@@ -203,7 +206,7 @@ export function CharacterCard({
               data-character-stat="hp"
               data-character-stat-value={String(character.hp)}
               data-hp-display-tone={hpTone}
-              className="flex items-center gap-[1cqw] border-l border-(--color-iron-900) px-[2.5cqw] py-[1.5cqw]"
+              className="flex items-center gap-card-pill-gap border-l border-(--color-iron-900) px-card-pill-x py-card-pill-y"
               style={{
                 backgroundImage:
                   "linear-gradient(to bottom, var(--color-iron-300), var(--color-iron-700))",

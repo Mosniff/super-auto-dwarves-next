@@ -47,6 +47,34 @@
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
 
+  /* ── Character card internal sizes ─────────────────
+     These are the character card's internal sizes, in cqw (1% of the
+     card's own width), so the card scales as a whole. Tune them here. */
+  --text-card-title: 9cqw;
+  --text-card-stat: 9cqw;
+  --text-card-label: 7cqw;
+  --text-card-hp: 5cqw;
+  --text-card-overlay: 8cqw;
+  --spacing-card-frame-padding: 2.5cqw;
+  --spacing-card-frame-gap: 2cqw;
+  --spacing-card-bar-gap: 2cqw;
+  --spacing-card-bar-x: 3cqw;
+  --spacing-card-bar-y: 1.5cqw;
+  --spacing-card-inset: 2cqw;
+  --spacing-card-label-gap: 2cqw;
+  --spacing-card-hp-bar-inset: 3cqw;
+  --spacing-card-hp-bar-height: 6cqw;
+  --spacing-card-pill-x: 2.5cqw;
+  --spacing-card-pill-y: 1.5cqw;
+  --spacing-card-pill-gap: 1cqw;
+  --spacing-card-pill-offset: 2cqw;
+  --spacing-card-text-box-height: 20cqw;
+  --radius-card-bar: 2.5cqw;
+  --radius-card-portrait: 1cqw;
+  --radius-card-panel: 1.5cqw;
+  --radius-card-pill: 2cqw;
+  --border-width-card-frame: 3cqw;
+
   /* ── Slate / basalt (dark stone) ─────────────────── */
   --color-slate-50: #6b7177; /* lightest lit edge / highlight */
   --color-slate-100: #4a4f54; /* slab top face */
@@ -143,7 +171,11 @@
      image later. Layered gradients (soft highlight, soft shadow, a faint
      fine diagonal weave) over an existing colour variable. */
   --texture-card-frame:
-    radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.08), transparent 55%),
+    radial-gradient(
+      ellipse at 30% 20%,
+      rgba(255, 255, 255, 0.08),
+      transparent 55%
+    ),
     radial-gradient(ellipse at 75% 85%, rgba(0, 0, 0, 0.35), transparent 60%),
     repeating-linear-gradient(
       135deg,
@@ -154,7 +186,11 @@
     ),
     var(--color-portrait-brown);
   --texture-card-panel:
-    radial-gradient(ellipse at 25% 15%, rgba(255, 255, 255, 0.35), transparent 55%),
+    radial-gradient(
+      ellipse at 25% 15%,
+      rgba(255, 255, 255, 0.35),
+      transparent 55%
+    ),
     radial-gradient(ellipse at 80% 90%, rgba(0, 0, 0, 0.12), transparent 60%),
     repeating-linear-gradient(
       135deg,
