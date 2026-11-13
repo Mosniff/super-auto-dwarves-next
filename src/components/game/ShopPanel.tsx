@@ -87,7 +87,7 @@ function DraggableCharacterShopSlotTile({
       onClick={onClick}
       data-character-shop-slot-state="offering"
       data-camp-target-presentation={presentation}
-      className={`block aspect-3/4 flex-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${presentationClassName(
+      className={`block aspect-3/4 w-shop-tile rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${presentationClassName(
         presentation,
         isEnabled,
       )} ${isDragSource ? "opacity-40" : ""}`}
@@ -124,7 +124,7 @@ function RecessedShopSlot({ dataAttributes, children }: RecessedShopSlotProps) {
   return (
     <div
       {...dataAttributes}
-      className="flex aspect-3/4 flex-1 flex-col items-center justify-center gap-1 rounded-md bg-slate-200 p-1.5"
+      className="flex aspect-3/4 w-shop-tile flex-col items-center justify-center gap-1 rounded-md bg-slate-200 p-1.5"
       style={{ boxShadow: "var(--shadow-recess)" }}
     >
       {children}
@@ -136,26 +136,22 @@ interface ShopSectionProps {
   headingId: string;
   heading: string;
   gridClassName: string;
-  flexClassName: string;
   children: ReactNode;
 }
 
 // One named band in the shop (characters, equipment, magic, food). The
 // section element gets its accessible name from the heading it points to
 // via aria-labelledby, giving it the implicit "region" role tests query by
-// name.
+// name. Each section sizes itself to its own tiles — there is no flex
+// share to divide between sections any more.
 function ShopSection({
   headingId,
   heading,
   gridClassName,
-  flexClassName,
   children,
 }: ShopSectionProps) {
   return (
-    <section
-      className={`flex flex-col gap-2 ${flexClassName}`}
-      aria-labelledby={headingId}
-    >
+    <section className="flex flex-col gap-2" aria-labelledby={headingId}>
       <h3 id={headingId} className="text-sm font-semibold">
         {heading}
       </h3>
@@ -167,17 +163,11 @@ function ShopSection({
 const LOCKED_SHOP_SECTION_GRID_CLASS_NAMES: Readonly<
   Record<LockedShopSectionId, string>
 > = {
-  equipment: "grid grid-cols-2 grid-rows-2 gap-3",
-  magic: "grid grid-cols-2 grid-rows-2 gap-3",
-  food: "grid grid-cols-1 grid-rows-2 gap-3",
-};
-
-const LOCKED_SHOP_SECTION_FLEX_CLASS_NAMES: Readonly<
-  Record<LockedShopSectionId, string>
-> = {
-  equipment: "flex-[2]",
-  magic: "flex-[2]",
-  food: "flex-[1]",
+  equipment:
+    "grid grid-cols-[repeat(2,var(--spacing-shop-tile))] grid-rows-2 gap-shop-tile-gap",
+  magic:
+    "grid grid-cols-[repeat(2,var(--spacing-shop-tile))] grid-rows-2 gap-shop-tile-gap",
+  food: "grid grid-cols-[repeat(1,var(--spacing-shop-tile))] grid-rows-2 gap-shop-tile-gap",
 };
 
 interface ShopPanelProps {
@@ -216,13 +206,12 @@ export function ShopPanel({
   };
 
   return (
-    <section className="w-full max-w-5xl">
-      <div className="flex gap-6">
+    <section className="mx-auto w-fit">
+      <div className="flex gap-shop-section-gap">
         <ShopSection
           headingId={charactersHeadingId}
           heading={shopSectionTranslations("characters")}
-          gridClassName="grid grid-cols-4 grid-rows-2 gap-3"
-          flexClassName="flex-[4]"
+          gridClassName="grid grid-cols-[repeat(4,var(--spacing-shop-tile))] grid-rows-2 gap-shop-tile-gap"
         >
           {characterShopSlots.map((characterShopSlot, shopSlotIndex) => {
             if (characterShopSlot.slotState === "sold") {
@@ -296,9 +285,6 @@ export function ShopPanel({
             heading={shopSectionTranslations(lockedShopSectionId)}
             gridClassName={
               LOCKED_SHOP_SECTION_GRID_CLASS_NAMES[lockedShopSectionId]
-            }
-            flexClassName={
-              LOCKED_SHOP_SECTION_FLEX_CLASS_NAMES[lockedShopSectionId]
             }
           >
             {Array.from({
