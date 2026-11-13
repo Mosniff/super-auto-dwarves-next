@@ -164,10 +164,10 @@ const LOCKED_SHOP_SECTION_GRID_CLASS_NAMES: Readonly<
   Record<LockedShopSectionId, string>
 > = {
   equipment:
-    "grid grid-cols-[repeat(2,var(--spacing-shop-tile))] grid-rows-2 gap-shop-tile-gap",
+    "grid grid-cols-[repeat(2,var(--spacing-shop-tile))] grid-rows-2 gap-shop-tile-gap 3xl:gap-shop-tile-gap-wide",
   magic:
-    "grid grid-cols-[repeat(2,var(--spacing-shop-tile))] grid-rows-2 gap-shop-tile-gap",
-  food: "grid grid-cols-[repeat(1,var(--spacing-shop-tile))] grid-rows-2 gap-shop-tile-gap",
+    "grid grid-cols-[repeat(2,var(--spacing-shop-tile))] grid-rows-2 gap-shop-tile-gap 3xl:gap-shop-tile-gap-wide",
+  food: "grid grid-cols-[repeat(1,var(--spacing-shop-tile))] grid-rows-2 gap-shop-tile-gap 3xl:gap-shop-tile-gap-wide",
 };
 
 interface ShopPanelProps {
@@ -207,11 +207,11 @@ export function ShopPanel({
 
   return (
     <section className="mx-auto w-fit">
-      <div className="flex gap-shop-section-gap">
+      <div className="flex gap-shop-section-gap 3xl:gap-shop-section-gap-wide">
         <ShopSection
           headingId={charactersHeadingId}
           heading={shopSectionTranslations("characters")}
-          gridClassName="grid grid-cols-[repeat(4,var(--spacing-shop-tile))] grid-rows-2 gap-shop-tile-gap"
+          gridClassName="grid grid-cols-[repeat(4,var(--spacing-shop-tile))] grid-rows-2 gap-shop-tile-gap 3xl:gap-shop-tile-gap-wide"
         >
           {characterShopSlots.map((characterShopSlot, shopSlotIndex) => {
             if (characterShopSlot.slotState === "sold") {

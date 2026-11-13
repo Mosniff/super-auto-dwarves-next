@@ -203,7 +203,9 @@ export function CampScreen({
           deliberately not dimmed, to avoid flicker on fast responses. */}
       <div
         aria-busy={isSubmittingCampIntent}
-        className={isSubmittingCampIntent ? "cursor-wait" : ""}
+        // Must stay a flex column so the shell below can fill the height
+        // and the camp content can centre vertically.
+        className={`flex flex-1 flex-col ${isSubmittingCampIntent ? "cursor-wait" : ""}`}
       >
         <GameScreenShell
           gamePhase="campPhase"

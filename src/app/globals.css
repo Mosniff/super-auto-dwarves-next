@@ -75,11 +75,18 @@
   --radius-card-pill: 2cqw;
   --border-width-card-frame: 3cqw;
 
+  /* Windows wider than the 1920px target, used for the camp shop's
+     roomier gaps. */
+  --breakpoint-3xl: 125rem;
+
   /* ── Camp shop tile sizes — fixed, chosen to fit a 1920×1080 window;
-     tune here ───────────────────────────────────────── */
+     tune here. The -wide gaps apply from the 3xl breakpoint; tiles
+     never grow. ──────────────────────────────────────── */
   --spacing-shop-tile: 9.5rem;
   --spacing-shop-tile-gap: 0.75rem;
+  --spacing-shop-tile-gap-wide: 2rem;
   --spacing-shop-section-gap: 3rem;
+  --spacing-shop-section-gap-wide: 6rem;
 
   /* ── Slate / basalt (dark stone) ─────────────────── */
   --color-slate-50: #6b7177; /* lightest lit edge / highlight */
@@ -232,7 +239,11 @@
       transparent 78%,
       rgba(0, 0, 0, 0.35)
     ),
-    linear-gradient(to bottom, var(--color-heart-red-400), var(--color-heart-red-700));
+    linear-gradient(
+      to bottom,
+      var(--color-heart-red-400),
+      var(--color-heart-red-700)
+    );
 }
 
 @layer base {
