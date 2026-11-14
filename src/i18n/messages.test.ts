@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import englishMessages from "../../messages/en.json";
 import japaneseMessages from "../../messages/ja.json";
 import { CHARACTER_CLASS_IDS } from "@/lib/game/characterClasses";
-import { LOCKED_SHOP_SECTION_IDS } from "@/lib/game/lockedShopSections";
+import { PLACEHOLDER_SHOP_SECTION_IDS } from "@/lib/game/placeholderShopSections";
 
 describe("locale message parity", () => {
   // Extended when the battle-log control buttons (Advance, Autoplay: On/Off)
@@ -21,8 +21,9 @@ describe("locale message parity", () => {
   // was removed when Phase 8 connected the battle to the saved roster, and
   // again for Phase 9's locked shop slot label (shopSlotLockedLabel), and
   // again for the shopSection namespace naming the character/equipment/
-  // magic/food shop sections — deliberate test-data updates, not a
-  // weakening.
+  // magic/food shop sections, and again for the "Coming soon" label shown
+  // across the equipment/magic/food placeholder sections — deliberate
+  // test-data updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
     "advance",
@@ -57,6 +58,7 @@ describe("locale message parity", () => {
     "rosterSlotOccupiedLabel",
     "rosterSlotEmptyLabel",
     "shopSlotLockedLabel",
+    "shopSectionComingSoonLabel",
   ];
   const expectedBattleKeys = [
     "battleStart",
@@ -153,7 +155,7 @@ describe("locale message parity", () => {
           >
         ).shopSection ?? {},
       ).sort(),
-    ).toEqual(["characters", ...LOCKED_SHOP_SECTION_IDS].sort());
+    ).toEqual(["characters", ...PLACEHOLDER_SHOP_SECTION_IDS].sort());
   });
 
   it("japanese has exactly the shopSection keys", () => {
@@ -166,6 +168,6 @@ describe("locale message parity", () => {
           >
         ).shopSection ?? {},
       ).sort(),
-    ).toEqual(["characters", ...LOCKED_SHOP_SECTION_IDS].sort());
+    ).toEqual(["characters", ...PLACEHOLDER_SHOP_SECTION_IDS].sort());
   });
 });

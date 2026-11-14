@@ -298,7 +298,7 @@ describe("CampScreen", () => {
     });
   });
 
-  it("(q) shows the character, equipment, magic and food sections, with every new section slot locked", () => {
+  it("(q) shows the character, equipment, magic and food sections, with every placeholder slot coming soon", () => {
     renderCampScreen();
 
     ["Characters", "Equipment", "Magic", "Food"].forEach((sectionName) => {
@@ -318,32 +318,37 @@ describe("CampScreen", () => {
       charactersRegion.querySelectorAll("[data-character-shop-slot-state]"),
     ).toHaveLength(8);
 
-    const equipmentLockedSlots = equipmentRegion.querySelectorAll(
-      '[data-shop-section-slot-state="locked"]',
-    );
-    const magicLockedSlots = magicRegion.querySelectorAll(
-      '[data-shop-section-slot-state="locked"]',
-    );
-    const foodLockedSlots = foodRegion.querySelectorAll(
-      '[data-shop-section-slot-state="locked"]',
-    );
-
-    expect(equipmentLockedSlots).toHaveLength(4);
-    expect(magicLockedSlots).toHaveLength(4);
-    expect(foodLockedSlots).toHaveLength(2);
-
-    const allLockedSectionSlots = [
-      ...equipmentLockedSlots,
-      ...magicLockedSlots,
-      ...foodLockedSlots,
+    const placeholderRegionsBySlotCount: [Element, number][] = [
+      [equipmentRegion, 4],
+      [magicRegion, 4],
+      [foodRegion, 2],
     ];
 
-    allLockedSectionSlots.forEach((slotElement) => {
-      expect(slotElement.tagName).not.toBe("BUTTON");
-      expect(slotElement.querySelector("button")).toBeNull();
-      expect(slotElement.querySelector("svg")).not.toBeNull();
-      expect(slotElement.textContent).toContain("Locked");
-    });
+    placeholderRegionsBySlotCount.forEach(
+      ([placeholderRegion, expectedSlotCount]) => {
+        const comingSoonSlots = placeholderRegion.querySelectorAll(
+          '[data-shop-section-slot-state="comingSoon"]',
+        );
+
+        expect(comingSoonSlots).toHaveLength(expectedSlotCount);
+        comingSoonSlots.forEach((slotElement) => {
+          expect(slotElement.tagName).not.toBe("BUTTON");
+          expect(slotElement.querySelector("button")).toBeNull();
+          expect(slotElement.querySelector("svg")).toBeNull();
+          expect(slotElement.textContent).toBe("");
+        });
+
+        expect(
+          placeholderRegion.querySelectorAll(
+            "[data-shop-section-coming-soon]",
+          ),
+        ).toHaveLength(1);
+        expect(
+          placeholderRegion.querySelector("[data-shop-section-coming-soon]")
+            ?.textContent,
+        ).toContain("Coming soon");
+      },
+    );
   });
 
   it("(g) has exactly one page heading, the camp phase", () => {

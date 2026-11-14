@@ -3,15 +3,15 @@
 import { useId, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { useDraggable } from "@dnd-kit/react";
-import { Lock } from "lucide-react";
+import { Hourglass, Lock } from "lucide-react";
 import type { CharacterShopSlots } from "@/lib/game/characterShopSlots";
 import type { CharacterTemplate } from "@/lib/game/characterTemplates";
 import { spawnCharacterFromTemplate } from "@/lib/game/spawnCharacterFromTemplate";
 import {
-  LOCKED_SHOP_SECTION_IDS,
-  LOCKED_SHOP_SECTION_SLOT_COUNTS,
-  type LockedShopSectionId,
-} from "@/lib/game/lockedShopSections";
+  PLACEHOLDER_SHOP_SECTION_IDS,
+  PLACEHOLDER_SHOP_SECTION_SLOT_COUNTS,
+  type PlaceholderShopSectionId,
+} from "@/lib/game/placeholderShopSections";
 import type { CampClickTarget, CampTargetPresentation } from "./campSelection";
 import { CharacterCard } from "./CharacterCard";
 
@@ -112,18 +112,37 @@ function LockedSlotContents({ label }: { label: string }) {
   );
 }
 
+type RecessedShopSlotLook = "open" | "locked" | "comingSoon";
+
+// The single overlay label shown across an entire placeholder section
+// (equipment, magic, food), rather than per tile.
+function ComingSoonLabel() {
+  const t = useTranslations("common");
+
+  return (
+    <div
+      data-shop-section-coming-soon
+      className="flex items-center gap-2 rounded-md bg-slate-400/80 px-3 py-1.5 text-xl font-medium uppercase tracking-wide text-parchment-200"
+    >
+      <Hourglass aria-hidden="true" className="h-4 w-4" />
+      {t("shopSectionComingSoonLabel")}
+    </div>
+  );
+}
+
 interface RecessedShopSlotProps {
   dataAttributes: Record<string, string>;
   // "open" (sold or unavailable character slots): reads as an empty socket
   // a card could sit in — lighter, bordered, recessed. "locked" (locked
-  // character slots and every equipment/magic/food slot): reads as capped
-  // off — flatter, darker, faintly hatched.
-  slotLook: "open" | "locked";
+  // character slots): reads as capped off — flatter, darker, faintly
+  // hatched. "comingSoon" (every equipment/magic/food slot): plain and
+  // dashed, reads as not built yet rather than locked.
+  slotLook: RecessedShopSlotLook;
   children?: ReactNode;
 }
 
 const RECESSED_SHOP_SLOT_STYLE_BY_LOOK: Readonly<
-  Record<"open" | "locked", React.CSSProperties>
+  Record<RecessedShopSlotLook, React.CSSProperties>
 > = {
   open: {
     background: "var(--shop-slot-open-background)",
@@ -134,10 +153,14 @@ const RECESSED_SHOP_SLOT_STYLE_BY_LOOK: Readonly<
     background: "var(--shop-slot-locked-background)",
     boxShadow: "var(--shop-slot-locked-shadow)",
   },
+  comingSoon: {
+    background: "var(--shop-slot-coming-soon-background)",
+    border: "1px dashed var(--shop-slot-coming-soon-border)",
+  },
 };
 
 // Shared recessed-tile shell for every non-offering shop slot (sold,
-// unavailable or locked character slots; locked placeholder-section
+// unavailable or locked character slots; equipment/magic/food placeholder
 // slots) so their markup can't drift apart. The caller supplies whichever
 // data-* attribute identifies its own slot kind and state, plus its look.
 function RecessedShopSlot({
@@ -160,6 +183,10 @@ interface ShopSectionProps {
   headingId: string;
   heading: string;
   gridClassName: string;
+  // One overlay label across the whole section, centred over its tile
+  // grid, rather than per tile — used for the "Coming soon" placeholder
+  // sections.
+  gridOverlay?: ReactNode;
   children: ReactNode;
 }
 
@@ -172,6 +199,7 @@ function ShopSection({
   headingId,
   heading,
   gridClassName,
+  gridOverlay,
   children,
 }: ShopSectionProps) {
   return (
@@ -179,13 +207,20 @@ function ShopSection({
       <h3 id={headingId} className="text-sm font-semibold">
         {heading}
       </h3>
-      <div className={gridClassName}>{children}</div>
+      <div className="relative">
+        <div className={gridClassName}>{children}</div>
+        {gridOverlay && (
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            {gridOverlay}
+          </div>
+        )}
+      </div>
     </section>
   );
 }
 
-const LOCKED_SHOP_SECTION_GRID_CLASS_NAMES: Readonly<
-  Record<LockedShopSectionId, string>
+const PLACEHOLDER_SHOP_SECTION_GRID_CLASS_NAMES: Readonly<
+  Record<PlaceholderShopSectionId, string>
 > = {
   equipment:
     "grid grid-cols-[repeat(2,var(--shop-tile-width))] grid-rows-2 gap-(--shop-tile-gap)",
@@ -221,8 +256,8 @@ export function ShopPanel({
   const magicHeadingId = useId();
   const foodHeadingId = useId();
 
-  const lockedShopSectionHeadingIds: Readonly<
-    Record<LockedShopSectionId, string>
+  const placeholderShopSectionHeadingIds: Readonly<
+    Record<PlaceholderShopSectionId, string>
   > = {
     equipment: equipmentHeadingId,
     magic: magicHeadingId,
@@ -305,25 +340,31 @@ export function ShopPanel({
           })}
         </ShopSection>
 
-        {LOCKED_SHOP_SECTION_IDS.map((lockedShopSectionId) => (
+        {PLACEHOLDER_SHOP_SECTION_IDS.map((placeholderShopSectionId) => (
           <ShopSection
-            key={lockedShopSectionId}
-            headingId={lockedShopSectionHeadingIds[lockedShopSectionId]}
-            heading={shopSectionTranslations(lockedShopSectionId)}
-            gridClassName={
-              LOCKED_SHOP_SECTION_GRID_CLASS_NAMES[lockedShopSectionId]
+            key={placeholderShopSectionId}
+            headingId={
+              placeholderShopSectionHeadingIds[placeholderShopSectionId]
             }
+            heading={shopSectionTranslations(placeholderShopSectionId)}
+            gridClassName={
+              PLACEHOLDER_SHOP_SECTION_GRID_CLASS_NAMES[
+                placeholderShopSectionId
+              ]
+            }
+            gridOverlay={<ComingSoonLabel />}
           >
             {Array.from({
-              length: LOCKED_SHOP_SECTION_SLOT_COUNTS[lockedShopSectionId],
-            }).map((_, lockedSlotIndex) => (
+              length:
+                PLACEHOLDER_SHOP_SECTION_SLOT_COUNTS[placeholderShopSectionId],
+            }).map((_, placeholderSlotIndex) => (
               <RecessedShopSlot
-                key={lockedSlotIndex}
-                dataAttributes={{ "data-shop-section-slot-state": "locked" }}
-                slotLook="locked"
-              >
-                <LockedSlotContents label={t("shopSlotLockedLabel")} />
-              </RecessedShopSlot>
+                key={placeholderSlotIndex}
+                dataAttributes={{
+                  "data-shop-section-slot-state": "comingSoon",
+                }}
+                slotLook="comingSoon"
+              />
             ))}
           </ShopSection>
         ))}

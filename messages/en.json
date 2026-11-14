@@ -32,7 +32,8 @@
     "shopListingButtonLabel": "Shop: {characterName}",
     "rosterSlotOccupiedLabel": "Slot {slotNumber}: {characterName}",
     "rosterSlotEmptyLabel": "Slot {slotNumber}: empty",
-    "shopSlotLockedLabel": "Locked"
+    "shopSlotLockedLabel": "Locked",
+    "shopSectionComingSoonLabel": "Coming soon"
   },
   "characterClass": {
     "warrior": "Warrior",
