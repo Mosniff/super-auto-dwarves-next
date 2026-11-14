@@ -277,7 +277,7 @@ export function CampScreen({
           }
 
           return (
-            <div className="aspect-3/4 w-shop-tile">
+            <div className="aspect-3/4 w-(--shop-tile-width)">
               <CharacterCard character={character} />
             </div>
           );

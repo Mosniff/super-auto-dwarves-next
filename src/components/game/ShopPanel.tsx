@@ -87,7 +87,7 @@ function DraggableCharacterShopSlotTile({
       onClick={onClick}
       data-character-shop-slot-state="offering"
       data-camp-target-presentation={presentation}
-      className={`block aspect-3/4 w-shop-tile rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${presentationClassName(
+      className={`block aspect-3/4 w-(--shop-tile-width) rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${presentationClassName(
         presentation,
         isEnabled,
       )} ${isDragSource ? "opacity-40" : ""}`}
@@ -124,7 +124,7 @@ function RecessedShopSlot({ dataAttributes, children }: RecessedShopSlotProps) {
   return (
     <div
       {...dataAttributes}
-      className="flex aspect-3/4 w-shop-tile flex-col items-center justify-center gap-1 rounded-md bg-slate-200 p-1.5"
+      className="flex aspect-3/4 w-(--shop-tile-width) flex-col items-center justify-center gap-1 rounded-md bg-slate-200 p-1.5"
       style={{ boxShadow: "var(--shadow-recess)" }}
     >
       {children}
@@ -164,10 +164,10 @@ const LOCKED_SHOP_SECTION_GRID_CLASS_NAMES: Readonly<
   Record<LockedShopSectionId, string>
 > = {
   equipment:
-    "grid grid-cols-[repeat(2,var(--spacing-shop-tile))] grid-rows-2 gap-shop-tile-gap 3xl:gap-shop-tile-gap-wide",
+    "grid grid-cols-[repeat(2,var(--shop-tile-width))] grid-rows-2 gap-(--shop-tile-gap)",
   magic:
-    "grid grid-cols-[repeat(2,var(--spacing-shop-tile))] grid-rows-2 gap-shop-tile-gap 3xl:gap-shop-tile-gap-wide",
-  food: "grid grid-cols-[repeat(1,var(--spacing-shop-tile))] grid-rows-2 gap-shop-tile-gap 3xl:gap-shop-tile-gap-wide",
+    "grid grid-cols-[repeat(2,var(--shop-tile-width))] grid-rows-2 gap-(--shop-tile-gap)",
+  food: "grid grid-cols-[repeat(1,var(--shop-tile-width))] grid-rows-2 gap-(--shop-tile-gap)",
 };
 
 interface ShopPanelProps {
@@ -207,11 +207,11 @@ export function ShopPanel({
 
   return (
     <section className="mx-auto w-fit">
-      <div className="flex gap-shop-section-gap 3xl:gap-shop-section-gap-wide">
+      <div className="flex gap-(--shop-section-gap)">
         <ShopSection
           headingId={charactersHeadingId}
           heading={shopSectionTranslations("characters")}
-          gridClassName="grid grid-cols-[repeat(4,var(--spacing-shop-tile))] grid-rows-2 gap-shop-tile-gap 3xl:gap-shop-tile-gap-wide"
+          gridClassName="grid grid-cols-[repeat(4,var(--shop-tile-width))] grid-rows-2 gap-(--shop-tile-gap)"
         >
           {characterShopSlots.map((characterShopSlot, shopSlotIndex) => {
             if (characterShopSlot.slotState === "sold") {
