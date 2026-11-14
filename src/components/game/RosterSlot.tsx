@@ -180,7 +180,7 @@ export function RosterSlot({
           )}
         </AnimatePresence>
         {!character && (
-          <span className="select-none text-[10px] font-medium uppercase tracking-wide text-slate-50/30">
+          <span className="select-none text-[20px] font-medium uppercase tracking-wide text-parchment-50/30">
             {t("empty")}
           </span>
         )}

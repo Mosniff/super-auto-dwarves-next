@@ -25,7 +25,7 @@ export function GamePhaseBanner({ gamePhase }: GamePhaseBannerProps) {
   return (
     <div data-game-phase-banner={gamePhase} className="flex justify-center">
       <h1
-        className="w-full px-16 py-2 text-center text-lg font-bold uppercase tracking-widest text-(--color-parchment-50) [text-shadow:0_1px_2px_rgba(0,0,0,0.6)]"
+        className="w-full px-16 py-4 text-center text-3xl font-bold uppercase tracking-widest text-(--color-parchment-50) [text-shadow:0_1px_2px_rgba(0,0,0,0.6)]"
         style={{
           background: "var(--texture-phase-banner)",
           clipPath:

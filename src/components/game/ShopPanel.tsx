@@ -91,6 +91,7 @@ function DraggableCharacterShopSlotTile({
         presentation,
         isEnabled,
       )} ${isDragSource ? "opacity-40" : ""}`}
+      style={{ border: "1px solid var(--shop-slot-open-border)" }}
     >
       <CharacterCard character={displayCharacter} />
     </button>
@@ -104,7 +105,7 @@ function LockedSlotContents({ label }: { label: string }) {
   return (
     <>
       <Lock aria-hidden="true" className="h-4 w-4 text-slate-50/30" />
-      <span className="select-none text-[10px] font-medium uppercase tracking-wide text-slate-50/30">
+      <span className="select-none text-[20px] font-medium uppercase tracking-wide text-slate-50/30">
         {label}
       </span>
     </>
@@ -113,19 +114,42 @@ function LockedSlotContents({ label }: { label: string }) {
 
 interface RecessedShopSlotProps {
   dataAttributes: Record<string, string>;
+  // "open" (sold or unavailable character slots): reads as an empty socket
+  // a card could sit in — lighter, bordered, recessed. "locked" (locked
+  // character slots and every equipment/magic/food slot): reads as capped
+  // off — flatter, darker, faintly hatched.
+  slotLook: "open" | "locked";
   children?: ReactNode;
 }
+
+const RECESSED_SHOP_SLOT_STYLE_BY_LOOK: Readonly<
+  Record<"open" | "locked", React.CSSProperties>
+> = {
+  open: {
+    background: "var(--shop-slot-open-background)",
+    boxShadow: "var(--shadow-recess)",
+    border: "1px solid var(--shop-slot-open-border)",
+  },
+  locked: {
+    background: "var(--shop-slot-locked-background)",
+    boxShadow: "var(--shop-slot-locked-shadow)",
+  },
+};
 
 // Shared recessed-tile shell for every non-offering shop slot (sold,
 // unavailable or locked character slots; locked placeholder-section
 // slots) so their markup can't drift apart. The caller supplies whichever
-// data-* attribute identifies its own slot kind and state.
-function RecessedShopSlot({ dataAttributes, children }: RecessedShopSlotProps) {
+// data-* attribute identifies its own slot kind and state, plus its look.
+function RecessedShopSlot({
+  dataAttributes,
+  slotLook,
+  children,
+}: RecessedShopSlotProps) {
   return (
     <div
       {...dataAttributes}
-      className="flex aspect-3/4 w-(--shop-tile-width) flex-col items-center justify-center gap-1 rounded-md bg-slate-200 p-1.5"
-      style={{ boxShadow: "var(--shadow-recess)" }}
+      className="flex aspect-3/4 w-(--shop-tile-width) flex-col items-center justify-center gap-1 rounded-md p-1.5"
+      style={RECESSED_SHOP_SLOT_STYLE_BY_LOOK[slotLook]}
     >
       {children}
     </div>
@@ -219,8 +243,9 @@ export function ShopPanel({
                 <RecessedShopSlot
                   key={shopSlotIndex}
                   dataAttributes={{ "data-character-shop-slot-state": "sold" }}
+                  slotLook="open"
                 >
-                  <span className="select-none text-[10px] font-medium uppercase tracking-wide text-slate-50/30">
+                  <span className="select-none text-[20px] font-medium uppercase tracking-wide text-parchment-50/30">
                     {t("shopListingSoldLabel")}
                   </span>
                 </RecessedShopSlot>
@@ -263,6 +288,7 @@ export function ShopPanel({
                   dataAttributes={{
                     "data-character-shop-slot-state": "unavailable",
                   }}
+                  slotLook="open"
                 />
               );
             }
@@ -271,6 +297,7 @@ export function ShopPanel({
               <RecessedShopSlot
                 key={shopSlotIndex}
                 dataAttributes={{ "data-character-shop-slot-state": "locked" }}
+                slotLook="locked"
               >
                 <LockedSlotContents label={t("shopSlotLockedLabel")} />
               </RecessedShopSlot>
@@ -293,6 +320,7 @@ export function ShopPanel({
               <RecessedShopSlot
                 key={lockedSlotIndex}
                 dataAttributes={{ "data-shop-section-slot-state": "locked" }}
+                slotLook="locked"
               >
                 <LockedSlotContents label={t("shopSlotLockedLabel")} />
               </RecessedShopSlot>
