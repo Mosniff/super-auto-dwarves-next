@@ -33,7 +33,27 @@ export function PhaseAdvanceButton({
     <form data-phase-advance action={advanceGameAction}>
       <input type="hidden" name="expectedCurrentPhase" value={gamePhase} />
       <PendingSubmitButton size="lg" disabled={!isAvailable}>
-        {t(PHASE_ADVANCE_TRANSLATION_KEYS[gamePhase])}
+        {/* All labels share one grid cell so the button is always as wide
+            as the widest label in the current locale and never resizes on
+            a phase change; the non-current labels are invisible but still
+            take up space, and are aria-hidden so the accessible name is
+            only the current label; new phases join automatically via the
+            map. */}
+        <span className="grid">
+          {(Object.keys(PHASE_ADVANCE_TRANSLATION_KEYS) as GamePhase[]).map(
+            (labelGamePhase) => (
+              <span
+                key={labelGamePhase}
+                className={`col-start-1 row-start-1 ${
+                  labelGamePhase === gamePhase ? "" : "invisible"
+                }`}
+                aria-hidden={labelGamePhase === gamePhase ? undefined : true}
+              >
+                {t(PHASE_ADVANCE_TRANSLATION_KEYS[labelGamePhase])}
+              </span>
+            ),
+          )}
+        </span>
       </PendingSubmitButton>
     </form>
   );
