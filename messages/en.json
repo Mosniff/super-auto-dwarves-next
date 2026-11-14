@@ -7,7 +7,7 @@
     "tagline": "A fantasy auto-battler. Build your roster. Delve deep.",
     "play": "Play",
     "settings": "Settings",
-    "menu": "← Menu",
+    "menu": "Menu",
     "language": "Language",
     "downed": "Downed",
     "appTitle": "Super Auto Dwarves",
@@ -33,7 +33,8 @@
     "rosterSlotOccupiedLabel": "Slot {slotNumber}: {characterName}",
     "rosterSlotEmptyLabel": "Slot {slotNumber}: empty",
     "shopSlotLockedLabel": "Locked",
-    "shopSectionComingSoonLabel": "Coming soon"
+    "shopSectionComingSoonLabel": "Coming soon",
+    "gemsLabel": "{gems} gems"
   },
   "characterClass": {
     "warrior": "Warrior",

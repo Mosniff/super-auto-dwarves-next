@@ -7,7 +7,7 @@
     "tagline": "ファンタジーオートバトラー。ロスターを編成し、深淵へ挑め。",
     "play": "プレイ",
     "settings": "せってい",
-    "menu": "← メニュー",
+    "menu": "メニュー",
     "language": "言語",
     "downed": "倒れた",
     "appTitle": "スーパーオートドワーフ",
@@ -33,7 +33,8 @@
     "rosterSlotOccupiedLabel": "スロット{slotNumber}：{characterName}",
     "rosterSlotEmptyLabel": "スロット{slotNumber}：空き",
     "shopSlotLockedLabel": "未解放",
-    "shopSectionComingSoonLabel": "近日公開"
+    "shopSectionComingSoonLabel": "近日公開",
+    "gemsLabel": "{gems}ジェム"
   },
   "characterClass": {
     "warrior": "戦士",

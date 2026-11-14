@@ -203,6 +203,12 @@
   --shop-slot-coming-soon-background: var(--color-slate-300);
   --shop-slot-coming-soon-border: rgba(255, 255, 255, 0.12);
 
+  /* ── Header divider ──────────────────────────────────
+     An engraved groove between header sections; tune here. */
+  --header-divider-height: 1.75rem;
+  --header-divider-light: var(--color-slate-50);
+  --header-divider-dark: rgba(21, 24, 27, 0.8);
+
   /* ── Card textures ─────────────────────────────────
      CSS-only placeholder textures, which the human may replace with an
      image later. Layered gradients (soft highlight, soft shadow, a faint

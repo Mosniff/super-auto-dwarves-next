@@ -5,9 +5,15 @@ import { GameStatus } from "./GameStatus";
 
 describe("GameStatus", () => {
   it("(m) shows the day and gold", () => {
-    renderWithMessages(<GameStatus day={3} gold={10} />);
+    renderWithMessages(<GameStatus day={3} gold={10} gems={0} />);
 
     expect(screen.queryByText(/Day 3/)).not.toBeNull();
     expect(screen.queryByText(/10 gold/)).not.toBeNull();
+  });
+
+  it("(m2) shows the gem count", () => {
+    renderWithMessages(<GameStatus day={3} gold={10} gems={0} />);
+
+    expect(screen.queryByText(/0 gems/)).not.toBeNull();
   });
 });
