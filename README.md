@@ -118,10 +118,11 @@ The **fundamental battle system** is specified (see above). Still to be specifie
 - [x] Real battles — resolved on the server from the saved roster against a placeholder enemy _(Phase 8 part two)_
 - [x] Character data — classes, tiers and templates as typed data _(Phase 9 part one; see `CLAUDE.md` → "Character data: classes, tiers and templates")_, owned characters spawned from them _(part two)_, and an 8-slot character shop rolled on the server and bought from by slot _(parts three and four)_, cards that show each dwarf's tier and translated classes _(part five)_, and one character type everywhere, with the placeholder enemy spawned from a template too _(part six)_
 - [x] Phase transitions — phase changes swipe the content forward under a fixed roster, and a battle opens with an empty action zone the front characters enter on the first beat _(Phase 10; see `CLAUDE.md` → "Phase transitions: the game frame and the swipe")_
+- [x] Interface polish — a trading-card style character card that scales to any size, a game header with day, gold, a placeholder gems counter and one phase-advance button, a phase banner, and a fixed-size camp shop _(Phase 10; see `CLAUDE.md` → "Game frame: header, phase banner and advancing")_
 - [ ] Enemy generation — PvE opponents and PvP roster snapshots
 - [ ] Battle consequences — game over on loss, rewards on win
 - [ ] Card model and card types
 - [ ] Character stats and progression / leveling rules
-- [~] Roster construction and constraints (shopping phase) — camp rules and the character shop defined, with locked equipment, magic and food sections shown as placeholders _(Phase 10)_; paid rerolls, tier gating, open-slot growth, rules for the other shop sections, selling and promotion still to come
+- [~] Roster construction and constraints (shopping phase) — camp rules and the character shop defined, with equipment, magic and food sections shown as "Coming soon" placeholders _(Phase 10)_; paid rerolls, tier gating, open-slot growth, rules for the other shop sections, selling and promotion still to come
 - [ ] Character abilities and triggered effects (extends the fundamental battle system)
 - [~] Data model (Prisma schema) — the User/Game save model is now defined _(see `CLAUDE.md` → "Persistence & save model")_; schema for the game systems below (cards, progression, abilities) still pending
