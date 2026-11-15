@@ -106,4 +106,17 @@ describe("campInteractionMode", () => {
       latchedThenFocusLost: ["mergeOrSell", "mergeOrSell"],
     });
   });
+
+  it("IM8: while a shop character is held, Shift is ignored but a latch still holds", () => {
+    expect({
+      shiftHeld: campInteractionModeFromState(
+        stateAfterEvents([shiftPressed]),
+        true,
+      ),
+      latched: campInteractionModeFromState(
+        stateAfterEvents([toggleClicked]),
+        true,
+      ),
+    }).toEqual({ shiftHeld: "reposition", latched: "mergeOrSell" });
+  });
 });

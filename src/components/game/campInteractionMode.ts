@@ -73,9 +73,18 @@ export function reduceCampInteractionModeState(
   }
 }
 
+// The interaction mode never affects a shop hold (a shop card buys or
+// merge-buys in either mode), so while one is held the UI mustn't suggest
+// Shift does anything — Shift is ignored. The latch is kept, per the
+// human: a latched toggle still reports "mergeOrSell" while disabled.
 export function campInteractionModeFromState(
   state: CampInteractionModeState,
+  isShopCharacterHeld: boolean = false,
 ): CampInteractionMode {
+  if (isShopCharacterHeld) {
+    return state.isMergeSellToggleLatched ? "mergeOrSell" : "reposition";
+  }
+
   return state.isMergeSellToggleLatched || state.isShiftHeld
     ? "mergeOrSell"
     : "reposition";

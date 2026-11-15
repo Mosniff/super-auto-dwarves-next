@@ -11,6 +11,7 @@ import {
 interface UseCampInteractionModeResult {
   campInteractionMode: CampInteractionMode;
   isMergeSellToggleLatched: boolean;
+  isMergeSellToggleDisabled: boolean;
   onMergeSellToggleClick: () => void;
 }
 
@@ -23,7 +24,9 @@ interface UseCampInteractionModeResult {
 // stuck in merge/sell with no way for the player to release it by
 // keyboard. window's blur and document's visibilitychange both clear a
 // held Shift as a safety net, mirroring the reducer's focusLost event.
-export function useCampInteractionMode(): UseCampInteractionModeResult {
+export function useCampInteractionMode(
+  isShopCharacterHeld: boolean,
+): UseCampInteractionModeResult {
   const [campInteractionModeState, dispatchCampInteractionModeEvent] =
     useReducer(reduceCampInteractionModeState, initialCampInteractionModeState);
 
@@ -72,8 +75,12 @@ export function useCampInteractionMode(): UseCampInteractionModeResult {
   }, []);
 
   return {
-    campInteractionMode: campInteractionModeFromState(campInteractionModeState),
+    campInteractionMode: campInteractionModeFromState(
+      campInteractionModeState,
+      isShopCharacterHeld,
+    ),
     isMergeSellToggleLatched: campInteractionModeState.isMergeSellToggleLatched,
+    isMergeSellToggleDisabled: isShopCharacterHeld,
     onMergeSellToggleClick,
   };
 }

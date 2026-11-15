@@ -752,6 +752,37 @@ describe("CampScreen", () => {
     expect(readSellArea().shown).toBe("false");
   });
 
+  it("(sh1) holding a shop card disables the toggle and Shift does nothing", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    await user.click(screen.getByRole("button", { name: "Shop: Thrudi" }));
+    await user.keyboard("{Shift>}");
+
+    const toggle = screen.getByRole("button", { name: "Merge / Sell" });
+
+    expect({
+      disabled: toggle.hasAttribute("disabled"),
+      active: toggle.getAttribute("data-merge-sell-mode-active"),
+    }).toEqual({ disabled: true, active: "false" });
+  });
+
+  it("(sh2) a latched toggle stays latched, but disabled, while a shop card is held", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    await user.click(screen.getByRole("button", { name: "Shop: Thrudi" }));
+
+    const toggle = screen.getByRole("button", { name: "Merge / Sell" });
+
+    expect({
+      disabled: toggle.hasAttribute("disabled"),
+      pressed: toggle.getAttribute("aria-pressed"),
+      active: toggle.getAttribute("data-merge-sell-mode-active"),
+    }).toEqual({ disabled: true, pressed: "true", active: "true" });
+  });
+
   it("(ii) a settled mode change is announced politely", async () => {
     const user = userEvent.setup();
     renderCampScreen();

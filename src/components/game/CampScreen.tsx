@@ -78,15 +78,6 @@ export function CampScreen({
 }: CampScreenProps) {
   const t = useTranslations("common");
 
-  // Client UI state only — the server never receives or learns it, only
-  // the explicit intent (reposition vs. mergeCharacters) it caused the
-  // player to submit.
-  const {
-    campInteractionMode,
-    isMergeSellToggleLatched,
-    onMergeSellToggleClick,
-  } = useCampInteractionMode();
-
   // The selection, drag-source selection and pending-ness below are UI
   // state only, for click/drag feedback and disabling tiles mid-submit.
   // The server re-validates every intent; the page's reloaded props (from
@@ -105,6 +96,25 @@ export function CampScreen({
     gold,
     characterShopSlots,
   };
+
+  // The item in hand: the drag source during a drag, otherwise the click
+  // selection. Every tile's presentation is derived from this single value,
+  // so click-select and drag always present identically.
+  const heldCampItem = campDragSourceSelection ?? campSelection;
+
+  // Client UI state only — the server never receives or learns it, only
+  // the explicit intent (reposition vs. mergeCharacters) it caused the
+  // player to submit. The interaction mode never affects a shop hold, so
+  // this is told whenever one is held, purely so the toggle can tell the
+  // truth about being inert (campInteractionMode.ts's own comment).
+  const {
+    campInteractionMode,
+    isMergeSellToggleLatched,
+    isMergeSellToggleDisabled,
+    onMergeSellToggleClick,
+  } = useCampInteractionMode(
+    heldCampItem.selectionKind === "characterShopSlot",
+  );
 
   function submitCampIntent(campIntent: CampIntent): void {
     const formData = new FormData();
@@ -179,11 +189,6 @@ export function CampScreen({
       )
     );
   }
-
-  // The item in hand: the drag source during a drag, otherwise the click
-  // selection. Every tile's presentation is derived from this single value,
-  // so click-select and drag always present identically.
-  const heldCampItem = campDragSourceSelection ?? campSelection;
 
   function campTargetPresentation(
     campClickTarget: CampClickTarget,
@@ -273,6 +278,7 @@ export function CampScreen({
                 isMergeOrSellModeActive={campInteractionMode === "mergeOrSell"}
                 isLatched={isMergeSellToggleLatched}
                 onClick={onMergeSellToggleClick}
+                isDisabled={isMergeSellToggleDisabled}
               />
               <SellArea
                 isShown={

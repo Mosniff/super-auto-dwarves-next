@@ -7,6 +7,7 @@ interface MergeSellToggleProps {
   isMergeOrSellModeActive: boolean;
   isLatched: boolean;
   onClick: () => void;
+  isDisabled: boolean;
 }
 
 // Reposition and merge/sell are deliberately equal states — neither looks
@@ -27,10 +28,17 @@ interface MergeSellToggleProps {
 // Renders only the toggle button — the hint and the sell box are
 // CampScreen's own, reserved-space siblings in the trailing group
 // (CLAUDE.md -> "Camp: shop, roster and intents").
+//
+// The toggle is disabled while a shop card is held: the interaction mode
+// never affects a shop hold (it buys or merge-buys in either mode), so the
+// controls must tell the truth about being inert rather than looking live.
+// A latch stays visible but inert — disabled:opacity-50 dims the labels,
+// the "(hold SHIFT)" sub-label, the track, the knob and the lock together.
 export function MergeSellToggle({
   isMergeOrSellModeActive,
   isLatched,
   onClick,
+  isDisabled,
 }: MergeSellToggleProps) {
   const t = useTranslations("common");
 
@@ -43,8 +51,10 @@ export function MergeSellToggle({
         data-merge-sell-toggle
         data-merge-sell-mode-active={String(isMergeOrSellModeActive)}
         data-merge-sell-latched={String(isLatched)}
+        data-merge-sell-toggle-disabled={String(isDisabled)}
+        disabled={isDisabled}
         onClick={onClick}
-        className="flex items-center gap-3 rounded-md bg-transparent p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="flex items-center gap-3 rounded-md bg-transparent p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
       >
         <span
           data-merge-sell-side-label="reposition"
