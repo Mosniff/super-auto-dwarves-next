@@ -7,7 +7,6 @@ interface MergeSellToggleProps {
   isMergeOrSellModeActive: boolean;
   isLatched: boolean;
   onClick: () => void;
-  isRosterDwarfHeld: boolean;
 }
 
 // Reposition and merge/sell are deliberately equal states — neither looks
@@ -24,16 +23,19 @@ interface MergeSellToggleProps {
 // Holding Shift moves the knob (isMergeOrSellModeActive) without latching
 // it; clicking latches the mode and shows the lock, which is what keeps
 // working once Shift is released.
+//
+// Renders only the toggle button — the hint and the sell box are
+// CampScreen's own, reserved-space siblings in the trailing group
+// (CLAUDE.md -> "Camp: shop, roster and intents").
 export function MergeSellToggle({
   isMergeOrSellModeActive,
   isLatched,
   onClick,
-  isRosterDwarfHeld,
 }: MergeSellToggleProps) {
   const t = useTranslations("common");
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex shrink-0 flex-col items-center gap-3">
       <button
         type="button"
         aria-pressed={isLatched}
@@ -59,13 +61,18 @@ export function MergeSellToggle({
           <span
             data-merge-sell-knob
             style={{
-              left: isMergeOrSellModeActive ? "calc(100% - 1.75rem)" : "0.25rem",
+              left: isMergeOrSellModeActive
+                ? "calc(100% - 1.75rem)"
+                : "0.25rem",
             }}
             className="absolute top-1 flex size-6 items-center justify-center rounded-full bg-(--color-parchment-100) shadow motion-safe:transition-[left] motion-safe:duration-200"
           >
             {isLatched && (
               <span data-merge-sell-lock>
-                <Lock aria-hidden="true" className="size-4 text-(--color-iron-900)" />
+                <Lock
+                  aria-hidden="true"
+                  className="size-4 text-(--color-iron-900)"
+                />
               </span>
             )}
           </span>
@@ -73,16 +80,23 @@ export function MergeSellToggle({
         <span
           data-merge-sell-side-label="mergeOrSell"
           aria-hidden="true"
-          className="whitespace-nowrap text-sm font-bold uppercase tracking-wide text-(--color-parchment-100) [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]"
+          className="flex flex-col items-center justify-center whitespace-nowrap text-sm font-bold uppercase tracking-wide text-(--color-parchment-100) [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]"
         >
-          {t("mergeSellToggle")}
+          <span>{t("mergeSellToggle")}</span>
+          {/* Absolutely positioned so the two main labels stay level with
+              the track and the button's layout doesn't grow. Replaces the
+              removed hint paragraph. Screen readers don't need it: Shift is
+              a pointer convenience, and the toggle button is the accessible
+              way to change mode — it's already inside the label's
+              aria-hidden. */}
+          <span
+            data-merge-sell-shift-hint
+            className="text-xs font-normal normal-case italic tracking-normal opacity-80"
+          >
+            {t("mergeSellShiftHint")}
+          </span>
         </span>
       </button>
-      {isRosterDwarfHeld && (
-        <p className="text-center text-sm text-(--color-parchment-200)">
-          {t("mergeSellHint")}
-        </p>
-      )}
     </div>
   );
 }

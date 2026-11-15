@@ -680,20 +680,76 @@ describe("CampScreen", () => {
     ).toHaveAttribute("data-merge-sell-mode-active", "false");
   });
 
-  it("(hh) the hint appears only while a roster dwarf is held", async () => {
+  function readSellArea() {
+    const sellArea = document.querySelector("[data-sell-area]");
+    return {
+      shown: sellArea?.getAttribute("data-sell-area-shown"),
+      presentation: sellArea?.getAttribute("data-camp-target-presentation"),
+    };
+  }
+
+  it("(sa1) the sell box reserves its space but is hidden and unreachable with nothing held", () => {
+    renderCampScreen();
+
+    expect({
+      ...readSellArea(),
+      sellButtonFound:
+        screen.queryByRole("button", { name: "Sell" }) !== null,
+    }).toEqual({
+      shown: "false",
+      presentation: "ineligible",
+      sellButtonFound: false,
+    });
+  });
+
+  it("(sa2) holding a roster dwarf in merge/sell mode shows an eligible sell box", async () => {
     const user = userEvent.setup();
     renderCampScreen();
 
-    const hintText = "Hold SHIFT or press Merge / Sell to merge or sell";
-    const before = screen.queryByText(hintText) !== null;
+    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+
+    expect({
+      ...readSellArea(),
+      sellButtonFound:
+        screen.queryByRole("button", { name: "Sell" }) !== null,
+    }).toEqual({
+      shown: "true",
+      presentation: "eligible",
+      sellButtonFound: true,
+    });
+  });
+
+  it("(sa3) clicking the sell box sells the held dwarf", async () => {
+    const recordedSellFormValues: Record<string, FormDataEntryValue>[] = [];
+    const sellCharacterAction = async (formData: FormData) => {
+      recordedSellFormValues.push(Object.fromEntries(formData));
+    };
+    const user = userEvent.setup();
+    renderCampScreen({ sellCharacterAction });
+
+    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Sell" }));
+
+    expect(recordedSellFormValues).toEqual([
+      { slotIndex: "0", expectedRevision: "5" },
+    ]);
+  });
+
+  it("(sa4) in reposition mode, holding a roster dwarf keeps the sell box hidden", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
 
     await user.click(
       screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
     );
 
-    const after = screen.queryByText(hintText) !== null;
-
-    expect([before, after]).toEqual([false, true]);
+    expect(readSellArea().shown).toBe("false");
   });
 
   it("(ii) a settled mode change is announced politely", async () => {

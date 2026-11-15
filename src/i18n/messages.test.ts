@@ -30,7 +30,8 @@ describe("locale message parity", () => {
   // again for Phase 11's merge/sell toggle, hint and mode announcements
   // (mergeSellToggle, mergeSellHint, mergeSellModeOnAnnouncement,
   // mergeSellModeOffAnnouncement), and repositionLabel for the toggle's
-  // left side —
+  // left side, and sellLabel for the sell box; mergeSellHint was replaced
+  // by mergeSellShiftHint, a sub-label on the toggle —
   // deliberate test-data updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
@@ -74,10 +75,11 @@ describe("locale message parity", () => {
     "experienceToNextLevel",
     "experienceBarMaxLevel",
     "mergeSellToggle",
-    "mergeSellHint",
+    "mergeSellShiftHint",
     "mergeSellModeOnAnnouncement",
     "mergeSellModeOffAnnouncement",
     "repositionLabel",
+    "sellLabel",
   ];
   const expectedBattleKeys = [
     "battleStart",

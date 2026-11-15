@@ -10,6 +10,7 @@ import { ShopPanel } from "@/components/game/ShopPanel";
 import { CharacterCard } from "@/components/game/CharacterCard";
 import { MergeSellToggle } from "@/components/game/MergeSellToggle";
 import { MergeSellModeAnnouncer } from "@/components/game/MergeSellModeAnnouncer";
+import { SellArea } from "@/components/game/SellArea";
 import { useCampInteractionMode } from "@/components/game/useCampInteractionMode";
 import type { Character } from "@/lib/game/character";
 import type { CampRoster } from "@/lib/game/campRoster";
@@ -80,8 +81,11 @@ export function CampScreen({
   // Client UI state only — the server never receives or learns it, only
   // the explicit intent (reposition vs. mergeCharacters) it caused the
   // player to submit.
-  const { campInteractionMode, isMergeSellToggleLatched, onMergeSellToggleClick } =
-    useCampInteractionMode();
+  const {
+    campInteractionMode,
+    isMergeSellToggleLatched,
+    onMergeSellToggleClick,
+  } = useCampInteractionMode();
 
   // The selection, drag-source selection and pending-ness below are UI
   // state only, for click/drag feedback and disabling tiles mid-submit.
@@ -264,15 +268,27 @@ export function CampScreen({
           playerBenchCharacters={playerCampRoster}
           showsPlayerCharacterProgression
           playerRosterTrailingControls={
-            <>
+            <div className="flex w-full flex-1 flex-col gap-3 px-6">
               <MergeSellToggle
                 isMergeOrSellModeActive={campInteractionMode === "mergeOrSell"}
                 isLatched={isMergeSellToggleLatched}
                 onClick={onMergeSellToggleClick}
-                isRosterDwarfHeld={heldCampItem.selectionKind === "rosterSlot"}
               />
-              <MergeSellModeAnnouncer campInteractionMode={campInteractionMode} />
-            </>
+              <SellArea
+                isShown={
+                  campInteractionMode === "mergeOrSell" &&
+                  heldCampItem.selectionKind === "rosterSlot"
+                }
+                presentation={campTargetPresentation({
+                  targetKind: "sellArea",
+                })}
+                isEnabled={isClickEnabled({ targetKind: "sellArea" })}
+                onClick={() => handleCampClick({ targetKind: "sellArea" })}
+              />
+              <MergeSellModeAnnouncer
+                campInteractionMode={campInteractionMode}
+              />
+            </div>
           }
           playerSlotInteraction={{
             selectedSlotIndex:
@@ -322,7 +338,10 @@ export function CampScreen({
                   : null
               }
               isShopSlotEnabled={(shopSlotIndex) =>
-                isClickEnabled({ targetKind: "characterShopSlot", shopSlotIndex })
+                isClickEnabled({
+                  targetKind: "characterShopSlot",
+                  shopSlotIndex,
+                })
               }
               isShopSlotDraggable={(shopSlotIndex) =>
                 !isSubmittingCampIntent &&
@@ -339,7 +358,10 @@ export function CampScreen({
                 })
               }
               onShopSlotClick={(shopSlotIndex) =>
-                handleCampClick({ targetKind: "characterShopSlot", shopSlotIndex })
+                handleCampClick({
+                  targetKind: "characterShopSlot",
+                  shopSlotIndex,
+                })
               }
             />
           </section>
