@@ -21,17 +21,38 @@ const fixtureCharacterTemplates: CharacterTemplate[] = [
   fixtureCharacterShopTemplateTwo,
 ];
 
+// Must not match any fixture shop offering, so R6 and O1 keep testing a
+// non-matching occupied slot (merge-buy tests use a matching occupant).
 const occupiedFixtureCharacter: Character = {
   id: "existing-dwarf",
   name: "Existing Dwarf",
   attack: 2,
   hp: 4,
   maxHp: 4,
-  characterTemplateId: "fixture-dwarf-one",
+  characterTemplateId: "fixture-dwarf-not-offered",
   tier: 1,
   characterClassIds: ["warrior"],
   experience: 0,
 };
+
+// Matches buildFixtureCharacterShopSlots()'s slot 1 (fixture-dwarf-two). Its
+// hp is deliberately below maxHp.
+function buildMatchingRosterCharacter(
+  overrides: Partial<Character> = {},
+): Character {
+  return {
+    id: "existing-two",
+    name: "Existing Two",
+    characterTemplateId: "fixture-dwarf-two",
+    tier: 2,
+    characterClassIds: ["smith", "miner"],
+    attack: 7,
+    hp: 9,
+    maxHp: 12,
+    experience: 4,
+    ...overrides,
+  };
+}
 
 function buildFixtureShopCampState(
   overrides: Partial<CampState> = {},
@@ -78,6 +99,7 @@ describe("buyCharacterFromShopSlot", () => {
 
     expect(result).toEqual({
       outcome: "accepted",
+      acceptanceKind: "placed",
       nextCampState: {
         campRoster: [
           null,
@@ -119,6 +141,7 @@ describe("buyCharacterFromShopSlot", () => {
 
     expect(result).toEqual({
       outcome: "accepted",
+      acceptanceKind: "placed",
       nextCampState: {
         campRoster: [
           expectedSpawnedCharacter(
@@ -171,6 +194,7 @@ describe("buyCharacterFromShopSlot", () => {
 
     expect(secondResult).toEqual({
       outcome: "accepted",
+      acceptanceKind: "placed",
       nextCampState: {
         campRoster: [
           expectedSpawnedCharacter(
@@ -461,6 +485,214 @@ describe("buyCharacterFromShopSlot", () => {
       fixtureCharacterTemplates,
       0,
       0,
+      "new-dwarf-1",
+    );
+
+    expect(fixtureShopCampState).toEqual(shopCampStateClone);
+    expect(fixtureCharacterTemplates).toEqual(characterTemplatesClone);
+  });
+
+  it("B5: merge-buys a matching shop character onto a roster dwarf", () => {
+    const matchingRosterCharacter = buildMatchingRosterCharacter();
+    const fixtureShopCampState = buildFixtureShopCampState({
+      campRoster: [
+        null,
+        null,
+        matchingRosterCharacter,
+        null,
+        null,
+        null,
+        null,
+      ],
+    });
+
+    const result = buyCharacterFromShopSlot(
+      fixtureShopCampState,
+      fixtureCharacterTemplates,
+      1,
+      2,
+      "new-dwarf-1",
+    );
+
+    expect(result).toEqual({
+      outcome: "accepted",
+      acceptanceKind: "merged",
+      nextCampState: {
+        campRoster: [
+          null,
+          null,
+          buildMatchingRosterCharacter({
+            experience: 5,
+            attack: 8,
+            hp: 10,
+            maxHp: 13,
+          }),
+          null,
+          null,
+          null,
+          null,
+        ],
+        gold: 7,
+        characterShopSlots: [
+          buildOfferingCharacterShopSlot("fixture-dwarf-one"),
+          SOLD_CHARACTER_SHOP_SLOT,
+          SOLD_CHARACTER_SHOP_SLOT,
+          LOCKED_CHARACTER_SHOP_SLOT,
+          LOCKED_CHARACTER_SHOP_SLOT,
+          LOCKED_CHARACTER_SHOP_SLOT,
+          LOCKED_CHARACTER_SHOP_SLOT,
+          LOCKED_CHARACTER_SHOP_SLOT,
+        ],
+      },
+    });
+  });
+
+  it("R8: rejects a merge-buy onto a matching level-5 dwarf", () => {
+    const fixtureShopCampState = buildFixtureShopCampState({
+      campRoster: [
+        null,
+        null,
+        buildMatchingRosterCharacter({ experience: 15 }),
+        null,
+        null,
+        null,
+        null,
+      ],
+    });
+
+    const result = buyCharacterFromShopSlot(
+      fixtureShopCampState,
+      fixtureCharacterTemplates,
+      1,
+      2,
+      "new-dwarf-1",
+    );
+
+    expect(result).toEqual({
+      outcome: "rejected",
+      rejectionReason: "rosterSlotAtMaxLevel",
+    });
+  });
+
+  it("R9: a non-matching level-5 dwarf is just an occupied slot", () => {
+    const fixtureShopCampState = buildFixtureShopCampState({
+      campRoster: [
+        null,
+        null,
+        buildMatchingRosterCharacter({ experience: 15 }),
+        null,
+        null,
+        null,
+        null,
+      ],
+    });
+
+    const result = buyCharacterFromShopSlot(
+      fixtureShopCampState,
+      fixtureCharacterTemplates,
+      0,
+      2,
+      "new-dwarf-1",
+    );
+
+    expect(result).toEqual({
+      outcome: "rejected",
+      rejectionReason: "rosterSlotOccupied",
+    });
+  });
+
+  it("O2: merge checks come in order: non-match, then max level, then gold", () => {
+    const nonMatchingOccupantCase = buyCharacterFromShopSlot(
+      buildFixtureShopCampState({
+        campRoster: [
+          null,
+          null,
+          occupiedFixtureCharacter,
+          null,
+          null,
+          null,
+          null,
+        ],
+        gold: 0,
+      }),
+      fixtureCharacterTemplates,
+      1,
+      2,
+      "new-dwarf-1",
+    );
+
+    const maxLevelMatchingOccupantCase = buyCharacterFromShopSlot(
+      buildFixtureShopCampState({
+        campRoster: [
+          null,
+          null,
+          buildMatchingRosterCharacter({ experience: 15 }),
+          null,
+          null,
+          null,
+          null,
+        ],
+        gold: 0,
+      }),
+      fixtureCharacterTemplates,
+      1,
+      2,
+      "new-dwarf-1",
+    );
+
+    const notEnoughGoldMatchingOccupantCase = buyCharacterFromShopSlot(
+      buildFixtureShopCampState({
+        campRoster: [
+          null,
+          null,
+          buildMatchingRosterCharacter(),
+          null,
+          null,
+          null,
+          null,
+        ],
+        gold: 0,
+      }),
+      fixtureCharacterTemplates,
+      1,
+      2,
+      "new-dwarf-1",
+    );
+
+    expect(
+      [
+        nonMatchingOccupantCase,
+        maxLevelMatchingOccupantCase,
+        notEnoughGoldMatchingOccupantCase,
+      ].map(rejectionReasonOf),
+    ).toEqual([
+      "rosterSlotOccupied",
+      "rosterSlotAtMaxLevel",
+      "notEnoughGold",
+    ]);
+  });
+
+  it("M2: does not mutate the input state on an accepted merge-buy", () => {
+    const matchingRosterCharacter = buildMatchingRosterCharacter();
+    const fixtureShopCampState = buildFixtureShopCampState({
+      campRoster: [
+        null,
+        null,
+        matchingRosterCharacter,
+        null,
+        null,
+        null,
+        null,
+      ],
+    });
+    const shopCampStateClone = structuredClone(fixtureShopCampState);
+    const characterTemplatesClone = structuredClone(fixtureCharacterTemplates);
+
+    buyCharacterFromShopSlot(
+      fixtureShopCampState,
+      fixtureCharacterTemplates,
+      1,
+      2,
       "new-dwarf-1",
     );
 

@@ -10,6 +10,7 @@ import {
   gainExperience,
   isCharacterExperience,
   levelFromExperience,
+  mergeCharacterInto,
 } from "./characterExperience";
 
 function didThrow(runInvalidCall: () => unknown): boolean {
@@ -311,5 +312,64 @@ describe("characterExperience", () => {
         didThrow(() => gainExperience(character, experienceToAdd)),
       ),
     ).toEqual([true, true, true]);
+  });
+
+  it("E17: mergeCharacterInto gives the target the consumed character's experience + 1 and keeps the target's identity", () => {
+    const targetCharacter = buildFixtureCharacter({
+      id: "target",
+      name: "Target Dwarf",
+      experience: 2,
+      attack: 6,
+      hp: 9,
+      maxHp: 9,
+    });
+    const consumedCharacter = buildFixtureCharacter({
+      id: "consumed",
+      name: "Consumed Dwarf",
+      experience: 4,
+    });
+
+    expect(mergeCharacterInto(targetCharacter, consumedCharacter)).toEqual(
+      buildFixtureCharacter({
+        id: "target",
+        name: "Target Dwarf",
+        experience: 7,
+        attack: 11,
+        hp: 14,
+        maxHp: 14,
+      }),
+    );
+  });
+
+  it("E18: mergeCharacterInto caps at 15", () => {
+    const targetCharacter = buildFixtureCharacter({
+      experience: 10,
+      attack: 4,
+      hp: 7,
+      maxHp: 7,
+    });
+    const consumedCharacter = buildFixtureCharacter({ experience: 15 });
+
+    expect(mergeCharacterInto(targetCharacter, consumedCharacter)).toEqual(
+      buildFixtureCharacter({
+        experience: 15,
+        attack: 9,
+        hp: 12,
+        maxHp: 12,
+      }),
+    );
+  });
+
+  it("E19: mergeCharacterInto throws when the templates differ", () => {
+    const targetCharacter = buildFixtureCharacter();
+    const consumedCharacter = buildFixtureCharacter({
+      characterTemplateId: "some-other-dwarf",
+    });
+
+    expect(
+      [
+        didThrow(() => mergeCharacterInto(targetCharacter, consumedCharacter)),
+      ],
+    ).toEqual([true]);
   });
 });

@@ -4,6 +4,11 @@ import { CHARACTER_SHOP_SLOT_COUNT } from "./characterShopSlots";
 import type { CharacterTemplate } from "./characterTemplates";
 import { spawnCharacterFromTemplate } from "./spawnCharacterFromTemplate";
 import { SHOP_CHARACTER_PRICE } from "./shop";
+import {
+  MAX_CHARACTER_LEVEL,
+  levelFromExperience,
+  mergeCharacterInto,
+} from "./characterExperience";
 
 export type BuyCharacterFromShopSlotRejectionReason =
   | "invalidRosterSlot"
@@ -12,10 +17,17 @@ export type BuyCharacterFromShopSlotRejectionReason =
   | "shopSlotSold"
   | "unknownCharacterTemplate"
   | "rosterSlotOccupied"
+  | "rosterSlotAtMaxLevel"
   | "notEnoughGold";
 
+export type BuyCharacterAcceptanceKind = "placed" | "merged";
+
 export type BuyCharacterFromShopSlotResult =
-  | { outcome: "accepted"; nextCampState: CampState }
+  | {
+      outcome: "accepted";
+      acceptanceKind: BuyCharacterAcceptanceKind;
+      nextCampState: CampState;
+    }
   | {
       outcome: "rejected";
       rejectionReason: BuyCharacterFromShopSlotRejectionReason;
@@ -34,9 +46,12 @@ function isCharacterShopSlotIndex(candidateSlotIndex: number): boolean {
 // Check order: invalidRosterSlot comes first to preserve the existing
 // buyCharacter order, then the rest of the shop-level checks
 // (invalidShopSlot, shopSlotLocked, shopSlotSold), then the
-// character-specific checks (unknownCharacterTemplate,
-// rosterSlotOccupied), then notEnoughGold last, so the most specific
-// reason wins.
+// character-specific checks (unknownCharacterTemplate, rosterSlotOccupied
+// for a non-matching occupant, rosterSlotAtMaxLevel for a matching
+// level-5 occupant), then notEnoughGold last, so the most specific reason
+// wins. rosterSlotAtMaxLevel is only ever returned for a matching
+// occupant, so a preview can read "matching" from it without comparing
+// templates on the client.
 export function buyCharacterFromShopSlot(
   campState: CampState,
   characterTemplates: readonly CharacterTemplate[],
@@ -76,27 +91,47 @@ export function buyCharacterFromShopSlot(
     return { outcome: "rejected", rejectionReason: "unknownCharacterTemplate" };
   }
 
-  // Buying onto an occupied slot is a rejection until a "promotion" rule
-  // is specified (CLAUDE.md -> "Camp: shop, roster and intents").
-  if (campState.campRoster[targetRosterSlotIndex] !== null) {
+  const targetSlotOccupant = campState.campRoster[targetRosterSlotIndex];
+  const isMatchingOccupant =
+    targetSlotOccupant !== null &&
+    targetSlotOccupant.characterTemplateId ===
+      matchedCharacterTemplate.characterTemplateId;
+
+  // A non-matching occupant is a rejection until a "promotion" rule is
+  // specified (CLAUDE.md -> "Camp: shop, roster and intents"). A matching
+  // occupant is a merge-buy target instead, subject to the max-level check
+  // below.
+  if (targetSlotOccupant !== null && !isMatchingOccupant) {
     return { outcome: "rejected", rejectionReason: "rosterSlotOccupied" };
+  }
+
+  if (
+    isMatchingOccupant &&
+    levelFromExperience(targetSlotOccupant.experience) === MAX_CHARACTER_LEVEL
+  ) {
+    return { outcome: "rejected", rejectionReason: "rosterSlotAtMaxLevel" };
   }
 
   if (campState.gold < SHOP_CHARACTER_PRICE) {
     return { outcome: "rejected", rejectionReason: "notEnoughGold" };
   }
 
-  const nextCampRoster = [...campState.campRoster];
-  nextCampRoster[targetRosterSlotIndex] = spawnCharacterFromTemplate(
+  const hiredCharacter = spawnCharacterFromTemplate(
     matchedCharacterTemplate,
     newCharacterId,
   );
+
+  const nextCampRoster = [...campState.campRoster];
+  nextCampRoster[targetRosterSlotIndex] = isMatchingOccupant
+    ? mergeCharacterInto(targetSlotOccupant, hiredCharacter)
+    : hiredCharacter;
 
   const nextCharacterShopSlots = [...campState.characterShopSlots];
   nextCharacterShopSlots[shopSlotIndex] = { slotState: "sold" };
 
   return {
     outcome: "accepted",
+    acceptanceKind: isMatchingOccupant ? "merged" : "placed",
     nextCampState: {
       campRoster: nextCampRoster,
       gold: campState.gold - SHOP_CHARACTER_PRICE,

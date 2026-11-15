@@ -128,3 +128,21 @@ export function gainExperience(
     maxHp: character.maxHp + experienceGained,
   };
 }
+
+// Encodes the ruling: the target gains the consumed character's XP + 1, and
+// keeps its own id, name and slot. A fresh hire has 0 XP, so a merge-buy
+// gives exactly 1 XP. The template check here is a programmer-error guard;
+// the rules check matching first and return rejections. The max-level rule
+// lives in the callers' rules, not here.
+export function mergeCharacterInto(
+  targetCharacter: Character,
+  consumedCharacter: Character,
+): Character {
+  if (targetCharacter.characterTemplateId !== consumedCharacter.characterTemplateId) {
+    throw new Error(
+      `cannot merge mismatched characters: ${targetCharacter.characterTemplateId} vs ${consumedCharacter.characterTemplateId}`,
+    );
+  }
+
+  return gainExperience(targetCharacter, consumedCharacter.experience + 1);
+}

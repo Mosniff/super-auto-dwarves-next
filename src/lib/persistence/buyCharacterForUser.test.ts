@@ -285,4 +285,79 @@ describe("buyCharacterForUser", () => {
       ),
     ).toEqual([]);
   });
+
+  it("(i) saves a merge-buy onto a matching dwarf, and reports accepted", async () => {
+    const matchingRosterCharacter: Character = {
+      id: "dwarf-two",
+      name: "Thrain",
+      characterTemplateId: "fixture-dwarf-two",
+      tier: 2,
+      characterClassIds: ["smith", "miner"],
+      attack: 3,
+      hp: 8,
+      maxHp: 8,
+      experience: 0,
+    };
+    const matchingCampRoster: CampRoster = [
+      matchingRosterCharacter,
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+    ];
+    const { gameRepository, recordedSaveGameStateCalls } =
+      buildFakeGameRepository(
+        buildFixtureLoadedGameRecord({
+          persistedPlayerRoster: matchingCampRoster,
+        }),
+      );
+
+    const result = await buyCharacterForUser(
+      "fixture-user-1",
+      { shopSlotIndex: 1, targetRosterSlotIndex: 0, expectedRevision: 5 },
+      buildFixtureDependencies(gameRepository),
+    );
+
+    const expectedCampRoster: CampRoster = [
+      {
+        ...matchingRosterCharacter,
+        experience: 1,
+        attack: 4,
+        hp: 9,
+        maxHp: 9,
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+    ];
+    const expectedCharacterShopSlots: CharacterShopSlots = [
+      buildOfferingCharacterShopSlot("fixture-dwarf-one"),
+      SOLD_CHARACTER_SHOP_SLOT,
+      SOLD_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
+      LOCKED_CHARACTER_SHOP_SLOT,
+    ];
+    const expectedGameState: GameState = {
+      playerRoster: expectedCampRoster,
+      gold: 7,
+      day: 2,
+      phase: "campPhase",
+      characterShopSlots: expectedCharacterShopSlots,
+    };
+
+    expect(result).toEqual({ outcome: "accepted" });
+    expect(
+      recordedSaveGameStateCalls.map(
+        (recordedCall) => recordedCall.nextGameState,
+      ),
+    ).toEqual([expectedGameState]);
+  });
 });
