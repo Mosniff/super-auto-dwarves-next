@@ -2,6 +2,8 @@
 import { describe, it, expect } from "vitest";
 import userEvent from "@testing-library/user-event";
 import {
+  act,
+  fireEvent,
   renderWithMessages,
   screen,
   waitFor,
@@ -35,6 +37,24 @@ const fixtureBorin: Character = {
 function buildFixtureCampRoster(): CampRoster {
   return [fixtureBorin, null, null, null, null, null, null];
 }
+
+// A second Borin, matching fixtureBorin's characterTemplateId, used by the
+// merge/sell mode tests below.
+const fixtureMatchingBorin: Character = {
+  ...fixtureBorin,
+  id: "dwarf-2",
+  experience: 0,
+};
+
+const fixtureTwoBorinCampRoster: CampRoster = [
+  fixtureBorin,
+  fixtureMatchingBorin,
+  null,
+  null,
+  null,
+  null,
+  null,
+];
 
 const fixtureThrudiTemplate: CharacterTemplate = {
   characterTemplateId: "fixture-thrudi",
@@ -561,5 +581,138 @@ describe("CampScreen", () => {
     expect(
       document.querySelectorAll("[data-camp-swap-marker]"),
     ).toHaveLength(1);
+  });
+
+  it("(cc) shows an unpressed Merge / Sell toggle", () => {
+    renderCampScreen();
+
+    expect(
+      screen.getByRole("button", { name: "Merge / Sell" }),
+    ).toHaveAttribute("aria-pressed", "false");
+  });
+
+  it("(dd) clicking the toggle latches merge/sell mode, and a dwarf clicked onto a matching dwarf submits a merge", async () => {
+    const recordedMergeFormValues: Record<string, FormDataEntryValue>[] = [];
+    const mergeCharacterAction = async (formData: FormData) => {
+      recordedMergeFormValues.push(Object.fromEntries(formData));
+    };
+    const user = userEvent.setup();
+    renderCampScreen({
+      playerCampRoster: fixtureTwoBorinCampRoster,
+      mergeCharacterAction,
+    });
+
+    const mergeSellToggle = screen.getByRole("button", {
+      name: "Merge / Sell",
+    });
+    await user.click(mergeSellToggle);
+
+    expect(mergeSellToggle).toHaveAttribute("aria-pressed", "true");
+    expect(
+      mergeSellToggle.querySelectorAll("[data-merge-sell-lock]"),
+    ).toHaveLength(1);
+
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Slot 2: Borin, level 1" }),
+    );
+
+    expect(recordedMergeFormValues).toEqual([
+      { fromSlotIndex: "0", intoSlotIndex: "1", expectedRevision: "5" },
+    ]);
+  });
+
+  it("(ee) holding Shift moves the toggle into merge/sell mode without latching it; releasing Shift moves it back", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    const mergeSellToggle = screen.getByRole("button", {
+      name: "Merge / Sell",
+    });
+
+    await user.keyboard("{Shift>}");
+    const whileHeld = {
+      active: mergeSellToggle.getAttribute("data-merge-sell-mode-active"),
+      pressed: mergeSellToggle.getAttribute("aria-pressed"),
+    };
+
+    await user.keyboard("{/Shift}");
+    const afterRelease = {
+      active: mergeSellToggle.getAttribute("data-merge-sell-mode-active"),
+      pressed: mergeSellToggle.getAttribute("aria-pressed"),
+    };
+
+    expect({ whileHeld, afterRelease }).toEqual({
+      whileHeld: { active: "true", pressed: "false" },
+      afterRelease: { active: "false", pressed: "false" },
+    });
+  });
+
+  it("(ff) Shift+Tab does not leave merge/sell mode on", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    await user.keyboard("{Shift>}{Tab}");
+
+    expect(
+      screen.getByRole("button", { name: "Merge / Sell" }),
+    ).toHaveAttribute("data-merge-sell-mode-active", "false");
+  });
+
+  it("(gg) losing window focus clears a held Shift", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    await user.keyboard("{Shift>}");
+    act(() => {
+      fireEvent.blur(window);
+    });
+
+    expect(
+      screen.getByRole("button", { name: "Merge / Sell" }),
+    ).toHaveAttribute("data-merge-sell-mode-active", "false");
+  });
+
+  it("(hh) the hint appears only while a roster dwarf is held", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    const hintText = "Hold SHIFT or press Merge / Sell to merge or sell";
+    const before = screen.queryByText(hintText) !== null;
+
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+
+    const after = screen.queryByText(hintText) !== null;
+
+    expect([before, after]).toEqual([false, true]);
+  });
+
+  it("(ii) a settled mode change is announced politely", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+
+    const announcementText = await screen.findByText("Merge / sell mode on");
+
+    expect(
+      announcementText.closest("[data-merge-sell-announcement]"),
+    ).toHaveAttribute("aria-live", "polite");
+  });
+
+  it("(kk) a quick Shift+Tab announces nothing", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    await user.keyboard("{Shift>}{Tab}{/Shift}");
+    await new Promise((resolve) => setTimeout(resolve, 400));
+
+    expect(
+      document.querySelector("[data-merge-sell-announcement]")?.textContent,
+    ).toBe("");
   });
 });

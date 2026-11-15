@@ -35,6 +35,11 @@ interface RosterSlabProps {
   // screen decides, and the slab never learns the game phase. Camp turns
   // it on for the player's roster.
   showsCharacterProgression?: boolean;
+  // An optional screen-provided control (e.g. camp's merge/sell toggle),
+  // rendered to the right of the slots without affecting their layout —
+  // they stay centred regardless of whether this is present. Battle
+  // provides none. The slab never learns what the controls are or why.
+  trailingControls?: React.ReactNode;
 }
 
 export function RosterSlab({
@@ -43,12 +48,13 @@ export function RosterSlab({
   slotInteraction,
   presentsFrontSlotAsOnDeck = false,
   showsCharacterProgression = false,
+  trailingControls,
 }: RosterSlabProps) {
   const slots = Array.from({ length: SLOT_COUNT }, (_, i) => characters[i]);
   const facing = variant === "enemy" ? "left" : "right";
 
   return (
-    <div className="w-full h-72 bg-linear-to-b from-slate-100 via-slate-200 to-slate-300 px-5 py-4">
+    <div className="relative w-full h-72 bg-linear-to-b from-slate-100 via-slate-200 to-slate-300 px-5 py-4">
       <div
         className={`flex h-full justify-center gap-12 ${
           variant === "player" ? "flex-row-reverse" : "flex-row"
@@ -89,6 +95,11 @@ export function RosterSlab({
           </div>
         ))}
       </div>
+      {trailingControls && (
+        <div className="absolute inset-y-0 right-5 flex w-28 flex-col items-center justify-center">
+          {trailingControls}
+        </div>
+      )}
     </div>
   );
 }

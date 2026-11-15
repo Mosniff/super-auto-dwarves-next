@@ -26,7 +26,10 @@ describe("locale message parity", () => {
   // the header's placeholder gem counter (gemsLabel), and again for
   // Phase 11's level pill and XP bar MAX label (levelPill,
   // experienceBarMax), and again for the XP bar's label and caption
-  // (experienceBarLabel, experienceToNextLevel, experienceBarMaxLevel) —
+  // (experienceBarLabel, experienceToNextLevel, experienceBarMaxLevel), and
+  // again for Phase 11's merge/sell toggle, hint and mode announcements
+  // (mergeSellToggle, mergeSellHint, mergeSellModeOnAnnouncement,
+  // mergeSellModeOffAnnouncement) —
   // deliberate test-data updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
@@ -69,6 +72,10 @@ describe("locale message parity", () => {
     "experienceBarLabel",
     "experienceToNextLevel",
     "experienceBarMaxLevel",
+    "mergeSellToggle",
+    "mergeSellHint",
+    "mergeSellModeOnAnnouncement",
+    "mergeSellModeOffAnnouncement",
   ];
   const expectedBattleKeys = [
     "battleStart",

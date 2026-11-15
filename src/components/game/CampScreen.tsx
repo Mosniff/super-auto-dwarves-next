@@ -8,6 +8,9 @@ import { GameScreenShell } from "@/components/game/GameScreenShell";
 import { useReportPhaseAdvanceAvailability } from "@/components/game/phaseAdvanceAvailability";
 import { ShopPanel } from "@/components/game/ShopPanel";
 import { CharacterCard } from "@/components/game/CharacterCard";
+import { MergeSellToggle } from "@/components/game/MergeSellToggle";
+import { MergeSellModeAnnouncer } from "@/components/game/MergeSellModeAnnouncer";
+import { useCampInteractionMode } from "@/components/game/useCampInteractionMode";
 import type { Character } from "@/lib/game/character";
 import type { CampRoster } from "@/lib/game/campRoster";
 import type { CampState } from "@/lib/game/campState";
@@ -23,7 +26,6 @@ import {
   resolveCampClick,
   resolveCampDrop,
   type CampClickTarget,
-  type CampInteractionMode,
   type CampIntent,
   type CampSelection,
   type CampTargetPresentation,
@@ -64,9 +66,11 @@ export function CampScreen({
 }: CampScreenProps) {
   const t = useTranslations("common");
 
-  // Client UI state only — the next block makes this live (a toggle and a
-  // Shift modifier). The server never receives or learns it.
-  const campInteractionMode: CampInteractionMode = "reposition";
+  // Client UI state only — the server never receives or learns it, only
+  // the explicit intent (reposition vs. mergeCharacters) it caused the
+  // player to submit.
+  const { campInteractionMode, isMergeSellToggleLatched, onMergeSellToggleClick } =
+    useCampInteractionMode();
 
   // The selection, drag-source selection and pending-ness below are UI
   // state only, for click/drag feedback and disabling tiles mid-submit.
@@ -231,13 +235,26 @@ export function CampScreen({
       <div
         aria-busy={isSubmittingCampIntent}
         // Must stay a flex column so the shell below can fill the height
-        // and the camp content can centre vertically.
-        className={`flex flex-1 flex-col ${isSubmittingCampIntent ? "cursor-wait" : ""}`}
+        // and the camp content can centre vertically. select-none because
+        // Shift-click (holding Shift to enter merge/sell mode, then
+        // clicking a tile) would otherwise extend a text selection.
+        className={`flex flex-1 flex-col select-none ${isSubmittingCampIntent ? "cursor-wait" : ""}`}
       >
         <GameScreenShell
           gamePhase="campPhase"
           playerBenchCharacters={playerCampRoster}
           showsPlayerCharacterProgression
+          playerRosterTrailingControls={
+            <>
+              <MergeSellToggle
+                isMergeOrSellModeActive={campInteractionMode === "mergeOrSell"}
+                isLatched={isMergeSellToggleLatched}
+                onClick={onMergeSellToggleClick}
+                isRosterDwarfHeld={heldCampItem.selectionKind === "rosterSlot"}
+              />
+              <MergeSellModeAnnouncer campInteractionMode={campInteractionMode} />
+            </>
+          }
           playerSlotInteraction={{
             selectedSlotIndex:
               campSelection.selectionKind === "rosterSlot"

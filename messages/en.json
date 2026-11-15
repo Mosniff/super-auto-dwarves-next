@@ -39,7 +39,11 @@
     "experienceBarMax": "MAX",
     "experienceBarLabel": "Experience",
     "experienceToNextLevel": "{experienceRemaining} XP to level {nextLevel}",
-    "experienceBarMaxLevel": "Max level"
+    "experienceBarMaxLevel": "Max level",
+    "mergeSellToggle": "Merge / Sell",
+    "mergeSellHint": "Hold SHIFT or press Merge / Sell to merge or sell",
+    "mergeSellModeOnAnnouncement": "Merge / sell mode on",
+    "mergeSellModeOffAnnouncement": "Merge / sell mode off"
   },
   "characterClass": {
     "warrior": "Warrior",

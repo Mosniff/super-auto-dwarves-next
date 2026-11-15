@@ -14,6 +14,7 @@ interface GameScreenShellProps {
   playerSlotInteraction?: RosterSlotInteraction;
   presentsPlayerFrontSlotAsOnDeck?: boolean;
   showsPlayerCharacterProgression?: boolean;
+  playerRosterTrailingControls?: React.ReactNode;
   children: React.ReactNode;
 }
 
@@ -23,6 +24,7 @@ export function GameScreenShell({
   playerSlotInteraction,
   presentsPlayerFrontSlotAsOnDeck = false,
   showsPlayerCharacterProgression = false,
+  playerRosterTrailingControls,
   children,
 }: GameScreenShellProps) {
   const prefersReducedMotion = useReducedMotion();
@@ -54,6 +56,7 @@ export function GameScreenShell({
             slotInteraction={playerSlotInteraction}
             presentsFrontSlotAsOnDeck={presentsPlayerFrontSlotAsOnDeck}
             showsCharacterProgression={showsPlayerCharacterProgression}
+            trailingControls={playerRosterTrailingControls}
           />
         </div>
         <GamePhaseBanner gamePhase={gamePhase} />
