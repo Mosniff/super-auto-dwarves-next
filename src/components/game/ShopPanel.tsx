@@ -30,6 +30,10 @@ function presentationClassName(
       return "ring-2 ring-ring";
     case "eligible":
       return "ring-2 ring-dashed ring-emerald-400";
+    // A shop tile is never a merge target; this case only keeps the switch
+    // exhaustive.
+    case "mergeTarget":
+      return "ring-2 ring-dashed ring-emerald-400";
     case "ineligible":
       return "opacity-50 cursor-not-allowed";
     case "neutral":

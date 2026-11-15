@@ -35,6 +35,12 @@ function presentationClassName(
       return isDropTarget
         ? "ring-4 ring-emerald-500"
         : "ring-2 ring-dashed ring-emerald-400";
+    // Identical to eligible for now; its level-up marker is added with the
+    // card work.
+    case "mergeTarget":
+      return isDropTarget
+        ? "ring-4 ring-emerald-500"
+        : "ring-2 ring-dashed ring-emerald-400";
     case "ineligible":
       return "opacity-50 cursor-not-allowed";
     case "neutral":

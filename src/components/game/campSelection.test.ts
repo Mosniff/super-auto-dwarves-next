@@ -16,6 +16,7 @@ import {
   isCampClickEffective,
   isCharacterShopSlotSelectable,
   isRepositionTargetSlot,
+  isRosterSlotMatchingHeldItem,
   isRosterSlotSelectable,
   presentCampTarget,
   resolveCampClick,
@@ -727,6 +728,123 @@ describe("presentCampTarget", () => {
         nothingHeld,
         { targetKind: "rosterSlot", slotIndex: 0 },
         baseCampState,
+        fixtureCharacterTemplates,
+      ),
+    ).toBe("neutral");
+  });
+});
+
+describe("merge targets", () => {
+  function buildMatchingCharacter(id: string, experience: number): Character {
+    return {
+      id,
+      name: "Matching Dwarf",
+      characterTemplateId: "fixture-dwarf-one",
+      tier: 1,
+      characterClassIds: ["warrior"],
+      attack: 2,
+      hp: 5,
+      maxHp: 5,
+      experience,
+    };
+  }
+
+  const campStateWithMatches: CampState = {
+    campRoster: [
+      fixtureBorin,
+      buildMatchingCharacter("match-1", 0),
+      buildMatchingCharacter("match-max", 15),
+      null,
+      null,
+      null,
+      null,
+    ],
+    gold: 10,
+    characterShopSlots: buildFixtureCharacterShopSlots(),
+  };
+
+  const shopSlotZeroHeld: CampSelection = {
+    selectionKind: "characterShopSlot",
+    shopSlotIndex: 0,
+  };
+
+  it("(ll) with a shop character in hand, a matching dwarf is a merge target, and a matching level-5 dwarf and non-matching dwarves are ineligible", () => {
+    expect(
+      [0, 1, 2, 3].map((rosterSlotIndex) =>
+        presentCampTarget(
+          shopSlotZeroHeld,
+          { targetKind: "rosterSlot", slotIndex: rosterSlotIndex },
+          campStateWithMatches,
+          fixtureCharacterTemplates,
+        ),
+      ),
+    ).toEqual(["ineligible", "mergeTarget", "ineligible", "eligible"]);
+  });
+
+  it("(mm) isRosterSlotMatchingHeldItem is true for a merge target and for a matching level-5 dwarf", () => {
+    expect(
+      [0, 1, 2, 3].map((rosterSlotIndex) =>
+        isRosterSlotMatchingHeldItem(
+          shopSlotZeroHeld,
+          rosterSlotIndex,
+          campStateWithMatches,
+          fixtureCharacterTemplates,
+        ),
+      ),
+    ).toEqual([false, true, true, false]);
+  });
+
+  it("(nn) isRosterSlotMatchingHeldItem is false with nothing in hand or a roster dwarf in hand", () => {
+    expect([
+      isRosterSlotMatchingHeldItem(
+        { selectionKind: "none" },
+        1,
+        campStateWithMatches,
+        fixtureCharacterTemplates,
+      ),
+      isRosterSlotMatchingHeldItem(
+        { selectionKind: "rosterSlot", slotIndex: 0 },
+        1,
+        campStateWithMatches,
+        fixtureCharacterTemplates,
+      ),
+    ]).toEqual([false, false]);
+  });
+
+  it("(oo) with a shop character selected, clicking a matching dwarf submits a buy onto it", () => {
+    expect(
+      resolveCampClick(
+        shopSlotZeroHeld,
+        { targetKind: "rosterSlot", slotIndex: 1 },
+        campStateWithMatches,
+        fixtureCharacterTemplates,
+      ),
+    ).toEqual({
+      nextCampSelection: { selectionKind: "none" },
+      campIntentToSubmit: {
+        intentKind: "buyCharacter",
+        shopSlotIndex: 0,
+        targetRosterSlotIndex: 1,
+      },
+    });
+  });
+
+  it("(pp) with nothing in hand, a shop slot stays buyable on a full roster that holds a match", () => {
+    const fullCampRosterWithMatch: CampRoster = [
+      ...fullCampRoster.slice(0, 6),
+      buildMatchingCharacter("match-1", 0),
+    ];
+    const fullCampStateWithMatch: CampState = {
+      campRoster: fullCampRosterWithMatch,
+      gold: 10,
+      characterShopSlots: buildFixtureCharacterShopSlots(),
+    };
+
+    expect(
+      presentCampTarget(
+        { selectionKind: "none" },
+        { targetKind: "characterShopSlot", shopSlotIndex: 0 },
+        fullCampStateWithMatch,
         fixtureCharacterTemplates,
       ),
     ).toBe("neutral");

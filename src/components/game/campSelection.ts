@@ -1,4 +1,7 @@
-import { buyCharacterFromShopSlot } from "@/lib/game/buyCharacterFromShopSlot";
+import {
+  buyCharacterFromShopSlot,
+  type BuyCharacterFromShopSlotResult,
+} from "@/lib/game/buyCharacterFromShopSlot";
 import { repositionCharacter } from "@/lib/game/repositionCharacter";
 import { CAMP_ROSTER_SLOT_COUNT, type CampRoster } from "@/lib/game/campRoster";
 import type { CampState } from "@/lib/game/campState";
@@ -30,14 +33,30 @@ export interface CampClickResolution {
   campIntentToSubmit: CampIntent | null;
 }
 
-// Never actually used as an id — only buyCharacterFromShopSlot's outcome is
-// read, and nothing it returns here is kept or saved.
+// Never actually used as an id — only previewBuyCharacterFromShopSlot's
+// result's outcome, acceptance kind and rejection reason are read, and
+// nothing it returns here is kept or saved.
 const SELECTION_PREVIEW_CHARACTER_ID = "selection-preview-character";
 
 const allCampRosterSlotIndices = Array.from(
   { length: CAMP_ROSTER_SLOT_COUNT },
   (_, slotIndex) => slotIndex,
 );
+
+function previewBuyCharacterFromShopSlot(
+  campState: CampState,
+  characterTemplates: readonly CharacterTemplate[],
+  shopSlotIndex: number,
+  rosterSlotIndex: number,
+): BuyCharacterFromShopSlotResult {
+  return buyCharacterFromShopSlot(
+    campState,
+    characterTemplates,
+    shopSlotIndex,
+    rosterSlotIndex,
+    SELECTION_PREVIEW_CHARACTER_ID,
+  );
+}
 
 export function isBuyTargetSlot(
   campState: CampState,
@@ -46,12 +65,11 @@ export function isBuyTargetSlot(
   rosterSlotIndex: number,
 ): boolean {
   return (
-    buyCharacterFromShopSlot(
+    previewBuyCharacterFromShopSlot(
       campState,
       characterTemplates,
       shopSlotIndex,
       rosterSlotIndex,
-      SELECTION_PREVIEW_CHARACTER_ID,
     ).outcome === "accepted"
   );
 }
@@ -103,9 +121,8 @@ const noSelection: CampSelection = { selectionKind: "none" };
 // submits a buy and clears; any other roster slot click changes nothing
 // (buying and repositioning are separate actions on separate kinds of
 // selection, so an occupied, non-buyable slot is never itself picked up
-// here — this is the deliberate asymmetry: a future "promotion" rule
-// accepting a buy onto an occupied slot would turn that click into a buy
-// without any change here).
+// here — this asymmetry is what lets the merge-buy rule turn a click on a
+// matching dwarf into a buy with no change here).
 //
 // A roster slot selected: clicking the same slot clears; a
 // reposition-target slot submits a reposition and clears; a selectable
@@ -300,6 +317,7 @@ export function resolveCampDrop(
 export type CampTargetPresentation =
   | "held"
   | "eligible"
+  | "mergeTarget"
   | "ineligible"
   | "neutral";
 
@@ -307,7 +325,9 @@ export type CampTargetPresentation =
 // can't present differently. With nothing in hand, a tile that holds a
 // pick-up-able item (an offering shop slot, or an occupied roster slot)
 // shows whether it can be picked up; an empty slot holds nothing to pick
-// up, so it just looks empty ("neutral").
+// up, so it just looks empty ("neutral"). A buy-target roster slot that
+// would merge, rather than place, presents as "mergeTarget" instead of
+// "eligible".
 export function presentCampTarget(
   heldCampItem: CampSelection,
   campClickTarget: CampClickTarget,
@@ -357,6 +377,22 @@ export function presentCampTarget(
   );
 
   if (campIntentToSubmit !== null) {
+    if (campIntentToSubmit.intentKind === "buyCharacter") {
+      const buyPreview = previewBuyCharacterFromShopSlot(
+        campState,
+        characterTemplates,
+        campIntentToSubmit.shopSlotIndex,
+        campIntentToSubmit.targetRosterSlotIndex,
+      );
+
+      if (
+        buyPreview.outcome === "accepted" &&
+        buyPreview.acceptanceKind === "merged"
+      ) {
+        return "mergeTarget";
+      }
+    }
+
     return "eligible";
   }
 
@@ -372,4 +408,33 @@ export function presentCampTarget(
   }
 
   return "ineligible";
+}
+
+// "Matching" is read from the real rule's preview (the
+// rosterSlotAtMaxLevel rejection is only ever returned for a matching
+// occupant) — never from a client-side characterTemplateId comparison.
+// Roster holds return false until roster merging exists.
+export function isRosterSlotMatchingHeldItem(
+  heldCampItem: CampSelection,
+  rosterSlotIndex: number,
+  campState: CampState,
+  characterTemplates: readonly CharacterTemplate[],
+): boolean {
+  if (heldCampItem.selectionKind !== "characterShopSlot") {
+    return false;
+  }
+
+  const buyPreview = previewBuyCharacterFromShopSlot(
+    campState,
+    characterTemplates,
+    heldCampItem.shopSlotIndex,
+    rosterSlotIndex,
+  );
+
+  return (
+    (buyPreview.outcome === "accepted" &&
+      buyPreview.acceptanceKind === "merged") ||
+    (buyPreview.outcome === "rejected" &&
+      buyPreview.rejectionReason === "rosterSlotAtMaxLevel")
+  );
 }
