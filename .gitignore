@@ -12,6 +12,7 @@
 
 # testing
 /coverage
+/.agent-output/
 
 # next.js
 /.next/
