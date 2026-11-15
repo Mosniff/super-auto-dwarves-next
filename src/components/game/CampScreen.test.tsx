@@ -70,6 +70,30 @@ const fixtureCharacterShopSlots: CharacterShopSlots = [
   LOCKED_CHARACTER_SHOP_SLOT,
 ];
 
+// Matches fixtureBorin's characterTemplateId.
+const fixtureBorinTemplate: CharacterTemplate = {
+  characterTemplateId: "fixture-dwarf",
+  name: "Borin",
+  tier: 1,
+  characterClassIds: ["warrior"],
+  attack: 3,
+  maxHp: 5,
+};
+
+const matchingShopRenderOverrides: RenderCampScreenOverrides = {
+  characterTemplates: [fixtureBorinTemplate, fixtureThrudiTemplate],
+  characterShopSlots: [
+    buildOfferingCharacterShopSlot("fixture-dwarf"),
+    buildOfferingCharacterShopSlot("fixture-thrudi"),
+    SOLD_CHARACTER_SHOP_SLOT,
+    LOCKED_CHARACTER_SHOP_SLOT,
+    LOCKED_CHARACTER_SHOP_SLOT,
+    LOCKED_CHARACTER_SHOP_SLOT,
+    LOCKED_CHARACTER_SHOP_SLOT,
+    LOCKED_CHARACTER_SHOP_SLOT,
+  ],
+};
+
 interface RenderCampScreenOverrides {
   playerCampRoster?: CampRoster;
   characterShopSlots?: CharacterShopSlots;
@@ -162,7 +186,9 @@ describe("CampScreen", () => {
     const user = userEvent.setup();
     renderCampScreen({ repositionCharacterAction });
 
-    await user.click(screen.getByRole("button", { name: "Slot 1: Borin" }));
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
     await user.click(screen.getByRole("button", { name: "Slot 6: empty" }));
 
     expect(recordedRepositionFormValues).toEqual([
@@ -176,7 +202,9 @@ describe("CampScreen", () => {
 
     await user.click(screen.getByRole("button", { name: "Shop: Thrudi" }));
 
-    expect(screen.getByRole("button", { name: "Slot 1: Borin" })).toBeDisabled();
+    expect(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    ).toBeDisabled();
   });
 
   it("(g) with nothing selected, empty slots are disabled", () => {
@@ -231,7 +259,7 @@ describe("CampScreen", () => {
       screen.getByRole("button", { name: "Slot 4: empty" }),
     ).toHaveAttribute("data-camp-target-presentation", "eligible");
     expect(
-      screen.getByRole("button", { name: "Slot 1: Borin" }),
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
     ).toHaveAttribute("data-camp-target-presentation", "ineligible");
   });
 
@@ -415,5 +443,84 @@ describe("CampScreen", () => {
     expect(
       document.querySelectorAll("[data-character-experience-bar]"),
     ).toHaveLength(1);
+  });
+
+  it("(w) with a matching shop character selected, the matching dwarf is a merge target with its XP bar revealed and a merge marker", async () => {
+    const user = userEvent.setup();
+    renderCampScreen(matchingShopRenderOverrides);
+
+    await user.click(screen.getByRole("button", { name: "Shop: Borin" }));
+
+    const matchingDwarfButton = screen.getByRole("button", {
+      name: "Slot 1: Borin, level 1",
+    });
+
+    expect(matchingDwarfButton).toHaveAttribute(
+      "data-camp-target-presentation",
+      "mergeTarget",
+    );
+    expect(matchingDwarfButton).toHaveAttribute(
+      "data-experience-bar-revealed",
+      "true",
+    );
+    expect(
+      matchingDwarfButton.querySelectorAll("[data-camp-merge-marker]"),
+    ).toHaveLength(1);
+  });
+
+  it("(x) with nothing selected, a dwarf's XP bar is not revealed and there is no merge marker", () => {
+    renderCampScreen();
+
+    expect(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    ).toHaveAttribute("data-experience-bar-revealed", "false");
+    expect(
+      document.querySelectorAll("[data-camp-merge-marker]"),
+    ).toHaveLength(0);
+  });
+
+  it("(y) the selected dwarf's XP bar is revealed", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    ).toHaveAttribute("data-experience-bar-revealed", "true");
+  });
+
+  it("(z) with a non-matching shop character selected, a dwarf's XP bar is not revealed", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    await user.click(screen.getByRole("button", { name: "Shop: Thrudi" }));
+
+    expect(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    ).toHaveAttribute("data-experience-bar-revealed", "false");
+    expect(
+      document.querySelectorAll("[data-camp-merge-marker]"),
+    ).toHaveLength(0);
+  });
+
+  it("(aa) a roster slot's label includes its dwarf's level", () => {
+    renderCampScreen({
+      playerCampRoster: [
+        { ...fixtureBorin, experience: 3 },
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+    });
+
+    expect(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 2" }),
+    ).toBeInTheDocument();
   });
 });

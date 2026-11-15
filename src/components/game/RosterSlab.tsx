@@ -15,6 +15,10 @@ export interface RosterSlotInteraction {
   slotButtonLabel: (slotIndex: number) => string;
   isSlotDraggable: (slotIndex: number) => boolean;
   slotPresentation: (slotIndex: number) => CampTargetPresentation;
+  // "Matching" comes from the buy rule's preview via campSelection
+  // (isRosterSlotMatchingHeldItem), never a client-side template
+  // comparison.
+  isSlotMatchingHeldItem: (slotIndex: number) => boolean;
 }
 
 interface RosterSlabProps {
@@ -72,6 +76,7 @@ export function RosterSlab({
                 isDraggable={slotInteraction.isSlotDraggable(i)}
                 presentation={slotInteraction.slotPresentation(i)}
                 showsCharacterProgression={showsCharacterProgression}
+                isMatchingHeldItem={slotInteraction.isSlotMatchingHeldItem(i)}
               />
             ) : (
               <RosterSlot

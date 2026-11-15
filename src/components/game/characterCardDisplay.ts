@@ -2,6 +2,8 @@ import type { CharacterTier } from "@/lib/game/characterTiers";
 import {
   EXPERIENCE_REQUIRED_PER_LEVEL_UP,
   characterLevelProgressFromExperience,
+  levelFromExperience,
+  type CharacterLevel,
 } from "@/lib/game/characterExperience";
 
 const TIER_ROMAN_NUMERALS: Record<CharacterTier, string> = {
@@ -58,5 +60,36 @@ export function experienceBarSegments(
     segmentCount: levelProgress.experienceRequiredForNextLevel,
     filledSegmentCount: levelProgress.experienceIntoLevel,
     isMaxLevel: false,
+  };
+}
+
+export type ExperienceBarCaption =
+  | {
+      progressKind: "levelling";
+      experienceRemaining: number;
+      nextLevel: CharacterLevel;
+    }
+  | { progressKind: "maxLevel" };
+
+// Display-only. nextLevel is derived through levelFromExperience rather
+// than a "current level + 1" cast, so it can never desync from the level
+// rule.
+export function experienceBarCaption(
+  experience: number,
+): ExperienceBarCaption {
+  const levelProgress = characterLevelProgressFromExperience(experience);
+
+  if (levelProgress.progressKind === "maxLevel") {
+    return { progressKind: "maxLevel" };
+  }
+
+  const experienceRemaining =
+    levelProgress.experienceRequiredForNextLevel -
+    levelProgress.experienceIntoLevel;
+
+  return {
+    progressKind: "levelling",
+    experienceRemaining,
+    nextLevel: levelFromExperience(experience + experienceRemaining),
   };
 }

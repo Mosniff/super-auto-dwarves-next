@@ -30,13 +30,16 @@
     "goldLabel": "{gold}ゴールド",
     "shopListingSoldLabel": "売り切れ",
     "shopListingButtonLabel": "ショップ：{characterName}",
-    "rosterSlotOccupiedLabel": "スロット{slotNumber}：{characterName}",
+    "rosterSlotOccupiedLabel": "スロット{slotNumber}：{characterName}（Lv{level}）",
     "rosterSlotEmptyLabel": "スロット{slotNumber}：空き",
     "shopSlotLockedLabel": "未解放",
     "shopSectionComingSoonLabel": "近日公開",
     "gemsLabel": "{gems}ジェム",
     "levelPill": "Lv{level}",
-    "experienceBarMax": "MAX"
+    "experienceBarMax": "MAX",
+    "experienceBarLabel": "経験値",
+    "experienceToNextLevel": "Lv{nextLevel}まであと{experienceRemaining}",
+    "experienceBarMaxLevel": "最大レベル"
   },
   "characterClass": {
     "warrior": "戦士",

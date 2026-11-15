@@ -69,9 +69,13 @@
   --spacing-card-pill-gap: 1cqw;
   --spacing-card-pill-offset: 2cqw;
   --spacing-card-text-box-height: 20cqw;
-  --spacing-card-xp-bar-height: 4cqw;
-  --spacing-card-xp-segment-gap: 1cqw;
+  --spacing-card-xp-bar-height: 7cqw;
+  --spacing-card-xp-segment-gap: 1.5cqw;
   --text-card-xp-max: 5cqw;
+  --text-card-xp-label: 9cqw;
+  --text-card-xp-caption: 8cqw;
+  --spacing-card-xp-text-gap: 4cqw;
+  --border-width-card-xp-segment: 0.5cqw;
   --radius-card-bar: 2.5cqw;
   --radius-card-portrait: 1cqw;
   --radius-card-panel: 1.5cqw;
@@ -206,6 +210,11 @@
   --shop-slot-coming-soon-background: var(--color-slate-300);
   --shop-slot-coming-soon-border: rgba(255, 255, 255, 0.12);
 
+  /* The colour of the camp XP reveal wash; tuned by the human. */
+  --experience-reveal-mask: rgb(40 40 40 / 0.45);
+  /* The XP bar pip border colour; tuned by the human. */
+  --experience-segment-border: var(--color-parchment-100);
+
   /* ── Header divider ──────────────────────────────────
      An engraved groove between header sections; tune here. */
   --header-divider-height: 1.75rem;
@@ -306,5 +315,32 @@
   }
   100% {
     opacity: 1;
+  }
+}
+
+/* Camp roster XP bar reveal (Phase 11). A slot button carrying
+   data-experience-bar-revealed hides its card's XP bar until the slot is
+   hovered, keyboard-focused, or marked "true" (selected, or matching the
+   held item) — the reveal shows the bar over a grey wash; outside a
+   revealing slot, the wash never shows. The human tunes the fade. */
+[data-experience-bar-revealed] [data-character-experience-bar] {
+  opacity: 0;
+}
+[data-character-experience-mask] {
+  background: var(--experience-reveal-mask);
+  opacity: 0;
+}
+[data-experience-bar-revealed]:hover [data-character-experience-bar],
+[data-experience-bar-revealed]:hover [data-character-experience-mask],
+[data-experience-bar-revealed]:focus-visible [data-character-experience-bar],
+[data-experience-bar-revealed]:focus-visible [data-character-experience-mask],
+[data-experience-bar-revealed="true"] [data-character-experience-bar],
+[data-experience-bar-revealed="true"] [data-character-experience-mask] {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-experience-bar-revealed] [data-character-experience-bar],
+  [data-character-experience-mask] {
+    transition: opacity 150ms ease-out;
   }
 }

@@ -4,6 +4,7 @@ import type { Character } from "@/lib/game/character";
 import { hpBarFillRatio } from "@/lib/battle/hpBarFillRatio";
 import { levelFromExperience } from "@/lib/game/characterExperience";
 import {
+  experienceBarCaption,
   experienceBarSegments,
   hpDisplayTone,
   tierRomanNumeral,
@@ -73,6 +74,7 @@ export function CharacterCard({
   const level = levelFromExperience(character.experience);
   const { segmentCount, filledSegmentCount, isMaxLevel } =
     experienceBarSegments(character.experience);
+  const experienceCaption = experienceBarCaption(character.experience);
 
   return (
     // @container, carrying no container-relative sizing of its own: an
@@ -84,7 +86,7 @@ export function CharacterCard({
     // corners coincide.
     <div className="@container h-full w-full overflow-hidden rounded-md">
       <div
-        className={`flex h-full w-full flex-col gap-card-frame-gap rounded-md border-card-frame p-card-frame-padding ${CARD_FRAME_BORDER_CLASS_NAME}`}
+        className={`relative flex h-full w-full flex-col gap-card-frame-gap rounded-md border-card-frame p-card-frame-padding ${CARD_FRAME_BORDER_CLASS_NAME}`}
         style={{ background: "var(--texture-card-frame)" }}
       >
         <div
@@ -157,15 +159,25 @@ export function CharacterCard({
           )}
           {showExperienceBar && (
             // aria-hidden: the level reaches screen readers through the
-            // slot's label, added in a later block. The camp roster never
-            // shows the battle-only HP bar, so the two never share this
-            // space.
+            // slot's label. Its visibility in camp is controlled by the
+            // reveal rules in globals.css, not by this component. The
+            // camp roster never shows the battle-only HP bar, so the two
+            // never share this space. It sits mid-portrait, above the
+            // reveal wash (see the z-order comment below). The label, bar
+            // and caption reveal and fade as one unit, because the reveal
+            // rules target this outer element.
             <div
               data-character-experience-bar
               data-experience-max-level={String(isMaxLevel)}
               aria-hidden="true"
-              className="absolute inset-x-card-hp-bar-inset bottom-card-hp-bar-inset"
+              className="absolute inset-x-card-hp-bar-inset top-1/2 z-2 flex -translate-y-1/2 flex-col items-center gap-card-xp-text-gap"
             >
+              <span
+                data-experience-bar-label
+                className="text-card-xp-label font-bold leading-none text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]"
+              >
+                {t("experienceBarLabel")}
+              </span>
               <div className="relative flex h-card-xp-bar-height w-full gap-card-xp-segment-gap">
                 {Array.from({ length: segmentCount }, (_, segmentIndex) => (
                   <span
@@ -173,7 +185,7 @@ export function CharacterCard({
                     data-experience-segment={
                       segmentIndex < filledSegmentCount ? "filled" : "empty"
                     }
-                    className={`flex-1 rounded-full ${
+                    className={`flex-1 rounded-full border-card-xp-segment border-(--experience-segment-border) ${
                       segmentIndex < filledSegmentCount
                         ? "bg-amber-400"
                         : "bg-black/40"
@@ -181,11 +193,23 @@ export function CharacterCard({
                   />
                 ))}
                 {isMaxLevel && (
-                  <span className="absolute inset-0 flex items-center justify-center text-card-xp-max font-bold text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]">
+                  <span className="absolute inset-0 flex items-center justify-center text-card-xp-max font-semibold text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]">
                     {t("experienceBarMax")}
                   </span>
                 )}
               </div>
+              <span
+                data-experience-bar-caption
+                className="text-card-xp-caption font-bold italic leading-none text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]"
+              >
+                {experienceCaption.progressKind === "maxLevel"
+                  ? t("experienceBarMaxLevel")
+                  : t("experienceToNextLevel", {
+                      experienceRemaining:
+                        experienceCaption.experienceRemaining,
+                      nextLevel: experienceCaption.nextLevel,
+                    })}
+              </span>
             </div>
           )}
           <div
@@ -294,6 +318,21 @@ export function CharacterCard({
             </span>
           </div>
         </div>
+
+        {showExperienceBar && (
+          // The wash (z-1) and the bar (z-2, above) share the card root's
+          // stacking context. This works only because the portrait
+          // container creates no stacking context of its own — adding a
+          // z-index, transform, opacity, filter or isolation to the
+          // portrait container would trap the bar beneath the wash.
+          // globals.css owns the wash's colour and reveal visibility, so
+          // no background or opacity classes are given here.
+          <div
+            data-character-experience-mask
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-1 rounded-md"
+          />
+        )}
       </div>
     </div>
   );

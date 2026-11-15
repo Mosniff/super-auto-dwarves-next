@@ -13,9 +13,11 @@ import type { CampRoster } from "@/lib/game/campRoster";
 import type { CampState } from "@/lib/game/campState";
 import type { CharacterShopSlots } from "@/lib/game/characterShopSlots";
 import type { CharacterTemplate } from "@/lib/game/characterTemplates";
+import { levelFromExperience } from "@/lib/game/characterExperience";
 import {
   isCampClickEffective,
   isCharacterShopSlotSelectable,
+  isRosterSlotMatchingHeldItem,
   isRosterSlotSelectable,
   presentCampTarget,
   resolveCampClick,
@@ -226,6 +228,7 @@ export function CampScreen({
                 ? t("rosterSlotOccupiedLabel", {
                     slotNumber: slotIndex + 1,
                     characterName: character.name,
+                    level: levelFromExperience(character.experience),
                   })
                 : t("rosterSlotEmptyLabel", { slotNumber: slotIndex + 1 });
             },
@@ -234,6 +237,13 @@ export function CampScreen({
               isRosterSlotSelectable(playerCampRoster, slotIndex),
             slotPresentation: (slotIndex) =>
               campTargetPresentation({ targetKind: "rosterSlot", slotIndex }),
+            isSlotMatchingHeldItem: (slotIndex) =>
+              isRosterSlotMatchingHeldItem(
+                heldCampItem,
+                slotIndex,
+                campState,
+                characterTemplates,
+              ),
           }}
         >
           <section className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
@@ -277,9 +287,18 @@ export function CampScreen({
             return null;
           }
 
+          const campClickTarget = source.data.campClickTarget as
+            | CampClickTarget
+            | undefined;
+
           return (
             <div className="aspect-3/4 w-(--shop-tile-width)">
-              <CharacterCard character={character} />
+              {/* A dragged roster dwarf keeps its level pill; a dragged
+                  shop character (always level 1) doesn't show one. */}
+              <CharacterCard
+                character={character}
+                showLevel={campClickTarget?.targetKind === "rosterSlot"}
+              />
             </div>
           );
         }}

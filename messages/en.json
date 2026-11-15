@@ -30,13 +30,16 @@
     "goldLabel": "{gold} gold",
     "shopListingSoldLabel": "Sold",
     "shopListingButtonLabel": "Shop: {characterName}",
-    "rosterSlotOccupiedLabel": "Slot {slotNumber}: {characterName}",
+    "rosterSlotOccupiedLabel": "Slot {slotNumber}: {characterName}, level {level}",
     "rosterSlotEmptyLabel": "Slot {slotNumber}: empty",
     "shopSlotLockedLabel": "Locked",
     "shopSectionComingSoonLabel": "Coming soon",
     "gemsLabel": "{gems} gems",
     "levelPill": "Lv {level}",
-    "experienceBarMax": "MAX"
+    "experienceBarMax": "MAX",
+    "experienceBarLabel": "Experience",
+    "experienceToNextLevel": "{experienceRemaining} XP to level {nextLevel}",
+    "experienceBarMaxLevel": "Max level"
   },
   "characterClass": {
     "warrior": "Warrior",

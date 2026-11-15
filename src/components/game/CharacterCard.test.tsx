@@ -239,4 +239,52 @@ describe("CharacterCard", () => {
     ).toHaveLength(5);
     expect(screen.queryByText("MAX")).not.toBeNull();
   });
+
+  it("C13: renders no XP reveal wash by default", () => {
+    renderWithMessages(
+      <CharacterCard character={buildCardFixtureCharacter(0)} />,
+    );
+
+    expect(
+      document.querySelectorAll("[data-character-experience-mask]"),
+    ).toHaveLength(0);
+  });
+
+  it("C14: renders the XP reveal wash with showExperienceBar", () => {
+    renderWithMessages(
+      <CharacterCard
+        character={buildCardFixtureCharacter(0)}
+        showExperienceBar
+      />,
+    );
+
+    expect(
+      document.querySelectorAll("[data-character-experience-mask]"),
+    ).toHaveLength(1);
+  });
+
+  it("C15: the revealed XP bar has an Experience label and an XP-to-next-level caption", () => {
+    renderWithMessages(
+      <CharacterCard
+        character={buildCardFixtureCharacter(4)}
+        showExperienceBar
+      />,
+    );
+
+    expect(screen.queryByText("Experience")).not.toBeNull();
+    expect(screen.queryByText("2 XP to level 3")).not.toBeNull();
+    expect(screen.queryByText("Max level")).toBeNull();
+  });
+
+  it("C16: at max level the caption reads Max level", () => {
+    renderWithMessages(
+      <CharacterCard
+        character={buildCardFixtureCharacter(15)}
+        showExperienceBar
+      />,
+    );
+
+    expect(screen.queryByText("Max level")).not.toBeNull();
+    expect(screen.queryByText(/to level/)).toBeNull();
+  });
 });

@@ -2,6 +2,7 @@
 
 import { useCallback } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/react";
+import { ChevronsUp } from "lucide-react";
 import type { Character } from "@/lib/game/character";
 import type { CampClickTarget, CampTargetPresentation } from "./campSelection";
 import { RosterSlot } from "./RosterSlot";
@@ -18,6 +19,7 @@ interface InteractiveRosterSlotButtonProps {
   isDraggable: boolean;
   presentation: CampTargetPresentation;
   showsCharacterProgression?: boolean;
+  isMatchingHeldItem: boolean;
 }
 
 // Visual classes come from the presentation state only (plus dimming the
@@ -36,8 +38,8 @@ function presentationClassName(
       return isDropTarget
         ? "ring-4 ring-emerald-500"
         : "ring-2 ring-dashed ring-emerald-400";
-    // Identical to eligible for now; its level-up marker is added with the
-    // card work.
+    // Uses the eligible ring; the level-up marker is rendered separately
+    // (see the merge marker below), so it isn't part of this className.
     case "mergeTarget":
       return isDropTarget
         ? "ring-4 ring-emerald-500"
@@ -61,6 +63,7 @@ export function InteractiveRosterSlotButton({
   isDraggable,
   presentation,
   showsCharacterProgression = false,
+  isMatchingHeldItem,
 }: InteractiveRosterSlotButtonProps) {
   const campClickTarget: CampClickTarget = {
     targetKind: "rosterSlot",
@@ -85,6 +88,14 @@ export function InteractiveRosterSlotButton({
     [draggableRef, droppableRef],
   );
 
+  const experienceBarRevealedAttributes = showsCharacterProgression
+    ? {
+        "data-experience-bar-revealed": String(
+          isSelected || isMatchingHeldItem,
+        ),
+      }
+    : {};
+
   return (
     <button
       ref={combinedRef}
@@ -94,7 +105,12 @@ export function InteractiveRosterSlotButton({
       disabled={!isEnabled}
       onClick={onClick}
       data-camp-target-presentation={presentation}
-      className={`block w-full rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${presentationClassName(
+      // globals.css hides the card's XP bar inside any element carrying
+      // this attribute, and reveals it on hover, keyboard focus, or
+      // "true" (selected, or matching the held item). The card itself
+      // stays unaware of these reveal rules.
+      {...experienceBarRevealedAttributes}
+      className={`relative block w-full rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${presentationClassName(
         presentation,
         isEnabled,
         isDropTarget,
@@ -106,6 +122,20 @@ export function InteractiveRosterSlotButton({
         isNext={isNext}
         showsCharacterProgression={showsCharacterProgression}
       />
+      {presentation === "mergeTarget" && (
+        // Top-left, so the top-right stays free for Phase 12's info
+        // control. An icon, not "+1", because roster merges grant the
+        // consumed dwarf's XP + 1. Rendered outside RosterSlot so the
+        // recess's overflow-hidden doesn't clip it. z-10 lifts it only
+        // above this slot's own card.
+        <span
+          data-camp-merge-marker
+          aria-hidden="true"
+          className="pointer-events-none absolute -top-2 -left-2 z-10 flex size-7 items-center justify-center rounded-full bg-emerald-500 text-white shadow ring-2 ring-white"
+        >
+          <ChevronsUp aria-hidden="true" className="size-5" />
+        </span>
+      )}
     </button>
   );
 }

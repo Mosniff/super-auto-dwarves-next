@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  experienceBarCaption,
   experienceBarSegments,
   hpDisplayTone,
   tierRomanNumeral,
@@ -40,6 +41,18 @@ describe("characterCardDisplay", () => {
       { segmentCount: 5, filledSegmentCount: 0, isMaxLevel: false },
       { segmentCount: 5, filledSegmentCount: 4, isMaxLevel: false },
       { segmentCount: 5, filledSegmentCount: 5, isMaxLevel: true },
+    ]);
+  });
+
+  it("(e) experienceBarCaption gives the XP remaining and the next level, or max level", () => {
+    const experienceValues = [0, 4, 9, 14, 15];
+
+    expect(experienceValues.map(experienceBarCaption)).toEqual([
+      { progressKind: "levelling", experienceRemaining: 3, nextLevel: 2 },
+      { progressKind: "levelling", experienceRemaining: 2, nextLevel: 3 },
+      { progressKind: "levelling", experienceRemaining: 1, nextLevel: 4 },
+      { progressKind: "levelling", experienceRemaining: 1, nextLevel: 5 },
+      { progressKind: "maxLevel" },
     ]);
   });
 });

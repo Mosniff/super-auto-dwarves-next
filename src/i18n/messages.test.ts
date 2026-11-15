@@ -25,7 +25,9 @@ describe("locale message parity", () => {
   // across the equipment/magic/food placeholder sections, and again for
   // the header's placeholder gem counter (gemsLabel), and again for
   // Phase 11's level pill and XP bar MAX label (levelPill,
-  // experienceBarMax) — deliberate test-data updates, not a weakening.
+  // experienceBarMax), and again for the XP bar's label and caption
+  // (experienceBarLabel, experienceToNextLevel, experienceBarMaxLevel) —
+  // deliberate test-data updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
     "advance",
@@ -64,6 +66,9 @@ describe("locale message parity", () => {
     "gemsLabel",
     "levelPill",
     "experienceBarMax",
+    "experienceBarLabel",
+    "experienceToNextLevel",
+    "experienceBarMaxLevel",
   ];
   const expectedBattleKeys = [
     "battleStart",
