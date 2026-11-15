@@ -43,7 +43,8 @@
     "mergeSellToggle": "合成・売却",
     "mergeSellHint": "SHIFTを押しながら、または「合成・売却」で合成・売却",
     "mergeSellModeOnAnnouncement": "合成・売却モード：オン",
-    "mergeSellModeOffAnnouncement": "合成・売却モード：オフ"
+    "mergeSellModeOffAnnouncement": "合成・売却モード：オフ",
+    "repositionLabel": "並べ替え"
   },
   "characterClass": {
     "warrior": "戦士",

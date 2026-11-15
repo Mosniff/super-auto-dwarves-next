@@ -43,7 +43,8 @@
     "mergeSellToggle": "Merge / Sell",
     "mergeSellHint": "Hold SHIFT or press Merge / Sell to merge or sell",
     "mergeSellModeOnAnnouncement": "Merge / sell mode on",
-    "mergeSellModeOffAnnouncement": "Merge / sell mode off"
+    "mergeSellModeOffAnnouncement": "Merge / sell mode off",
+    "repositionLabel": "Reposition"
   },
   "characterClass": {
     "warrior": "Warrior",

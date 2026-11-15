@@ -36,9 +36,8 @@ interface RosterSlabProps {
   // it on for the player's roster.
   showsCharacterProgression?: boolean;
   // An optional screen-provided control (e.g. camp's merge/sell toggle),
-  // rendered to the right of the slots without affecting their layout —
-  // they stay centred regardless of whether this is present. Battle
-  // provides none. The slab never learns what the controls are or why.
+  // centred in the slab's trailing box. Battle provides none. The slab
+  // never learns what the controls are or why.
   trailingControls?: React.ReactNode;
 }
 
@@ -54,9 +53,16 @@ export function RosterSlab({
   const facing = variant === "enemy" ? "left" : "right";
 
   return (
-    <div className="relative w-full h-72 bg-linear-to-b from-slate-100 via-slate-200 to-slate-300 px-5 py-4">
+    // The leading and trailing boxes are flex-1 basis-0, so they start at
+    // zero and split the leftover width equally, which keeps the slot row
+    // dead centre. min-w-0 stops the trailing box's content width from
+    // growing it and shifting the slots; controls wider than the box
+    // overflow symmetrically rather than moving the roster. The screen
+    // decides whether to provide controls; the slab never learns the phase.
+    <div className="flex w-full h-72 bg-linear-to-b from-slate-100 via-slate-200 to-slate-300 px-5 py-4">
+      <div data-roster-slab-leading-area className="min-w-0 flex-1 basis-0" />
       <div
-        className={`flex h-full justify-center gap-12 ${
+        className={`flex h-full shrink-0 justify-center gap-12 ${
           variant === "player" ? "flex-row-reverse" : "flex-row"
         }`}
       >
@@ -95,11 +101,12 @@ export function RosterSlab({
           </div>
         ))}
       </div>
-      {trailingControls && (
-        <div className="absolute inset-y-0 right-5 flex w-28 flex-col items-center justify-center">
-          {trailingControls}
-        </div>
-      )}
+      <div
+        data-roster-slab-trailing-area
+        className="flex min-w-0 flex-1 basis-0 flex-col items-center justify-center"
+      >
+        {trailingControls}
+      </div>
     </div>
   );
 }
