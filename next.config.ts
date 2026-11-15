@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
     // restart.
     turbopackFileSystemCacheForDev: false,
   },
+  images: { qualities: [75, 90] },
 };
 
 export default withNextIntl(nextConfig);

@@ -210,6 +210,7 @@ export function CampScreen({
         <GameScreenShell
           gamePhase="campPhase"
           playerBenchCharacters={playerCampRoster}
+          showsPlayerCharacterProgression
           playerSlotInteraction={{
             selectedSlotIndex:
               campSelection.selectionKind === "rosterSlot"

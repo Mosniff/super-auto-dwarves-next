@@ -405,4 +405,15 @@ describe("CampScreen", () => {
     ).getByRole("button");
     expect(headerAdvanceButton).toBeEnabled();
   });
+
+  it("(u) camp roster cards show the level pill and XP bar; shop tiles don't", () => {
+    renderCampScreen();
+
+    expect(document.querySelectorAll("[data-character-level]")).toHaveLength(
+      1,
+    );
+    expect(
+      document.querySelectorAll("[data-character-experience-bar]"),
+    ).toHaveLength(1);
+  });
 });

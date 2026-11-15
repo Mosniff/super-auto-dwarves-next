@@ -69,6 +69,9 @@
   --spacing-card-pill-gap: 1cqw;
   --spacing-card-pill-offset: 2cqw;
   --spacing-card-text-box-height: 20cqw;
+  --spacing-card-xp-bar-height: 4cqw;
+  --spacing-card-xp-segment-gap: 1cqw;
+  --text-card-xp-max: 5cqw;
   --radius-card-bar: 2.5cqw;
   --radius-card-portrait: 1cqw;
   --radius-card-panel: 1.5cqw;

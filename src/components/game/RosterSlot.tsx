@@ -10,6 +10,7 @@ interface RosterSlotProps {
   character?: Character;
   facing?: "left" | "right";
   isNext?: boolean;
+  showsCharacterProgression?: boolean;
 }
 
 const SHUFFLE_EXIT_DURATION_S = 0.3;
@@ -28,6 +29,7 @@ export function RosterSlot({
   character,
   facing = "right",
   isNext = false,
+  showsCharacterProgression = false,
 }: RosterSlotProps) {
   const prefersReducedMotion = useReducedMotion();
   const showNextHalo = isNext && Boolean(character);
@@ -175,7 +177,12 @@ export function RosterSlot({
                     }
               }
             >
-              <CharacterCard character={character} facing={facing} />
+              <CharacterCard
+                character={character}
+                facing={facing}
+                showLevel={showsCharacterProgression}
+                showExperienceBar={showsCharacterProgression}
+              />
             </motion.div>
           )}
         </AnimatePresence>

@@ -27,6 +27,10 @@ interface RosterSlabProps {
   // decides, and the slab doesn't know the game phase (same principle as
   // slotInteraction).
   presentsFrontSlotAsOnDeck?: boolean;
+  // When true, every slot's card shows the level pill and XP bar. The
+  // screen decides, and the slab never learns the game phase. Camp turns
+  // it on for the player's roster.
+  showsCharacterProgression?: boolean;
 }
 
 export function RosterSlab({
@@ -34,6 +38,7 @@ export function RosterSlab({
   variant = "player",
   slotInteraction,
   presentsFrontSlotAsOnDeck = false,
+  showsCharacterProgression = false,
 }: RosterSlabProps) {
   const slots = Array.from({ length: SLOT_COUNT }, (_, i) => characters[i]);
   const facing = variant === "enemy" ? "left" : "right";
@@ -66,12 +71,14 @@ export function RosterSlab({
                 onClick={() => slotInteraction.onSlotClick(i)}
                 isDraggable={slotInteraction.isSlotDraggable(i)}
                 presentation={slotInteraction.slotPresentation(i)}
+                showsCharacterProgression={showsCharacterProgression}
               />
             ) : (
               <RosterSlot
                 character={character ?? undefined}
                 facing={facing}
                 isNext={presentsFrontSlotAsOnDeck && i === 0 && Boolean(character)}
+                showsCharacterProgression={showsCharacterProgression}
               />
             )}
           </div>

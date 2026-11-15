@@ -23,8 +23,9 @@ describe("locale message parity", () => {
   // again for the shopSection namespace naming the character/equipment/
   // magic/food shop sections, and again for the "Coming soon" label shown
   // across the equipment/magic/food placeholder sections, and again for
-  // the header's placeholder gem counter (gemsLabel) — deliberate
-  // test-data updates, not a weakening.
+  // the header's placeholder gem counter (gemsLabel), and again for
+  // Phase 11's level pill and XP bar MAX label (levelPill,
+  // experienceBarMax) — deliberate test-data updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
     "advance",
@@ -61,6 +62,8 @@ describe("locale message parity", () => {
     "shopSlotLockedLabel",
     "shopSectionComingSoonLabel",
     "gemsLabel",
+    "levelPill",
+    "experienceBarMax",
   ];
   const expectedBattleKeys = [
     "battleStart",

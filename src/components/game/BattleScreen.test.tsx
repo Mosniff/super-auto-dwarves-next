@@ -314,4 +314,20 @@ describe("BattleScreen", () => {
       document.querySelector("[data-roster-slot-on-deck-halo]"),
     ).not.toBeNull();
   });
+
+  it("battle roster cards show no level pill or XP bar", () => {
+    renderWithMessages(
+      <BattleScreen
+        resolvedBattle={playerWinResolvedBattle}
+        playerCampRoster={playerWinCampRoster}
+      />,
+    );
+
+    expect(document.querySelectorAll("[data-character-level]")).toHaveLength(
+      0,
+    );
+    expect(
+      document.querySelectorAll("[data-character-experience-bar]"),
+    ).toHaveLength(0);
+  });
 });

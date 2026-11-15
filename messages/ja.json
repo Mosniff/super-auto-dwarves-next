@@ -34,7 +34,9 @@
     "rosterSlotEmptyLabel": "スロット{slotNumber}：空き",
     "shopSlotLockedLabel": "未解放",
     "shopSectionComingSoonLabel": "近日公開",
-    "gemsLabel": "{gems}ジェム"
+    "gemsLabel": "{gems}ジェム",
+    "levelPill": "Lv{level}",
+    "experienceBarMax": "MAX"
   },
   "characterClass": {
     "warrior": "戦士",

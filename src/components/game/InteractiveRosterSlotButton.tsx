@@ -17,6 +17,7 @@ interface InteractiveRosterSlotButtonProps {
   onClick: () => void;
   isDraggable: boolean;
   presentation: CampTargetPresentation;
+  showsCharacterProgression?: boolean;
 }
 
 // Visual classes come from the presentation state only (plus dimming the
@@ -59,6 +60,7 @@ export function InteractiveRosterSlotButton({
   onClick,
   isDraggable,
   presentation,
+  showsCharacterProgression = false,
 }: InteractiveRosterSlotButtonProps) {
   const campClickTarget: CampClickTarget = {
     targetKind: "rosterSlot",
@@ -98,7 +100,12 @@ export function InteractiveRosterSlotButton({
         isDropTarget,
       )} ${isDragSource ? "opacity-40" : ""}`}
     >
-      <RosterSlot character={character} facing={facing} isNext={isNext} />
+      <RosterSlot
+        character={character}
+        facing={facing}
+        isNext={isNext}
+        showsCharacterProgression={showsCharacterProgression}
+      />
     </button>
   );
 }

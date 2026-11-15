@@ -2,15 +2,18 @@ import Image from "next/image";
 import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/game/character";
 import { hpBarFillRatio } from "@/lib/battle/hpBarFillRatio";
+import { levelFromExperience } from "@/lib/game/characterExperience";
 import {
+  experienceBarSegments,
   hpDisplayTone,
   tierRomanNumeral,
   type HpDisplayTone,
 } from "./characterCardDisplay";
 
 // The layout borrows a trading-card frame structure: a bordered, textured
-// body holding a name bar, the portrait, a class bar and an empty text box
-// with a stats pill overlapping its corner. Every size inside the frame
+// body holding a name bar, the portrait (carrying an optional HP or XP
+// bar), a class bar, an optional text box, and a bottom row holding an
+// optional level pill and the stats pill. Every size inside the frame
 // comes from a card-* theme token defined in globals.css, each expressed
 // relative to the card's own width (a CSS container query length), so one
 // layout serves every card size — a ~100px shop tile and a 288px action
@@ -21,6 +24,9 @@ interface CharacterCardProps {
   facing?: "left" | "right";
   animateHpDrop?: boolean;
   showHpBar?: boolean;
+  showTextBox?: boolean;
+  showLevel?: boolean;
+  showExperienceBar?: boolean;
 }
 
 // Tuned by eye later by the human.
@@ -53,6 +59,9 @@ export function CharacterCard({
   facing = "right",
   animateHpDrop = false,
   showHpBar = false,
+  showTextBox = false,
+  showLevel = false,
+  showExperienceBar = false,
 }: CharacterCardProps) {
   const hpFillRatio = hpBarFillRatio(character.hp, character.maxHp);
   const isDowned = character.hp <= 0;
@@ -61,6 +70,9 @@ export function CharacterCard({
   const tier = character.tier;
   const characterClassIds = character.characterClassIds;
   const hpTone = hpDisplayTone(character.hp, character.maxHp);
+  const level = levelFromExperience(character.experience);
+  const { segmentCount, filledSegmentCount, isMaxLevel } =
+    experienceBarSegments(character.experience);
 
   return (
     // @container, carrying no container-relative sizing of its own: an
@@ -143,6 +155,39 @@ export function CharacterCard({
               </div>
             </div>
           )}
+          {showExperienceBar && (
+            // aria-hidden: the level reaches screen readers through the
+            // slot's label, added in a later block. The camp roster never
+            // shows the battle-only HP bar, so the two never share this
+            // space.
+            <div
+              data-character-experience-bar
+              data-experience-max-level={String(isMaxLevel)}
+              aria-hidden="true"
+              className="absolute inset-x-card-hp-bar-inset bottom-card-hp-bar-inset"
+            >
+              <div className="relative flex h-card-xp-bar-height w-full gap-card-xp-segment-gap">
+                {Array.from({ length: segmentCount }, (_, segmentIndex) => (
+                  <span
+                    key={segmentIndex}
+                    data-experience-segment={
+                      segmentIndex < filledSegmentCount ? "filled" : "empty"
+                    }
+                    className={`flex-1 rounded-full ${
+                      segmentIndex < filledSegmentCount
+                        ? "bg-amber-400"
+                        : "bg-black/40"
+                    }`}
+                  />
+                ))}
+                {isMaxLevel && (
+                  <span className="absolute inset-0 flex items-center justify-center text-card-xp-max font-bold text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]">
+                    {t("experienceBarMax")}
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
           <div
             className={`absolute inset-0 flex items-center justify-center bg-black/50 text-card-overlay font-bold tracking-wide text-white uppercase transition-opacity duration-200 ease-out ${
               isDowned ? "opacity-100" : "opacity-0"
@@ -173,17 +218,45 @@ export function CharacterCard({
         </div>
 
         {/* Reserved for abilities, which are unspecified; do not put
-            content here. */}
-        <div
-          data-character-text-box
-          className="relative mx-card-inset h-card-text-box-height shrink-0 rounded-card-panel"
-          style={{
-            background: "var(--texture-card-panel)",
-            boxShadow: "var(--shadow-recess)",
-          }}
-        >
+            content here. Off the standard card by default; Phase 12's
+            expanded card view turns it on. */}
+        {showTextBox && (
           <div
-            className="absolute -right-card-pill-offset -bottom-card-pill-offset flex overflow-hidden rounded-card-pill text-card-stat font-bold leading-none"
+            data-character-text-box
+            className="relative mx-card-inset h-card-text-box-height shrink-0 rounded-card-panel"
+            style={{
+              background: "var(--texture-card-panel)",
+              boxShadow: "var(--shadow-recess)",
+            }}
+          />
+        )}
+
+        <div
+          data-character-card-bottom-row
+          className="mx-card-inset flex shrink-0 items-center justify-between"
+        >
+          {showLevel && (
+            // Deliberately distinct from the iron stats pill, and labelled
+            // "Lv" so it never reads as the Roman-numeral tier.
+            <span
+              data-character-level={level}
+              className={`flex overflow-hidden rounded-card-pill text-card-stat font-bold leading-none ${DARK_TEXT_CLASS_NAME}`}
+              style={{ boxShadow: "var(--shadow-stat-pill)" }}
+            >
+              <span
+                className="flex items-center gap-card-pill-gap px-card-pill-x py-card-pill-y"
+                style={{
+                  backgroundImage:
+                    "linear-gradient(to bottom, var(--color-parchment-50), var(--color-parchment-300))",
+                }}
+              >
+                {t("levelPill", { level })}
+              </span>
+            </span>
+          )}
+
+          <div
+            className="ml-auto flex overflow-hidden rounded-card-pill text-card-stat font-bold leading-none"
             style={{ boxShadow: "var(--shadow-stat-pill)" }}
           >
             <span

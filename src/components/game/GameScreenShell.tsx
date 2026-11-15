@@ -13,6 +13,7 @@ interface GameScreenShellProps {
   playerBenchCharacters: (Character | null)[];
   playerSlotInteraction?: RosterSlotInteraction;
   presentsPlayerFrontSlotAsOnDeck?: boolean;
+  showsPlayerCharacterProgression?: boolean;
   children: React.ReactNode;
 }
 
@@ -21,6 +22,7 @@ export function GameScreenShell({
   playerBenchCharacters,
   playerSlotInteraction,
   presentsPlayerFrontSlotAsOnDeck = false,
+  showsPlayerCharacterProgression = false,
   children,
 }: GameScreenShellProps) {
   const prefersReducedMotion = useReducedMotion();
@@ -51,6 +53,7 @@ export function GameScreenShell({
             variant="player"
             slotInteraction={playerSlotInteraction}
             presentsFrontSlotAsOnDeck={presentsPlayerFrontSlotAsOnDeck}
+            showsCharacterProgression={showsPlayerCharacterProgression}
           />
         </div>
         <GamePhaseBanner gamePhase={gamePhase} />

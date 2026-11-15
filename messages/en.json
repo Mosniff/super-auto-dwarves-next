@@ -34,7 +34,9 @@
     "rosterSlotEmptyLabel": "Slot {slotNumber}: empty",
     "shopSlotLockedLabel": "Locked",
     "shopSectionComingSoonLabel": "Coming soon",
-    "gemsLabel": "{gems} gems"
+    "gemsLabel": "{gems} gems",
+    "levelPill": "Lv {level}",
+    "experienceBarMax": "MAX"
   },
   "characterClass": {
     "warrior": "Warrior",
