@@ -14,4 +14,7 @@ export interface Character {
   hp: number;
   // full-health ceiling; current hp never exceeds this
   maxHp: number;
+  // 0 to MAX_CHARACTER_EXPERIENCE. The level is always derived from this
+  // (levelFromExperience) and never stored.
+  experience: number;
 }

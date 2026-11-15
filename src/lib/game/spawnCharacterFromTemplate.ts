@@ -15,5 +15,7 @@ export function spawnCharacterFromTemplate(
     // hp starts at maxHp — a freshly spawned character is at full health.
     hp: characterTemplate.maxHp,
     maxHp: characterTemplate.maxHp,
+    // a fresh character has no experience
+    experience: 0,
   };
 }

@@ -17,6 +17,7 @@ function buildFixtureCharacter(id: string, name: string): Character {
     characterTemplateId: "fixture-dwarf",
     tier: 1,
     characterClassIds: ["warrior"],
+    experience: 0,
   };
 }
 

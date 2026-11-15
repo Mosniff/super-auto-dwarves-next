@@ -1,4 +1,5 @@
 import { isCharacterClassId } from "@/lib/game/characterClasses";
+import { isCharacterExperience } from "@/lib/game/characterExperience";
 import { isCharacterTier } from "@/lib/game/characterTiers";
 import type { Character } from "@/lib/game/character";
 import { CAMP_ROSTER_SLOT_COUNT, type CampRoster } from "@/lib/game/campRoster";
@@ -19,7 +20,8 @@ function hasValidCharacterClassIds(characterClassIds: unknown): boolean {
 // parser was removed in Phase 8). Template existence is deliberately not
 // checked here — owned characters are self-contained and may diverge from
 // their template, so characterTemplateId only needs to be a non-empty
-// string.
+// string. experience must be an integer from 0 to MAX_CHARACTER_EXPERIENCE;
+// the level is derived from it (levelFromExperience) and never stored.
 function isValidPersistedCharacter(
   candidateCharacter: unknown,
 ): candidateCharacter is Character {
@@ -40,6 +42,7 @@ function isValidPersistedCharacter(
     characterTemplateId,
     tier,
     characterClassIds,
+    experience,
   } = candidateCharacter as Record<string, unknown>;
 
   return (
@@ -54,7 +57,8 @@ function isValidPersistedCharacter(
     typeof characterTemplateId === "string" &&
     characterTemplateId.length > 0 &&
     isCharacterTier(tier) &&
-    hasValidCharacterClassIds(characterClassIds)
+    hasValidCharacterClassIds(characterClassIds) &&
+    isCharacterExperience(experience)
   );
 }
 

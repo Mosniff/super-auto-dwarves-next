@@ -19,6 +19,7 @@ function buildFixtureCharacter(
     characterTemplateId: "fixture-dwarf",
     tier: 1,
     characterClassIds: ["warrior"],
+    experience: 0,
   };
 }
 

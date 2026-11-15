@@ -12,7 +12,7 @@ const fixtureTemplate: CharacterTemplate = {
 };
 
 describe("spawnCharacterFromTemplate", () => {
-  it("S1: builds an owned character from a template with a fresh id and hp at maxHp", () => {
+  it("S1: builds an owned character from a template with a fresh id, hp at maxHp and no experience", () => {
     const spawnedCharacter = spawnCharacterFromTemplate(
       fixtureTemplate,
       "new-character-1",
@@ -27,6 +27,7 @@ describe("spawnCharacterFromTemplate", () => {
       attack: 3,
       hp: 9,
       maxHp: 9,
+      experience: 0,
     });
   });
 

@@ -16,6 +16,7 @@ const fixtureCampRoster: CampRoster = [
     characterTemplateId: "fixture-dwarf",
     tier: 1,
     characterClassIds: ["warrior"],
+    experience: 0,
   },
   null,
   null,

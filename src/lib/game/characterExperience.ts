@@ -1,3 +1,5 @@
+import type { Character } from "./character";
+
 export const CHARACTER_LEVELS = [1, 2, 3, 4, 5] as const;
 
 export type CharacterLevel = (typeof CHARACTER_LEVELS)[number];
@@ -103,5 +105,26 @@ export function addExperience(
   return {
     resultingExperience,
     experienceGained: resultingExperience - currentExperience,
+  };
+}
+
+// Ruling: +1 attack, +1 max hp and +1 current hp per XP point actually
+// gained, so a full-health dwarf stays full and a damaged one keeps its
+// damage.
+export function gainExperience(
+  character: Character,
+  experienceToAdd: number,
+): Character {
+  const { resultingExperience, experienceGained } = addExperience(
+    character.experience,
+    experienceToAdd,
+  );
+
+  return {
+    ...character,
+    experience: resultingExperience,
+    attack: character.attack + experienceGained,
+    hp: character.hp + experienceGained,
+    maxHp: character.maxHp + experienceGained,
   };
 }

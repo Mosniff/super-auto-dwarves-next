@@ -13,6 +13,7 @@ function buildFixtureCharacter(id: string, name: string): Character {
     characterTemplateId: "fixture-dwarf",
     tier: 1,
     characterClassIds: ["warrior"],
+    experience: 4,
   };
 }
 
@@ -203,5 +204,36 @@ describe("parsePersistedCampRoster", () => {
     const parsedCampRoster = parsePersistedCampRoster(persistedCampRoster);
 
     expect(parsedCampRoster).toEqual(persistedCampRoster);
+  });
+
+  it("(m) throws when experience is missing, out of range, or the wrong type", () => {
+    const baseCharacter = buildFixtureCharacter("character-a", "Dwarf A");
+    const { experience: _removedExperience, ...characterWithoutExperience } =
+      baseCharacter;
+
+    const variants: unknown[] = [
+      characterWithoutExperience,
+      { ...baseCharacter, experience: -1 },
+      { ...baseCharacter, experience: 16 },
+      { ...baseCharacter, experience: 1.5 },
+      { ...baseCharacter, experience: Number.NaN },
+      { ...baseCharacter, experience: "3" },
+      { ...baseCharacter, experience: null },
+    ];
+
+    expect(variants.map(buildRosterWithFirstSlot).map(doesParseThrow)).toEqual(
+      [true, true, true, true, true, true, true],
+    );
+  });
+
+  it("(n) accepts experience at 0 and at the 15 cap", () => {
+    const baseCharacter = buildFixtureCharacter("character-a", "Dwarf A");
+
+    const rosters: unknown[] = [
+      buildRosterWithFirstSlot({ ...baseCharacter, experience: 0 }),
+      buildRosterWithFirstSlot({ ...baseCharacter, experience: 15 }),
+    ];
+
+    expect(rosters.map(doesParseThrow)).toEqual([false, false]);
   });
 });

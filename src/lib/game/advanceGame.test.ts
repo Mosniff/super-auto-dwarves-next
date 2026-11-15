@@ -25,6 +25,7 @@ function buildFixtureCampRoster(): CampRoster {
     characterTemplateId: "fixture-dwarf",
     tier: 1,
     characterClassIds: ["warrior"],
+    experience: 0,
   };
 
   return [fixtureCharacter, null, null, null, null, null, null];

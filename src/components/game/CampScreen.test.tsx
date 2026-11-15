@@ -29,6 +29,7 @@ const fixtureBorin: Character = {
   characterTemplateId: "fixture-dwarf",
   tier: 1,
   characterClassIds: ["warrior"],
+  experience: 0,
 };
 
 function buildFixtureCampRoster(): CampRoster {

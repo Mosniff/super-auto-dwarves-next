@@ -30,6 +30,7 @@ const occupiedFixtureCharacter: Character = {
   characterTemplateId: "fixture-dwarf-one",
   tier: 1,
   characterClassIds: ["warrior"],
+  experience: 0,
 };
 
 function buildFixtureShopCampState(
@@ -52,6 +53,7 @@ function expectedSpawnedCharacter(
     ...characterTemplate,
     characterClassIds: [...characterTemplate.characterClassIds],
     hp: characterTemplate.maxHp,
+    experience: 0,
   };
 }
 

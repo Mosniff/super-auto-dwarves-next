@@ -15,6 +15,7 @@ describe("CharacterCard", () => {
       characterTemplateId: "fixture-dwarf",
       tier: 2,
       characterClassIds: ["warrior"],
+      experience: 0,
     };
 
     renderWithMessages(<CharacterCard character={fixtureCharacter} />);
@@ -35,6 +36,7 @@ describe("CharacterCard", () => {
       characterTemplateId: "fixture-dwarf",
       tier: 1,
       characterClassIds: ["smith", "miner"],
+      experience: 0,
     };
 
     renderWithMessages(<CharacterCard character={fixtureCharacter} />);
@@ -58,6 +60,7 @@ describe("CharacterCard", () => {
       characterTemplateId: "fixture-dwarf",
       tier: 1,
       characterClassIds: ["warrior"],
+      experience: 0,
     };
 
     renderWithMessages(<CharacterCard character={fixtureCharacter} />);
@@ -89,6 +92,7 @@ describe("CharacterCard", () => {
       characterTemplateId: "fixture-dwarf",
       tier: 1,
       characterClassIds: ["warrior"],
+      experience: 0,
     };
 
     renderWithMessages(<CharacterCard character={fixtureCharacter} />);
@@ -106,6 +110,7 @@ describe("CharacterCard", () => {
       characterTemplateId: "fixture-dwarf",
       tier: 1,
       characterClassIds: ["warrior"],
+      experience: 0,
     };
 
     renderWithMessages(

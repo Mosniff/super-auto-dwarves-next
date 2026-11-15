@@ -27,6 +27,7 @@ const fixtureBorin: Character = {
   characterTemplateId: "fixture-dwarf",
   tier: 1,
   characterClassIds: ["warrior"],
+  experience: 0,
 };
 
 const fixtureCampRoster: CampRoster = [
@@ -128,6 +129,7 @@ describe("buyCharacterForUser", () => {
           ...fixtureCharacterShopTemplateTwo.characterClassIds,
         ],
         hp: fixtureCharacterShopTemplateTwo.maxHp,
+        experience: 0,
       },
       null,
       null,

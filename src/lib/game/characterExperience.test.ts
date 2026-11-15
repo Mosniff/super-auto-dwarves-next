@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import type { Character } from "./character";
 import {
   CHARACTER_LEVELS,
   EXPERIENCE_REQUIRED_PER_LEVEL_UP,
@@ -6,6 +7,7 @@ import {
   MAX_CHARACTER_LEVEL,
   addExperience,
   characterLevelProgressFromExperience,
+  gainExperience,
   isCharacterExperience,
   levelFromExperience,
 } from "./characterExperience";
@@ -17,6 +19,21 @@ function didThrow(runInvalidCall: () => unknown): boolean {
   } catch {
     return true;
   }
+}
+
+function buildFixtureCharacter(overrides: Partial<Character> = {}): Character {
+  return {
+    id: "fixture-character",
+    characterTemplateId: "fixture-dwarf",
+    name: "Fixture Dwarf",
+    tier: 1,
+    characterClassIds: ["warrior"],
+    attack: 4,
+    hp: 7,
+    maxHp: 7,
+    experience: 0,
+    ...overrides,
+  };
 }
 
 describe("characterExperience", () => {
@@ -223,5 +240,76 @@ describe("characterExperience", () => {
         didThrow(() => addExperience(currentExperience, experienceToAdd)),
       ),
     ).toEqual([true, true, true, true, true, true]);
+  });
+
+  it("E12: gainExperience below the cap", () => {
+    const fixtureCharacter = buildFixtureCharacter({ experience: 0 });
+
+    expect(gainExperience(fixtureCharacter, 1)).toEqual(
+      buildFixtureCharacter({ experience: 1, attack: 5, hp: 8, maxHp: 8 }),
+    );
+  });
+
+  it("E13: gainExperience raises current hp by the same amount, so damage is kept", () => {
+    const fixtureCharacter = buildFixtureCharacter({
+      experience: 2,
+      hp: 3,
+      maxHp: 7,
+      attack: 4,
+    });
+
+    expect(gainExperience(fixtureCharacter, 3)).toEqual(
+      buildFixtureCharacter({
+        experience: 5,
+        attack: 7,
+        hp: 6,
+        maxHp: 10,
+      }),
+    );
+  });
+
+  it("E14: gainExperience caps at 15 and gives stats only for XP actually gained", () => {
+    const additions: Array<[Character, number]> = [
+      [
+        buildFixtureCharacter({ experience: 13, attack: 4, hp: 7, maxHp: 7 }),
+        16,
+      ],
+      [
+        buildFixtureCharacter({ experience: 15, attack: 4, hp: 7, maxHp: 7 }),
+        1,
+      ],
+    ];
+
+    expect(
+      additions.map(([character, experienceToAdd]) =>
+        gainExperience(character, experienceToAdd),
+      ),
+    ).toEqual([
+      buildFixtureCharacter({ experience: 15, attack: 6, hp: 9, maxHp: 9 }),
+      buildFixtureCharacter({ experience: 15, attack: 4, hp: 7, maxHp: 7 }),
+    ]);
+  });
+
+  it("E15: gainExperience does not mutate its input", () => {
+    const fixtureCharacter = buildFixtureCharacter({ experience: 0 });
+    const clonedFixtureCharacter = structuredClone(fixtureCharacter);
+
+    gainExperience(fixtureCharacter, 2);
+
+    expect(fixtureCharacter).toEqual(clonedFixtureCharacter);
+  });
+
+  it("E16: gainExperience throws for invalid input", () => {
+    const invalidCalls: Array<[Character, number]> = [
+      [buildFixtureCharacter({ experience: 0 }), 0],
+      [buildFixtureCharacter({ experience: 0 }), -1],
+      [buildFixtureCharacter({ experience: 16 }), 1],
+    ];
+
+    expect(
+      invalidCalls.map(([character, experienceToAdd]) =>
+        didThrow(() => gainExperience(character, experienceToAdd)),
+      ),
+    ).toEqual([true, true, true]);
   });
 });
