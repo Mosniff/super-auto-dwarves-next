@@ -102,6 +102,7 @@ interface RenderCampScreenOverrides {
   revision?: number;
   buyCharacterAction?: (formData: FormData) => Promise<void>;
   repositionCharacterAction?: (formData: FormData) => Promise<void>;
+  mergeCharacterAction?: (formData: FormData) => Promise<void>;
 }
 
 function renderCampScreen(overrides: RenderCampScreenOverrides = {}) {
@@ -119,6 +120,9 @@ function renderCampScreen(overrides: RenderCampScreenOverrides = {}) {
       buyCharacterAction={overrides.buyCharacterAction ?? (async () => {})}
       repositionCharacterAction={
         overrides.repositionCharacterAction ?? (async () => {})
+      }
+      mergeCharacterAction={
+        overrides.mergeCharacterAction ?? (async () => {})
       }
     />,
   );
@@ -404,6 +408,7 @@ describe("CampScreen", () => {
         revision={5}
         buyCharacterAction={async () => {}}
         repositionCharacterAction={async () => {}}
+        mergeCharacterAction={async () => {}}
       />,
       {
         wrapper: ({ children }) => (

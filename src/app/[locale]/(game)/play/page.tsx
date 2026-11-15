@@ -13,6 +13,7 @@ import { resolveCampBattle } from "@/lib/game/resolveCampBattle";
 import {
   advanceGameAction,
   buyCharacterAction,
+  mergeCharacterAction,
   repositionCharacterAction,
 } from "../../gameActions";
 
@@ -59,6 +60,7 @@ export default async function PlayPage() {
           revision={savedGame.revision}
           buyCharacterAction={buyCharacterAction}
           repositionCharacterAction={repositionCharacterAction}
+          mergeCharacterAction={mergeCharacterAction}
         />
       </GameScreen>
     );

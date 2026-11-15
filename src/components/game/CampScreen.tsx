@@ -23,6 +23,7 @@ import {
   resolveCampClick,
   resolveCampDrop,
   type CampClickTarget,
+  type CampInteractionMode,
   type CampIntent,
   type CampSelection,
   type CampTargetPresentation,
@@ -36,6 +37,7 @@ interface CampScreenProps {
   revision: number;
   buyCharacterAction: (formData: FormData) => Promise<void>;
   repositionCharacterAction: (formData: FormData) => Promise<void>;
+  mergeCharacterAction: (formData: FormData) => Promise<void>;
 }
 
 function campSelectionFromClickTarget(
@@ -58,8 +60,13 @@ export function CampScreen({
   revision,
   buyCharacterAction,
   repositionCharacterAction,
+  mergeCharacterAction,
 }: CampScreenProps) {
   const t = useTranslations("common");
+
+  // Client UI state only — the next block makes this live (a toggle and a
+  // Shift modifier). The server never receives or learns it.
+  const campInteractionMode: CampInteractionMode = "reposition";
 
   // The selection, drag-source selection and pending-ness below are UI
   // state only, for click/drag feedback and disabling tiles mid-submit.
@@ -83,23 +90,37 @@ export function CampScreen({
   function submitCampIntent(campIntent: CampIntent): void {
     const formData = new FormData();
 
-    if (campIntent.intentKind === "buyCharacter") {
-      formData.set("shopSlotIndex", String(campIntent.shopSlotIndex));
-      formData.set(
-        "targetRosterSlotIndex",
-        String(campIntent.targetRosterSlotIndex),
-      );
-      formData.set("expectedRevision", String(revision));
-      startCampIntentTransition(async () => {
-        await buyCharacterAction(formData);
-      });
-    } else {
-      formData.set("fromSlotIndex", String(campIntent.fromSlotIndex));
-      formData.set("toSlotIndex", String(campIntent.toSlotIndex));
-      formData.set("expectedRevision", String(revision));
-      startCampIntentTransition(async () => {
-        await repositionCharacterAction(formData);
-      });
+    switch (campIntent.intentKind) {
+      case "buyCharacter": {
+        formData.set("shopSlotIndex", String(campIntent.shopSlotIndex));
+        formData.set(
+          "targetRosterSlotIndex",
+          String(campIntent.targetRosterSlotIndex),
+        );
+        formData.set("expectedRevision", String(revision));
+        startCampIntentTransition(async () => {
+          await buyCharacterAction(formData);
+        });
+        return;
+      }
+      case "reposition": {
+        formData.set("fromSlotIndex", String(campIntent.fromSlotIndex));
+        formData.set("toSlotIndex", String(campIntent.toSlotIndex));
+        formData.set("expectedRevision", String(revision));
+        startCampIntentTransition(async () => {
+          await repositionCharacterAction(formData);
+        });
+        return;
+      }
+      case "mergeCharacters": {
+        formData.set("fromSlotIndex", String(campIntent.fromSlotIndex));
+        formData.set("intoSlotIndex", String(campIntent.intoSlotIndex));
+        formData.set("expectedRevision", String(revision));
+        startCampIntentTransition(async () => {
+          await mergeCharacterAction(formData);
+        });
+        return;
+      }
     }
   }
 
@@ -109,6 +130,7 @@ export function CampScreen({
       campClickTarget,
       campState,
       characterTemplates,
+      campInteractionMode,
     );
 
     setCampSelection(resolution.nextCampSelection);
@@ -126,6 +148,7 @@ export function CampScreen({
         campClickTarget,
         campState,
         characterTemplates,
+        campInteractionMode,
       )
     );
   }
@@ -143,6 +166,7 @@ export function CampScreen({
       campClickTarget,
       campState,
       characterTemplates,
+      campInteractionMode,
     );
   }
 
@@ -193,6 +217,7 @@ export function CampScreen({
           dropTargetClickTarget,
           campState,
           characterTemplates,
+          campInteractionMode,
         );
 
         if (campIntent !== null) {
@@ -234,7 +259,11 @@ export function CampScreen({
             },
             isSlotDraggable: (slotIndex) =>
               !isSubmittingCampIntent &&
-              isRosterSlotSelectable(playerCampRoster, slotIndex),
+              isRosterSlotSelectable(
+                playerCampRoster,
+                slotIndex,
+                campInteractionMode,
+              ),
             slotPresentation: (slotIndex) =>
               campTargetPresentation({ targetKind: "rosterSlot", slotIndex }),
             isSlotMatchingHeldItem: (slotIndex) =>
@@ -243,6 +272,7 @@ export function CampScreen({
                 slotIndex,
                 campState,
                 characterTemplates,
+                campInteractionMode,
               ),
           }}
         >

@@ -3,6 +3,7 @@ import {
   type BuyCharacterFromShopSlotResult,
 } from "@/lib/game/buyCharacterFromShopSlot";
 import { repositionCharacter } from "@/lib/game/repositionCharacter";
+import { mergeRosterCharacters } from "@/lib/game/mergeRosterCharacters";
 import { CAMP_ROSTER_SLOT_COUNT, type CampRoster } from "@/lib/game/campRoster";
 import type { CampState } from "@/lib/game/campState";
 import type { CharacterTemplate } from "@/lib/game/characterTemplates";
@@ -16,6 +17,13 @@ export type CampSelection =
   | { selectionKind: "characterShopSlot"; shopSlotIndex: number }
   | { selectionKind: "rosterSlot"; slotIndex: number };
 
+// Client UI state only (Part 2 wires this up): default mode leaves a held
+// roster dwarf repositioning; "mergeOrSell" turns matches into merge
+// targets instead. The server never receives or learns this — it only ever
+// sees the explicit intent (reposition vs. mergeCharacters) that the mode
+// caused the player to submit.
+export type CampInteractionMode = "reposition" | "mergeOrSell";
+
 export type CampClickTarget =
   | { targetKind: "characterShopSlot"; shopSlotIndex: number }
   | { targetKind: "rosterSlot"; slotIndex: number };
@@ -26,7 +34,12 @@ export type CampIntent =
       shopSlotIndex: number;
       targetRosterSlotIndex: number;
     }
-  | { intentKind: "reposition"; fromSlotIndex: number; toSlotIndex: number };
+  | { intentKind: "reposition"; fromSlotIndex: number; toSlotIndex: number }
+  | {
+      intentKind: "mergeCharacters";
+      fromSlotIndex: number;
+      intoSlotIndex: number;
+    };
 
 export interface CampClickResolution {
   nextCampSelection: CampSelection;
@@ -100,10 +113,34 @@ export function isRepositionTargetSlot(
   );
 }
 
+export function isMergeTargetSlot(
+  campRoster: CampRoster,
+  fromSlotIndex: number,
+  intoSlotIndex: number,
+): boolean {
+  return (
+    mergeRosterCharacters(campRoster, fromSlotIndex, intoSlotIndex)
+      .outcome === "accepted"
+  );
+}
+
+// In "reposition" (the default), a slot is selectable when some other slot
+// is a reposition target for it. In "mergeOrSell", a slot is selectable
+// when some other slot is a merge target for it instead — repositioning is
+// off in this mode.
 export function isRosterSlotSelectable(
   campRoster: CampRoster,
   slotIndex: number,
+  campInteractionMode: CampInteractionMode = "reposition",
 ): boolean {
+  if (campInteractionMode === "mergeOrSell") {
+    return allCampRosterSlotIndices.some(
+      (otherSlotIndex) =>
+        otherSlotIndex !== slotIndex &&
+        isMergeTargetSlot(campRoster, slotIndex, otherSlotIndex),
+    );
+  }
+
   return allCampRosterSlotIndices.some(
     (otherSlotIndex) =>
       otherSlotIndex !== slotIndex &&
@@ -124,14 +161,21 @@ const noSelection: CampSelection = { selectionKind: "none" };
 // here — this asymmetry is what lets the merge-buy rule turn a click on a
 // matching dwarf into a buy with no change here).
 //
-// A roster slot selected: clicking the same slot clears; a
-// reposition-target slot submits a reposition and clears; a selectable
+// A roster slot selected: clicking the same slot clears. In "reposition"
+// mode, a reposition-target slot submits a reposition and clears; in
+// "mergeOrSell" mode, a merge-target slot submits a mergeCharacters intent
+// and clears instead, and repositioning is off. Either mode: a selectable
 // shop slot switches to it; any other roster slot click changes nothing.
+//
+// campInteractionMode is client UI state only (CampInteractionMode's own
+// comment) — the server never receives or learns it, only the explicit
+// intent (reposition vs. mergeCharacters) it caused the player to submit.
 export function resolveCampClick(
   campSelection: CampSelection,
   campClickTarget: CampClickTarget,
   campState: CampState,
   characterTemplates: readonly CharacterTemplate[],
+  campInteractionMode: CampInteractionMode = "reposition",
 ): CampClickResolution {
   const unchanged: CampClickResolution = {
     nextCampSelection: campSelection,
@@ -158,7 +202,13 @@ export function resolveCampClick(
       return unchanged;
     }
 
-    if (isRosterSlotSelectable(campState.campRoster, campClickTarget.slotIndex)) {
+    if (
+      isRosterSlotSelectable(
+        campState.campRoster,
+        campClickTarget.slotIndex,
+        campInteractionMode,
+      )
+    ) {
       return {
         nextCampSelection: {
           selectionKind: "rosterSlot",
@@ -218,6 +268,27 @@ export function resolveCampClick(
     if (campClickTarget.slotIndex === campSelection.slotIndex) {
       return { nextCampSelection: noSelection, campIntentToSubmit: null };
     }
+
+    if (campInteractionMode === "mergeOrSell") {
+      if (
+        isMergeTargetSlot(
+          campState.campRoster,
+          campSelection.slotIndex,
+          campClickTarget.slotIndex,
+        )
+      ) {
+        return {
+          nextCampSelection: noSelection,
+          campIntentToSubmit: {
+            intentKind: "mergeCharacters",
+            fromSlotIndex: campSelection.slotIndex,
+            intoSlotIndex: campClickTarget.slotIndex,
+          },
+        };
+      }
+      return unchanged;
+    }
+
     if (
       isRepositionTargetSlot(
         campState.campRoster,
@@ -284,12 +355,14 @@ export function isCampClickEffective(
   campClickTarget: CampClickTarget,
   campState: CampState,
   characterTemplates: readonly CharacterTemplate[],
+  campInteractionMode: CampInteractionMode = "reposition",
 ): boolean {
   const { nextCampSelection, campIntentToSubmit } = resolveCampClick(
     campSelection,
     campClickTarget,
     campState,
     characterTemplates,
+    campInteractionMode,
   );
 
   return (
@@ -305,12 +378,14 @@ export function resolveCampDrop(
   dropTarget: CampClickTarget,
   campState: CampState,
   characterTemplates: readonly CharacterTemplate[],
+  campInteractionMode: CampInteractionMode = "reposition",
 ): CampIntent | null {
   return resolveCampClick(
     dragSourceSelection,
     dropTarget,
     campState,
     characterTemplates,
+    campInteractionMode,
   ).campIntentToSubmit;
 }
 
@@ -333,6 +408,7 @@ export function presentCampTarget(
   campClickTarget: CampClickTarget,
   campState: CampState,
   characterTemplates: readonly CharacterTemplate[],
+  campInteractionMode: CampInteractionMode = "reposition",
 ): CampTargetPresentation {
   if (heldCampItem.selectionKind === "none") {
     if (campClickTarget.targetKind === "characterShopSlot") {
@@ -352,6 +428,7 @@ export function presentCampTarget(
     return isRosterSlotSelectable(
       campState.campRoster,
       campClickTarget.slotIndex,
+      campInteractionMode,
     )
       ? "neutral"
       : "ineligible";
@@ -374,6 +451,7 @@ export function presentCampTarget(
     campClickTarget,
     campState,
     characterTemplates,
+    campInteractionMode,
   );
 
   if (campIntentToSubmit !== null) {
@@ -393,6 +471,10 @@ export function presentCampTarget(
       }
     }
 
+    if (campIntentToSubmit.intentKind === "mergeCharacters") {
+      return "mergeTarget";
+    }
+
     return "eligible";
   }
 
@@ -402,6 +484,7 @@ export function presentCampTarget(
       campClickTarget,
       campState,
       characterTemplates,
+      campInteractionMode,
     )
   ) {
     return "neutral";
@@ -410,31 +493,52 @@ export function presentCampTarget(
   return "ineligible";
 }
 
-// "Matching" is read from the real rule's preview (the
-// rosterSlotAtMaxLevel rejection is only ever returned for a matching
-// occupant) — never from a client-side characterTemplateId comparison.
-// Roster holds return false until roster merging exists.
+// "Matching" is read from the real rules' previews (the
+// rosterSlotAtMaxLevel / targetSlotAtMaxLevel rejections are only ever
+// returned for a matching occupant) — never from a client-side
+// characterTemplateId comparison. A shop hold's matching is unaffected by
+// the mode (a merge-buy can always happen); a roster hold's matching is
+// mode-aware, because in "reposition" mode the player is moving the dwarf,
+// not merging it, so nothing should look like a merge target there.
 export function isRosterSlotMatchingHeldItem(
   heldCampItem: CampSelection,
   rosterSlotIndex: number,
   campState: CampState,
   characterTemplates: readonly CharacterTemplate[],
+  campInteractionMode: CampInteractionMode = "reposition",
 ): boolean {
-  if (heldCampItem.selectionKind !== "characterShopSlot") {
-    return false;
+  if (heldCampItem.selectionKind === "characterShopSlot") {
+    const buyPreview = previewBuyCharacterFromShopSlot(
+      campState,
+      characterTemplates,
+      heldCampItem.shopSlotIndex,
+      rosterSlotIndex,
+    );
+
+    return (
+      (buyPreview.outcome === "accepted" &&
+        buyPreview.acceptanceKind === "merged") ||
+      (buyPreview.outcome === "rejected" &&
+        buyPreview.rejectionReason === "rosterSlotAtMaxLevel")
+    );
   }
 
-  const buyPreview = previewBuyCharacterFromShopSlot(
-    campState,
-    characterTemplates,
-    heldCampItem.shopSlotIndex,
-    rosterSlotIndex,
-  );
+  if (
+    heldCampItem.selectionKind === "rosterSlot" &&
+    campInteractionMode === "mergeOrSell"
+  ) {
+    const mergePreview = mergeRosterCharacters(
+      campState.campRoster,
+      heldCampItem.slotIndex,
+      rosterSlotIndex,
+    );
 
-  return (
-    (buyPreview.outcome === "accepted" &&
-      buyPreview.acceptanceKind === "merged") ||
-    (buyPreview.outcome === "rejected" &&
-      buyPreview.rejectionReason === "rosterSlotAtMaxLevel")
-  );
+    return (
+      mergePreview.outcome === "accepted" ||
+      (mergePreview.outcome === "rejected" &&
+        mergePreview.rejectionReason === "targetSlotAtMaxLevel")
+    );
+  }
+
+  return false;
 }

@@ -11,6 +11,7 @@ import { createGameForUser } from "@/lib/persistence/createGameForUser";
 import { advanceGameForUser } from "@/lib/persistence/advanceGameForUser";
 import { buyCharacterForUser } from "@/lib/persistence/buyCharacterForUser";
 import { repositionCharacterForUser } from "@/lib/persistence/repositionCharacterForUser";
+import { mergeCharacterForUser } from "@/lib/persistence/mergeCharacterForUser";
 import { GameAlreadyExistsError } from "@/lib/persistence/gameAlreadyExistsError";
 import { isGamePhase } from "@/lib/game/isGamePhase";
 import { listCharacterTemplates } from "@/lib/game/characterTemplates";
@@ -19,8 +20,8 @@ import { parseIntegerFormValue } from "@/lib/forms/parseIntegerFormValue";
 
 // These actions take no game state from the client — intents, not state
 // (CLAUDE.md, "Security / anti-cheat model"). Advance accepts only the
-// expected phase as an intent qualifier; buy and reposition accept only a
-// listing id, slot indices and the expected revision, likewise validated
+// expected phase as an intent qualifier; buy, reposition and merge accept
+// only slot indices and the expected revision, likewise validated
 // qualifiers, never prices, gold or a roster. Each scopes everything to
 // the signed-in session's own user id, so a player can only ever touch
 // their own save. None of them creates a session: with no session, they
@@ -178,6 +179,40 @@ export async function repositionCharacterAction(
     {
       fromSlotIndex: submittedFromSlotIndex,
       toSlotIndex: submittedToSlotIndex,
+      expectedRevision: submittedExpectedRevision,
+    },
+    prismaGameRepository,
+  );
+
+  refresh();
+}
+
+export async function mergeCharacterAction(formData: FormData): Promise<void> {
+  const userId = await requireSignedInUserId();
+
+  const submittedFromSlotIndex = parseIntegerFormValue(
+    formData.get("fromSlotIndex"),
+  );
+  const submittedIntoSlotIndex = parseIntegerFormValue(
+    formData.get("intoSlotIndex"),
+  );
+  const submittedExpectedRevision = parseIntegerFormValue(
+    formData.get("expectedRevision"),
+  );
+
+  if (
+    submittedFromSlotIndex === null ||
+    submittedIntoSlotIndex === null ||
+    submittedExpectedRevision === null
+  ) {
+    throw new Error("Invalid merge intent.");
+  }
+
+  await mergeCharacterForUser(
+    userId,
+    {
+      fromSlotIndex: submittedFromSlotIndex,
+      intoSlotIndex: submittedIntoSlotIndex,
       expectedRevision: submittedExpectedRevision,
     },
     prismaGameRepository,

@@ -24,6 +24,24 @@ import {
   type CampSelection,
 } from "./campSelection";
 
+function buildMergeFixtureCharacter(
+  id: string,
+  characterTemplateId: string,
+  experience: number,
+): Character {
+  return {
+    id,
+    name: "Dwarf " + id,
+    characterTemplateId,
+    tier: 1,
+    characterClassIds: ["warrior"],
+    attack: 2,
+    hp: 5,
+    maxHp: 5,
+    experience,
+  };
+}
+
 function buildFixtureCharacter(id: string, name: string): Character {
   return {
     id,
@@ -848,5 +866,161 @@ describe("merge targets", () => {
         fixtureCharacterTemplates,
       ),
     ).toBe("neutral");
+  });
+});
+
+describe("merge/sell mode", () => {
+  const campStateForMerging: CampState = {
+    campRoster: [
+      buildMergeFixtureCharacter("a", "fixture-dwarf", 0),
+      buildMergeFixtureCharacter("b", "fixture-dwarf", 2),
+      buildMergeFixtureCharacter("c", "other-dwarf", 0),
+      buildMergeFixtureCharacter("d", "fixture-dwarf", 15),
+      null,
+      null,
+      null,
+    ],
+    gold: 10,
+    characterShopSlots: buildFixtureCharacterShopSlots(),
+  };
+
+  const slotZeroHeld: CampSelection = {
+    selectionKind: "rosterSlot",
+    slotIndex: 0,
+  };
+
+  it("(qq) in merge/sell mode, a dwarf is selectable only when it has a merge target", () => {
+    expect(
+      [0, 1, 2, 3, 4].map((slotIndex) =>
+        isRosterSlotSelectable(
+          campStateForMerging.campRoster,
+          slotIndex,
+          "mergeOrSell",
+        ),
+      ),
+    ).toEqual([true, true, false, true, false]);
+  });
+
+  it("(rr) in merge/sell mode, clicking a matching dwarf submits a merge", () => {
+    expect(
+      resolveCampClick(
+        slotZeroHeld,
+        { targetKind: "rosterSlot", slotIndex: 1 },
+        campStateForMerging,
+        fixtureCharacterTemplates,
+        "mergeOrSell",
+      ),
+    ).toEqual({
+      nextCampSelection: { selectionKind: "none" },
+      campIntentToSubmit: {
+        intentKind: "mergeCharacters",
+        fromSlotIndex: 0,
+        intoSlotIndex: 1,
+      },
+    });
+  });
+
+  it("(ss) in merge/sell mode, clicking an empty slot does nothing", () => {
+    expect(
+      resolveCampClick(
+        slotZeroHeld,
+        { targetKind: "rosterSlot", slotIndex: 4 },
+        campStateForMerging,
+        fixtureCharacterTemplates,
+        "mergeOrSell",
+      ),
+    ).toEqual({
+      nextCampSelection: slotZeroHeld,
+      campIntentToSubmit: null,
+    });
+  });
+
+  it("(tt) in merge/sell mode, clicking a non-matching dwarf does nothing", () => {
+    expect(
+      resolveCampClick(
+        slotZeroHeld,
+        { targetKind: "rosterSlot", slotIndex: 2 },
+        campStateForMerging,
+        fixtureCharacterTemplates,
+        "mergeOrSell",
+      ),
+    ).toEqual({
+      nextCampSelection: slotZeroHeld,
+      campIntentToSubmit: null,
+    });
+  });
+
+  it("(uu) in merge/sell mode, clicking a matching level-5 dwarf does nothing", () => {
+    expect(
+      resolveCampClick(
+        slotZeroHeld,
+        { targetKind: "rosterSlot", slotIndex: 3 },
+        campStateForMerging,
+        fixtureCharacterTemplates,
+        "mergeOrSell",
+      ),
+    ).toEqual({
+      nextCampSelection: slotZeroHeld,
+      campIntentToSubmit: null,
+    });
+  });
+
+  it("(vv) in merge/sell mode, a held dwarf presents matches as merge targets and everything else as ineligible", () => {
+    expect(
+      [1, 2, 3, 4].map((slotIndex) =>
+        presentCampTarget(
+          slotZeroHeld,
+          { targetKind: "rosterSlot", slotIndex },
+          campStateForMerging,
+          fixtureCharacterTemplates,
+          "mergeOrSell",
+        ),
+      ),
+    ).toEqual(["mergeTarget", "ineligible", "ineligible", "ineligible"]);
+  });
+
+  it("(ww) a held roster dwarf matches other dwarves only in merge/sell mode", () => {
+    expect({
+      mergeOrSell: [1, 2, 3].map((slotIndex) =>
+        isRosterSlotMatchingHeldItem(
+          slotZeroHeld,
+          slotIndex,
+          campStateForMerging,
+          fixtureCharacterTemplates,
+          "mergeOrSell",
+        ),
+      ),
+      reposition: [1, 2, 3].map((slotIndex) =>
+        isRosterSlotMatchingHeldItem(
+          slotZeroHeld,
+          slotIndex,
+          campStateForMerging,
+          fixtureCharacterTemplates,
+          "reposition",
+        ),
+      ),
+    }).toEqual({
+      mergeOrSell: [true, false, true],
+      reposition: [false, false, false],
+    });
+  });
+
+  it("(xx) in reposition mode, clicking a matching dwarf still swaps", () => {
+    expect(
+      resolveCampClick(
+        slotZeroHeld,
+        { targetKind: "rosterSlot", slotIndex: 1 },
+        campStateForMerging,
+        fixtureCharacterTemplates,
+        "reposition",
+      ),
+    ).toEqual({
+      nextCampSelection: { selectionKind: "none" },
+      campIntentToSubmit: {
+        intentKind: "reposition",
+        fromSlotIndex: 0,
+        toSlotIndex: 1,
+      },
+    });
   });
 });
