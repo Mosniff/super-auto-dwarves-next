@@ -528,4 +528,38 @@ describe("CampScreen", () => {
       screen.getByRole("button", { name: "Slot 1: Borin, level 2" }),
     ).toBeInTheDocument();
   });
+
+  it("(bb) with a dwarf selected, another dwarf is a swap target with a swap marker", async () => {
+    const user = userEvent.setup();
+    renderCampScreen({
+      playerCampRoster: [
+        fixtureBorin,
+        { ...fixtureBorin, id: "dwarf-2", name: "Thrain" },
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+    });
+
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+
+    const swapTargetButton = screen.getByRole("button", {
+      name: "Slot 2: Thrain, level 1",
+    });
+
+    expect(swapTargetButton).toHaveAttribute(
+      "data-camp-target-presentation",
+      "swapTarget",
+    );
+    expect(
+      swapTargetButton.querySelectorAll("[data-camp-swap-marker]"),
+    ).toHaveLength(1);
+    expect(
+      document.querySelectorAll("[data-camp-swap-marker]"),
+    ).toHaveLength(1);
+  });
 });

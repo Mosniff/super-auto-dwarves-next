@@ -750,6 +750,33 @@ describe("presentCampTarget", () => {
       ),
     ).toBe("neutral");
   });
+
+  it("(yy) in reposition mode, a held dwarf presents occupied slots as swap targets and empty slots as eligible", () => {
+    const campStateWithTwoDwarves: CampState = {
+      ...baseCampState,
+      campRoster: [
+        fixtureBorin,
+        buildFixtureCharacter("dwarf-2", "Thrain"),
+        null,
+        null,
+        null,
+        null,
+        null,
+      ],
+    };
+
+    expect(
+      [1, 2].map((slotIndex) =>
+        presentCampTarget(
+          slotZeroHeld,
+          { targetKind: "rosterSlot", slotIndex },
+          campStateWithTwoDwarves,
+          fixtureCharacterTemplates,
+          "reposition",
+        ),
+      ),
+    ).toEqual(["swapTarget", "eligible"]);
+  });
 });
 
 describe("merge targets", () => {

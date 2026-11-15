@@ -393,6 +393,7 @@ export type CampTargetPresentation =
   | "held"
   | "eligible"
   | "mergeTarget"
+  | "swapTarget"
   | "ineligible"
   | "neutral";
 
@@ -402,7 +403,11 @@ export type CampTargetPresentation =
 // shows whether it can be picked up; an empty slot holds nothing to pick
 // up, so it just looks empty ("neutral"). A buy-target roster slot that
 // would merge, rather than place, presents as "mergeTarget" instead of
-// "eligible".
+// "eligible". A reposition-target roster slot that already holds a dwarf
+// presents as "swapTarget" instead of "eligible" — placing here swaps the
+// two dwarves. It's derived from the reposition intent the click would
+// submit, plus the target slot holding a dwarf: the same roster data the
+// reposition rule itself swaps on, never a template comparison.
 export function presentCampTarget(
   heldCampItem: CampSelection,
   campClickTarget: CampClickTarget,
@@ -473,6 +478,13 @@ export function presentCampTarget(
 
     if (campIntentToSubmit.intentKind === "mergeCharacters") {
       return "mergeTarget";
+    }
+
+    if (
+      campIntentToSubmit.intentKind === "reposition" &&
+      campState.campRoster[campIntentToSubmit.toSlotIndex] !== null
+    ) {
+      return "swapTarget";
     }
 
     return "eligible";
