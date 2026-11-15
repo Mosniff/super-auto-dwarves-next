@@ -31,7 +31,8 @@ describe("locale message parity", () => {
   // (mergeSellToggle, mergeSellHint, mergeSellModeOnAnnouncement,
   // mergeSellModeOffAnnouncement), and repositionLabel for the toggle's
   // left side, and sellLabel for the sell box; mergeSellHint was replaced
-  // by mergeSellShiftHint, a sub-label on the toggle —
+  // by mergeSellShiftHint, a sub-label on the toggle, and again for the
+  // roster animation floaters —
   // deliberate test-data updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
@@ -80,6 +81,9 @@ describe("locale message parity", () => {
     "mergeSellModeOffAnnouncement",
     "repositionLabel",
     "sellLabel",
+    "experienceGainFloater",
+    "levelUpFloater",
+    "sellGoldFloater",
   ];
   const expectedBattleKeys = [
     "battleStart",

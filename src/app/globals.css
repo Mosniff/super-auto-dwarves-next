@@ -215,6 +215,16 @@
   /* The XP bar pip border colour; tuned by the human. */
   --experience-segment-border: var(--color-parchment-100);
 
+  /* ── Roster XP beat (Phase 11) ───────────────────────
+     The human tunes these. --experience-beat-delay must match
+     EXPERIENCE_BEAT_DELAY_S in RosterSlot.tsx, since the floater's own
+     delay is still set there in JS. */
+  --experience-beat-delay: 0.35s;
+  --experience-beat-duration: 0.5s;
+  --experience-beat-scale: 1.06;
+  --level-up-beat-scale: 1.12;
+  --level-pill-pop-scale: 1.4;
+
   /* ── Header divider ──────────────────────────────────
      An engraved groove between header sections; tune here. */
   --header-divider-height: 1.75rem;
@@ -335,12 +345,82 @@
 [data-experience-bar-revealed]:focus-visible [data-character-experience-bar],
 [data-experience-bar-revealed]:focus-visible [data-character-experience-mask],
 [data-experience-bar-revealed="true"] [data-character-experience-bar],
-[data-experience-bar-revealed="true"] [data-character-experience-mask] {
+[data-experience-bar-revealed="true"] [data-character-experience-mask],
+/* An XP beat (Phase 11) also briefly reveals the bar and wash, on the
+   roster slot root (a different ancestor than data-experience-bar-revealed,
+   which lives on the interactive slot button). */
+[data-experience-beat-active="true"] [data-character-experience-bar],
+[data-experience-beat-active="true"] [data-character-experience-mask] {
   opacity: 1;
 }
 @media (prefers-reduced-motion: no-preference) {
   [data-experience-bar-revealed] [data-character-experience-bar],
   [data-character-experience-mask] {
     transition: opacity 150ms ease-out;
+  }
+}
+
+/* Roster XP beat (Phase 11). The beat's state comes from RosterSlot's
+   data-experience-beat attribute (set in JS); its motion lives here, like
+   the XP-bar reveal above. Reduced motion gets no beat — no rule exists
+   outside this media query, so there's nothing to override. */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes roster-experience-beat {
+    0%,
+    100% {
+      transform: scale(1);
+      filter: brightness(1);
+    }
+    50% {
+      transform: scale(var(--experience-beat-scale));
+      filter: brightness(1.35);
+    }
+  }
+  @keyframes roster-level-up-beat {
+    0%,
+    100% {
+      transform: scale(1);
+      filter: brightness(1);
+    }
+    50% {
+      transform: scale(var(--level-up-beat-scale));
+      filter: brightness(1.5);
+    }
+  }
+  @keyframes roster-xp-ring-flash {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 1;
+    }
+  }
+  @keyframes level-pill-pop {
+    0%,
+    100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(var(--level-pill-pop-scale));
+    }
+  }
+
+  [data-experience-beat="experienceGained"] [data-roster-slot-beat-target] {
+    animation: roster-experience-beat var(--experience-beat-duration)
+      ease-in-out var(--experience-beat-delay) both;
+  }
+  [data-experience-beat="levelledUp"] [data-roster-slot-beat-target] {
+    animation: roster-level-up-beat var(--experience-beat-duration)
+      ease-in-out var(--experience-beat-delay) both;
+  }
+  [data-experience-beat="experienceGained"] [data-roster-slot-xp-ring],
+  [data-experience-beat="levelledUp"] [data-roster-slot-xp-ring] {
+    animation: roster-xp-ring-flash var(--experience-beat-duration)
+      ease-in-out var(--experience-beat-delay) both;
+  }
+  [data-experience-beat="levelledUp"] [data-character-level] {
+    animation: level-pill-pop var(--experience-beat-duration) ease-in-out
+      var(--experience-beat-delay) both;
   }
 }

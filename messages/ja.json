@@ -45,7 +45,10 @@
     "mergeSellModeOnAnnouncement": "合成・売却モード：オン",
     "mergeSellModeOffAnnouncement": "合成・売却モード：オフ",
     "repositionLabel": "並べ替え",
-    "sellLabel": "売却"
+    "sellLabel": "売却",
+    "experienceGainFloater": "経験値+{experienceGained}",
+    "levelUpFloater": "レベルアップ！",
+    "sellGoldFloater": "+{gold}ゴールド"
   },
   "characterClass": {
     "warrior": "戦士",

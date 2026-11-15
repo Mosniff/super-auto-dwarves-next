@@ -12,6 +12,10 @@ import { MergeSellToggle } from "@/components/game/MergeSellToggle";
 import { MergeSellModeAnnouncer } from "@/components/game/MergeSellModeAnnouncer";
 import { SellArea } from "@/components/game/SellArea";
 import { useCampInteractionMode } from "@/components/game/useCampInteractionMode";
+import {
+  rosterSlotExitKind,
+  type SubmittedCampIntent,
+} from "@/components/game/rosterSlotAnimation";
 import type { Character } from "@/lib/game/character";
 import type { CampRoster } from "@/lib/game/campRoster";
 import type { CampState } from "@/lib/game/campState";
@@ -88,6 +92,12 @@ export function CampScreen({
   const [campDragSourceSelection, setCampDragSourceSelection] =
     useState<CampSelection | null>(null);
   const [isSubmittingCampIntent, startCampIntentTransition] = useTransition();
+  // Display-only, so the server never learns it: which intent was last
+  // submitted, and at which revision, so a slot's departing card can tell
+  // a merge-away or sell apart from a plain shuffle once the refreshed
+  // props land (rosterSlotAnimation.ts's own comment).
+  const [lastSubmittedCampIntent, setLastSubmittedCampIntent] =
+    useState<SubmittedCampIntent | null>(null);
 
   useReportPhaseAdvanceAvailability("campPhase", !isSubmittingCampIntent);
 
@@ -117,6 +127,8 @@ export function CampScreen({
   );
 
   function submitCampIntent(campIntent: CampIntent): void {
+    setLastSubmittedCampIntent({ campIntent, submittedAtRevision: revision });
+
     const formData = new FormData();
 
     switch (campIntent.intentKind) {
@@ -324,6 +336,8 @@ export function CampScreen({
               ),
             slotPresentation: (slotIndex) =>
               campTargetPresentation({ targetKind: "rosterSlot", slotIndex }),
+            slotExitKind: (slotIndex) =>
+              rosterSlotExitKind(lastSubmittedCampIntent, revision, slotIndex),
             isSlotMatchingHeldItem: (slotIndex) =>
               isRosterSlotMatchingHeldItem(
                 heldCampItem,

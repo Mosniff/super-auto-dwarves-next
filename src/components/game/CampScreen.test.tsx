@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+import { StrictMode, type ReactElement } from "react";
 import { describe, it, expect } from "vitest";
 import userEvent from "@testing-library/user-event";
 import {
@@ -126,8 +127,8 @@ interface RenderCampScreenOverrides {
   sellCharacterAction?: (formData: FormData) => Promise<void>;
 }
 
-function renderCampScreen(overrides: RenderCampScreenOverrides = {}) {
-  return renderWithMessages(
+function buildCampScreenElement(overrides: RenderCampScreenOverrides) {
+  return (
     <CampScreen
       playerCampRoster={overrides.playerCampRoster ?? buildFixtureCampRoster()}
       characterShopSlots={
@@ -148,8 +149,35 @@ function renderCampScreen(overrides: RenderCampScreenOverrides = {}) {
       sellCharacterAction={
         overrides.sellCharacterAction ?? (async () => {})
       }
-    />,
+    />
   );
+}
+
+// Mechanical helper change: renderCampScreen now also returns
+// rerenderCampScreen, which re-renders the same CampScreen (reusing the
+// render result's own wrapper) with a fresh set of overrides — used to
+// simulate the refreshed props a server action's refresh() would deliver.
+// Mechanical helper change: renderCampScreen also takes an optional
+// strictMode option, wrapping both the initial render and every
+// rerenderCampScreen call in <React.StrictMode> when set — used to check
+// that a merge's XP beat survives Strict Mode's double-invoke behaviour.
+function renderCampScreen(
+  overrides: RenderCampScreenOverrides = {},
+  options: { strictMode?: boolean } = {},
+) {
+  function wrap(element: ReactElement): ReactElement {
+    return options.strictMode ? <StrictMode>{element}</StrictMode> : element;
+  }
+
+  const renderResult = renderWithMessages(wrap(buildCampScreenElement(overrides)));
+
+  function rerenderCampScreen(
+    rerenderOverrides: RenderCampScreenOverrides = {},
+  ) {
+    renderResult.rerender(wrap(buildCampScreenElement(rerenderOverrides)));
+  }
+
+  return { ...renderResult, rerenderCampScreen };
 }
 
 describe("CampScreen", () => {
@@ -781,6 +809,249 @@ describe("CampScreen", () => {
       pressed: toggle.getAttribute("aria-pressed"),
       active: toggle.getAttribute("data-merge-sell-mode-active"),
     }).toEqual({ disabled: true, pressed: "true", active: "true" });
+  });
+
+  // DOM order matches slot index (flex-row-reverse only reverses the
+  // visual layout, never the DOM tree order RosterSlab maps the slots in).
+  function playerSlotRoot(slotIndex: number): Element | null {
+    return document.querySelectorAll("[data-roster-slot]")[slotIndex] ?? null;
+  }
+
+  it("(an1) after a merge, the source slot exits as merged-away and other slots shuffle", async () => {
+    const user = userEvent.setup();
+    const { rerenderCampScreen } = renderCampScreen({
+      playerCampRoster: fixtureTwoBorinCampRoster,
+      revision: 5,
+    });
+
+    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Slot 2: Borin, level 1" }),
+    );
+
+    const mergedRoster: CampRoster = [
+      null,
+      {
+        ...fixtureMatchingBorin,
+        experience: 1,
+        attack: fixtureMatchingBorin.attack + 1,
+        hp: fixtureMatchingBorin.hp + 1,
+        maxHp: fixtureMatchingBorin.maxHp + 1,
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+    ];
+
+    rerenderCampScreen({ playerCampRoster: mergedRoster, revision: 6 });
+
+    expect(
+      [0, 1, 2].map((slotIndex) =>
+        playerSlotRoot(slotIndex)?.getAttribute("data-roster-slot-exit-kind"),
+      ),
+    ).toEqual(["mergedAway", "shuffle", "shuffle"]);
+  });
+
+  it("(an2) after a merge, the target shows a '+1 XP' floater", async () => {
+    const user = userEvent.setup();
+    const { rerenderCampScreen } = renderCampScreen({
+      playerCampRoster: fixtureTwoBorinCampRoster,
+      revision: 5,
+    });
+
+    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Slot 2: Borin, level 1" }),
+    );
+
+    const mergedRoster: CampRoster = [
+      null,
+      {
+        ...fixtureMatchingBorin,
+        experience: 1,
+        attack: fixtureMatchingBorin.attack + 1,
+        hp: fixtureMatchingBorin.hp + 1,
+        maxHp: fixtureMatchingBorin.maxHp + 1,
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+    ];
+
+    rerenderCampScreen({ playerCampRoster: mergedRoster, revision: 6 });
+
+    // The target's new level is still 1 (1 XP isn't enough to level up).
+    const targetSlotButton = screen.getByRole("button", {
+      name: "Slot 2: Borin, level 1",
+    });
+
+    expect(
+      await within(targetSlotButton).findByText("+1 XP"),
+    ).toBeInTheDocument();
+  });
+
+  it("(an3) after a sell, the sold slot shows a '+1 gold' floater", async () => {
+    const user = userEvent.setup();
+    const { rerenderCampScreen } = renderCampScreen({ revision: 5 });
+
+    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Sell" }));
+
+    rerenderCampScreen({
+      playerCampRoster: [null, null, null, null, null, null, null],
+      gold: 11,
+      revision: 6,
+    });
+
+    expect(await screen.findByText("+1 gold")).toBeInTheDocument();
+  });
+
+  it("(an4) after a merge, the target slot plays an XP-gain beat", async () => {
+    const user = userEvent.setup();
+    const { rerenderCampScreen } = renderCampScreen({
+      playerCampRoster: fixtureTwoBorinCampRoster,
+      revision: 5,
+    });
+
+    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Slot 2: Borin, level 1" }),
+    );
+
+    const mergedRoster: CampRoster = [
+      null,
+      {
+        ...fixtureMatchingBorin,
+        experience: 1,
+        attack: fixtureMatchingBorin.attack + 1,
+        hp: fixtureMatchingBorin.hp + 1,
+        maxHp: fixtureMatchingBorin.maxHp + 1,
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+    ];
+
+    rerenderCampScreen({ playerCampRoster: mergedRoster, revision: 6 });
+
+    expect(playerSlotRoot(1)?.getAttribute("data-experience-beat")).toBe(
+      "experienceGained",
+    );
+  });
+
+  it("(an5) a merge that crosses a level threshold plays a level-up beat", async () => {
+    const user = userEvent.setup();
+    // The target starts at 2 XP — still level 1 (3 XP is needed for level 2).
+    const targetAtExperienceTwo: Character = {
+      ...fixtureMatchingBorin,
+      experience: 2,
+    };
+    const rosterBeforeMerge: CampRoster = [
+      fixtureBorin,
+      targetAtExperienceTwo,
+      null,
+      null,
+      null,
+      null,
+      null,
+    ];
+
+    const { rerenderCampScreen } = renderCampScreen({
+      playerCampRoster: rosterBeforeMerge,
+      revision: 5,
+    });
+
+    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Slot 2: Borin, level 1" }),
+    );
+
+    // The target gains the consumed character's XP (0) + 1, reaching 3 —
+    // level 2.
+    const mergedRoster: CampRoster = [
+      null,
+      {
+        ...targetAtExperienceTwo,
+        experience: 3,
+        attack: targetAtExperienceTwo.attack + 1,
+        hp: targetAtExperienceTwo.hp + 1,
+        maxHp: targetAtExperienceTwo.maxHp + 1,
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+    ];
+
+    rerenderCampScreen({ playerCampRoster: mergedRoster, revision: 6 });
+
+    expect(playerSlotRoot(1)?.getAttribute("data-experience-beat")).toBe(
+      "levelledUp",
+    );
+  });
+
+  it("(an2-strict) under React.StrictMode, a merge still shows the '+1 XP' floater without throwing", async () => {
+    const user = userEvent.setup();
+    const { rerenderCampScreen } = renderCampScreen(
+      { playerCampRoster: fixtureTwoBorinCampRoster, revision: 5 },
+      { strictMode: true },
+    );
+
+    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Slot 2: Borin, level 1" }),
+    );
+
+    const mergedRoster: CampRoster = [
+      null,
+      {
+        ...fixtureMatchingBorin,
+        experience: 1,
+        attack: fixtureMatchingBorin.attack + 1,
+        hp: fixtureMatchingBorin.hp + 1,
+        maxHp: fixtureMatchingBorin.maxHp + 1,
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+    ];
+
+    rerenderCampScreen({ playerCampRoster: mergedRoster, revision: 6 });
+
+    const targetSlotButton = screen.getByRole("button", {
+      name: "Slot 2: Borin, level 1",
+    });
+
+    expect(
+      await within(targetSlotButton).findByText("+1 XP"),
+    ).toBeInTheDocument();
   });
 
   it("(ii) a settled mode change is announced politely", async () => {

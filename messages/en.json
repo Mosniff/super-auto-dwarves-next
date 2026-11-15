@@ -45,7 +45,10 @@
     "mergeSellModeOnAnnouncement": "Merge / sell mode on",
     "mergeSellModeOffAnnouncement": "Merge / sell mode off",
     "repositionLabel": "Reposition",
-    "sellLabel": "Sell"
+    "sellLabel": "Sell",
+    "experienceGainFloater": "+{experienceGained} XP",
+    "levelUpFloater": "Level up!",
+    "sellGoldFloater": "+{gold} gold"
   },
   "characterClass": {
     "warrior": "Warrior",

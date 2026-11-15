@@ -1,5 +1,6 @@
 import type { Character } from "@/lib/game/character";
 import type { CampTargetPresentation } from "./campSelection";
+import type { RosterSlotExitKind } from "./rosterSlotAnimation";
 import { InteractiveRosterSlotButton } from "./InteractiveRosterSlotButton";
 import { RosterSlot } from "./RosterSlot";
 
@@ -15,6 +16,9 @@ export interface RosterSlotInteraction {
   slotButtonLabel: (slotIndex: number) => string;
   isSlotDraggable: (slotIndex: number) => boolean;
   slotPresentation: (slotIndex: number) => CampTargetPresentation;
+  // Display-only (rosterSlotAnimation.ts's own comment): how that slot's
+  // departing card should exit, derived from the last submitted intent.
+  slotExitKind: (slotIndex: number) => RosterSlotExitKind;
   // "Matching" comes from the buy rule's preview via campSelection
   // (isRosterSlotMatchingHeldItem), never a client-side template
   // comparison.
@@ -87,11 +91,13 @@ export function RosterSlab({
                 onClick={() => slotInteraction.onSlotClick(i)}
                 isDraggable={slotInteraction.isSlotDraggable(i)}
                 presentation={slotInteraction.slotPresentation(i)}
+                exitKind={slotInteraction.slotExitKind(i)}
                 showsCharacterProgression={showsCharacterProgression}
                 isMatchingHeldItem={slotInteraction.isSlotMatchingHeldItem(i)}
               />
             ) : (
               <RosterSlot
+                slotIndex={i}
                 character={character ?? undefined}
                 facing={facing}
                 isNext={presentsFrontSlotAsOnDeck && i === 0 && Boolean(character)}

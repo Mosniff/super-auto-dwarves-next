@@ -5,6 +5,7 @@ import { useDraggable, useDroppable } from "@dnd-kit/react";
 import { ArrowRightLeft, ChevronsUp } from "lucide-react";
 import type { Character } from "@/lib/game/character";
 import type { CampClickTarget, CampTargetPresentation } from "./campSelection";
+import type { RosterSlotExitKind } from "./rosterSlotAnimation";
 import { RosterSlot } from "./RosterSlot";
 
 interface InteractiveRosterSlotButtonProps {
@@ -18,6 +19,7 @@ interface InteractiveRosterSlotButtonProps {
   onClick: () => void;
   isDraggable: boolean;
   presentation: CampTargetPresentation;
+  exitKind: RosterSlotExitKind;
   showsCharacterProgression?: boolean;
   isMatchingHeldItem: boolean;
 }
@@ -68,6 +70,7 @@ export function InteractiveRosterSlotButton({
   onClick,
   isDraggable,
   presentation,
+  exitKind,
   showsCharacterProgression = false,
   isMatchingHeldItem,
 }: InteractiveRosterSlotButtonProps) {
@@ -123,9 +126,11 @@ export function InteractiveRosterSlotButton({
       )} ${isDragSource ? "opacity-40" : ""}`}
     >
       <RosterSlot
+        slotIndex={slotIndex}
         character={character}
         facing={facing}
         isNext={isNext}
+        exitKind={exitKind}
         showsCharacterProgression={showsCharacterProgression}
       />
       {presentation === "mergeTarget" && (
