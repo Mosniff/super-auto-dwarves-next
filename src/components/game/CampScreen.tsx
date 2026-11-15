@@ -40,18 +40,28 @@ interface CampScreenProps {
   buyCharacterAction: (formData: FormData) => Promise<void>;
   repositionCharacterAction: (formData: FormData) => Promise<void>;
   mergeCharacterAction: (formData: FormData) => Promise<void>;
+  sellCharacterAction: (formData: FormData) => Promise<void>;
 }
 
 function campSelectionFromClickTarget(
   campClickTarget: CampClickTarget,
 ): CampSelection {
-  if (campClickTarget.targetKind === "characterShopSlot") {
-    return {
-      selectionKind: "characterShopSlot",
-      shopSlotIndex: campClickTarget.shopSlotIndex,
-    };
+  switch (campClickTarget.targetKind) {
+    case "characterShopSlot":
+      return {
+        selectionKind: "characterShopSlot",
+        shopSlotIndex: campClickTarget.shopSlotIndex,
+      };
+    case "rosterSlot":
+      return {
+        selectionKind: "rosterSlot",
+        slotIndex: campClickTarget.slotIndex,
+      };
+    case "sellArea":
+      // The sell area is never a draggable source — only shop and roster
+      // slot tiles are.
+      throw new Error("The sell area cannot be a drag source.");
   }
-  return { selectionKind: "rosterSlot", slotIndex: campClickTarget.slotIndex };
 }
 
 export function CampScreen({
@@ -63,6 +73,7 @@ export function CampScreen({
   buyCharacterAction,
   repositionCharacterAction,
   mergeCharacterAction,
+  sellCharacterAction,
 }: CampScreenProps) {
   const t = useTranslations("common");
 
@@ -122,6 +133,14 @@ export function CampScreen({
         formData.set("expectedRevision", String(revision));
         startCampIntentTransition(async () => {
           await mergeCharacterAction(formData);
+        });
+        return;
+      }
+      case "sellCharacter": {
+        formData.set("slotIndex", String(campIntent.slotIndex));
+        formData.set("expectedRevision", String(revision));
+        startCampIntentTransition(async () => {
+          await sellCharacterAction(formData);
         });
         return;
       }

@@ -21,6 +21,7 @@ import {
   presentCampTarget,
   resolveCampClick,
   resolveCampDrop,
+  type CampClickTarget,
   type CampSelection,
 } from "./campSelection";
 
@@ -916,7 +917,7 @@ describe("merge/sell mode", () => {
     slotIndex: 0,
   };
 
-  it("(qq) in merge/sell mode, a dwarf is selectable only when it has a merge target", () => {
+  it("(qq) in merge/sell mode, every dwarf is selectable (it can at least be sold)", () => {
     expect(
       [0, 1, 2, 3, 4].map((slotIndex) =>
         isRosterSlotSelectable(
@@ -925,7 +926,7 @@ describe("merge/sell mode", () => {
           "mergeOrSell",
         ),
       ),
-    ).toEqual([true, true, false, true, false]);
+    ).toEqual([true, true, true, true, false]);
   });
 
   it("(rr) in merge/sell mode, clicking a matching dwarf submits a merge", () => {
@@ -1049,5 +1050,101 @@ describe("merge/sell mode", () => {
         toSlotIndex: 1,
       },
     });
+  });
+
+  // The sell area target doesn't exist as a CampClickTarget variant yet
+  // (this block's Red phase); cast until Green adds it.
+  const sellArea = { targetKind: "sellArea" } as CampClickTarget;
+
+  it("(s1) in merge/sell mode, clicking the sell area with a dwarf held submits a sell", () => {
+    expect(
+      resolveCampClick(
+        slotZeroHeld,
+        sellArea,
+        campStateForMerging,
+        fixtureCharacterTemplates,
+        "mergeOrSell",
+      ),
+    ).toEqual({
+      nextCampSelection: { selectionKind: "none" },
+      campIntentToSubmit: { intentKind: "sellCharacter", slotIndex: 0 },
+    });
+  });
+
+  it("(s2) in reposition mode, the sell area does nothing", () => {
+    expect(
+      resolveCampClick(
+        slotZeroHeld,
+        sellArea,
+        campStateForMerging,
+        fixtureCharacterTemplates,
+        "reposition",
+      ),
+    ).toEqual({
+      nextCampSelection: slotZeroHeld,
+      campIntentToSubmit: null,
+    });
+  });
+
+  it("(s3) with a shop character held, the sell area does nothing", () => {
+    const shopSlotHeld: CampSelection = {
+      selectionKind: "characterShopSlot",
+      shopSlotIndex: 0,
+    };
+
+    expect(
+      resolveCampClick(
+        shopSlotHeld,
+        sellArea,
+        campStateForMerging,
+        fixtureCharacterTemplates,
+        "mergeOrSell",
+      ),
+    ).toEqual({
+      nextCampSelection: shopSlotHeld,
+      campIntentToSubmit: null,
+    });
+  });
+
+  it("(s4) the sell area is eligible only for a roster hold in merge/sell mode", () => {
+    expect({
+      rosterHeldMergeOrSell: presentCampTarget(
+        slotZeroHeld,
+        sellArea,
+        campStateForMerging,
+        fixtureCharacterTemplates,
+        "mergeOrSell",
+      ),
+      rosterHeldReposition: presentCampTarget(
+        slotZeroHeld,
+        sellArea,
+        campStateForMerging,
+        fixtureCharacterTemplates,
+        "reposition",
+      ),
+      nothingHeldMergeOrSell: presentCampTarget(
+        { selectionKind: "none" },
+        sellArea,
+        campStateForMerging,
+        fixtureCharacterTemplates,
+        "mergeOrSell",
+      ),
+    }).toEqual({
+      rosterHeldMergeOrSell: "eligible",
+      rosterHeldReposition: "ineligible",
+      nothingHeldMergeOrSell: "ineligible",
+    });
+  });
+
+  it("(s5) in merge/sell mode with nothing held, an unmatched dwarf is no longer dimmed", () => {
+    expect(
+      presentCampTarget(
+        { selectionKind: "none" },
+        { targetKind: "rosterSlot", slotIndex: 2 },
+        campStateForMerging,
+        fixtureCharacterTemplates,
+        "mergeOrSell",
+      ),
+    ).toBe("neutral");
   });
 });

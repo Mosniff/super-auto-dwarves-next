@@ -15,6 +15,7 @@ import {
   buyCharacterAction,
   mergeCharacterAction,
   repositionCharacterAction,
+  sellCharacterAction,
 } from "../../gameActions";
 
 // Never signs anyone in. It renders whichever screen the saved phase
@@ -61,6 +62,7 @@ export default async function PlayPage() {
           buyCharacterAction={buyCharacterAction}
           repositionCharacterAction={repositionCharacterAction}
           mergeCharacterAction={mergeCharacterAction}
+          sellCharacterAction={sellCharacterAction}
         />
       </GameScreen>
     );
