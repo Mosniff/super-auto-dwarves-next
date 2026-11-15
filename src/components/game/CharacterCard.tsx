@@ -121,7 +121,6 @@ export function CharacterCard({
               }`}
               sizes={ACTIVE_CARD_RENDERED_WIDTH_PX}
               quality={90}
-              priority
             />
           </div>
           {showHpBar && (
