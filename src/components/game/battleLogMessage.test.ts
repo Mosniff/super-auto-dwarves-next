@@ -45,6 +45,34 @@ describe("battleLogMessage", () => {
     });
   });
 
+  it("maps armourDamage with armour left to armourDamage", () => {
+    const descriptor: BattleEventDescriptor = {
+      kind: "armourDamage",
+      target: "Grukk",
+      amount: 2,
+      resultingArmour: 1,
+    };
+
+    expect(battleLogMessage(descriptor)).toEqual({
+      key: "armourDamage",
+      params: { target: "Grukk", amount: 2 },
+    });
+  });
+
+  it("maps armourDamage that breaks the armour to armourBreak", () => {
+    const descriptor: BattleEventDescriptor = {
+      kind: "armourDamage",
+      target: "Grukk",
+      amount: 3,
+      resultingArmour: 0,
+    };
+
+    expect(battleLogMessage(descriptor)).toEqual({
+      key: "armourBreak",
+      params: { target: "Grukk" },
+    });
+  });
+
   it("maps drop", () => {
     const descriptor: BattleEventDescriptor = {
       kind: "drop",

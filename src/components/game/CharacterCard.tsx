@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Shield } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/game/character";
 import { hpBarFillRatio } from "@/lib/battle/hpBarFillRatio";
@@ -208,6 +209,22 @@ export function CharacterCard({
                         experienceCaption.experienceRemaining,
                       nextLevel: experienceCaption.nextLevel,
                     })}
+              </span>
+            </div>
+          )}
+          {character.armour > 0 && (
+            <div
+              data-character-armour={character.armour}
+              role="img"
+              aria-label={t("armourLabel", { armour: character.armour })}
+              className="absolute right-card-armour-inset top-card-armour-inset flex size-card-armour-badge items-center justify-center"
+            >
+              <Shield
+                aria-hidden="true"
+                className="absolute inset-0 size-full fill-(--color-iron-700) text-(--color-parchment-50)"
+              />
+              <span className="relative text-card-armour font-bold leading-none text-(--color-parchment-50)">
+                {character.armour}
               </span>
             </div>
           )}

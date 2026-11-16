@@ -48,7 +48,8 @@
     "sellLabel": "Sell",
     "experienceGainFloater": "+{experienceGained} XP",
     "levelUpFloater": "Level up!",
-    "sellGoldFloater": "+{gold} gold"
+    "sellGoldFloater": "+{gold} gold",
+    "armourLabel": "{armour} armour"
   },
   "characterClass": {
     "warrior": "Warrior",
@@ -69,6 +70,8 @@
     "attack": "{attacker} attacks {target}",
     "damage": "{target} takes {amount} damage ({resultingHp} HP)",
     "drop": "{character} drops",
+    "armourDamage": "{target}'s armour absorbs {amount} damage",
+    "armourBreak": "{target}'s armour breaks!",
     "timeout": "Turn limit reached — stalemate",
     "victory": "Victory!",
     "defeat": "Defeat",

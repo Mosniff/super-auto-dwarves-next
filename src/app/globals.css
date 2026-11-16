@@ -75,6 +75,10 @@
   --text-card-xp-label: 9cqw;
   --text-card-xp-caption: 8cqw;
   --spacing-card-xp-text-gap: 4cqw;
+  /* Phase 12 armour shield, top-right of the portrait; the human tunes these. */
+  --spacing-card-armour-badge: 18cqw;
+  --spacing-card-armour-inset: 2cqw;
+  --text-card-armour: 8cqw;
   --border-width-card-xp-segment: 0.5cqw;
   --radius-card-bar: 2.5cqw;
   --radius-card-portrait: 1cqw;

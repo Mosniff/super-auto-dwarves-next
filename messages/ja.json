@@ -48,7 +48,8 @@
     "sellLabel": "売却",
     "experienceGainFloater": "経験値+{experienceGained}",
     "levelUpFloater": "レベルアップ！",
-    "sellGoldFloater": "+{gold}ゴールド"
+    "sellGoldFloater": "+{gold}ゴールド",
+    "armourLabel": "アーマー{armour}"
   },
   "characterClass": {
     "warrior": "戦士",
@@ -69,6 +70,8 @@
     "attack": "{attacker}が{target}をこうげき！",
     "damage": "{target}に{amount}ダメージ！（残りHP {resultingHp}）",
     "drop": "{character}が倒れた",
+    "armourDamage": "{target}のアーマーが{amount}ダメージを防いだ",
+    "armourBreak": "{target}のアーマーが壊れた！",
     "timeout": "ターン上限に到達 — 引き分け",
     "victory": "勝利！",
     "defeat": "敗北",

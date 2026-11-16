@@ -39,6 +39,13 @@ export type BattleEventPayload =
       source: string;
     }
   | {
+      type: "ARMOUR_DAMAGE";
+      targetId: string;
+      amount: number;
+      resultingArmour: number;
+      source: string;
+    }
+  | {
       type: "DROP";
       characterId: string;
     }
@@ -80,6 +87,12 @@ export type BattleEventDescriptor =
   | { kind: "turnStart"; turn: number }
   | { kind: "attack"; attacker: string; target: string }
   | { kind: "damage"; target: string; amount: number; resultingHp: number }
+  | {
+      kind: "armourDamage";
+      target: string;
+      amount: number;
+      resultingArmour: number;
+    }
   | { kind: "drop"; character: string }
   | { kind: "timeout" }
   | { kind: "battleEnd"; outcome: "playerWin" | "enemyWin" | "draw" };

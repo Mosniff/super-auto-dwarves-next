@@ -7,6 +7,7 @@ import type {
 } from "./types";
 import type { Character } from "@/lib/game/character";
 import { applyEvent } from "./applyEvent";
+import { resolveHit } from "./resolveHit";
 
 export function resolveBattle(
   playerCharacters: Character[],
@@ -71,26 +72,24 @@ export function resolveBattle(
       value: enemyDamageValue,
     });
 
-    const enemyResultingHp = enemyFrontCharacter.hp - playerDamageValue;
-    const playerResultingHp = playerFrontCharacter.hp - enemyDamageValue;
+    const hitOnEnemy = resolveHit(
+      enemyFrontCharacter,
+      playerDamageValue,
+      playerFrontCharacter.id,
+    );
+    const hitOnPlayer = resolveHit(
+      playerFrontCharacter,
+      enemyDamageValue,
+      enemyFrontCharacter.id,
+    );
 
-    emitEvent({
-      type: "DAMAGE",
-      targetId: enemyFrontCharacter.id,
-      amount: playerDamageValue,
-      resultingHp: enemyResultingHp,
-      source: playerFrontCharacter.id,
-    });
-    emitEvent({
-      type: "DAMAGE",
-      targetId: playerFrontCharacter.id,
-      amount: enemyDamageValue,
-      resultingHp: playerResultingHp,
-      source: enemyFrontCharacter.id,
-    });
+    emitEvent(hitOnEnemy);
+    emitEvent(hitOnPlayer);
 
-    const enemyDrops = enemyResultingHp <= 0;
-    const playerDrops = playerResultingHp <= 0;
+    const enemyDrops =
+      hitOnEnemy.type === "DAMAGE" && hitOnEnemy.resultingHp <= 0;
+    const playerDrops =
+      hitOnPlayer.type === "DAMAGE" && hitOnPlayer.resultingHp <= 0;
 
     if (enemyDrops || playerDrops) {
       startNewBeat("DROP");

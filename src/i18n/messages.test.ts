@@ -32,7 +32,9 @@ describe("locale message parity", () => {
   // mergeSellModeOffAnnouncement), and repositionLabel for the toggle's
   // left side, and sellLabel for the sell box; mergeSellHint was replaced
   // by mergeSellShiftHint, a sub-label on the toggle, and again for the
-  // roster animation floaters —
+  // roster animation floaters, and again for Phase 12's armour
+  // (armourLabel for the card's shield, armourDamage and armourBreak for
+  // the battle log) —
   // deliberate test-data updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
@@ -84,6 +86,7 @@ describe("locale message parity", () => {
     "experienceGainFloater",
     "levelUpFloater",
     "sellGoldFloater",
+    "armourLabel",
   ];
   const expectedBattleKeys = [
     "battleStart",
@@ -95,6 +98,8 @@ describe("locale message parity", () => {
     "victory",
     "defeat",
     "draw",
+    "armourDamage",
+    "armourBreak",
   ];
 
   it("english has exactly the expected common keys", () => {

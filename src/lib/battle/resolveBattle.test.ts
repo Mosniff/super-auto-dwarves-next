@@ -341,4 +341,176 @@ describe("resolveBattle", () => {
       expect(event.beatType).toBe("BATTLE_END");
     }
   });
+
+  it("R1: hits on armour emit ARMOUR_DAMAGE instead of DAMAGE", () => {
+    const playerCharacters: Character[] = [
+      buildTestCharacter({
+        id: "p1",
+        name: "Borin",
+        attack: 2,
+        hp: 10,
+        maxHp: 10,
+        armour: 1,
+      }),
+    ];
+    const enemyCharacters: Character[] = [
+      buildTestCharacter({
+        id: "e1",
+        name: "Grukk",
+        attack: 0,
+        hp: 5,
+        maxHp: 5,
+        armour: 3,
+      }),
+    ];
+
+    const { events } = resolveBattle(playerCharacters, enemyCharacters, 1);
+
+    const hitEvents = events.filter(
+      (event) => event.type === "DAMAGE" || event.type === "ARMOUR_DAMAGE",
+    );
+
+    expect(hitEvents).toEqual([
+      {
+        type: "ARMOUR_DAMAGE",
+        targetId: "e1",
+        amount: 2,
+        resultingArmour: 1,
+        source: "p1",
+        beatIndex: 2,
+        beatType: "CLASH",
+      },
+      {
+        type: "ARMOUR_DAMAGE",
+        targetId: "p1",
+        amount: 0,
+        resultingArmour: 1,
+        source: "e1",
+        beatIndex: 2,
+        beatType: "CLASH",
+      },
+    ]);
+  });
+
+  it("R2: a hit that breaks armour discards the rest: hp untouched and no drop", () => {
+    const playerCharacters: Character[] = [
+      buildTestCharacter({
+        id: "p1",
+        name: "Borin",
+        attack: 5,
+        hp: 10,
+        maxHp: 10,
+        armour: 0,
+      }),
+    ];
+    const enemyCharacters: Character[] = [
+      buildTestCharacter({
+        id: "e1",
+        name: "Grukk",
+        attack: 0,
+        hp: 3,
+        maxHp: 3,
+        armour: 2,
+      }),
+    ];
+
+    const { initialState, events } = resolveBattle(
+      playerCharacters,
+      enemyCharacters,
+      1,
+    );
+
+    const hitEvents = events.filter(
+      (event) => event.type === "DAMAGE" || event.type === "ARMOUR_DAMAGE",
+    );
+    const hitsOnEnemy = hitEvents.filter((event) => event.targetId === "e1");
+    const dropEvents = events.filter((event) => event.type === "DROP");
+
+    const finalState = events.reduce(
+      (state, event) => applyEvent(state, event),
+      initialState,
+    );
+    const enemyAfterBattle = finalState.enemy.activeCharacters.map(
+      (character) => ({
+        id: character.id,
+        hp: character.hp,
+        armour: character.armour,
+      }),
+    );
+
+    expect({ hitsOnEnemy, dropEvents, enemyAfterBattle }).toEqual({
+      hitsOnEnemy: [
+        {
+          type: "ARMOUR_DAMAGE",
+          targetId: "e1",
+          amount: 2,
+          resultingArmour: 0,
+          source: "p1",
+          beatIndex: 2,
+          beatType: "CLASH",
+        },
+      ],
+      dropEvents: [],
+      enemyAfterBattle: [{ id: "e1", hp: 3, armour: 0 }],
+    });
+  });
+
+  it("R3: once armour is broken, the next hit damages hp", () => {
+    const playerCharacters: Character[] = [
+      buildTestCharacter({
+        id: "p1",
+        name: "Borin",
+        attack: 5,
+        hp: 10,
+        maxHp: 10,
+        armour: 0,
+      }),
+    ];
+    const enemyCharacters: Character[] = [
+      buildTestCharacter({
+        id: "e1",
+        name: "Grukk",
+        attack: 0,
+        hp: 3,
+        maxHp: 3,
+        armour: 2,
+      }),
+    ];
+
+    const { events } = resolveBattle(playerCharacters, enemyCharacters, 2);
+
+    const hitEvents = events.filter(
+      (event) => event.type === "DAMAGE" || event.type === "ARMOUR_DAMAGE",
+    );
+    const hitsOnEnemy = hitEvents.filter((event) => event.targetId === "e1");
+
+    expect({ hitsOnEnemy, lastEvent: events.at(-1) }).toEqual({
+      hitsOnEnemy: [
+        {
+          type: "ARMOUR_DAMAGE",
+          targetId: "e1",
+          amount: 2,
+          resultingArmour: 0,
+          source: "p1",
+          beatIndex: 2,
+          beatType: "CLASH",
+        },
+        {
+          type: "DAMAGE",
+          targetId: "e1",
+          amount: 5,
+          resultingHp: -2,
+          source: "p1",
+          beatIndex: 4,
+          beatType: "CLASH",
+        },
+      ],
+      lastEvent: {
+        type: "BATTLE_END",
+        outcome: "playerWin",
+        beatIndex: 6,
+        beatType: "BATTLE_END",
+      },
+    });
+  });
 });

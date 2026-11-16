@@ -217,4 +217,83 @@ describe("applyEvent", () => {
       expect(result).toEqual(state);
     });
   });
+
+  it("A1: ARMOUR_DAMAGE sets the target's armour to resultingArmour on either side, leaving hp and everyone else unchanged", () => {
+    const state: BattleState = {
+      player: {
+        activeCharacters: [
+          buildTestCharacter({
+            id: "p1",
+            name: "Borin",
+            attack: 4,
+            hp: 7,
+            maxHp: 7,
+            armour: 2,
+          }),
+          buildTestCharacter({
+            id: "p2",
+            name: "Thrudi",
+            attack: 6,
+            hp: 5,
+            maxHp: 5,
+            armour: 1,
+          }),
+        ],
+        downedCharacters: [],
+      },
+      enemy: {
+        activeCharacters: [
+          buildTestCharacter({
+            id: "e1",
+            name: "Grukk",
+            attack: 5,
+            hp: 6,
+            maxHp: 6,
+            armour: 3,
+          }),
+        ],
+        downedCharacters: [],
+      },
+    };
+
+    const firstEvent: BattleEvent = {
+      type: "ARMOUR_DAMAGE",
+      targetId: "e1",
+      amount: 2,
+      resultingArmour: 1,
+      source: "p1",
+      beatIndex: 0,
+      beatType: "CLASH",
+    };
+    const secondEvent: BattleEvent = {
+      type: "ARMOUR_DAMAGE",
+      targetId: "p1",
+      amount: 2,
+      resultingArmour: 0,
+      source: "e1",
+      beatIndex: 0,
+      beatType: "CLASH",
+    };
+
+    const result = applyEvent(applyEvent(state, firstEvent), secondEvent);
+
+    expect({
+      player: result.player.activeCharacters.map((character) => [
+        character.id,
+        character.hp,
+        character.armour,
+      ]),
+      enemy: result.enemy.activeCharacters.map((character) => [
+        character.id,
+        character.hp,
+        character.armour,
+      ]),
+    }).toEqual({
+      player: [
+        ["p1", 7, 0],
+        ["p2", 5, 1],
+      ],
+      enemy: [["e1", 6, 1]],
+    });
+  });
 });

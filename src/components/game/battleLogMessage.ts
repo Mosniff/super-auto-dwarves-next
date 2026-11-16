@@ -22,6 +22,17 @@ export function battleLogMessage(
           resultingHp: descriptor.resultingHp,
         },
       };
+    case "armourDamage":
+      // The break/absorb choice lives here, not in the descriptor — the
+      // descriptor carries the raw resultingArmour, and this is the only
+      // place that decides what it means, the same way battleEnd's raw
+      // outcome maps to its key.
+      return descriptor.resultingArmour === 0
+        ? { key: "armourBreak", params: { target: descriptor.target } }
+        : {
+            key: "armourDamage",
+            params: { target: descriptor.target, amount: descriptor.amount },
+          };
     case "drop":
       return { key: "drop", params: { character: descriptor.character } };
     case "timeout":

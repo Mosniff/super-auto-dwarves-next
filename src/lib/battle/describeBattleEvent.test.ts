@@ -140,6 +140,25 @@ describe("describeBattleEvent", () => {
     });
   });
 
+  it("describes ARMOUR_DAMAGE", () => {
+    const event: BattleEvent = {
+      type: "ARMOUR_DAMAGE",
+      targetId: "e1",
+      amount: 2,
+      resultingArmour: 1,
+      source: "p1",
+      beatIndex: 0,
+      beatType: "CLASH",
+    };
+
+    expect(describeBattleEvent(event, nameMap)).toEqual({
+      kind: "armourDamage",
+      target: "Grukk",
+      amount: 2,
+      resultingArmour: 1,
+    });
+  });
+
   it("falls back to the raw id when a character id is not in the nameMap", () => {
     const event: BattleEvent = {
       type: "DROP",

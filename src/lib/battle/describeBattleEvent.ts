@@ -25,6 +25,13 @@ export function describeBattleEvent(
         amount: event.amount,
         resultingHp: event.resultingHp,
       };
+    case "ARMOUR_DAMAGE":
+      return {
+        kind: "armourDamage",
+        target: resolveName(event.targetId),
+        amount: event.amount,
+        resultingArmour: event.resultingArmour,
+      };
     case "DROP":
       return { kind: "drop", character: resolveName(event.characterId) };
     case "TIMEOUT":

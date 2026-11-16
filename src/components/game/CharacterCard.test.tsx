@@ -294,4 +294,38 @@ describe("CharacterCard", () => {
     expect(screen.queryByText("Max level")).not.toBeNull();
     expect(screen.queryByText(/to level/)).toBeNull();
   });
+
+  it("C17: renders no armour shield at armour 0", () => {
+    renderWithMessages(
+      <CharacterCard
+        character={buildTestCharacter({
+          id: "c17",
+          name: "Fixture Dwarf",
+          armour: 0,
+        })}
+      />,
+    );
+
+    expect(document.querySelector("[data-character-armour]")).toBeNull();
+  });
+
+  it("C18: shows an armour shield with the number and an accessible name", () => {
+    renderWithMessages(
+      <CharacterCard
+        character={buildTestCharacter({
+          id: "c18",
+          name: "Fixture Dwarf",
+          armour: 2,
+        })}
+      />,
+    );
+
+    const armourShield = document.querySelector("[data-character-armour]");
+
+    expect([
+      armourShield?.getAttribute("data-character-armour"),
+      armourShield?.textContent,
+      armourShield?.getAttribute("aria-label"),
+    ]).toEqual(["2", "2", "2 armour"]);
+  });
 });
