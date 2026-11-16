@@ -57,6 +57,7 @@ describe("createNewGameState", () => {
       attack: 3,
       hp: 5,
       maxHp: 5,
+      armour: 0,
       characterTemplateId: "fixture-dwarf",
       tier: 1,
       characterClassIds: ["warrior"],

@@ -13,6 +13,7 @@ export const fixtureCharacterShopTemplateOne: CharacterTemplate = {
   characterClassIds: ["warrior"],
   attack: 2,
   maxHp: 5,
+  armour: 0,
 };
 
 export const fixtureCharacterShopTemplateTwo: CharacterTemplate = {
@@ -22,6 +23,7 @@ export const fixtureCharacterShopTemplateTwo: CharacterTemplate = {
   characterClassIds: ["smith", "miner"],
   attack: 3,
   maxHp: 8,
+  armour: 0,
 };
 
 export function buildOfferingCharacterShopSlot(

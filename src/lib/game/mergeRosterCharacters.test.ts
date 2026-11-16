@@ -20,6 +20,7 @@ function buildRosterCharacter(
     attack,
     hp,
     maxHp,
+    armour: 0,
     experience,
   };
 }

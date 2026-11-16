@@ -22,6 +22,7 @@ function hasValidCharacterClassIds(characterClassIds: unknown): boolean {
 // their template, so characterTemplateId only needs to be a non-empty
 // string. experience must be an integer from 0 to MAX_CHARACTER_EXPERIENCE;
 // the level is derived from it (levelFromExperience) and never stored.
+// armour must be a non-negative integer.
 function isValidPersistedCharacter(
   candidateCharacter: unknown,
 ): candidateCharacter is Character {
@@ -39,6 +40,7 @@ function isValidPersistedCharacter(
     attack,
     hp,
     maxHp,
+    armour,
     characterTemplateId,
     tier,
     characterClassIds,
@@ -54,6 +56,9 @@ function isValidPersistedCharacter(
     Number.isFinite(hp) &&
     typeof maxHp === "number" &&
     Number.isFinite(maxHp) &&
+    typeof armour === "number" &&
+    Number.isInteger(armour) &&
+    armour >= 0 &&
     typeof characterTemplateId === "string" &&
     characterTemplateId.length > 0 &&
     isCharacterTier(tier) &&

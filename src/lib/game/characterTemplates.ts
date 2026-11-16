@@ -8,6 +8,7 @@ export interface CharacterTemplate {
   readonly characterClassIds: readonly CharacterClassId[];
   readonly attack: number;
   readonly maxHp: number;
+  readonly armour: number;
 }
 
 // Ids are lowercase kebab-case. An id used in a save must never be renamed
@@ -22,6 +23,7 @@ export const CHARACTER_TEMPLATES: Readonly<Record<string, CharacterTemplate>> =
       characterClassIds: ["warrior"],
       attack: 4,
       maxHp: 7,
+      armour: 0,
     },
   };
 

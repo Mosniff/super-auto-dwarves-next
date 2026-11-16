@@ -32,6 +32,7 @@ function buildFixtureCharacter(overrides: Partial<Character> = {}): Character {
     attack: 4,
     hp: 7,
     maxHp: 7,
+    armour: 0,
     experience: 0,
     ...overrides,
   };

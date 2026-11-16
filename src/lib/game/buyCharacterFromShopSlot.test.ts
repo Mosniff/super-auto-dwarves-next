@@ -29,6 +29,7 @@ const occupiedFixtureCharacter: Character = {
   attack: 2,
   hp: 4,
   maxHp: 4,
+  armour: 0,
   characterTemplateId: "fixture-dwarf-not-offered",
   tier: 1,
   characterClassIds: ["warrior"],
@@ -49,6 +50,7 @@ function buildMatchingRosterCharacter(
     attack: 7,
     hp: 9,
     maxHp: 12,
+    armour: 0,
     experience: 4,
     ...overrides,
   };

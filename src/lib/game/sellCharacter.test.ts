@@ -14,6 +14,7 @@ function buildRosterCharacter(id: string): Character {
     attack: 2,
     hp: 5,
     maxHp: 5,
+    armour: 0,
     experience: 0,
   };
 }

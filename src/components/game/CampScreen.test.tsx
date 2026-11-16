@@ -29,6 +29,7 @@ const fixtureBorin: Character = {
   attack: 3,
   hp: 5,
   maxHp: 5,
+  armour: 0,
   characterTemplateId: "fixture-dwarf",
   tier: 1,
   characterClassIds: ["warrior"],
@@ -64,6 +65,7 @@ const fixtureThrudiTemplate: CharacterTemplate = {
   characterClassIds: ["warrior"],
   attack: 6,
   maxHp: 5,
+  armour: 0,
 };
 
 const fixtureGimlokTemplate: CharacterTemplate = {
@@ -73,6 +75,7 @@ const fixtureGimlokTemplate: CharacterTemplate = {
   characterClassIds: ["miner"],
   attack: 3,
   maxHp: 9,
+  armour: 0,
 };
 
 const fixtureCharacterTemplates: CharacterTemplate[] = [
@@ -99,6 +102,7 @@ const fixtureBorinTemplate: CharacterTemplate = {
   characterClassIds: ["warrior"],
   attack: 3,
   maxHp: 5,
+  armour: 0,
 };
 
 const matchingShopRenderOverrides: RenderCampScreenOverrides = {

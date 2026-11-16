@@ -10,6 +10,7 @@ function buildFixtureCharacter(id: string, name: string): Character {
     attack: 1,
     hp: 10,
     maxHp: 10,
+    armour: 1,
     characterTemplateId: "fixture-dwarf",
     tier: 1,
     characterClassIds: ["warrior"],
@@ -232,6 +233,36 @@ describe("parsePersistedCampRoster", () => {
     const rosters: unknown[] = [
       buildRosterWithFirstSlot({ ...baseCharacter, experience: 0 }),
       buildRosterWithFirstSlot({ ...baseCharacter, experience: 15 }),
+    ];
+
+    expect(rosters.map(doesParseThrow)).toEqual([false, false]);
+  });
+
+  it("(o) throws when armour is missing, negative, fractional or the wrong type", () => {
+    const baseCharacter = buildFixtureCharacter("character-a", "Dwarf A");
+    const { armour: _removedArmour, ...characterWithoutArmour } =
+      baseCharacter;
+
+    const variants: unknown[] = [
+      characterWithoutArmour,
+      { ...baseCharacter, armour: -1 },
+      { ...baseCharacter, armour: 1.5 },
+      { ...baseCharacter, armour: Number.NaN },
+      { ...baseCharacter, armour: "2" },
+      { ...baseCharacter, armour: null },
+    ];
+
+    expect(variants.map(buildRosterWithFirstSlot).map(doesParseThrow)).toEqual(
+      [true, true, true, true, true, true],
+    );
+  });
+
+  it("(p) accepts armour at 0 and above 0", () => {
+    const baseCharacter = buildFixtureCharacter("character-a", "Dwarf A");
+
+    const rosters: unknown[] = [
+      buildRosterWithFirstSlot({ ...baseCharacter, armour: 0 }),
+      buildRosterWithFirstSlot({ ...baseCharacter, armour: 5 }),
     ];
 
     expect(rosters.map(doesParseThrow)).toEqual([false, false]);

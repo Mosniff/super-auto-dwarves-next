@@ -14,6 +14,11 @@ export interface Character {
   hp: number;
   // full-health ceiling; current hp never exceeds this
   maxHp: number;
+  // base armour; while above 0, damage hits armour instead of hp (Phase
+  // 12). In battle this is the current value — buffs change the battle
+  // copy only, which is safe because battles write nothing back. If
+  // battles gain consequences, revisit (base vs current, like hp/maxHp).
+  armour: number;
   // 0 to MAX_CHARACTER_EXPERIENCE. The level is always derived from this
   // (levelFromExperience) and never stored.
   experience: number;

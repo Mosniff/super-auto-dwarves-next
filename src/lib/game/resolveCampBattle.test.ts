@@ -16,6 +16,7 @@ function buildFixtureCharacter(
     attack,
     hp,
     maxHp: hp,
+    armour: 0,
     characterTemplateId: "fixture-dwarf",
     tier: 1,
     characterClassIds: ["warrior"],

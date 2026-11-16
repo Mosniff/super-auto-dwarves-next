@@ -9,6 +9,7 @@ const fixtureTemplate: CharacterTemplate = {
   characterClassIds: ["smith", "miner"],
   attack: 3,
   maxHp: 9,
+  armour: 2,
 };
 
 describe("spawnCharacterFromTemplate", () => {
@@ -27,6 +28,7 @@ describe("spawnCharacterFromTemplate", () => {
       attack: 3,
       hp: 9,
       maxHp: 9,
+      armour: 2,
       experience: 0,
     });
   });

@@ -39,6 +39,7 @@ function buildMergeFixtureCharacter(
     attack: 2,
     hp: 5,
     maxHp: 5,
+    armour: 0,
     experience,
   };
 }
@@ -50,6 +51,7 @@ function buildFixtureCharacter(id: string, name: string): Character {
     attack: 1,
     hp: 10,
     maxHp: 10,
+    armour: 0,
     characterTemplateId: "fixture-dwarf",
     tier: 1,
     characterClassIds: ["warrior"],
@@ -791,6 +793,7 @@ describe("merge targets", () => {
       attack: 2,
       hp: 5,
       maxHp: 5,
+      armour: 0,
       experience,
     };
   }

@@ -24,6 +24,7 @@ const fixtureBorin: Character = {
   attack: 3,
   hp: 5,
   maxHp: 5,
+  armour: 0,
   characterTemplateId: "fixture-dwarf",
   tier: 1,
   characterClassIds: ["warrior"],
@@ -296,6 +297,7 @@ describe("buyCharacterForUser", () => {
       attack: 3,
       hp: 8,
       maxHp: 8,
+      armour: 0,
       experience: 0,
     };
     const matchingCampRoster: CampRoster = [

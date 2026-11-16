@@ -16,6 +16,7 @@ const fixtureTemplateOne: CharacterTemplate = {
   characterClassIds: ["warrior"],
   attack: 2,
   maxHp: 5,
+  armour: 0,
 };
 
 const fixtureTemplateTwo: CharacterTemplate = {
@@ -25,6 +26,7 @@ const fixtureTemplateTwo: CharacterTemplate = {
   characterClassIds: ["smith", "miner"],
   attack: 3,
   maxHp: 8,
+  armour: 0,
 };
 
 const LOCKED_SLOT = { slotState: "locked" } as const;

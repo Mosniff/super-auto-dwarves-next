@@ -18,6 +18,7 @@ describe("characterTemplates", () => {
       characterClassIds: ["warrior"],
       attack: 4,
       maxHp: 7,
+      armour: 0,
     });
   });
 
@@ -93,6 +94,18 @@ describe("characterTemplates", () => {
             characterTemplate.attack < 0 ||
             !Number.isInteger(characterTemplate.maxHp) ||
             characterTemplate.maxHp <= 0,
+        )
+        .map((characterTemplate) => characterTemplate.characterTemplateId),
+    ).toEqual([]);
+  });
+
+  it("P9: every template has a non-negative integer armour", () => {
+    expect(
+      Object.values(CHARACTER_TEMPLATES)
+        .filter(
+          (characterTemplate) =>
+            !Number.isInteger(characterTemplate.armour) ||
+            characterTemplate.armour < 0,
         )
         .map((characterTemplate) => characterTemplate.characterTemplateId),
     ).toEqual([]);
