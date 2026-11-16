@@ -2,7 +2,9 @@ import { describe, it, expect } from "vitest";
 import type { Character } from "./character";
 import type { CampRoster } from "./campRoster";
 import { mergeRosterCharacters } from "./mergeRosterCharacters";
+import { buildTestCharacter } from "@/test/characterFixtures";
 
+// mechanical refactor: replaced with a single buildTestCharacter call
 function buildRosterCharacter(
   id: string,
   characterTemplateId: string,
@@ -11,7 +13,7 @@ function buildRosterCharacter(
   hp: number,
   maxHp: number,
 ): Character {
-  return {
+  return buildTestCharacter({
     id,
     name: "Dwarf " + id,
     characterTemplateId,
@@ -20,9 +22,8 @@ function buildRosterCharacter(
     attack,
     hp,
     maxHp,
-    armour: 0,
     experience,
-  };
+  });
 }
 
 describe("mergeRosterCharacters", () => {

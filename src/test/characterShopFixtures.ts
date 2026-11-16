@@ -5,26 +5,29 @@ import type {
   CharacterShopSlots,
 } from "@/lib/game/characterShopSlots";
 import type { ChooseRandomIndex } from "@/lib/game/chooseRandomIndex";
+import { buildTestCharacterTemplate } from "./characterFixtures";
 
-export const fixtureCharacterShopTemplateOne: CharacterTemplate = {
-  characterTemplateId: "fixture-dwarf-one",
-  name: "Fixture Dwarf One",
-  tier: 1,
-  characterClassIds: ["warrior"],
-  attack: 2,
-  maxHp: 5,
-  armour: 0,
-};
+// mechanical refactor: replaced with buildTestCharacterTemplate
+export const fixtureCharacterShopTemplateOne: CharacterTemplate =
+  buildTestCharacterTemplate({
+    characterTemplateId: "fixture-dwarf-one",
+    name: "Fixture Dwarf One",
+    tier: 1,
+    characterClassIds: ["warrior"],
+    attack: 2,
+    maxHp: 5,
+  });
 
-export const fixtureCharacterShopTemplateTwo: CharacterTemplate = {
-  characterTemplateId: "fixture-dwarf-two",
-  name: "Fixture Dwarf Two",
-  tier: 2,
-  characterClassIds: ["smith", "miner"],
-  attack: 3,
-  maxHp: 8,
-  armour: 0,
-};
+// mechanical refactor: replaced with buildTestCharacterTemplate
+export const fixtureCharacterShopTemplateTwo: CharacterTemplate =
+  buildTestCharacterTemplate({
+    characterTemplateId: "fixture-dwarf-two",
+    name: "Fixture Dwarf Two",
+    tier: 2,
+    characterClassIds: ["smith", "miner"],
+    attack: 3,
+    maxHp: 8,
+  });
 
 export function buildOfferingCharacterShopSlot(
   characterTemplateId: string,

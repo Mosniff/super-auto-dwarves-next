@@ -2,22 +2,23 @@
 import { describe, it, expect } from "vitest";
 import { renderWithMessages, screen } from "@/test/renderWithMessages";
 import type { Character } from "@/lib/game/character";
+import { buildTestCharacter } from "@/test/characterFixtures";
 import { CharacterCard } from "./CharacterCard";
 
 describe("CharacterCard", () => {
   it("C1: shows the tier's Roman numeral and a data-character-tier attribute", () => {
-    const fixtureCharacter: Character = {
+    // mechanical refactor: replaced with buildTestCharacter
+    const fixtureCharacter: Character = buildTestCharacter({
       id: "fixture-dwarf-1",
       name: "Fixture Dwarf",
       attack: 3,
       hp: 5,
       maxHp: 5,
-      armour: 0,
       characterTemplateId: "fixture-dwarf",
       tier: 2,
       characterClassIds: ["warrior"],
       experience: 0,
-    };
+    });
 
     renderWithMessages(<CharacterCard character={fixtureCharacter} />);
 
@@ -28,18 +29,18 @@ describe("CharacterCard", () => {
   });
 
   it("C2: shows each class's translated name and a data-character-class-id per class", () => {
-    const fixtureCharacter: Character = {
+    // mechanical refactor: replaced with buildTestCharacter
+    const fixtureCharacter: Character = buildTestCharacter({
       id: "fixture-dwarf-1",
       name: "Fixture Dwarf",
       attack: 3,
       hp: 5,
       maxHp: 5,
-      armour: 0,
       characterTemplateId: "fixture-dwarf",
       tier: 1,
       characterClassIds: ["smith", "miner"],
       experience: 0,
-    };
+    });
 
     renderWithMessages(<CharacterCard character={fixtureCharacter} />);
 
@@ -53,18 +54,18 @@ describe("CharacterCard", () => {
   });
 
   it("C3: the stats pill shows attack and current hp, toned by hp against max", () => {
-    const fixtureCharacter: Character = {
+    // mechanical refactor: replaced with buildTestCharacter
+    const fixtureCharacter: Character = buildTestCharacter({
       id: "fixture-dwarf-1",
       name: "Fixture Dwarf",
       attack: 4,
       hp: 3,
       maxHp: 7,
-      armour: 0,
       characterTemplateId: "fixture-dwarf",
       tier: 1,
       characterClassIds: ["warrior"],
       experience: 0,
-    };
+    });
 
     renderWithMessages(<CharacterCard character={fixtureCharacter} />);
 
@@ -86,18 +87,18 @@ describe("CharacterCard", () => {
   });
 
   it("C4: has no HP bar by default", () => {
-    const fixtureCharacter: Character = {
+    // mechanical refactor: replaced with buildTestCharacter
+    const fixtureCharacter: Character = buildTestCharacter({
       id: "fixture-dwarf-1",
       name: "Fixture Dwarf",
       attack: 3,
       hp: 5,
       maxHp: 5,
-      armour: 0,
       characterTemplateId: "fixture-dwarf",
       tier: 1,
       characterClassIds: ["warrior"],
       experience: 0,
-    };
+    });
 
     renderWithMessages(<CharacterCard character={fixtureCharacter} />);
 
@@ -105,18 +106,18 @@ describe("CharacterCard", () => {
   });
 
   it("C5: shows the HP bar when showHpBar is set", () => {
-    const fixtureCharacter: Character = {
+    // mechanical refactor: replaced with buildTestCharacter
+    const fixtureCharacter: Character = buildTestCharacter({
       id: "fixture-dwarf-1",
       name: "Fixture Dwarf",
       attack: 3,
       hp: 5,
       maxHp: 5,
-      armour: 0,
       characterTemplateId: "fixture-dwarf",
       tier: 1,
       characterClassIds: ["warrior"],
       experience: 0,
-    };
+    });
 
     renderWithMessages(
       <CharacterCard character={fixtureCharacter} showHpBar />,
@@ -125,19 +126,19 @@ describe("CharacterCard", () => {
     expect(document.querySelector("[data-character-hp-bar]")).not.toBeNull();
   });
 
+  // mechanical refactor: replaced with a single buildTestCharacter call
   function buildCardFixtureCharacter(experience: number): Character {
-    return {
+    return buildTestCharacter({
       id: "fixture-dwarf-1",
       name: "Fixture Dwarf",
       attack: 3,
       hp: 5,
       maxHp: 5,
-      armour: 0,
       characterTemplateId: "fixture-dwarf",
       tier: 1,
       characterClassIds: ["warrior"],
       experience,
-    };
+    });
   }
 
   it("C6: has no text box by default", () => {

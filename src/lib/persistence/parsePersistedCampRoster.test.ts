@@ -1,10 +1,12 @@
 import { describe, it, expect } from "vitest";
 import type { Character } from "@/lib/game/character";
 import { createEmptyCampRoster, type CampRoster } from "@/lib/game/campRoster";
+import { buildTestCharacter } from "@/test/characterFixtures";
 import { parsePersistedCampRoster } from "./parsePersistedCampRoster";
 
+// mechanical refactor: replaced with a single buildTestCharacter call
 function buildFixtureCharacter(id: string, name: string): Character {
-  return {
+  return buildTestCharacter({
     id,
     name,
     attack: 1,
@@ -15,7 +17,7 @@ function buildFixtureCharacter(id: string, name: string): Character {
     tier: 1,
     characterClassIds: ["warrior"],
     experience: 4,
-  };
+  });
 }
 
 function buildRosterWithFirstSlot(candidateSlot: unknown): unknown[] {

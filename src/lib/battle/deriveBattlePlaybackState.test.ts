@@ -3,14 +3,16 @@ import { deriveBattlePlaybackState } from "./deriveBattlePlaybackState";
 import { resolveBattle } from "./resolveBattle";
 import { applyEvent } from "./applyEvent";
 import type { Character } from "@/lib/game/character";
+import { buildTestCharacter } from "@/test/characterFixtures";
 
 describe("deriveBattlePlaybackState", () => {
+  // mechanical refactor: replaced with buildTestCharacter
   const playerCharacters: Character[] = [
-    { id: "p1", name: "Borin", attack: 2, hp: 3, maxHp: 3, armour: 0, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"], experience: 0 },
-    { id: "p2", name: "Thrudi", attack: 4, hp: 5, maxHp: 5, armour: 0, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"], experience: 0 },
+    buildTestCharacter({ id: "p1", name: "Borin", attack: 2, hp: 3, maxHp: 3, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"], experience: 0 }),
+    buildTestCharacter({ id: "p2", name: "Thrudi", attack: 4, hp: 5, maxHp: 5, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"], experience: 0 }),
   ];
   const enemyCharacters: Character[] = [
-    { id: "e1", name: "Grukk", attack: 2, hp: 6, maxHp: 6, armour: 0, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"], experience: 0 },
+    buildTestCharacter({ id: "e1", name: "Grukk", attack: 2, hp: 6, maxHp: 6, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"], experience: 0 }),
   ];
   const resolvedBattle = resolveBattle(playerCharacters, enemyCharacters);
 

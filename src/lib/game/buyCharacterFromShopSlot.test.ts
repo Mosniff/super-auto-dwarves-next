@@ -15,6 +15,7 @@ import {
   LOCKED_CHARACTER_SHOP_SLOT,
   SOLD_CHARACTER_SHOP_SLOT,
 } from "@/test/characterShopFixtures";
+import { buildTestCharacter } from "@/test/characterFixtures";
 
 const fixtureCharacterTemplates: CharacterTemplate[] = [
   fixtureCharacterShopTemplateOne,
@@ -23,25 +24,26 @@ const fixtureCharacterTemplates: CharacterTemplate[] = [
 
 // Must not match any fixture shop offering, so R6 and O1 keep testing a
 // non-matching occupied slot (merge-buy tests use a matching occupant).
-const occupiedFixtureCharacter: Character = {
+// mechanical refactor: replaced with buildTestCharacter
+const occupiedFixtureCharacter: Character = buildTestCharacter({
   id: "existing-dwarf",
   name: "Existing Dwarf",
   attack: 2,
   hp: 4,
   maxHp: 4,
-  armour: 0,
   characterTemplateId: "fixture-dwarf-not-offered",
   tier: 1,
   characterClassIds: ["warrior"],
   experience: 0,
-};
+});
 
 // Matches buildFixtureCharacterShopSlots()'s slot 1 (fixture-dwarf-two). Its
 // hp is deliberately below maxHp.
+// mechanical refactor: replaced with a single buildTestCharacter call
 function buildMatchingRosterCharacter(
   overrides: Partial<Character> = {},
 ): Character {
-  return {
+  return buildTestCharacter({
     id: "existing-two",
     name: "Existing Two",
     characterTemplateId: "fixture-dwarf-two",
@@ -50,10 +52,9 @@ function buildMatchingRosterCharacter(
     attack: 7,
     hp: 9,
     maxHp: 12,
-    armour: 0,
     experience: 4,
     ...overrides,
-  };
+  });
 }
 
 function buildFixtureShopCampState(

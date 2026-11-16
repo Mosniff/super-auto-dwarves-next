@@ -2,20 +2,21 @@ import { describe, it, expect } from "vitest";
 import type { Character } from "./character";
 import { createEmptyCampRoster, type CampRoster } from "./campRoster";
 import { repositionCharacter } from "./repositionCharacter";
+import { buildTestCharacter } from "@/test/characterFixtures";
 
+// mechanical refactor: replaced with a single buildTestCharacter call
 function buildFixtureCharacter(id: string, name: string): Character {
-  return {
+  return buildTestCharacter({
     id,
     name,
     attack: 1,
     hp: 10,
     maxHp: 10,
-    armour: 0,
     characterTemplateId: "fixture-dwarf",
     tier: 1,
     characterClassIds: ["warrior"],
     experience: 0,
-  };
+  });
 }
 
 describe("repositionCharacter", () => {

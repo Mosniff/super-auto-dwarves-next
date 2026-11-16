@@ -17,19 +17,20 @@ import {
   LOCKED_CHARACTER_SHOP_SLOT,
   SOLD_CHARACTER_SHOP_SLOT,
 } from "@/test/characterShopFixtures";
+import { buildTestCharacter } from "@/test/characterFixtures";
 
-const fixtureBorin: Character = {
+// mechanical refactor: replaced with buildTestCharacter
+const fixtureBorin: Character = buildTestCharacter({
   id: "dwarf-1",
   name: "Borin",
   attack: 3,
   hp: 5,
   maxHp: 5,
-  armour: 0,
   characterTemplateId: "fixture-dwarf",
   tier: 1,
   characterClassIds: ["warrior"],
   experience: 0,
-};
+});
 
 const fixtureCampRoster: CampRoster = [
   fixtureBorin,
@@ -288,7 +289,8 @@ describe("buyCharacterForUser", () => {
   });
 
   it("(i) saves a merge-buy onto a matching dwarf, and reports accepted", async () => {
-    const matchingRosterCharacter: Character = {
+    // mechanical refactor: replaced with buildTestCharacter
+    const matchingRosterCharacter: Character = buildTestCharacter({
       id: "dwarf-two",
       name: "Thrain",
       characterTemplateId: "fixture-dwarf-two",
@@ -297,9 +299,8 @@ describe("buyCharacterForUser", () => {
       attack: 3,
       hp: 8,
       maxHp: 8,
-      armour: 0,
       experience: 0,
-    };
+    });
     const matchingCampRoster: CampRoster = [
       matchingRosterCharacter,
       null,

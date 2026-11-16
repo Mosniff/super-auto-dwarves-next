@@ -11,23 +11,24 @@ import {
   LOCKED_CHARACTER_SHOP_SLOT,
   SOLD_CHARACTER_SHOP_SLOT,
 } from "@/test/characterShopFixtures";
+import { buildTestCharacter } from "@/test/characterFixtures";
 
 // Arbitrary fixture value — starting gold is not yet specified.
 const FIXTURE_GOLD = 10;
 
 function buildFixtureCampRoster(): CampRoster {
-  const fixtureCharacter: Character = {
+  // mechanical refactor: replaced with buildTestCharacter
+  const fixtureCharacter: Character = buildTestCharacter({
     id: "fixture-dwarf-1",
     name: "Fixture Dwarf",
     attack: 3,
     hp: 5,
     maxHp: 5,
-    armour: 0,
     characterTemplateId: "fixture-dwarf",
     tier: 1,
     characterClassIds: ["warrior"],
     experience: 0,
-  };
+  });
 
   return [fixtureCharacter, null, null, null, null, null, null];
 }

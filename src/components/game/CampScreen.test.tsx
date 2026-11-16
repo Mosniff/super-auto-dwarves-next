@@ -21,20 +21,24 @@ import {
   LOCKED_CHARACTER_SHOP_SLOT,
   SOLD_CHARACTER_SHOP_SLOT,
 } from "@/test/characterShopFixtures";
+import {
+  buildTestCharacter,
+  buildTestCharacterTemplate,
+} from "@/test/characterFixtures";
 import { CampScreen } from "./CampScreen";
 
-const fixtureBorin: Character = {
+// mechanical refactor: replaced with buildTestCharacter
+const fixtureBorin: Character = buildTestCharacter({
   id: "dwarf-1",
   name: "Borin",
   attack: 3,
   hp: 5,
   maxHp: 5,
-  armour: 0,
   characterTemplateId: "fixture-dwarf",
   tier: 1,
   characterClassIds: ["warrior"],
   experience: 0,
-};
+});
 
 function buildFixtureCampRoster(): CampRoster {
   return [fixtureBorin, null, null, null, null, null, null];
@@ -58,25 +62,25 @@ const fixtureTwoBorinCampRoster: CampRoster = [
   null,
 ];
 
-const fixtureThrudiTemplate: CharacterTemplate = {
+// mechanical refactor: replaced with buildTestCharacterTemplate
+const fixtureThrudiTemplate: CharacterTemplate = buildTestCharacterTemplate({
   characterTemplateId: "fixture-thrudi",
   name: "Thrudi",
   tier: 1,
   characterClassIds: ["warrior"],
   attack: 6,
   maxHp: 5,
-  armour: 0,
-};
+});
 
-const fixtureGimlokTemplate: CharacterTemplate = {
+// mechanical refactor: replaced with buildTestCharacterTemplate
+const fixtureGimlokTemplate: CharacterTemplate = buildTestCharacterTemplate({
   characterTemplateId: "fixture-gimlok",
   name: "Gimlok",
   tier: 1,
   characterClassIds: ["miner"],
   attack: 3,
   maxHp: 9,
-  armour: 0,
-};
+});
 
 const fixtureCharacterTemplates: CharacterTemplate[] = [
   fixtureThrudiTemplate,
@@ -95,15 +99,15 @@ const fixtureCharacterShopSlots: CharacterShopSlots = [
 ];
 
 // Matches fixtureBorin's characterTemplateId.
-const fixtureBorinTemplate: CharacterTemplate = {
+// mechanical refactor: replaced with buildTestCharacterTemplate
+const fixtureBorinTemplate: CharacterTemplate = buildTestCharacterTemplate({
   characterTemplateId: "fixture-dwarf",
   name: "Borin",
   tier: 1,
   characterClassIds: ["warrior"],
   attack: 3,
   maxHp: 5,
-  armour: 0,
-};
+});
 
 const matchingShopRenderOverrides: RenderCampScreenOverrides = {
   characterTemplates: [fixtureBorinTemplate, fixtureThrudiTemplate],

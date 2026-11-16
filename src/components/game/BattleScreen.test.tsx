@@ -13,6 +13,7 @@ import {
 import { resolveBattle } from "@/lib/battle/resolveBattle";
 import type { Character } from "@/lib/game/character";
 import { createEmptyCampRoster, type CampRoster } from "@/lib/game/campRoster";
+import { buildTestCharacter } from "@/test/characterFixtures";
 import englishMessages from "../../../messages/en.json";
 import { BattleScreen } from "./BattleScreen";
 import { GameScreen } from "./GameScreen";
@@ -24,31 +25,31 @@ const AUTOPLAY_INTERVAL_MS = 1100;
 // Comfortably more ticks than the fixture battle has beats.
 const AUTOPLAY_TICKS_TO_RUN_OUT_THE_BATTLE = 40;
 
-const fixtureGrukk: Character = {
+// mechanical refactor: replaced with buildTestCharacter
+const fixtureGrukk: Character = buildTestCharacter({
   id: "fixture-enemy-1",
   name: "Grukk",
   attack: 5,
   hp: 6,
   maxHp: 6,
-  armour: 0,
   characterTemplateId: "fixture-dwarf",
   tier: 1,
   characterClassIds: ["warrior"],
   experience: 0,
-};
+});
 
-const fixtureBorin: Character = {
+// mechanical refactor: replaced with buildTestCharacter
+const fixtureBorin: Character = buildTestCharacter({
   id: "fixture-player-1",
   name: "Borin",
   attack: 6,
   hp: 10,
   maxHp: 10,
-  armour: 0,
   characterTemplateId: "fixture-dwarf",
   tier: 1,
   characterClassIds: ["warrior"],
   experience: 0,
-};
+});
 
 const playerWinResolvedBattle = resolveBattle([fixtureBorin], [fixtureGrukk]);
 

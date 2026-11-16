@@ -8,19 +8,20 @@ import {
   type RepositionCharacterIntent,
 } from "./repositionCharacterForUser";
 import { buildFixtureCharacterShopSlots } from "@/test/characterShopFixtures";
+import { buildTestCharacter } from "@/test/characterFixtures";
 
-const fixtureBorin: Character = {
+// mechanical refactor: replaced with buildTestCharacter
+const fixtureBorin: Character = buildTestCharacter({
   id: "dwarf-1",
   name: "Borin",
   attack: 3,
   hp: 5,
   maxHp: 5,
-  armour: 0,
   characterTemplateId: "fixture-dwarf",
   tier: 1,
   characterClassIds: ["warrior"],
   experience: 0,
-};
+});
 
 const fixtureCampRoster: CampRoster = [
   fixtureBorin,

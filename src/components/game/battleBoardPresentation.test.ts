@@ -1,21 +1,22 @@
 import { describe, it, expect } from "vitest";
 import type { Character } from "@/lib/game/character";
 import type { CampRoster } from "@/lib/game/campRoster";
+import { buildTestCharacter } from "@/test/characterFixtures";
 import { presentBattleBoard } from "./battleBoardPresentation";
 
+// mechanical refactor: replaced with a single buildTestCharacter call
 function buildFixtureCharacter(id: string, name: string): Character {
-  return {
+  return buildTestCharacter({
     id,
     name,
     attack: 1,
     hp: 10,
     maxHp: 10,
-    armour: 0,
     characterTemplateId: "fixture-dwarf",
     tier: 1,
     characterClassIds: ["warrior"],
     experience: 0,
-  };
+  });
 }
 
 const aldric = buildFixtureCharacter("aldric", "Aldric");

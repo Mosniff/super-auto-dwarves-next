@@ -3,22 +3,23 @@ import { loadSavedGameForUser } from "./loadSavedGameForUser";
 import type { GameRepository, LoadedGameRecord } from "./gameRepository";
 import type { CampRoster } from "@/lib/game/campRoster";
 import { buildFixtureCharacterShopSlots } from "@/test/characterShopFixtures";
+import { buildTestCharacter } from "@/test/characterFixtures";
 
 const FIXTURE_GOLD = 10;
 
+// mechanical refactor: replaced with buildTestCharacter
 const fixtureCampRoster: CampRoster = [
-  {
+  buildTestCharacter({
     id: "dwarf-1",
     name: "Borin",
     attack: 3,
     hp: 5,
     maxHp: 5,
-    armour: 0,
     characterTemplateId: "fixture-dwarf",
     tier: 1,
     characterClassIds: ["warrior"],
     experience: 0,
-  },
+  }),
   null,
   null,
   null,

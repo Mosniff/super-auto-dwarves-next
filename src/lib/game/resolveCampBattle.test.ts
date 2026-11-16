@@ -3,25 +3,26 @@ import type { Character } from "./character";
 import { resolveBattle } from "@/lib/battle/resolveBattle";
 import { createEmptyCampRoster, squeezeCampRoster, type CampRoster } from "./campRoster";
 import { resolveCampBattle } from "./resolveCampBattle";
+import { buildTestCharacter } from "@/test/characterFixtures";
 
+// mechanical refactor: replaced with a single buildTestCharacter call
 function buildFixtureCharacter(
   id: string,
   name: string,
   attack: number,
   hp: number,
 ): Character {
-  return {
+  return buildTestCharacter({
     id,
     name,
     attack,
     hp,
     maxHp: hp,
-    armour: 0,
     characterTemplateId: "fixture-dwarf",
     tier: 1,
     characterClassIds: ["warrior"],
     experience: 0,
-  };
+  });
 }
 
 const fixtureEnemies: Character[] = [

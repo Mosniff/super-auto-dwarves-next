@@ -4,15 +4,17 @@ import { renderHook, act } from "@testing-library/react";
 import { useBattlePlayback } from "./useBattlePlayback";
 import { resolveBattle } from "@/lib/battle/resolveBattle";
 import type { Character } from "@/lib/game/character";
+import { buildTestCharacter } from "@/test/characterFixtures";
 
 const AUTOPLAY_INTERVAL_MS = 1100;
 
 function buildResolvedBattle() {
+  // mechanical refactor: replaced with buildTestCharacter
   const playerCharacters: Character[] = [
-    { id: "p1", name: "Borin", attack: 5, hp: 10, maxHp: 10, armour: 0, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"], experience: 0 },
+    buildTestCharacter({ id: "p1", name: "Borin", attack: 5, hp: 10, maxHp: 10, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"], experience: 0 }),
   ];
   const enemyCharacters: Character[] = [
-    { id: "e1", name: "Grukk", attack: 2, hp: 3, maxHp: 3, armour: 0, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"], experience: 0 },
+    buildTestCharacter({ id: "e1", name: "Grukk", attack: 2, hp: 3, maxHp: 3, characterTemplateId: "fixture-dwarf", tier: 1, characterClassIds: ["warrior"], experience: 0 }),
   ];
 
   return resolveBattle(playerCharacters, enemyCharacters);

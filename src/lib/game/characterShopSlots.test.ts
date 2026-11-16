@@ -8,26 +8,27 @@ import {
   type CharacterShopSlots,
 } from "./characterShopSlots";
 import type { ChooseRandomIndex } from "./chooseRandomIndex";
+import { buildTestCharacterTemplate } from "@/test/characterFixtures";
 
-const fixtureTemplateOne: CharacterTemplate = {
+// mechanical refactor: replaced with buildTestCharacterTemplate
+const fixtureTemplateOne: CharacterTemplate = buildTestCharacterTemplate({
   characterTemplateId: "fixture-dwarf-one",
   name: "Fixture Dwarf One",
   tier: 1,
   characterClassIds: ["warrior"],
   attack: 2,
   maxHp: 5,
-  armour: 0,
-};
+});
 
-const fixtureTemplateTwo: CharacterTemplate = {
+// mechanical refactor: replaced with buildTestCharacterTemplate
+const fixtureTemplateTwo: CharacterTemplate = buildTestCharacterTemplate({
   characterTemplateId: "fixture-dwarf-two",
   name: "Fixture Dwarf Two",
   tier: 2,
   characterClassIds: ["smith", "miner"],
   attack: 3,
   maxHp: 8,
-  armour: 0,
-};
+});
 
 const LOCKED_SLOT = { slotState: "locked" } as const;
 

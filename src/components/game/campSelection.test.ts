@@ -11,6 +11,7 @@ import {
   LOCKED_CHARACTER_SHOP_SLOT,
   SOLD_CHARACTER_SHOP_SLOT,
 } from "@/test/characterShopFixtures";
+import { buildTestCharacter } from "@/test/characterFixtures";
 import {
   isBuyTargetSlot,
   isCampClickEffective,
@@ -25,12 +26,13 @@ import {
   type CampSelection,
 } from "./campSelection";
 
+// mechanical refactor: replaced with a single buildTestCharacter call
 function buildMergeFixtureCharacter(
   id: string,
   characterTemplateId: string,
   experience: number,
 ): Character {
-  return {
+  return buildTestCharacter({
     id,
     name: "Dwarf " + id,
     characterTemplateId,
@@ -39,24 +41,23 @@ function buildMergeFixtureCharacter(
     attack: 2,
     hp: 5,
     maxHp: 5,
-    armour: 0,
     experience,
-  };
+  });
 }
 
+// mechanical refactor: replaced with a single buildTestCharacter call
 function buildFixtureCharacter(id: string, name: string): Character {
-  return {
+  return buildTestCharacter({
     id,
     name,
     attack: 1,
     hp: 10,
     maxHp: 10,
-    armour: 0,
     characterTemplateId: "fixture-dwarf",
     tier: 1,
     characterClassIds: ["warrior"],
     experience: 0,
-  };
+  });
 }
 
 const fixtureCharacterTemplates: CharacterTemplate[] = [
@@ -783,8 +784,9 @@ describe("presentCampTarget", () => {
 });
 
 describe("merge targets", () => {
+  // mechanical refactor: replaced with a single buildTestCharacter call
   function buildMatchingCharacter(id: string, experience: number): Character {
-    return {
+    return buildTestCharacter({
       id,
       name: "Matching Dwarf",
       characterTemplateId: "fixture-dwarf-one",
@@ -793,9 +795,8 @@ describe("merge targets", () => {
       attack: 2,
       hp: 5,
       maxHp: 5,
-      armour: 0,
       experience,
-    };
+    });
   }
 
   const campStateWithMatches: CampState = {

@@ -1,8 +1,9 @@
 import { describe, it, expect } from "vitest";
-import type { CharacterTemplate } from "./characterTemplates";
+import { buildTestCharacterTemplate } from "@/test/characterFixtures";
 import { spawnCharacterFromTemplate } from "./spawnCharacterFromTemplate";
 
-const fixtureTemplate: CharacterTemplate = {
+// mechanical refactor: replaced with buildTestCharacterTemplate
+const fixtureTemplate = buildTestCharacterTemplate({
   characterTemplateId: "fixture-dwarf",
   name: "Fixture Dwarf",
   tier: 2,
@@ -10,7 +11,7 @@ const fixtureTemplate: CharacterTemplate = {
   attack: 3,
   maxHp: 9,
   armour: 2,
-};
+});
 
 describe("spawnCharacterFromTemplate", () => {
   it("S1: builds an owned character from a template with a fresh id, hp at maxHp and no experience", () => {

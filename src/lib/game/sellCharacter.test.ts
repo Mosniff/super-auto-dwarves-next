@@ -3,9 +3,11 @@ import type { Character } from "@/lib/game/character";
 import type { CampState } from "./campState";
 import { buildFixtureCharacterShopSlots } from "@/test/characterShopFixtures";
 import { sellCharacter, sellCharacterRejectionReason } from "./sellCharacter";
+import { buildTestCharacter } from "@/test/characterFixtures";
 
+// mechanical refactor: replaced with a single buildTestCharacter call
 function buildRosterCharacter(id: string): Character {
-  return {
+  return buildTestCharacter({
     id,
     name: "Dwarf " + id,
     characterTemplateId: "fixture-dwarf",
@@ -14,9 +16,8 @@ function buildRosterCharacter(id: string): Character {
     attack: 2,
     hp: 5,
     maxHp: 5,
-    armour: 0,
     experience: 0,
-  };
+  });
 }
 
 describe("sellCharacter", () => {

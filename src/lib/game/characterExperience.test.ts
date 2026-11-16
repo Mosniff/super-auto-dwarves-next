@@ -12,6 +12,7 @@ import {
   levelFromExperience,
   mergeCharacterInto,
 } from "./characterExperience";
+import { buildTestCharacter } from "@/test/characterFixtures";
 
 function didThrow(runInvalidCall: () => unknown): boolean {
   try {
@@ -22,20 +23,11 @@ function didThrow(runInvalidCall: () => unknown): boolean {
   }
 }
 
+// mechanical refactor: replaced with a single buildTestCharacter call
+// (its defaults already match this helper's, so overrides forward through
+// as-is)
 function buildFixtureCharacter(overrides: Partial<Character> = {}): Character {
-  return {
-    id: "fixture-character",
-    characterTemplateId: "fixture-dwarf",
-    name: "Fixture Dwarf",
-    tier: 1,
-    characterClassIds: ["warrior"],
-    attack: 4,
-    hp: 7,
-    maxHp: 7,
-    armour: 0,
-    experience: 0,
-    ...overrides,
-  };
+  return buildTestCharacter(overrides);
 }
 
 describe("characterExperience", () => {
