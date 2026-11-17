@@ -28,7 +28,9 @@ function presentationClassName(
 ): string {
   switch (presentation) {
     case "held":
-      return "ring-2 ring-ring";
+      // Drawn by globals.css on [data-camp-target-presentation="held"] —
+      // an animated gold ring, distinct from the grey keyboard-focus ring.
+      return "";
     case "eligible":
       return "ring-2 ring-dashed ring-emerald-400";
     // A shop tile is never a merge target; this case only keeps the switch
@@ -105,7 +107,7 @@ function DraggableCharacterShopSlotTile({
         data-character-shop-slot-state="offering"
         data-camp-target-presentation={presentation}
         data-card-wash-revealed={String(isSelected)}
-        className={`block aspect-3/4 w-(--shop-tile-width) rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${presentationClassName(
+        className={`relative block aspect-3/4 w-(--shop-tile-width) rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${presentationClassName(
           presentation,
           isEnabled,
         )} ${isDragSource ? "opacity-40" : ""}`}

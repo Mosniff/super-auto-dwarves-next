@@ -1288,4 +1288,69 @@ describe("CampScreen", () => {
       ["1", true],
     ]);
   });
+
+  function slotButton() {
+    return screen.getByRole("button", { name: "Slot 1: Borin, level 1" });
+  }
+
+  it("SEL1: clicking empty space inside the camp clears the selection", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    await user.click(slotButton());
+    await user.click(screen.getByText("Characters"));
+
+    expect(slotButton().getAttribute("aria-pressed")).toBe("false");
+  });
+
+  it("SEL2: Escape clears the selection", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    await user.click(slotButton());
+    await user.keyboard("{Escape}");
+
+    expect(slotButton().getAttribute("aria-pressed")).toBe("false");
+  });
+
+  it("SEL3: Escape with an info dialog open closes only the dialog; the selection stays", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    await user.click(slotButton());
+    await user.click(screen.getByRole("button", { name: "Details: Borin" }));
+    await user.keyboard("{Escape}");
+
+    expect({
+      isDialogOpen: screen.queryByRole("dialog") !== null,
+      slotPressed: slotButton().getAttribute("aria-pressed"),
+    }).toEqual({ isDialogOpen: false, slotPressed: "true" });
+  });
+
+  it("SEL4: clicking an info control keeps the selection after the dialog closes", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    await user.click(slotButton());
+    await user.click(screen.getByRole("button", { name: "Details: Borin" }));
+    await user.click(screen.getByRole("button", { name: "Close" }));
+
+    expect(slotButton().getAttribute("aria-pressed")).toBe("true");
+  });
+
+  it("SEL5: the info control is its dialog's trigger, and focus returns to it on close", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    const infoControl = screen.getByRole("button", { name: "Details: Borin" });
+    const hasPopupBefore = infoControl.getAttribute("aria-haspopup");
+
+    await user.click(infoControl);
+    await user.click(screen.getByRole("button", { name: "Close" }));
+
+    expect([
+      hasPopupBefore,
+      document.activeElement?.getAttribute("aria-label") ?? null,
+    ]).toEqual(["dialog", "Details: Borin"]);
+  });
 });

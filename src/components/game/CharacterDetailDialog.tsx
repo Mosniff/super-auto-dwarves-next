@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { XIcon } from "lucide-react";
 import type { Character } from "@/lib/game/character";
@@ -14,12 +15,14 @@ import {
   DialogContent,
   DialogDescription,
   DialogTitle,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 
 interface CharacterDetailDialogProps {
   character: Character;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  trigger?: ReactNode;
 }
 
 // Renders the ability's name, summary, and all five labelled level texts
@@ -64,6 +67,7 @@ export function CharacterDetailDialog({
   character,
   open,
   onOpenChange,
+  trigger,
 }: CharacterDetailDialogProps) {
   const tCommon = useTranslations("common");
   const ability = findCharacterAbilityForCharacter(character);
@@ -71,6 +75,9 @@ export function CharacterDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
+      {trigger !== undefined && (
+        <DialogTrigger asChild>{trigger}</DialogTrigger>
+      )}
       <DialogContent
         showCloseButton={false}
         className="sm:max-w-fit max-h-[calc(100dvh-2rem)] overflow-y-auto"

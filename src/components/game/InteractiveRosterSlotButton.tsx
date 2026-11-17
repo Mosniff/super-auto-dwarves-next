@@ -36,7 +36,9 @@ function presentationClassName(
 ): string {
   switch (presentation) {
     case "held":
-      return "ring-2 ring-ring";
+      // Drawn by globals.css on [data-camp-target-presentation="held"] —
+      // an animated gold ring, distinct from the grey keyboard-focus ring.
+      return "";
     case "eligible":
       return isDropTarget
         ? "ring-4 ring-emerald-500"

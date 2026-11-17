@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
 import { DragDropProvider, DragOverlay, PointerSensor } from "@dnd-kit/react";
 import { Accessibility } from "@dnd-kit/dom";
@@ -100,6 +100,20 @@ export function CampScreen({
     useState<SubmittedCampIntent | null>(null);
 
   useReportPhaseAdvanceAvailability("campPhase", !isSubmittingCampIntent);
+
+  // Radix's dismissable layer handles Escape first in the capture phase
+  // and calls preventDefault(), so an Escape that closes a dialog never
+  // also clears the selection.
+  useEffect(() => {
+    function handleWindowKeyDown(event: KeyboardEvent): void {
+      if (event.key === "Escape" && !event.defaultPrevented) {
+        setCampSelection({ selectionKind: "none" });
+      }
+    }
+
+    window.addEventListener("keydown", handleWindowKeyDown);
+    return () => window.removeEventListener("keydown", handleWindowKeyDown);
+  }, []);
 
   const campState: CampState = {
     campRoster: playerCampRoster,
@@ -276,6 +290,22 @@ export function CampScreen({
         aria-busy={isSubmittingCampIntent}
         // globals.css hides every info control while a drag is in progress.
         data-camp-dragging={String(campDragSourceSelection !== null)}
+        onClick={(event) => {
+          // Clears the selection on a click inside the camp that isn't on
+          // an interactive element. currentTarget.contains() excludes
+          // clicks that bubbled through React from portalled content (the
+          // info dialog).
+          const clickedElement = event.target as Element;
+          if (
+            !event.currentTarget.contains(clickedElement) ||
+            clickedElement.closest(
+              "button, a, input, select, textarea, [role='button']",
+            ) !== null
+          ) {
+            return;
+          }
+          setCampSelection({ selectionKind: "none" });
+        }}
         // Must stay a flex column so the shell below can fill the height
         // and the camp content can centre vertically. select-none because
         // Shift-click (holding Shift to enter merge/sell mode, then

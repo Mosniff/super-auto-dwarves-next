@@ -205,6 +205,15 @@
     --expanded-card-portrait-height: 34rem;
   }
 
+  /* Phase 12 selected ("held") tile ring; the human tunes these. */
+  --held-ring-width: 3px;
+  --held-ring-offset: 3px;
+  --held-ring-base: #e0b65a;
+  --held-ring-highlight: #fff8dc;
+  --held-ring-trace-duration: 3s;
+  --held-ring-glow-blur: 8px;
+  --held-ring-glow-opacity: 0.85;
+
   /* ── Camp shop slot looks ───────────────────────────
      Open slots read as sockets for a card, locked slots as capped off;
      tune here. "Coming soon" slots are plain and dashed, read as not
@@ -410,6 +419,113 @@
   [data-character-info-control] {
     transition: opacity 150ms ease-out;
   }
+}
+
+/* Phase 12 held-tile ring: a gold ring just outside a selected tile, with a
+   brighter patch tracing its perimeter. A rotating conic-gradient (its
+   angle is a registered @property so it animates) is masked to a ring.
+   Reduced motion gets the static gold ring. Sits below the badges and the
+   "i" (z-10). */
+@property --held-ring-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+[data-camp-target-presentation="held"]::before {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * (var(--held-ring-width) + var(--held-ring-offset)));
+  padding: var(--held-ring-width);
+  border-radius: calc(
+    var(--radius-md) + var(--held-ring-width) + var(--held-ring-offset)
+  );
+  background: conic-gradient(
+    from var(--held-ring-angle),
+    var(--held-ring-base) 0deg,
+    var(--held-ring-base) 290deg,
+    var(--held-ring-highlight) 325deg,
+    var(--held-ring-base) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  pointer-events: none;
+  z-index: 5;
+}
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes held-ring-trace {
+    to {
+      --held-ring-angle: 360deg;
+    }
+  }
+  [data-camp-target-presentation="held"]::before {
+    animation: held-ring-trace var(--held-ring-trace-duration) linear infinite;
+  }
+  [data-camp-target-presentation="held"]::before,
+  [data-camp-target-presentation="held"]::after,
+  [data-character-info-control]:hover::before,
+  [data-character-info-control]:focus-visible::before {
+    animation: held-ring-trace var(--held-ring-trace-duration) linear infinite;
+  }
+}
+
+/* Held-tile glow: a blurred, unmasked copy of the same rotating gradient
+   behind the card. The opaque card hides its middle, so only a halo shows,
+   and the bright patch blooms as it travels. (A drop-shadow on the ring
+   itself wouldn't work: filters apply before masks, so the mask would cut
+   the shadow off.) isolation keeps the glow behind the card but in front of
+   the slot background. */
+[data-camp-target-presentation="held"] {
+  isolation: isolate;
+}
+[data-camp-target-presentation="held"]::after {
+  content: "";
+  position: absolute;
+  inset: calc(-1 * (var(--held-ring-width) + var(--held-ring-offset)));
+  border-radius: calc(
+    var(--radius-md) + var(--held-ring-width) + var(--held-ring-offset)
+  );
+  background: conic-gradient(
+    from var(--held-ring-angle),
+    var(--held-ring-base) 0deg,
+    var(--held-ring-base) 290deg,
+    var(--held-ring-highlight) 325deg,
+    var(--held-ring-base) 360deg
+  );
+  filter: blur(var(--held-ring-glow-blur));
+  opacity: var(--held-ring-glow-opacity);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* The "i" on keyboard focus: a small gold ring with the same tracing
+   highlight, replacing its white ring. */
+[data-character-info-control]:hover::before,
+[data-character-info-control]:focus-visible::before {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  padding: 3px;
+  border-radius: 9999px;
+  background: conic-gradient(
+    from var(--held-ring-angle),
+    var(--held-ring-base) 0deg,
+    var(--held-ring-base) 250deg,
+    var(--held-ring-highlight) 300deg,
+    var(--held-ring-base) 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box exclude,
+    linear-gradient(#000 0 0);
+  pointer-events: none;
 }
 
 /* Phase 12 shop card wash: shop offerings show the reveal wash (no XP bar)
