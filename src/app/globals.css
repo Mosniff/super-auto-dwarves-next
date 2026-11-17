@@ -68,7 +68,6 @@
   --spacing-card-pill-y: 1.5cqw;
   --spacing-card-pill-gap: 1cqw;
   --spacing-card-pill-offset: 2cqw;
-  --spacing-card-text-box-height: 20cqw;
   --spacing-card-xp-bar-height: 7cqw;
   --spacing-card-xp-segment-gap: 1.5cqw;
   --text-card-xp-max: 5cqw;
@@ -79,10 +78,6 @@
   --spacing-card-armour-badge: 18cqw;
   --spacing-card-armour-inset: 2cqw;
   --text-card-armour: 8cqw;
-  /* Phase 12 expanded card's ability text; the human tunes these. */
-  --text-card-ability-name: 6cqw;
-  --text-card-ability-body: 4.5cqw;
-  --spacing-card-ability-gap: 2cqw;
   --border-width-card-xp-segment: 0.5cqw;
   --radius-card-bar: 2.5cqw;
   --radius-card-portrait: 1cqw;
@@ -192,10 +187,17 @@
   --shop-tile-width: 9.5rem;
   --shop-tile-gap: 0.75rem;
   --shop-section-gap: 3rem;
+  /* Phase 12 expanded card (CharacterDetailDialog), sized in rem; the
+     human tunes these. */
+  --expanded-card-width: 40rem;
+  --expanded-card-portrait-height: 26rem;
+  --expanded-card-wing-gap: 1.5rem;
   @variant 3xl {
     --shop-tile-width: 13.5rem;
     --shop-tile-gap: 1.25rem;
     --shop-section-gap: 6rem;
+    --expanded-card-width: 52rem;
+    --expanded-card-portrait-height: 34rem;
   }
 
   /* ── Camp shop slot looks ───────────────────────────
@@ -304,10 +306,6 @@
       var(--color-heart-red-400),
       var(--color-heart-red-700)
     );
-
-  /* Phase 12 expanded-card dialog size; the human tunes these. */
-  --expanded-card-width: 22rem;
-  --expanded-card-height: 40rem;
 }
 
 @layer base {
@@ -344,7 +342,10 @@
    data-experience-bar-revealed hides its card's XP bar until the slot is
    hovered, keyboard-focused, or marked "true" (selected, or matching the
    held item) — the reveal shows the bar over a grey wash; outside a
-   revealing slot, the wash never shows. The human tunes the fade. */
+   revealing slot, the wash never shows. Also while anything in the slot's
+   info-control host (the slot or its "i") is hovered or keyboard-focused,
+   so the card stays revealed while the player is on its "i" (Phase 12).
+   The human tunes the fade. */
 [data-experience-bar-revealed] [data-character-experience-bar] {
   opacity: 0;
 }
@@ -358,6 +359,10 @@
 [data-experience-bar-revealed]:focus-visible [data-character-experience-mask],
 [data-experience-bar-revealed="true"] [data-character-experience-bar],
 [data-experience-bar-revealed="true"] [data-character-experience-mask],
+[data-info-control-host]:hover [data-experience-bar-revealed] [data-character-experience-bar],
+[data-info-control-host]:hover [data-experience-bar-revealed] [data-character-experience-mask],
+[data-info-control-host]:has(:focus-visible) [data-experience-bar-revealed] [data-character-experience-bar],
+[data-info-control-host]:has(:focus-visible) [data-experience-bar-revealed] [data-character-experience-mask],
 /* An XP beat (Phase 11) also briefly reveals the bar and wash, on the
    roster slot root (a different ancestor than data-experience-bar-revealed,
    which lives on the interactive slot button). */
@@ -401,10 +406,15 @@
 }
 
 /* Phase 12 shop card wash: shop offerings show the reveal wash (no XP bar)
-   on hover, keyboard focus or selection, like camp roster cards. */
+   on hover, keyboard focus or selection, like camp roster cards. Also
+   while anything in the slot's info-control host (the slot or its "i") is
+   hovered or keyboard-focused, so the card stays revealed while the
+   player is on its "i" (Phase 12). */
 [data-card-wash-revealed]:hover [data-character-experience-mask],
 [data-card-wash-revealed]:focus-visible [data-character-experience-mask],
-[data-card-wash-revealed="true"] [data-character-experience-mask] {
+[data-card-wash-revealed="true"] [data-character-experience-mask],
+[data-info-control-host]:hover [data-card-wash-revealed] [data-character-experience-mask],
+[data-info-control-host]:has(:focus-visible) [data-card-wash-revealed] [data-character-experience-mask] {
   opacity: 1;
 }
 

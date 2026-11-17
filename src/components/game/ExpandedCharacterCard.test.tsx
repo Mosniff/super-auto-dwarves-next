@@ -1,0 +1,94 @@
+// @vitest-environment jsdom
+import { describe, it, expect } from "vitest";
+import { renderWithMessages } from "@/test/renderWithMessages";
+import { buildTestCharacter } from "@/test/characterFixtures";
+import { ExpandedCharacterCard } from "./ExpandedCharacterCard";
+
+function q(selector: string) {
+  return document.querySelector(selector);
+}
+
+describe("ExpandedCharacterCard", () => {
+  it("E1: shows the name, tier, translated classes, level, attack and toned hp", () => {
+    renderWithMessages(
+      <ExpandedCharacterCard
+        character={buildTestCharacter({
+          id: "e1",
+          name: "Borin",
+          tier: 2,
+          characterClassIds: ["warrior", "miner"],
+          attack: 5,
+          hp: 4,
+          maxHp: 7,
+          armour: 0,
+          experience: 3,
+        })}
+      />,
+    );
+
+    expect({
+      name: q("[data-expanded-card-name]")?.textContent,
+      tier: q("[data-expanded-card-tier]")?.textContent,
+      classes: [...document.querySelectorAll("[data-expanded-card-class]")].map(
+        (classElement) => classElement.textContent,
+      ),
+      level: q("[data-expanded-card-level]")?.textContent,
+      attack: q('[data-expanded-card-stat="attack"]')?.textContent,
+      hp: q('[data-expanded-card-stat="hp"]')?.textContent,
+      hpTone: q('[data-expanded-card-stat="hp"]')?.getAttribute(
+        "data-hp-display-tone",
+      ),
+    }).toEqual({
+      name: "Borin",
+      tier: "II",
+      classes: ["Warrior", "Miner"],
+      level: "Lv 2",
+      attack: "5",
+      hp: "4",
+      hpTone: "damaged",
+    });
+  });
+
+  it("E2: shows the armour shield only above 0, with an accessible name", () => {
+    renderWithMessages(
+      <>
+        <ExpandedCharacterCard
+          character={buildTestCharacter({ id: "e2a", name: "Fixture Dwarf", armour: 0 })}
+        />
+        <ExpandedCharacterCard
+          character={buildTestCharacter({ id: "e2b", name: "Fixture Dwarf", armour: 2 })}
+        />
+      </>,
+    );
+
+    expect(
+      [...document.querySelectorAll("[data-expanded-character-card]")].map(
+        (expandedCard) => {
+          const armourShield = expandedCard.querySelector(
+            "[data-expanded-card-armour]",
+          );
+          return [
+            armourShield?.textContent ?? null,
+            armourShield?.getAttribute("aria-label") ?? null,
+          ];
+        },
+      ),
+    ).toEqual([
+      [null, null],
+      ["2", "2 armour"],
+    ]);
+  });
+
+  it("E3: renders its ability content inside the ability box", () => {
+    renderWithMessages(
+      <ExpandedCharacterCard
+        character={buildTestCharacter({ id: "e3", name: "Fixture Dwarf" })}
+        abilityContent={<span>Ability text</span>}
+      />,
+    );
+
+    expect(q("[data-expanded-card-ability-box]")?.textContent).toBe(
+      "Ability text",
+    );
+  });
+});

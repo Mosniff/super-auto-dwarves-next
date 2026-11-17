@@ -29,7 +29,7 @@ function readOpenDialog() {
         levelRow.querySelector("[data-ability-level-text]")?.textContent,
       ],
     ),
-    hasCard: dialog.querySelector("[data-character-text-box]") !== null,
+    hasCard: dialog.querySelector("[data-expanded-character-card]") !== null,
   };
 }
 

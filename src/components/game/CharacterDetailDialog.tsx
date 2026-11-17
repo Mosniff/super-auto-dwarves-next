@@ -1,13 +1,16 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { XIcon } from "lucide-react";
 import type { Character } from "@/lib/game/character";
 import type { CharacterAbility } from "@/lib/game/characterAbilities";
 import { findCharacterAbilityForCharacter } from "@/lib/game/characterAbilityLookup";
 import { abilityDescriptionMessages } from "./abilityDescriptionMessages";
-import { CharacterCard } from "./CharacterCard";
+import { ExpandedCharacterCard } from "./ExpandedCharacterCard";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogTitle,
@@ -20,9 +23,9 @@ interface CharacterDetailDialogProps {
 }
 
 // Renders the ability's name, summary, and all five labelled level texts
-// into the card's text box. The ability is looked up once, by the caller
-// (CharacterDetailDialog), and passed down — this component never looks
-// anything up itself.
+// into the expanded card's ability box. The ability is looked up once, by
+// the caller (CharacterDetailDialog), and passed down — this component
+// never looks anything up itself.
 function AbilityDescription({ ability }: { ability: CharacterAbility }) {
   const t = useTranslations("ability");
   const tCommon = useTranslations("common");
@@ -30,11 +33,8 @@ function AbilityDescription({ ability }: { ability: CharacterAbility }) {
   const { nameKey, summaryKey, levelTexts } = abilityDescriptionMessages(ability);
 
   return (
-    <div
-      data-ability-description={ability.abilityId}
-      className="flex flex-col gap-card-ability-gap text-card-ability-body leading-snug"
-    >
-      <p data-ability-name className="text-card-ability-name font-bold leading-none">
+    <div data-ability-description={ability.abilityId} className="flex flex-col gap-3 leading-snug">
+      <p data-ability-name className="text-2xl font-bold leading-none">
         {t(nameKey)}
       </p>
       <DialogDescription asChild>
@@ -42,12 +42,12 @@ function AbilityDescription({ ability }: { ability: CharacterAbility }) {
           {t(summaryKey)}
         </p>
       </DialogDescription>
-      <ol className="flex flex-col gap-card-ability-gap">
+      <ol className="flex flex-col gap-2">
         {levelTexts.map((levelText, levelIndex) => (
           <li
             key={levelText.key + levelIndex}
             data-ability-level={levelIndex + 1}
-            className="flex gap-card-label-gap"
+            className="flex gap-3"
           >
             <span data-ability-level-label className="shrink-0 font-bold">
               {tCommon("levelPill", { level: levelIndex + 1 })}
@@ -72,8 +72,8 @@ export function CharacterDetailDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        closeButtonLabel={tCommon("close")}
-        className="sm:max-w-fit"
+        showCloseButton={false}
+        className="sm:max-w-fit max-h-[calc(100dvh-2rem)] overflow-y-auto"
         // Radix otherwise wires aria-describedby to the DialogDescription
         // rendered inside AbilityDescription; with no ability there's no
         // description, so this is explicitly declared to suppress Radix's
@@ -81,16 +81,22 @@ export function CharacterDetailDialog({
         {...(hasAbility ? {} : { "aria-describedby": undefined })}
       >
         <DialogTitle className="sr-only">{character.name}</DialogTitle>
-        <div className="h-(--expanded-card-height) w-(--expanded-card-width)">
-          <CharacterCard
-            character={character}
-            showLevel
-            showTextBox
-            textBoxContent={
-              ability !== undefined && <AbilityDescription ability={ability} />
-            }
-          />
-        </div>
+        {/* A deliberately larger close button than shadcn's default; the
+            human tunes its look. */}
+        <DialogClose asChild>
+          <Button
+            variant="ghost"
+            size="icon-lg"
+            aria-label={tCommon("close")}
+            className="absolute top-3 right-3 z-10"
+          >
+            <XIcon aria-hidden="true" className="size-6" />
+          </Button>
+        </DialogClose>
+        <ExpandedCharacterCard
+          character={character}
+          abilityContent={ability !== undefined && <AbilityDescription ability={ability} />}
+        />
       </DialogContent>
     </Dialog>
   );

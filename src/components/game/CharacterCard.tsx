@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import Image from "next/image";
 import { Shield } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -15,20 +14,19 @@ import {
 
 // The layout borrows a trading-card frame structure: a bordered, textured
 // body holding a name bar, the portrait (carrying an optional HP or XP
-// bar), a class bar, an optional text box, and a bottom row holding an
-// optional level pill and the stats pill. Every size inside the frame
-// comes from a card-* theme token defined in globals.css, each expressed
-// relative to the card's own width (a CSS container query length), so one
-// layout serves every card size — a ~100px shop tile and a 288px action
-// card alike. The human tunes the numbers there, in one place.
+// bar), a class bar, and a bottom row holding an optional level pill and
+// the stats pill. Every size inside the frame comes from a card-* theme
+// token defined in globals.css, each expressed relative to the card's own
+// width (a CSS container query length), so one layout serves every card
+// size — a ~100px shop tile and a 288px action card alike. The human tunes
+// the numbers there, in one place. The expanded view is a separate
+// component (ExpandedCharacterCard), not a variant of this card.
 
 interface CharacterCardProps {
   character: Character;
   facing?: "left" | "right";
   animateHpDrop?: boolean;
   showHpBar?: boolean;
-  showTextBox?: boolean;
-  textBoxContent?: ReactNode;
   showLevel?: boolean;
   showExperienceBar?: boolean;
   showRevealWash?: boolean;
@@ -64,8 +62,6 @@ export function CharacterCard({
   facing = "right",
   animateHpDrop = false,
   showHpBar = false,
-  showTextBox = false,
-  textBoxContent,
   showLevel = false,
   showExperienceBar = false,
   showRevealWash = false,
@@ -261,23 +257,6 @@ export function CharacterCard({
             </span>
           ))}
         </div>
-
-        {/* The text box is off on the standard card; the expanded-card
-            dialog turns it on and fills it with the character's ability
-            (CharacterDetailDialog). The card itself never looks up
-            abilities. */}
-        {showTextBox && (
-          <div
-            data-character-text-box
-            className="relative mx-card-inset min-h-card-text-box-height shrink-0 rounded-card-panel px-card-bar-x py-card-bar-y"
-            style={{
-              background: "var(--texture-card-panel)",
-              boxShadow: "var(--shadow-recess)",
-            }}
-          >
-            {textBoxContent}
-          </div>
-        )}
 
         <div
           data-character-card-bottom-row

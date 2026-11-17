@@ -141,26 +141,6 @@ describe("CharacterCard", () => {
     });
   }
 
-  it("C6: has no text box by default", () => {
-    renderWithMessages(
-      <CharacterCard character={buildCardFixtureCharacter(0)} />,
-    );
-
-    expect(
-      document.querySelectorAll("[data-character-text-box]"),
-    ).toHaveLength(0);
-  });
-
-  it("C7: shows the text box when showTextBox is set", () => {
-    renderWithMessages(
-      <CharacterCard character={buildCardFixtureCharacter(0)} showTextBox />,
-    );
-
-    expect(
-      document.querySelectorAll("[data-character-text-box]"),
-    ).toHaveLength(1);
-  });
-
   it("C8: the stats pill still shows attack and hp without the text box", () => {
     renderWithMessages(
       <CharacterCard character={buildCardFixtureCharacter(0)} />,
@@ -327,20 +307,6 @@ describe("CharacterCard", () => {
       armourShield?.textContent,
       armourShield?.getAttribute("aria-label"),
     ]).toEqual(["2", "2", "2 armour"]);
-  });
-
-  it("C19: renders textBoxContent inside the text box when showTextBox is set", () => {
-    renderWithMessages(
-      <CharacterCard
-        character={buildTestCharacter({ id: "c19", name: "Fixture Dwarf" })}
-        showTextBox
-        textBoxContent={<span>Ability text</span>}
-      />,
-    );
-
-    expect(
-      document.querySelector("[data-character-text-box]")?.textContent,
-    ).toBe("Ability text");
   });
 
   it("C20: renders the reveal wash without the XP bar when showRevealWash is set", () => {
