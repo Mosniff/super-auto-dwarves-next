@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/game/character";
+import type { CharacterAbility } from "@/lib/game/characterAbilities";
 import { findCharacterAbilityForCharacter } from "@/lib/game/characterAbilityLookup";
 import { abilityDescriptionMessages } from "./abilityDescriptionMessages";
 import { CharacterCard } from "./CharacterCard";
@@ -18,18 +19,13 @@ interface CharacterDetailDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-// Looks up the character's ability through its template and renders it into
-// the card's text box: the ability's name, summary, and all five labelled
-// level texts. Renders nothing when the character has no findable ability
-// (characters are self-contained, so this is defensive).
-function AbilityDescription({ character }: { character: Character }) {
+// Renders the ability's name, summary, and all five labelled level texts
+// into the card's text box. The ability is looked up once, by the caller
+// (CharacterDetailDialog), and passed down — this component never looks
+// anything up itself.
+function AbilityDescription({ ability }: { ability: CharacterAbility }) {
   const t = useTranslations("ability");
   const tCommon = useTranslations("common");
-  const ability = findCharacterAbilityForCharacter(character);
-
-  if (ability === undefined) {
-    return null;
-  }
 
   const { nameKey, summaryKey, levelTexts } = abilityDescriptionMessages(ability);
 
@@ -70,8 +66,8 @@ export function CharacterDetailDialog({
   onOpenChange,
 }: CharacterDetailDialogProps) {
   const tCommon = useTranslations("common");
-  const hasAbility =
-    findCharacterAbilityForCharacter(character) !== undefined;
+  const ability = findCharacterAbilityForCharacter(character);
+  const hasAbility = ability !== undefined;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -90,7 +86,9 @@ export function CharacterDetailDialog({
             character={character}
             showLevel
             showTextBox
-            textBoxContent={<AbilityDescription character={character} />}
+            textBoxContent={
+              ability !== undefined && <AbilityDescription ability={ability} />
+            }
           />
         </div>
       </DialogContent>

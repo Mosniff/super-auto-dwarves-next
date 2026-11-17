@@ -50,7 +50,8 @@
     "levelUpFloater": "Level up!",
     "sellGoldFloater": "+{gold} gold",
     "armourLabel": "{armour} armour",
-    "close": "Close"
+    "close": "Close",
+    "characterInfoLabel": "Details: {name}"
   },
   "characterClass": {
     "warrior": "Warrior",

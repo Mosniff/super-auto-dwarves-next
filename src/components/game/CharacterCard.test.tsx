@@ -342,4 +342,18 @@ describe("CharacterCard", () => {
       document.querySelector("[data-character-text-box]")?.textContent,
     ).toBe("Ability text");
   });
+
+  it("C20: renders the reveal wash without the XP bar when showRevealWash is set", () => {
+    renderWithMessages(
+      <CharacterCard
+        character={buildTestCharacter({ id: "c20", name: "Fixture Dwarf" })}
+        showRevealWash
+      />,
+    );
+
+    expect([
+      document.querySelector("[data-character-experience-mask]") !== null,
+      document.querySelector("[data-character-experience-bar]") !== null,
+    ]).toEqual([true, false]);
+  });
 });

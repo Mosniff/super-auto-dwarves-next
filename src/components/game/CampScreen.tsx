@@ -274,6 +274,8 @@ export function CampScreen({
           deliberately not dimmed, to avoid flicker on fast responses. */}
       <div
         aria-busy={isSubmittingCampIntent}
+        // globals.css hides every info control while a drag is in progress.
+        data-camp-dragging={String(campDragSourceSelection !== null)}
         // Must stay a flex column so the shell below can fill the height
         // and the camp content can centre vertically. select-none because
         // Shift-click (holding Shift to enter merge/sell mode, then

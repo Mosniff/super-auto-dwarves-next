@@ -14,6 +14,7 @@ import {
 } from "@/lib/game/placeholderShopSections";
 import type { CampClickTarget, CampTargetPresentation } from "./campSelection";
 import { CharacterCard } from "./CharacterCard";
+import { CharacterInfoControl } from "./CharacterInfoControl";
 
 // Visual classes come from the presentation state only (plus dimming the
 // drag source), never from the native disabled attribute or isSelected
@@ -86,23 +87,34 @@ function DraggableCharacterShopSlotTile({
   });
 
   return (
-    <button
-      ref={ref}
-      type="button"
-      aria-label={buttonLabel}
-      aria-pressed={isSelected}
-      disabled={!isEnabled}
-      onClick={onClick}
-      data-character-shop-slot-state="offering"
-      data-camp-target-presentation={presentation}
-      className={`block aspect-3/4 w-(--shop-tile-width) rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${presentationClassName(
-        presentation,
-        isEnabled,
-      )} ${isDragSource ? "opacity-40" : ""}`}
-      style={{ border: "1px solid var(--shop-slot-open-border)" }}
+    // The host wrapper is a sibling-holder, not an interactive element: the
+    // info control must never nest inside the button (invalid HTML), so
+    // it's rendered here, beside it.
+    <div
+      data-info-control-host
+      data-info-control-revealed={String(isSelected)}
+      className="relative"
     >
-      <CharacterCard character={displayCharacter} />
-    </button>
+      <button
+        ref={ref}
+        type="button"
+        aria-label={buttonLabel}
+        aria-pressed={isSelected}
+        disabled={!isEnabled}
+        onClick={onClick}
+        data-character-shop-slot-state="offering"
+        data-camp-target-presentation={presentation}
+        data-card-wash-revealed={String(isSelected)}
+        className={`block aspect-3/4 w-(--shop-tile-width) rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${presentationClassName(
+          presentation,
+          isEnabled,
+        )} ${isDragSource ? "opacity-40" : ""}`}
+        style={{ border: "1px solid var(--shop-slot-open-border)" }}
+      >
+        <CharacterCard character={displayCharacter} showRevealWash />
+      </button>
+      <CharacterInfoControl character={displayCharacter} />
+    </div>
   );
 }
 

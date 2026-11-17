@@ -1086,4 +1086,156 @@ describe("CampScreen", () => {
       document.querySelector("[data-merge-sell-announcement]")?.textContent,
     ).toBe("");
   });
+
+  it("CS1: every occupied roster slot and every shop offering has an info control beside, never inside, its button", () => {
+    renderCampScreen();
+
+    expect(
+      [...document.querySelectorAll("[data-character-info-control]")]
+        .map((infoControl) => [
+          infoControl.getAttribute("aria-label"),
+          infoControl.parentElement?.closest("button") !== null,
+        ])
+        .sort(),
+    ).toEqual([
+      ["Details: Borin", false],
+      ["Details: Gimlok", false],
+      ["Details: Thrudi", false],
+    ]);
+  });
+
+  it("CS2: clicking a roster dwarf's info control opens its dialog without selecting the slot or submitting an intent", async () => {
+    const recordedBuyFormValues: Record<string, FormDataEntryValue>[] = [];
+    const recordedRepositionFormValues: Record<string, FormDataEntryValue>[] = [];
+    const recordedMergeFormValues: Record<string, FormDataEntryValue>[] = [];
+    const recordedSellFormValues: Record<string, FormDataEntryValue>[] = [];
+    const user = userEvent.setup();
+    renderCampScreen({
+      buyCharacterAction: async (formData) => {
+        recordedBuyFormValues.push(Object.fromEntries(formData));
+      },
+      repositionCharacterAction: async (formData) => {
+        recordedRepositionFormValues.push(Object.fromEntries(formData));
+      },
+      mergeCharacterAction: async (formData) => {
+        recordedMergeFormValues.push(Object.fromEntries(formData));
+      },
+      sellCharacterAction: async (formData) => {
+        recordedSellFormValues.push(Object.fromEntries(formData));
+      },
+    });
+
+    const infoControl = screen.queryByRole("button", {
+      name: "Details: Borin",
+    });
+    if (infoControl !== null) {
+      await user.click(infoControl);
+    }
+
+    // hidden: true — the open modal dialog (Radix) correctly hides the
+    // background from the accessibility tree; we only read the slot's
+    // state behind it.
+    expect({
+      isDialogOpen: screen.queryByRole("dialog", { name: "Borin" }) !== null,
+      slotPressed: screen
+        .getByRole("button", { name: "Slot 1: Borin, level 1", hidden: true })
+        .getAttribute("aria-pressed"),
+      submittedIntentCount:
+        recordedBuyFormValues.length +
+        recordedRepositionFormValues.length +
+        recordedMergeFormValues.length +
+        recordedSellFormValues.length,
+    }).toEqual({
+      isDialogOpen: true,
+      slotPressed: "false",
+      submittedIntentCount: 0,
+    });
+  });
+
+  it("CS3: clicking a shop offering's info control opens the dialog for the character it offers", async () => {
+    const recordedBuyFormValues: Record<string, FormDataEntryValue>[] = [];
+    const recordedRepositionFormValues: Record<string, FormDataEntryValue>[] = [];
+    const recordedMergeFormValues: Record<string, FormDataEntryValue>[] = [];
+    const recordedSellFormValues: Record<string, FormDataEntryValue>[] = [];
+    const user = userEvent.setup();
+    renderCampScreen({
+      buyCharacterAction: async (formData) => {
+        recordedBuyFormValues.push(Object.fromEntries(formData));
+      },
+      repositionCharacterAction: async (formData) => {
+        recordedRepositionFormValues.push(Object.fromEntries(formData));
+      },
+      mergeCharacterAction: async (formData) => {
+        recordedMergeFormValues.push(Object.fromEntries(formData));
+      },
+      sellCharacterAction: async (formData) => {
+        recordedSellFormValues.push(Object.fromEntries(formData));
+      },
+    });
+
+    const infoControl = screen.queryByRole("button", {
+      name: "Details: Thrudi",
+    });
+    if (infoControl !== null) {
+      await user.click(infoControl);
+    }
+
+    expect({
+      isDialogOpen: screen.queryByRole("dialog", { name: "Thrudi" }) !== null,
+      submittedIntentCount:
+        recordedBuyFormValues.length +
+        recordedRepositionFormValues.length +
+        recordedMergeFormValues.length +
+        recordedSellFormValues.length,
+    }).toEqual({ isDialogOpen: true, submittedIntentCount: 0 });
+  });
+
+  it("CS4: a selected roster slot reveals its info control", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    const slotButton = screen.getByRole("button", {
+      name: "Slot 1: Borin, level 1",
+    });
+    const revealedBefore = slotButton
+      .closest("[data-info-control-host]")
+      ?.getAttribute("data-info-control-revealed");
+
+    await user.click(slotButton);
+
+    const revealedAfter = screen
+      .getByRole("button", { name: "Slot 1: Borin, level 1" })
+      .closest("[data-info-control-host]")
+      ?.getAttribute("data-info-control-revealed");
+
+    expect([revealedBefore, revealedAfter]).toEqual(["false", "true"]);
+  });
+
+  it("CS5: shop offering tiles carry the wash reveal state, and their cards render the wash", () => {
+    renderCampScreen();
+
+    expect(
+      [
+        ...document.querySelectorAll(
+          '[data-character-shop-slot-state="offering"]',
+        ),
+      ].map((shopTile) => [
+        shopTile.getAttribute("data-card-wash-revealed"),
+        shopTile.querySelector("[data-character-experience-mask]") !== null,
+      ]),
+    ).toEqual([
+      ["false", true],
+      ["false", true],
+    ]);
+  });
+
+  it("CS6: the camp exposes whether a drag is in progress", () => {
+    renderCampScreen();
+
+    expect(
+      document.querySelector("[data-camp-dragging]")?.getAttribute(
+        "data-camp-dragging",
+      ),
+    ).toBe("false");
+  });
 });

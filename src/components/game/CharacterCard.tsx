@@ -31,6 +31,7 @@ interface CharacterCardProps {
   textBoxContent?: ReactNode;
   showLevel?: boolean;
   showExperienceBar?: boolean;
+  showRevealWash?: boolean;
 }
 
 // Tuned by eye later by the human.
@@ -67,6 +68,7 @@ export function CharacterCard({
   textBoxContent,
   showLevel = false,
   showExperienceBar = false,
+  showRevealWash = false,
 }: CharacterCardProps) {
   const hpFillRatio = hpBarFillRatio(character.hp, character.maxHp);
   const isDowned = character.hp <= 0;
@@ -341,14 +343,16 @@ export function CharacterCard({
           </div>
         </div>
 
-        {showExperienceBar && (
+        {(showExperienceBar || showRevealWash) && (
           // The wash (z-1) and the bar (z-2, above) share the card root's
           // stacking context. This works only because the portrait
           // container creates no stacking context of its own — adding a
           // z-index, transform, opacity, filter or isolation to the
           // portrait container would trap the bar beneath the wash.
           // globals.css owns the wash's colour and reveal visibility, so
-          // no background or opacity classes are given here.
+          // no background or opacity classes are given here. The shop
+          // (Phase 12) uses this same wash without the XP bar
+          // (showRevealWash), to match the camp roster's hover feedback.
           <div
             data-character-experience-mask
             aria-hidden="true"

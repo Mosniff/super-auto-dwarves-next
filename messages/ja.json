@@ -50,7 +50,8 @@
     "levelUpFloater": "レベルアップ！",
     "sellGoldFloater": "+{gold}ゴールド",
     "armourLabel": "アーマー{armour}",
-    "close": "閉じる"
+    "close": "閉じる",
+    "characterInfoLabel": "{name}の詳細"
   },
   "characterClass": {
     "warrior": "戦士",

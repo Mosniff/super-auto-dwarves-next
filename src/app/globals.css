@@ -372,6 +372,42 @@
   }
 }
 
+/* Phase 12 info control reveal. The control (a sibling of the slot button,
+   inside a data-info-control-host wrapper) is hidden and ignores the
+   pointer until its host is hovered, holds keyboard focus (the slot's or
+   the control's own), or is marked revealed (the slot is selected). While
+   hidden it still takes keyboard focus, which reveals it. During a camp
+   drag every control is hidden; that rule comes last so it wins the
+   equal-specificity ties. The human tunes the fade. */
+[data-info-control-host] [data-character-info-control] {
+  opacity: 0;
+  pointer-events: none;
+}
+[data-info-control-host]:hover [data-character-info-control],
+[data-info-control-host]:has(:focus-visible) [data-character-info-control],
+[data-info-control-host][data-info-control-revealed="true"]
+  [data-character-info-control] {
+  opacity: 1;
+  pointer-events: auto;
+}
+[data-camp-dragging="true"] [data-info-control-host] [data-character-info-control] {
+  opacity: 0;
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-character-info-control] {
+    transition: opacity 150ms ease-out;
+  }
+}
+
+/* Phase 12 shop card wash: shop offerings show the reveal wash (no XP bar)
+   on hover, keyboard focus or selection, like camp roster cards. */
+[data-card-wash-revealed]:hover [data-character-experience-mask],
+[data-card-wash-revealed]:focus-visible [data-character-experience-mask],
+[data-card-wash-revealed="true"] [data-character-experience-mask] {
+  opacity: 1;
+}
+
 /* Roster XP beat (Phase 11). The beat's state comes from RosterSlot's
    data-experience-beat attribute (set in JS); its motion lives here, like
    the XP-bar reveal above. Reduced motion gets no beat — no rule exists

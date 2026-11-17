@@ -6,6 +6,7 @@ import { ArrowRightLeft, ChevronsUp } from "lucide-react";
 import type { Character } from "@/lib/game/character";
 import type { CampClickTarget, CampTargetPresentation } from "./campSelection";
 import type { RosterSlotExitKind } from "./rosterSlotAnimation";
+import { CharacterInfoControl } from "./CharacterInfoControl";
 import { RosterSlot } from "./RosterSlot";
 
 interface InteractiveRosterSlotButtonProps {
@@ -106,60 +107,72 @@ export function InteractiveRosterSlotButton({
     : {};
 
   return (
-    <button
-      ref={combinedRef}
-      type="button"
-      aria-label={buttonLabel}
-      aria-pressed={isSelected}
-      disabled={!isEnabled}
-      onClick={onClick}
-      data-camp-target-presentation={presentation}
-      // globals.css hides the card's XP bar inside any element carrying
-      // this attribute, and reveals it on hover, keyboard focus, or
-      // "true" (selected, or matching the held item). The card itself
-      // stays unaware of these reveal rules.
-      {...experienceBarRevealedAttributes}
-      className={`relative block w-full rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${presentationClassName(
-        presentation,
-        isEnabled,
-        isDropTarget,
-      )} ${isDragSource ? "opacity-40" : ""}`}
+    // The host wrapper is a sibling-holder, not an interactive element: the
+    // info control must never nest inside the slot button (invalid HTML),
+    // so it's rendered here, beside it. globals.css reveals the control
+    // inside a host carrying data-info-control-revealed="true", on hover,
+    // or on keyboard focus within the host.
+    <div
+      data-info-control-host
+      data-info-control-revealed={String(isSelected)}
+      className="relative h-full w-full"
     >
-      <RosterSlot
-        slotIndex={slotIndex}
-        character={character}
-        facing={facing}
-        isNext={isNext}
-        exitKind={exitKind}
-        showsCharacterProgression={showsCharacterProgression}
-      />
-      {presentation === "mergeTarget" && (
-        // Top-left, so the top-right stays free for Phase 12's info
-        // control. An icon, not "+1", because roster merges grant the
-        // consumed dwarf's XP + 1. Rendered outside RosterSlot so the
-        // recess's overflow-hidden doesn't clip it. z-10 lifts it only
-        // above this slot's own card.
-        <span
-          data-camp-merge-marker
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-2 -left-2 z-10 flex size-7 items-center justify-center rounded-full bg-emerald-500 text-white shadow ring-2 ring-white"
-        >
-          <ChevronsUp aria-hidden="true" className="size-5" />
-        </span>
-      )}
-      {presentation === "swapTarget" && (
-        // Shares the merge marker's top-left spot — the two states never
-        // coexist on the same tile — but a different colour (sky, not
-        // emerald) so "swap" and "level up" read differently at a glance.
-        // The human tunes both.
-        <span
-          data-camp-swap-marker
-          aria-hidden="true"
-          className="pointer-events-none absolute -top-2 -left-2 z-10 flex size-7 items-center justify-center rounded-full bg-sky-500 text-white shadow ring-2 ring-white"
-        >
-          <ArrowRightLeft aria-hidden="true" className="size-5" />
-        </span>
-      )}
-    </button>
+      <button
+        ref={combinedRef}
+        type="button"
+        aria-label={buttonLabel}
+        aria-pressed={isSelected}
+        disabled={!isEnabled}
+        onClick={onClick}
+        data-camp-target-presentation={presentation}
+        // globals.css hides the card's XP bar inside any element carrying
+        // this attribute, and reveals it on hover, keyboard focus, or
+        // "true" (selected, or matching the held item). The card itself
+        // stays unaware of these reveal rules.
+        {...experienceBarRevealedAttributes}
+        className={`relative block w-full rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${presentationClassName(
+          presentation,
+          isEnabled,
+          isDropTarget,
+        )} ${isDragSource ? "opacity-40" : ""}`}
+      >
+        <RosterSlot
+          slotIndex={slotIndex}
+          character={character}
+          facing={facing}
+          isNext={isNext}
+          exitKind={exitKind}
+          showsCharacterProgression={showsCharacterProgression}
+        />
+        {presentation === "mergeTarget" && (
+          // Top-left, so the top-right stays free for Phase 12's info
+          // control. An icon, not "+1", because roster merges grant the
+          // consumed dwarf's XP + 1. Rendered outside RosterSlot so the
+          // recess's overflow-hidden doesn't clip it. z-10 lifts it only
+          // above this slot's own card.
+          <span
+            data-camp-merge-marker
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-2 -left-2 z-10 flex size-7 items-center justify-center rounded-full bg-emerald-500 text-white shadow ring-2 ring-white"
+          >
+            <ChevronsUp aria-hidden="true" className="size-5" />
+          </span>
+        )}
+        {presentation === "swapTarget" && (
+          // Shares the merge marker's top-left spot — the two states never
+          // coexist on the same tile — but a different colour (sky, not
+          // emerald) so "swap" and "level up" read differently at a glance.
+          // The human tunes both.
+          <span
+            data-camp-swap-marker
+            aria-hidden="true"
+            className="pointer-events-none absolute -top-2 -left-2 z-10 flex size-7 items-center justify-center rounded-full bg-sky-500 text-white shadow ring-2 ring-white"
+          >
+            <ArrowRightLeft aria-hidden="true" className="size-5" />
+          </span>
+        )}
+      </button>
+      {character && <CharacterInfoControl character={character} />}
+    </div>
   );
 }
