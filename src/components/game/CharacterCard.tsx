@@ -29,6 +29,7 @@ interface CharacterCardProps {
   showHpBar?: boolean;
   showLevel?: boolean;
   showExperienceBar?: boolean;
+  showInlineExperienceBar?: boolean;
   showRevealWash?: boolean;
 }
 
@@ -57,6 +58,36 @@ const HP_TONE_TEXT_CLASS_NAME: Record<HpDisplayTone, string> = {
   buffed: "text-emerald-400",
 };
 
+// The segment row shared by the roster's hover-revealed overlay bar and
+// the shop's always-visible inline bar — just the segments and the MAX
+// overlay, no label and no caption.
+function ExperienceSegments({ experience }: { experience: number }) {
+  const t = useTranslations("common");
+  const { segmentCount, filledSegmentCount, isMaxLevel } =
+    experienceBarSegments(experience);
+
+  return (
+    <div className="relative flex h-card-xp-bar-height w-full gap-card-xp-segment-gap">
+      {Array.from({ length: segmentCount }, (_, segmentIndex) => (
+        <span
+          key={segmentIndex}
+          data-experience-segment={
+            segmentIndex < filledSegmentCount ? "filled" : "empty"
+          }
+          className={`flex-1 rounded-full border-card-xp-segment border-(--experience-segment-border) ${
+            segmentIndex < filledSegmentCount ? "bg-amber-400" : "bg-black/40"
+          }`}
+        />
+      ))}
+      {isMaxLevel && (
+        <span className="absolute inset-0 flex items-center justify-center text-card-xp-max font-semibold text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]">
+          {t("experienceBarMax")}
+        </span>
+      )}
+    </div>
+  );
+}
+
 export function CharacterCard({
   character,
   facing = "right",
@@ -64,6 +95,7 @@ export function CharacterCard({
   showHpBar = false,
   showLevel = false,
   showExperienceBar = false,
+  showInlineExperienceBar = false,
   showRevealWash = false,
 }: CharacterCardProps) {
   const hpFillRatio = hpBarFillRatio(character.hp, character.maxHp);
@@ -74,8 +106,7 @@ export function CharacterCard({
   const characterClassIds = character.characterClassIds;
   const hpTone = hpDisplayTone(character.hp, character.maxHp);
   const level = levelFromExperience(character.experience);
-  const { segmentCount, filledSegmentCount, isMaxLevel } =
-    experienceBarSegments(character.experience);
+  const { isMaxLevel } = experienceBarSegments(character.experience);
   const experienceCaption = experienceBarCaption(character.experience);
 
   return (
@@ -109,7 +140,10 @@ export function CharacterCard({
           </span>
         </div>
 
-        <div className="relative mx-card-inset min-h-0 flex-1 overflow-hidden rounded-card-portrait">
+        <div
+          data-character-portrait
+          className="relative mx-card-inset min-h-0 flex-1 overflow-hidden rounded-card-portrait"
+        >
           <div
             className="absolute inset-0"
             style={facing === "left" ? { transform: "scaleX(-1)" } : undefined}
@@ -179,26 +213,7 @@ export function CharacterCard({
               >
                 {t("experienceBarLabel")}
               </span>
-              <div className="relative flex h-card-xp-bar-height w-full gap-card-xp-segment-gap">
-                {Array.from({ length: segmentCount }, (_, segmentIndex) => (
-                  <span
-                    key={segmentIndex}
-                    data-experience-segment={
-                      segmentIndex < filledSegmentCount ? "filled" : "empty"
-                    }
-                    className={`flex-1 rounded-full border-card-xp-segment border-(--experience-segment-border) ${
-                      segmentIndex < filledSegmentCount
-                        ? "bg-amber-400"
-                        : "bg-black/40"
-                    }`}
-                  />
-                ))}
-                {isMaxLevel && (
-                  <span className="absolute inset-0 flex items-center justify-center text-card-xp-max font-semibold text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]">
-                    {t("experienceBarMax")}
-                  </span>
-                )}
-              </div>
+              <ExperienceSegments experience={character.experience} />
               <span
                 data-experience-bar-caption
                 className="text-card-xp-caption font-bold italic leading-none text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]"
@@ -237,6 +252,18 @@ export function CharacterCard({
             {t("downed")}
           </div>
         </div>
+
+        {showInlineExperienceBar && (
+          // Always visible (shop cards); unlike the overlay bar, it has no
+          // reveal rules and no wash.
+          <div
+            data-character-inline-experience-bar
+            aria-hidden="true"
+            className="mx-card-inset shrink-0"
+          >
+            <ExperienceSegments experience={character.experience} />
+          </div>
+        )}
 
         <div
           className={`justify-start text-card-label font-medium ${PANEL_BAR_CLASS_NAME}`}

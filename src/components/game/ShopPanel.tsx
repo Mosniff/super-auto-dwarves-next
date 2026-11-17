@@ -111,7 +111,12 @@ function DraggableCharacterShopSlotTile({
         )} ${isDragSource ? "opacity-40" : ""}`}
         style={{ border: "1px solid var(--shop-slot-open-border)" }}
       >
-        <CharacterCard character={displayCharacter} showRevealWash />
+        <CharacterCard
+          character={displayCharacter}
+          showLevel
+          showInlineExperienceBar
+          showRevealWash
+        />
       </button>
       <CharacterInfoControl character={displayCharacter} />
     </div>

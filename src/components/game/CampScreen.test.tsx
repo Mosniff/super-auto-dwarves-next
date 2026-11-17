@@ -500,15 +500,20 @@ describe("CampScreen", () => {
     expect(headerAdvanceButton).toBeEnabled();
   });
 
-  it("(u) camp roster cards show the level pill and XP bar; shop tiles don't", () => {
+  // deliberate assertion rewrite: shop cards now show level and an inline
+  // XP bar (Phase 12, the human's call)
+  it("(u) camp roster cards show the level pill and the overlay XP bar; shop offerings show the level pill and the inline XP bar instead", () => {
     renderCampScreen();
 
-    expect(document.querySelectorAll("[data-character-level]")).toHaveLength(
-      1,
-    );
-    expect(
-      document.querySelectorAll("[data-character-experience-bar]"),
-    ).toHaveLength(1);
+    expect({
+      levelPills: document.querySelectorAll("[data-character-level]").length,
+      overlayExperienceBars: document.querySelectorAll(
+        "[data-character-experience-bar]",
+      ).length,
+      inlineExperienceBars: document.querySelectorAll(
+        "[data-character-inline-experience-bar]",
+      ).length,
+    }).toEqual({ levelPills: 3, overlayExperienceBars: 1, inlineExperienceBars: 2 });
   });
 
   it("(w) with a matching shop character selected, the matching dwarf is a merge target with its XP bar revealed and a merge marker", async () => {
@@ -1237,5 +1242,25 @@ describe("CampScreen", () => {
         "data-camp-dragging",
       ),
     ).toBe("false");
+  });
+
+  it("CS7: shop offerings show the level pill and the inline XP bar", () => {
+    renderCampScreen();
+
+    expect(
+      [
+        ...document.querySelectorAll(
+          '[data-character-shop-slot-state="offering"]',
+        ),
+      ].map((shopTile) => [
+        shopTile
+          .querySelector("[data-character-level]")
+          ?.getAttribute("data-character-level") ?? null,
+        shopTile.querySelector("[data-character-inline-experience-bar]") !== null,
+      ]),
+    ).toEqual([
+      ["1", true],
+      ["1", true],
+    ]);
   });
 });

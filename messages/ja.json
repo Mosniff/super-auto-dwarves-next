@@ -51,7 +51,8 @@
     "sellGoldFloater": "+{gold}ゴールド",
     "armourLabel": "アーマー{armour}",
     "close": "閉じる",
-    "characterInfoLabel": "{name}の詳細"
+    "characterInfoLabel": "{name}の詳細",
+    "abilityLabel": "アビリティ"
   },
   "characterClass": {
     "warrior": "戦士",

@@ -403,11 +403,16 @@ export function CampScreen({
 
           return (
             <div className="aspect-3/4 w-(--shop-tile-width)">
-              {/* A dragged roster dwarf keeps its level pill; a dragged
-                  shop character (always level 1) doesn't show one. */}
+              {/* A dragged roster dwarf keeps its card as it is today
+                  (showLevel). A dragged shop character shows the same
+                  level pill and inline XP bar its shop tile shows, so the
+                  preview matches the tile. */}
               <CharacterCard
                 character={character}
-                showLevel={campClickTarget?.targetKind === "rosterSlot"}
+                showLevel
+                showInlineExperienceBar={
+                  campClickTarget?.targetKind === "characterShopSlot"
+                }
               />
             </div>
           );

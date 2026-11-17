@@ -51,7 +51,8 @@
     "sellGoldFloater": "+{gold} gold",
     "armourLabel": "{armour} armour",
     "close": "Close",
-    "characterInfoLabel": "Details: {name}"
+    "characterInfoLabel": "Details: {name}",
+    "abilityLabel": "Ability"
   },
   "characterClass": {
     "warrior": "Warrior",

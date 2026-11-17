@@ -7,6 +7,8 @@ import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/game/character";
 import { levelFromExperience } from "@/lib/game/characterExperience";
 import {
+  experienceBarCaption,
+  experienceBarSegments,
   hpDisplayTone,
   tierRomanNumeral,
   type HpDisplayTone,
@@ -45,6 +47,9 @@ export function ExpandedCharacterCard({
   const tCharacterClass = useTranslations("characterClass");
   const level = levelFromExperience(character.experience);
   const hpTone = hpDisplayTone(character.hp, character.maxHp);
+  const { segmentCount, filledSegmentCount, isMaxLevel } =
+    experienceBarSegments(character.experience);
+  const experienceCaption = experienceBarCaption(character.experience);
 
   return (
     <div
@@ -102,6 +107,49 @@ export function ExpandedCharacterCard({
         </div>
 
         <div
+          data-expanded-card-experience
+          className="flex flex-col items-center gap-1.5 px-4"
+        >
+          <span
+            data-expanded-card-experience-label
+            className="text-base font-bold"
+          >
+            {t("experienceBarLabel")}
+          </span>
+          <div aria-hidden="true" className="relative flex h-4 w-full gap-1.5">
+            {Array.from({ length: segmentCount }, (_, segmentIndex) => (
+              <span
+                key={segmentIndex}
+                data-expanded-card-experience-segment={
+                  segmentIndex < filledSegmentCount ? "filled" : "empty"
+                }
+                className={`flex-1 rounded-full ${
+                  segmentIndex < filledSegmentCount
+                    ? "bg-amber-400"
+                    : "bg-black/40"
+                }`}
+              />
+            ))}
+            {isMaxLevel && (
+              <span className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]">
+                {t("experienceBarMax")}
+              </span>
+            )}
+          </div>
+          <span
+            data-expanded-card-experience-caption
+            className="text-base font-bold italic"
+          >
+            {experienceCaption.progressKind === "maxLevel"
+              ? t("experienceBarMaxLevel")
+              : t("experienceToNextLevel", {
+                  experienceRemaining: experienceCaption.experienceRemaining,
+                  nextLevel: experienceCaption.nextLevel,
+                })}
+          </span>
+        </div>
+
+        <div
           className={`gap-3 px-4 py-2 text-xl font-medium ${PANEL_BAR_CLASS_NAME}`}
           style={{
             background: "var(--texture-card-panel)",
@@ -118,15 +166,29 @@ export function ExpandedCharacterCard({
           ))}
         </div>
 
-        <div
-          data-expanded-card-ability-box
-          className="min-h-24 rounded-lg px-5 py-4 text-lg text-(--color-iron-900)"
-          style={{
-            background: "var(--texture-card-panel)",
-            boxShadow: "var(--shadow-recess)",
-          }}
-        >
-          {abilityContent}
+        <div data-expanded-card-ability-area className="relative">
+          <div
+            data-expanded-card-ability-box
+            className="min-h-24 rounded-lg px-5 py-4 text-lg text-(--color-iron-900)"
+            style={{
+              background: "var(--texture-card-panel)",
+              boxShadow: "var(--shadow-recess)",
+            }}
+          >
+            {abilityContent}
+          </div>
+          {/* A sibling of the box, not its child: the tab labels the box,
+              and the box's content stays only the ability. Flush with the
+              box's top-right corner (no inset), sharing its corner radius
+              so it reads as part of the box; the human tunes the look. */}
+          {abilityContent && (
+            <span
+              data-expanded-card-ability-label
+              className="absolute top-0 right-0 rounded-tr-lg rounded-bl-lg bg-(--color-iron-700) px-3 py-1 text-sm font-bold uppercase tracking-wide text-(--color-parchment-50)"
+            >
+              {t("abilityLabel")}
+            </span>
+          )}
         </div>
 
         <div className="flex items-center justify-between">

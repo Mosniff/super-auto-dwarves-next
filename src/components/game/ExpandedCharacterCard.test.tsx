@@ -91,4 +91,46 @@ describe("ExpandedCharacterCard", () => {
       "Ability text",
     );
   });
+
+  it("E4: shows the experience label, segments and caption", () => {
+    renderWithMessages(
+      <ExpandedCharacterCard
+        character={buildTestCharacter({ id: "e4", name: "Borin", experience: 4 })}
+      />,
+    );
+
+    expect({
+      label: q("[data-expanded-card-experience-label]")?.textContent,
+      segments: [
+        ...document.querySelectorAll("[data-expanded-card-experience-segment]"),
+      ].map((segment) => segment.getAttribute("data-expanded-card-experience-segment")),
+      caption: q("[data-expanded-card-experience-caption]")?.textContent,
+    }).toEqual({
+      label: "Experience",
+      segments: ["filled", "empty", "empty"],
+      caption: "2 XP to level 3",
+    });
+  });
+
+  it("E5: shows the Ability tab only when there is ability content", () => {
+    renderWithMessages(
+      <>
+        <ExpandedCharacterCard
+          character={buildTestCharacter({ id: "e5a", name: "Fixture Dwarf" })}
+          abilityContent={<span>Ability text</span>}
+        />
+        <ExpandedCharacterCard
+          character={buildTestCharacter({ id: "e5b", name: "Fixture Dwarf" })}
+        />
+      </>,
+    );
+
+    expect(
+      [...document.querySelectorAll("[data-expanded-character-card]")].map(
+        (expandedCard) =>
+          expandedCard.querySelector("[data-expanded-card-ability-label]")
+            ?.textContent ?? null,
+      ),
+    ).toEqual(["Ability", null]);
+  });
 });

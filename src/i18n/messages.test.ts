@@ -38,7 +38,7 @@ describe("locale message parity", () => {
   // the battle log), and again for Phase 12's ability namespace (ability
   // name, summary and level texts, keyed by ability id), and close for the
   // expanded-card dialog's close button, and characterInfoLabel for the
-  // info control —
+  // info control, and abilityLabel for the expanded card's Ability tab —
   // deliberate test-data updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
@@ -93,6 +93,7 @@ describe("locale message parity", () => {
     "armourLabel",
     "close",
     "characterInfoLabel",
+    "abilityLabel",
   ];
   const expectedBattleKeys = [
     "battleStart",

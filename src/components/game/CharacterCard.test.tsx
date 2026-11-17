@@ -322,4 +322,46 @@ describe("CharacterCard", () => {
       document.querySelector("[data-character-experience-bar]") !== null,
     ]).toEqual([true, false]);
   });
+
+  it("C21: showInlineExperienceBar shows segments only, below the portrait, with MAX at max level", () => {
+    renderWithMessages(
+      <>
+        <CharacterCard
+          character={buildTestCharacter({
+            id: "c21a",
+            name: "Fixture Dwarf",
+            experience: 4,
+          })}
+          showInlineExperienceBar
+        />
+        <CharacterCard
+          character={buildTestCharacter({
+            id: "c21b",
+            name: "Fixture Dwarf",
+            experience: 15,
+          })}
+          showInlineExperienceBar
+        />
+      </>,
+    );
+
+    expect(
+      [
+        ...document.querySelectorAll("[data-character-inline-experience-bar]"),
+      ].map((inlineBar) => ({
+        segments: [
+          ...inlineBar.querySelectorAll("[data-experience-segment]"),
+        ].map((segment) => segment.getAttribute("data-experience-segment")),
+        text: inlineBar.textContent,
+        insidePortrait: inlineBar.closest("[data-character-portrait]") !== null,
+      })),
+    ).toEqual([
+      { segments: ["filled", "empty", "empty"], text: "", insidePortrait: false },
+      {
+        segments: ["filled", "filled", "filled", "filled", "filled"],
+        text: "MAX",
+        insidePortrait: false,
+      },
+    ]);
+  });
 });
