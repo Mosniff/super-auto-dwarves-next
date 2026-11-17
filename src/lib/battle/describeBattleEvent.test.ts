@@ -6,6 +6,7 @@ describe("describeBattleEvent", () => {
   const nameMap = new Map([
     ["p1", "Borin"],
     ["e1", "Grukk"],
+    ["p3", "Ogden"],
   ]);
 
   it("describes BATTLE_START", () => {
@@ -156,6 +157,45 @@ describe("describeBattleEvent", () => {
       target: "Grukk",
       amount: 2,
       resultingArmour: 1,
+    });
+  });
+
+  it("describes ABILITY_ACTIVATE", () => {
+    const event: BattleEvent = {
+      type: "ABILITY_ACTIVATE",
+      characterId: "p3",
+      abilityId: "tighten-those-straps-son",
+      beatIndex: 1,
+      beatType: "ABILITY",
+    };
+
+    expect(describeBattleEvent(event, nameMap)).toEqual({
+      kind: "abilityActivate",
+      abilityId: "tighten-those-straps-son",
+      character: "Ogden",
+    });
+  });
+
+  it("describes STAT_CHANGE", () => {
+    const event: BattleEvent = {
+      type: "STAT_CHANGE",
+      targetId: "p1",
+      stat: "armour",
+      amount: 1,
+      resultingValue: 2,
+      source: "p3",
+      sourceAbilityId: "tighten-those-straps-son",
+      beatIndex: 1,
+      beatType: "ABILITY",
+    };
+
+    expect(describeBattleEvent(event, nameMap)).toEqual({
+      kind: "abilityStatChange",
+      abilityId: "tighten-those-straps-son",
+      target: "Borin",
+      stat: "armour",
+      amount: 1,
+      resultingValue: 2,
     });
   });
 

@@ -52,4 +52,27 @@ describe("InfoScroll", () => {
 
     expect(screen.getByText("—")).toBeInTheDocument();
   });
+
+  it("renders an ability beat's battle cry and target line from the ability namespace", () => {
+    renderInfoScroll([
+      {
+        kind: "abilityActivate",
+        abilityId: "tighten-those-straps-son",
+        character: "Ogden",
+      },
+      {
+        kind: "abilityStatChange",
+        abilityId: "tighten-those-straps-son",
+        target: "Borin",
+        stat: "armour",
+        amount: 1,
+        resultingValue: 2,
+      },
+    ]);
+
+    expect([
+      screen.queryByText('Ogden: "Tighten those straps!"') !== null,
+      screen.queryByText("Borin gained 1 armour!") !== null,
+    ]).toEqual([true, true]);
+  });
 });

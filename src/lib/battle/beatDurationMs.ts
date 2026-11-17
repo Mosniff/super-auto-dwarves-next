@@ -18,7 +18,8 @@ export function beatDurationMs(beatType: BeatType | undefined): number {
     return DROP_BEAT_DURATION_MS;
   }
 
-  if (beatType === "CLASH") {
+  // A battle-start ability's beat: its battle cry and its effects landing.
+  if (beatType === "CLASH" || beatType === "ABILITY") {
     return EVENTFUL_BEAT_DURATION_MS;
   }
 

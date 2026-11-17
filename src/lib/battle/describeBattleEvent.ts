@@ -38,6 +38,21 @@ export function describeBattleEvent(
       return { kind: "timeout" };
     case "BATTLE_END":
       return { kind: "battleEnd", outcome: event.outcome };
+    case "ABILITY_ACTIVATE":
+      return {
+        kind: "abilityActivate",
+        abilityId: event.abilityId,
+        character: resolveName(event.characterId),
+      };
+    case "STAT_CHANGE":
+      return {
+        kind: "abilityStatChange",
+        abilityId: event.sourceAbilityId,
+        target: resolveName(event.targetId),
+        stat: event.stat,
+        amount: event.amount,
+        resultingValue: event.resultingValue,
+      };
     default: {
       const exhaustiveCheck: never = event;
       return exhaustiveCheck;

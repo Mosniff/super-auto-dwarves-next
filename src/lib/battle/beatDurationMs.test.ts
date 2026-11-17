@@ -47,4 +47,8 @@ describe("beatDurationMs", () => {
       PREPARE_BEAT_DURATION_MS <= DROP_BEAT_DURATION_MS,
     ]).toEqual([true, true]);
   });
+
+  it("returns the eventful duration for an ABILITY beat", () => {
+    expect(beatDurationMs("ABILITY")).toBe(EVENTFUL_BEAT_DURATION_MS);
+  });
 });

@@ -39,7 +39,8 @@ describe("locale message parity", () => {
   // name, summary and level texts, keyed by ability id), and close for the
   // expanded-card dialog's close button, and characterInfoLabel for the
   // info control, and abilityLabel for the expanded card's Ability tab,
-  // and abilityHpFloater for the ability-hp promotion floater —
+  // and abilityHpFloater for the ability-hp promotion floater, and
+  // battleCry/targetEffect for an ability's battle-log lines —
   // deliberate test-data updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
@@ -258,14 +259,28 @@ describe("locale message parity", () => {
         ["growing-lad", ["levelText", "name", "summary"]],
         [
           "tighten-those-straps-son",
-          ["levelTextAlliesAhead", "levelTextWholeParty", "name", "summary"],
+          [
+            "battleCry",
+            "levelTextAlliesAhead",
+            "levelTextWholeParty",
+            "name",
+            "summary",
+            "targetEffect",
+          ],
         ],
       ],
       japanese: [
         ["growing-lad", ["levelText", "name", "summary"]],
         [
           "tighten-those-straps-son",
-          ["levelTextAlliesAhead", "levelTextWholeParty", "name", "summary"],
+          [
+            "battleCry",
+            "levelTextAlliesAhead",
+            "levelTextWholeParty",
+            "name",
+            "summary",
+            "targetEffect",
+          ],
         ],
       ],
     });

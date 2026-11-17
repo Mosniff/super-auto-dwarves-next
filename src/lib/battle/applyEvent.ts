@@ -80,11 +80,25 @@ export function applyEvent(
 
       return state;
     }
+    case "STAT_CHANGE":
+      switch (event.stat) {
+        case "armour":
+          return updateActiveCharacterById(
+            state,
+            event.targetId,
+            (character) => ({ ...character, armour: event.resultingValue }),
+          );
+        default: {
+          const exhaustiveStatCheck: never = event.stat;
+          return exhaustiveStatCheck;
+        }
+      }
     case "ATTACK":
     case "BATTLE_START":
     case "TURN_START":
     case "TIMEOUT":
     case "BATTLE_END":
+    case "ABILITY_ACTIVATE":
       return state;
     default: {
       const exhaustiveCheck: never = event;

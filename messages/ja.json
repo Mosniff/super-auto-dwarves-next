@@ -91,7 +91,9 @@
       "name": "ベルトを締めろ、坊主",
       "summary": "戦闘開始時、前方の仲間にアーマーを与える",
       "levelTextAlliesAhead": "{count}つ{count, plural, =1 {前} other {前まで}}の仲間にアーマー+{armour}",
-      "levelTextWholeParty": "自分を含む味方全員にアーマー+{armour}"
+      "levelTextWholeParty": "自分を含む味方全員にアーマー+{armour}",
+      "battleCry": "{character}：「ベルトを締めろ！」",
+      "targetEffect": "{target}のアーマーが{amount}上がった！"
     }
   }
 }

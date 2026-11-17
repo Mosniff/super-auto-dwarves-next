@@ -296,4 +296,116 @@ describe("applyEvent", () => {
       enemy: [["e1", 6, 1]],
     });
   });
+
+  it("A2: STAT_CHANGE sets the target's armour to resultingValue on either side, leaving hp and everyone else unchanged", () => {
+    const state: BattleState = {
+      player: {
+        activeCharacters: [
+          buildTestCharacter({
+            id: "p1",
+            name: "Ogden",
+            attack: 3,
+            hp: 8,
+            maxHp: 8,
+            armour: 0,
+          }),
+          buildTestCharacter({
+            id: "p2",
+            name: "Borin",
+            attack: 4,
+            hp: 7,
+            maxHp: 7,
+            armour: 1,
+          }),
+        ],
+        downedCharacters: [],
+      },
+      enemy: {
+        activeCharacters: [
+          buildTestCharacter({
+            id: "e1",
+            name: "Grukk",
+            attack: 5,
+            hp: 6,
+            maxHp: 6,
+            armour: 0,
+          }),
+        ],
+        downedCharacters: [],
+      },
+    };
+
+    const firstEvent: BattleEvent = {
+      type: "STAT_CHANGE",
+      targetId: "p2",
+      stat: "armour",
+      amount: 1,
+      resultingValue: 2,
+      source: "p1",
+      sourceAbilityId: "tighten-those-straps-son",
+      beatIndex: 1,
+      beatType: "ABILITY",
+    };
+    const secondEvent: BattleEvent = {
+      type: "STAT_CHANGE",
+      targetId: "e1",
+      stat: "armour",
+      amount: 1,
+      resultingValue: 1,
+      source: "p1",
+      sourceAbilityId: "tighten-those-straps-son",
+      beatIndex: 1,
+      beatType: "ABILITY",
+    };
+
+    const result = applyEvent(applyEvent(state, firstEvent), secondEvent);
+
+    expect({
+      player: result.player.activeCharacters.map((character) => [
+        character.id,
+        character.hp,
+        character.armour,
+      ]),
+      enemy: result.enemy.activeCharacters.map((character) => [
+        character.id,
+        character.hp,
+        character.armour,
+      ]),
+    }).toEqual({
+      player: [
+        ["p1", 8, 0],
+        ["p2", 7, 2],
+      ],
+      enemy: [["e1", 6, 1]],
+    });
+  });
+
+  it("A3: ABILITY_ACTIVATE does not change state", () => {
+    const state: BattleState = {
+      player: {
+        activeCharacters: [
+          buildTestCharacter({ id: "p1", name: "Ogden", attack: 3, hp: 8, maxHp: 8 }),
+        ],
+        downedCharacters: [],
+      },
+      enemy: {
+        activeCharacters: [
+          buildTestCharacter({ id: "e1", name: "Grukk", attack: 5, hp: 6, maxHp: 6 }),
+        ],
+        downedCharacters: [],
+      },
+    };
+
+    const event: BattleEvent = {
+      type: "ABILITY_ACTIVATE",
+      characterId: "p1",
+      abilityId: "tighten-those-straps-son",
+      beatIndex: 1,
+      beatType: "ABILITY",
+    };
+
+    const result = applyEvent(state, event);
+
+    expect(result).toEqual(state);
+  });
 });

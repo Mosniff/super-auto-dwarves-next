@@ -45,6 +45,7 @@ export function InfoScroll({
 }: InfoScrollProps) {
   const t = useTranslations("battle");
   const translateCommon = useTranslations("common");
+  const translateAbility = useTranslations("ability");
 
   return (
     <div className="flex h-full flex-col">
@@ -75,7 +76,9 @@ export function InfoScroll({
 
                 return (
                   <li key={index} className="text-sm text-ink-700">
-                    {t(message.key, message.params)}
+                    {message.namespace === "ability"
+                      ? translateAbility(message.key, message.params)
+                      : t(message.key, message.params)}
                   </li>
                 );
               })}

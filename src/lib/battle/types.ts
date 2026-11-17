@@ -1,4 +1,5 @@
 import type { Character } from "@/lib/game/character";
+import type { CharacterAbilityId } from "@/lib/game/characterAbilities";
 
 export interface Roster {
   // contiguous, front-anchored fighting line; index 0 is the front
@@ -18,7 +19,8 @@ export type BeatType =
   | "CLASH"
   | "DROP"
   | "TIMEOUT"
-  | "BATTLE_END";
+  | "BATTLE_END"
+  | "ABILITY";
 
 interface BeatMetadata {
   // Groups events that should be presented together as one animation beat.
@@ -68,6 +70,23 @@ export type BattleEventPayload =
     }
   | {
       type: "TIMEOUT";
+    }
+  | {
+      type: "ABILITY_ACTIVATE";
+      characterId: string;
+      abilityId: CharacterAbilityId;
+    }
+  // An outcome event: carries the resulting value, so applyEvent only
+  // assigns it. Only armour exists as a stat for now; others join the
+  // union when an ability needs them.
+  | {
+      type: "STAT_CHANGE";
+      targetId: string;
+      stat: "armour";
+      amount: number;
+      resultingValue: number;
+      source: string;
+      sourceAbilityId: CharacterAbilityId;
     };
 
 // A logged event: a payload stamped with its beat.
@@ -95,4 +114,13 @@ export type BattleEventDescriptor =
     }
   | { kind: "drop"; character: string }
   | { kind: "timeout" }
-  | { kind: "battleEnd"; outcome: "playerWin" | "enemyWin" | "draw" };
+  | { kind: "battleEnd"; outcome: "playerWin" | "enemyWin" | "draw" }
+  | { kind: "abilityActivate"; abilityId: CharacterAbilityId; character: string }
+  | {
+      kind: "abilityStatChange";
+      abilityId: CharacterAbilityId;
+      target: string;
+      stat: "armour";
+      amount: number;
+      resultingValue: number;
+    };

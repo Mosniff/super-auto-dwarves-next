@@ -2,7 +2,14 @@ import type { BattleEventDescriptor } from "@/lib/battle/types";
 
 export function battleLogMessage(
   descriptor: BattleEventDescriptor,
-): { key: string; params?: Record<string, string | number> } {
+): {
+  // Absent means "battle" (the default namespace); ability lines live in
+  // the ability namespace with the ability's description, keyed by
+  // ability id (Phase 12).
+  namespace?: "ability";
+  key: string;
+  params?: Record<string, string | number>;
+} {
   switch (descriptor.kind) {
     case "battleStart":
       return { key: "battleStart" };
@@ -50,6 +57,18 @@ export function battleLogMessage(
           return exhaustiveOutcomeCheck;
         }
       }
+    case "abilityActivate":
+      return {
+        namespace: "ability",
+        key: `${descriptor.abilityId}.battleCry`,
+        params: { character: descriptor.character },
+      };
+    case "abilityStatChange":
+      return {
+        namespace: "ability",
+        key: `${descriptor.abilityId}.targetEffect`,
+        params: { target: descriptor.target, amount: descriptor.amount },
+      };
     default: {
       const exhaustiveCheck: never = descriptor;
       return exhaustiveCheck;

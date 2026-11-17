@@ -117,4 +117,35 @@ describe("battleLogMessage", () => {
 
     expect(battleLogMessage(descriptor)).toEqual({ key: "draw" });
   });
+
+  it("maps abilityActivate to the ability's battle cry in the ability namespace", () => {
+    const descriptor: BattleEventDescriptor = {
+      kind: "abilityActivate",
+      abilityId: "tighten-those-straps-son",
+      character: "Ogden",
+    };
+
+    expect(battleLogMessage(descriptor)).toEqual({
+      namespace: "ability",
+      key: "tighten-those-straps-son.battleCry",
+      params: { character: "Ogden" },
+    });
+  });
+
+  it("maps abilityStatChange to the ability's target line in the ability namespace", () => {
+    const descriptor: BattleEventDescriptor = {
+      kind: "abilityStatChange",
+      abilityId: "tighten-those-straps-son",
+      target: "Borin",
+      stat: "armour",
+      amount: 1,
+      resultingValue: 2,
+    };
+
+    expect(battleLogMessage(descriptor)).toEqual({
+      namespace: "ability",
+      key: "tighten-those-straps-son.targetEffect",
+      params: { target: "Borin", amount: 1 },
+    });
+  });
 });
