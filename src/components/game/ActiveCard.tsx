@@ -9,11 +9,13 @@ import {
 import type { BeatType } from "@/lib/battle/types";
 import type { Character } from "@/lib/game/character";
 import { CharacterCard } from "./CharacterCard";
+import { CharacterInfoControl } from "./CharacterInfoControl";
 
 interface ActiveCardProps {
   character?: Character;
   facing?: "left" | "right";
   currentBeatType?: BeatType;
+  onInfoControlOpen?: () => void;
 }
 
 // Starting values — the human tunes these by eye.
@@ -47,6 +49,7 @@ export function ActiveCard({
   character,
   facing = "right",
   currentBeatType,
+  onInfoControlOpen,
 }: ActiveCardProps) {
   const prefersReducedMotion = useReducedMotion();
   const isClashing = currentBeatType === "CLASH";
@@ -191,19 +194,31 @@ export function ActiveCard({
         >
           {character ? (
             <div
-              className="relative h-96 w-72 overflow-hidden rounded-xl border-2 p-3"
-              style={{
-                backgroundColor: "var(--color-portrait-brown)",
-                borderColor: "var(--color-portrait-brown-rim)",
-                boxShadow:
-                  "0 6px 16px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12)",
-              }}
+              data-info-control-host
+              data-active-card-host
+              data-info-control-revealed="false"
+              className="relative"
             >
-              <CharacterCard
+              <div
+                className="relative h-96 w-72 overflow-hidden rounded-xl border-2 p-3"
+                style={{
+                  backgroundColor: "var(--color-portrait-brown)",
+                  borderColor: "var(--color-portrait-brown-rim)",
+                  boxShadow:
+                    "0 6px 16px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12)",
+                }}
+              >
+                <CharacterCard
+                  character={character}
+                  facing={facing}
+                  showHpBar
+                  animateHpDrop={shouldAnimateClash}
+                />
+              </div>
+              <CharacterInfoControl
+                key={character.id}
                 character={character}
-                facing={facing}
-                showHpBar
-                animateHpDrop={shouldAnimateClash}
+                onOpen={onInfoControlOpen}
               />
             </div>
           ) : (

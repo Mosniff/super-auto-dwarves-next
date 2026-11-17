@@ -53,11 +53,16 @@ export function BattleScreen({
     playerCampRoster,
   });
 
+  // Opening any battle "i" pauses autoplay (the human's call): the dialog
+  // is modal, so manual play is already frozen, but autoplay's timer
+  // would otherwise move the board behind it.
   return (
     <GameScreenShell
       gamePhase="battlePhase"
       playerBenchCharacters={playerBenchCharacters}
       presentsPlayerFrontSlotAsOnDeck
+      showsPlayerInfoControls
+      onPlayerInfoControlOpen={pause}
     >
       <section className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
         <ActionZone
@@ -77,12 +82,15 @@ export function BattleScreen({
           isPlaying={isPlaying}
           onPlay={play}
           onPause={pause}
+          onInfoControlOpen={pause}
         />
       </section>
       <RosterSlab
         characters={enemyBenchCharacters}
         variant="enemy"
         presentsFrontSlotAsOnDeck
+        showsInfoControls
+        onInfoControlOpen={pause}
       />
     </GameScreenShell>
   );

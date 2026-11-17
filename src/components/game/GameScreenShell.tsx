@@ -15,6 +15,11 @@ interface GameScreenShellProps {
   presentsPlayerFrontSlotAsOnDeck?: boolean;
   showsPlayerCharacterProgression?: boolean;
   playerRosterTrailingControls?: React.ReactNode;
+  // The screen decides; the slab never learns the phase. Battle turns
+  // this on for the player's bench; camp's interactive slots render their
+  // own info controls.
+  showsPlayerInfoControls?: boolean;
+  onPlayerInfoControlOpen?: () => void;
   children: React.ReactNode;
 }
 
@@ -25,6 +30,8 @@ export function GameScreenShell({
   presentsPlayerFrontSlotAsOnDeck = false,
   showsPlayerCharacterProgression = false,
   playerRosterTrailingControls,
+  showsPlayerInfoControls = false,
+  onPlayerInfoControlOpen,
   children,
 }: GameScreenShellProps) {
   const prefersReducedMotion = useReducedMotion();
@@ -57,6 +64,8 @@ export function GameScreenShell({
             presentsFrontSlotAsOnDeck={presentsPlayerFrontSlotAsOnDeck}
             showsCharacterProgression={showsPlayerCharacterProgression}
             trailingControls={playerRosterTrailingControls}
+            showsInfoControls={showsPlayerInfoControls}
+            onInfoControlOpen={onPlayerInfoControlOpen}
           />
         </div>
         <GamePhaseBanner gamePhase={gamePhase} />

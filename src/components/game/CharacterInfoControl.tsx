@@ -7,6 +7,9 @@ import { CharacterDetailDialog } from "./CharacterDetailDialog";
 
 interface CharacterInfoControlProps {
   character: Character;
+  // Lets a screen react to the player opening the "i" (battle pauses
+  // autoplay).
+  onOpen?: () => void;
 }
 
 // Mirrors the merge/swap badges (-top-2 -left-2, size-7, z-10) on the
@@ -14,7 +17,10 @@ interface CharacterInfoControlProps {
 // never inside one — a button inside a button is invalid HTML, and
 // CharacterCard stays non-interactive. Its visibility is CSS (see
 // globals.css's info-control reveal rules), not React state.
-export function CharacterInfoControl({ character }: CharacterInfoControlProps) {
+export function CharacterInfoControl({
+  character,
+  onOpen,
+}: CharacterInfoControlProps) {
   const t = useTranslations("common");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -25,7 +31,12 @@ export function CharacterInfoControl({ character }: CharacterInfoControlProps) {
     <CharacterDetailDialog
       character={character}
       open={isDialogOpen}
-      onOpenChange={setIsDialogOpen}
+      onOpenChange={(open) => {
+        setIsDialogOpen(open);
+        if (open) {
+          onOpen?.();
+        }
+      }}
       trigger={
         <button
           type="button"

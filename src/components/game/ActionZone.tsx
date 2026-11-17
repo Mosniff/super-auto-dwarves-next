@@ -21,6 +21,7 @@ interface ActionZoneProps {
   isPlaying: boolean;
   onPlay: () => void;
   onPause: () => void;
+  onInfoControlOpen?: () => void;
 }
 
 export function ActionZone({
@@ -40,6 +41,7 @@ export function ActionZone({
   isPlaying,
   onPlay,
   onPause,
+  onInfoControlOpen,
 }: ActionZoneProps) {
   return (
     <div className="flex w-full items-center justify-between">
@@ -52,6 +54,7 @@ export function ActionZone({
           character={playerFrontCharacter}
           facing="right"
           currentBeatType={currentBeatType}
+          onInfoControlOpen={onInfoControlOpen}
         />
         <div className="h-64 w-md">
           <InfoScroll
@@ -72,6 +75,7 @@ export function ActionZone({
           character={enemyFrontCharacter}
           facing="left"
           currentBeatType={currentBeatType}
+          onInfoControlOpen={onInfoControlOpen}
         />
       </div>
       <DiscardPile variant="enemy" downedCharacters={enemyDownedCharacters} />

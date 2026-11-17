@@ -1,6 +1,7 @@
 import type { Character } from "@/lib/game/character";
 import type { CampTargetPresentation } from "./campSelection";
 import type { RosterSlotExitKind } from "./rosterSlotAnimation";
+import { CharacterInfoControl } from "./CharacterInfoControl";
 import { InteractiveRosterSlotButton } from "./InteractiveRosterSlotButton";
 import { RosterSlot } from "./RosterSlot";
 
@@ -43,6 +44,12 @@ interface RosterSlabProps {
   // centred in the slab's trailing box. Battle provides none. The slab
   // never learns what the controls are or why.
   trailingControls?: React.ReactNode;
+  // When true, every non-interactive slot's card gets an info control
+  // ("i"). The screen decides; the slab never learns the phase. Battle
+  // turns it on for both slabs; camp's interactive slots render their
+  // own.
+  showsInfoControls?: boolean;
+  onInfoControlOpen?: () => void;
 }
 
 export function RosterSlab({
@@ -52,6 +59,8 @@ export function RosterSlab({
   presentsFrontSlotAsOnDeck = false,
   showsCharacterProgression = false,
   trailingControls,
+  showsInfoControls = false,
+  onInfoControlOpen,
 }: RosterSlabProps) {
   const facing = variant === "enemy" ? "left" : "right";
   // Document order matches visual order (left to right) so Tab and screen
@@ -107,6 +116,31 @@ export function RosterSlab({
                     slotIndex,
                   )}
                 />
+              ) : showsInfoControls ? (
+                <div
+                  data-info-control-host
+                  data-info-control-revealed="false"
+                  className="relative h-full w-full"
+                >
+                  <RosterSlot
+                    slotIndex={slotIndex}
+                    character={character ?? undefined}
+                    facing={facing}
+                    isNext={
+                      presentsFrontSlotAsOnDeck &&
+                      slotIndex === 0 &&
+                      Boolean(character)
+                    }
+                    showsCharacterProgression={showsCharacterProgression}
+                  />
+                  {character && (
+                    <CharacterInfoControl
+                      key={character.id}
+                      character={character}
+                      onOpen={onInfoControlOpen}
+                    />
+                  )}
+                </div>
               ) : (
                 <RosterSlot
                   slotIndex={slotIndex}

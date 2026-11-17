@@ -333,4 +333,79 @@ describe("BattleScreen", () => {
       document.querySelectorAll("[data-character-experience-bar]"),
     ).toHaveLength(0);
   });
+
+  it("BI1: before the first beat, every occupied bench slot on both sides has an info control, never inside a button", () => {
+    renderWithMessages(
+      <BattleScreen
+        resolvedBattle={playerWinResolvedBattle}
+        playerCampRoster={playerWinCampRoster}
+      />,
+    );
+
+    expect(
+      [...document.querySelectorAll("[data-character-info-control]")]
+        .map((infoControl) => [
+          infoControl.getAttribute("aria-label"),
+          infoControl.parentElement?.closest("button") !== null,
+        ])
+        .sort(),
+    ).toEqual([
+      ["Details: Borin", false],
+      ["Details: Grukk", false],
+    ]);
+  });
+
+  it("BI2: after the first beat, both action-zone cards have info controls", () => {
+    renderWithMessages(
+      <BattleScreen
+        resolvedBattle={playerWinResolvedBattle}
+        playerCampRoster={playerWinCampRoster}
+      />,
+    );
+
+    const advanceButton = screen.getByRole("button", { name: /advance/i });
+    fireEvent.click(advanceButton);
+
+    expect(
+      [
+        ...document.querySelectorAll(
+          "[data-active-card-host] [data-character-info-control]",
+        ),
+      ]
+        .map((infoControl) => infoControl.getAttribute("aria-label"))
+        .sort(),
+    ).toEqual(["Details: Grukk", "Details: Borin"].sort());
+  });
+
+  it("BI3: opening a battle info control during autoplay pauses the battle", () => {
+    renderWithMessages(
+      <BattleScreen
+        resolvedBattle={playerWinResolvedBattle}
+        playerCampRoster={playerWinCampRoster}
+      />,
+    );
+
+    const autoplayToggle = screen.getByRole("button", { name: /autoplay/i });
+    fireEvent.click(autoplayToggle);
+
+    // Immediately, before any beat timer fires: Grukk is on the enemy
+    // bench before the first beat.
+    // test fix: query the click target so a missing control fails on
+    // value, not by throwing
+    const enemyInfoControl = screen.queryByRole("button", {
+      name: "Details: Grukk",
+    });
+    if (enemyInfoControl !== null) {
+      fireEvent.click(enemyInfoControl);
+    }
+
+    // A modal dialog is open, so the background (including the autoplay
+    // control) is hidden from the accessibility tree; query past that.
+    // "Autoplay: Off" is the accessible name InfoScroll gives the control
+    // when isPlaying is false (translateCommon("autoplayOff")).
+    expect(
+      screen.queryByRole("button", { name: "Autoplay: Off", hidden: true }) !==
+        null,
+    ).toBe(true);
+  });
 });
