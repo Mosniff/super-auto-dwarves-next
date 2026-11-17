@@ -68,17 +68,27 @@ function buildFixtureShopCampState(
   };
 }
 
+// deliberate test-data fix: the expected character spread a template,
+// which leaked the template-only abilityId
 function expectedSpawnedCharacter(
   characterTemplate: CharacterTemplate,
   id: string,
 ): Character {
-  return {
+  // Explicit, never a template spread: spreading a CharacterTemplate would
+  // copy template-only fields (abilityId) that a Character never has, and
+  // excess-property checks don't apply to spreads, so tsc can't catch it.
+  return buildTestCharacter({
     id,
-    ...characterTemplate,
+    characterTemplateId: characterTemplate.characterTemplateId,
+    name: characterTemplate.name,
+    tier: characterTemplate.tier,
     characterClassIds: [...characterTemplate.characterClassIds],
+    attack: characterTemplate.attack,
     hp: characterTemplate.maxHp,
+    maxHp: characterTemplate.maxHp,
+    armour: characterTemplate.armour,
     experience: 0,
-  };
+  });
 }
 
 function rejectionReasonOf(result: BuyCharacterFromShopSlotResult) {

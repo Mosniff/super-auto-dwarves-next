@@ -3,6 +3,7 @@ import englishMessages from "../../messages/en.json";
 import japaneseMessages from "../../messages/ja.json";
 import { CHARACTER_CLASS_IDS } from "@/lib/game/characterClasses";
 import { PLACEHOLDER_SHOP_SECTION_IDS } from "@/lib/game/placeholderShopSections";
+import { CHARACTER_ABILITY_IDS } from "@/lib/game/characterAbilities";
 
 describe("locale message parity", () => {
   // Extended when the battle-log control buttons (Advance, Autoplay: On/Off)
@@ -34,7 +35,8 @@ describe("locale message parity", () => {
   // by mergeSellShiftHint, a sub-label on the toggle, and again for the
   // roster animation floaters, and again for Phase 12's armour
   // (armourLabel for the card's shield, armourDamage and armourBreak for
-  // the battle log) —
+  // the battle log), and again for Phase 12's ability namespace (ability
+  // name, summary and level texts, keyed by ability id) —
   // deliberate test-data updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
@@ -199,5 +201,66 @@ describe("locale message parity", () => {
         ).shopSection ?? {},
       ).sort(),
     ).toEqual(["characters", ...PLACEHOLDER_SHOP_SECTION_IDS].sort());
+  });
+
+  // Following the characterClass tests' cast pattern for reading a
+  // namespace.
+  it("M1: both locales have an ability entry for exactly the ability ids", () => {
+    expect({
+      english: Object.keys(
+        (
+          englishMessages as unknown as Record<
+            string,
+            Record<string, unknown> | undefined
+          >
+        ).ability ?? {},
+      ).sort(),
+      japanese: Object.keys(
+        (
+          japaneseMessages as unknown as Record<
+            string,
+            Record<string, unknown> | undefined
+          >
+        ).ability ?? {},
+      ).sort(),
+    }).toEqual({
+      english: [...CHARACTER_ABILITY_IDS].sort(),
+      japanese: [...CHARACTER_ABILITY_IDS].sort(),
+    });
+  });
+
+  it("M2: each ability has exactly its expected keys in both locales", () => {
+    function abilityKeysByLocale(
+      messages: unknown,
+    ): [string, string[]][] {
+      const abilityNamespace = (
+        messages as Record<string, Record<string, Record<string, string>> | undefined>
+      ).ability;
+
+      return CHARACTER_ABILITY_IDS.map((abilityId) => [
+        abilityId,
+        Object.keys(abilityNamespace?.[abilityId] ?? {}).sort(),
+      ]);
+    }
+
+    expect({
+      english: abilityKeysByLocale(englishMessages),
+      japanese: abilityKeysByLocale(japaneseMessages),
+    }).toEqual({
+      english: [
+        ["growing-lad", ["levelText", "name", "summary"]],
+        [
+          "tighten-those-straps-son",
+          ["levelTextAlliesAhead", "levelTextWholeParty", "name", "summary"],
+        ],
+      ],
+      japanese: [
+        ["growing-lad", ["levelText", "name", "summary"]],
+        [
+          "tighten-those-straps-son",
+          ["levelTextAlliesAhead", "levelTextWholeParty", "name", "summary"],
+        ],
+      ],
+    });
   });
 });

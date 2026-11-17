@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { isCharacterClassId } from "./characterClasses";
 import { isCharacterTier } from "./characterTiers";
+import { CHARACTER_ABILITY_IDS } from "./characterAbilities";
 import {
   CHARACTER_TEMPLATES,
   findCharacterTemplate,
@@ -19,6 +20,7 @@ describe("characterTemplates", () => {
       attack: 4,
       maxHp: 7,
       armour: 0,
+      abilityId: "growing-lad",
     });
   });
 
@@ -31,7 +33,7 @@ describe("characterTemplates", () => {
       listCharacterTemplates().map(
         (characterTemplate) => characterTemplate.characterTemplateId,
       ),
-    ).toEqual(["borin"]);
+    ).toEqual(["borin", "ogden"]);
   });
 
   // P4-P8 are guards over hand-written template data, not behaviour under
@@ -106,6 +108,32 @@ describe("characterTemplates", () => {
           (characterTemplate) =>
             !Number.isInteger(characterTemplate.armour) ||
             characterTemplate.armour < 0,
+        )
+        .map((characterTemplate) => characterTemplate.characterTemplateId),
+    ).toEqual([]);
+  });
+
+  it("P10: findCharacterTemplate returns the ogden template", () => {
+    expect(findCharacterTemplate("ogden")).toEqual({
+      characterTemplateId: "ogden",
+      name: "Ogden",
+      tier: 1,
+      characterClassIds: ["warrior"],
+      attack: 3,
+      maxHp: 8,
+      armour: 0,
+      abilityId: "tighten-those-straps-son",
+    });
+  });
+
+  it("P11: every template's abilityId is a known ability id", () => {
+    expect(
+      Object.values(CHARACTER_TEMPLATES)
+        .filter(
+          (characterTemplate) =>
+            !(CHARACTER_ABILITY_IDS as readonly string[]).includes(
+              characterTemplate.abilityId,
+            ),
         )
         .map((characterTemplate) => characterTemplate.characterTemplateId),
     ).toEqual([]);

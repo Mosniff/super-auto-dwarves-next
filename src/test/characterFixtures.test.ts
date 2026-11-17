@@ -68,6 +68,7 @@ describe("characterFixtures", () => {
       attack: 4,
       maxHp: 7,
       armour: 0,
+      abilityId: "growing-lad",
     });
   });
 
@@ -87,6 +88,7 @@ describe("characterFixtures", () => {
       attack: 4,
       maxHp: 8,
       armour: 0,
+      abilityId: "growing-lad",
     });
   });
 });

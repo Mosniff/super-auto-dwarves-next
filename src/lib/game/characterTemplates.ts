@@ -1,5 +1,6 @@
 import type { CharacterClassId } from "./characterClasses";
 import type { CharacterTier } from "./characterTiers";
+import type { CharacterAbilityId } from "./characterAbilities";
 
 export interface CharacterTemplate {
   readonly characterTemplateId: string;
@@ -9,6 +10,7 @@ export interface CharacterTemplate {
   readonly attack: number;
   readonly maxHp: number;
   readonly armour: number;
+  readonly abilityId: CharacterAbilityId;
 }
 
 // Ids are lowercase kebab-case. An id used in a save must never be renamed
@@ -24,6 +26,17 @@ export const CHARACTER_TEMPLATES: Readonly<Record<string, CharacterTemplate>> =
       attack: 4,
       maxHp: 7,
       armour: 0,
+      abilityId: "growing-lad",
+    },
+    ogden: {
+      characterTemplateId: "ogden",
+      name: "Ogden",
+      tier: 1,
+      characterClassIds: ["warrior"],
+      attack: 3,
+      maxHp: 8,
+      armour: 0,
+      abilityId: "tighten-those-straps-son",
     },
   };
 

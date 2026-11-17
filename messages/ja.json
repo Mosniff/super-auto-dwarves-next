@@ -76,5 +76,18 @@
     "victory": "勝利！",
     "defeat": "敗北",
     "draw": "引き分け"
+  },
+  "ability": {
+    "growing-lad": {
+      "name": "育ち盛り",
+      "summary": "昇格ごとにHPがさらに増える",
+      "levelText": "昇格時、HPがさらに+{extraHp}"
+    },
+    "tighten-those-straps-son": {
+      "name": "ベルトを締めろ、坊主",
+      "summary": "戦闘開始時、前方の仲間にアーマーを与える",
+      "levelTextAlliesAhead": "{count}つ{count, plural, =1 {前} other {前まで}}の仲間にアーマー+{armour}",
+      "levelTextWholeParty": "自分を含む味方全員にアーマー+{armour}"
+    }
   }
 }

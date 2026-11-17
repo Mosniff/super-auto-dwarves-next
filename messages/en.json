@@ -76,5 +76,18 @@
     "victory": "Victory!",
     "defeat": "Defeat",
     "draw": "Draw"
+  },
+  "ability": {
+    "growing-lad": {
+      "name": "Growing Lad",
+      "summary": "Gain more HP per promotion",
+      "levelText": "Gain an extra +{extraHp} HP on promotion"
+    },
+    "tighten-those-straps-son": {
+      "name": "Tighten Those Straps Son",
+      "summary": "Ogden grants armour to allies ahead of him at the start of battle",
+      "levelTextAlliesAhead": "Grant +{armour} armour {count, plural, =1 {to the ally 1 ahead} other {to allies up to {count} ahead}}",
+      "levelTextWholeParty": "Grant +{armour} armour to the entire party, including himself"
+    }
   }
 }

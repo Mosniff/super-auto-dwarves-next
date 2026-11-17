@@ -124,15 +124,22 @@ describe("buyCharacterForUser", () => {
       fixtureBorin,
       null,
       null,
-      {
+      // deliberate test-data fix: the expected character spread a
+      // template, which leaked the template-only abilityId
+      buildTestCharacter({
         id: "generated-dwarf-1",
-        ...fixtureCharacterShopTemplateTwo,
+        characterTemplateId: fixtureCharacterShopTemplateTwo.characterTemplateId,
+        name: fixtureCharacterShopTemplateTwo.name,
+        tier: fixtureCharacterShopTemplateTwo.tier,
         characterClassIds: [
           ...fixtureCharacterShopTemplateTwo.characterClassIds,
         ],
+        attack: fixtureCharacterShopTemplateTwo.attack,
         hp: fixtureCharacterShopTemplateTwo.maxHp,
+        maxHp: fixtureCharacterShopTemplateTwo.maxHp,
+        armour: fixtureCharacterShopTemplateTwo.armour,
         experience: 0,
-      },
+      }),
       null,
       null,
       null,
