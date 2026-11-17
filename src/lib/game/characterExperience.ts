@@ -1,4 +1,7 @@
 import type { Character } from "./character";
+import type { CharacterAbility } from "./characterAbilities";
+import { findCharacterAbilityForCharacter } from "./characterAbilityLookup";
+import { applyExperienceGainAbility } from "./experienceGainAbilities";
 
 export const CHARACTER_LEVELS = [1, 2, 3, 4, 5] as const;
 
@@ -108,25 +111,58 @@ export function addExperience(
   };
 }
 
+// +1 attack, +1 max hp and +1 current hp per XP point (Phase 11 ruling);
+// display code (the Phase 12 extra-hp floater) reads this rather than
+// assuming 1.
+export const BASE_STAT_GAIN_PER_EXPERIENCE_POINT = 1;
+
 // Ruling: +1 attack, +1 max hp and +1 current hp per XP point actually
 // gained, so a full-health dwarf stays full and a damaged one keeps its
-// damage.
+// damage. onExperienceGain fires once per XP point gained, one point at a
+// time, at the strength of the dwarf's level before that point is added
+// (XP 2 → 3 fires at level-1 strength). Points lost to the 15-XP cap
+// don't fire.
 export function gainExperience(
   character: Character,
   experienceToAdd: number,
+  findAbility: (
+    character: Character,
+  ) => CharacterAbility | undefined = findCharacterAbilityForCharacter,
 ): Character {
-  const { resultingExperience, experienceGained } = addExperience(
+  const { experienceGained } = addExperience(
     character.experience,
     experienceToAdd,
   );
 
-  return {
-    ...character,
-    experience: resultingExperience,
-    attack: character.attack + experienceGained,
-    hp: character.hp + experienceGained,
-    maxHp: character.maxHp + experienceGained,
-  };
+  const ability = findAbility(character);
+
+  let currentCharacter = character;
+
+  for (
+    let pointIndex = 0;
+    pointIndex < experienceGained;
+    pointIndex += 1
+  ) {
+    const levelBeforePoint = levelFromExperience(currentCharacter.experience);
+
+    currentCharacter = {
+      ...currentCharacter,
+      experience: currentCharacter.experience + 1,
+      attack: currentCharacter.attack + BASE_STAT_GAIN_PER_EXPERIENCE_POINT,
+      hp: currentCharacter.hp + BASE_STAT_GAIN_PER_EXPERIENCE_POINT,
+      maxHp: currentCharacter.maxHp + BASE_STAT_GAIN_PER_EXPERIENCE_POINT,
+    };
+
+    if (ability?.trigger === "onExperienceGain") {
+      currentCharacter = applyExperienceGainAbility(
+        ability,
+        currentCharacter,
+        levelBeforePoint,
+      );
+    }
+  }
+
+  return currentCharacter;
 }
 
 // Encodes the ruling: the target gains the consumed character's XP + 1, and
@@ -137,6 +173,9 @@ export function gainExperience(
 export function mergeCharacterInto(
   targetCharacter: Character,
   consumedCharacter: Character,
+  findAbility: (
+    character: Character,
+  ) => CharacterAbility | undefined = findCharacterAbilityForCharacter,
 ): Character {
   if (targetCharacter.characterTemplateId !== consumedCharacter.characterTemplateId) {
     throw new Error(
@@ -144,5 +183,9 @@ export function mergeCharacterInto(
     );
   }
 
-  return gainExperience(targetCharacter, consumedCharacter.experience + 1);
+  return gainExperience(
+    targetCharacter,
+    consumedCharacter.experience + 1,
+    findAbility,
+  );
 }

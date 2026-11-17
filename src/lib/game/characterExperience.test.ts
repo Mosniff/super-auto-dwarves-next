@@ -365,4 +365,142 @@ describe("characterExperience", () => {
       ],
     ).toEqual([true]);
   });
+
+  const fixtureGrowingLad = {
+    abilityId: "growing-lad",
+    trigger: "onExperienceGain",
+    extraHpPerExperiencePointByLevel: [2, 3, 5, 7, 11],
+  } as const;
+  const findFixtureGrowingLad = () => fixtureGrowingLad;
+
+  const fixtureBattleStartAbility = {
+    abilityId: "tighten-those-straps-son",
+    trigger: "onBattleStartBuffs",
+    armourGrantedByLevel: [1, 1, 1, 1, 1],
+    targetingByLevel: [
+      { kind: "alliesAhead", count: 1 },
+      { kind: "alliesAhead", count: 2 },
+      { kind: "alliesAhead", count: 3 },
+      { kind: "alliesAhead", count: 4 },
+      { kind: "wholeParty" },
+    ],
+  } as const;
+  const findFixtureBattleStartAbility = () => fixtureBattleStartAbility;
+
+  it("XG1: each XP point fires Growing Lad at the level before that point", () => {
+    expect(
+      (({ experience, attack, hp, maxHp }) => ({
+        experience,
+        attack,
+        hp,
+        maxHp,
+      }))(
+        gainExperience(
+          buildFixtureCharacter({ experience: 2 }),
+          2,
+          findFixtureGrowingLad,
+        ),
+      ),
+    ).toEqual({ experience: 4, attack: 6, hp: 14, maxHp: 14 });
+  });
+
+  it("XG2: points lost to the cap don't fire", () => {
+    expect(
+      (({ experience, attack, hp, maxHp }) => ({
+        experience,
+        attack,
+        hp,
+        maxHp,
+      }))(
+        gainExperience(
+          buildFixtureCharacter({ experience: 14 }),
+          3,
+          findFixtureGrowingLad,
+        ),
+      ),
+    ).toEqual({ experience: 15, attack: 5, hp: 15, maxHp: 15 });
+  });
+
+  it("XG3: damage is kept: extra hp raises current and max hp equally", () => {
+    expect(
+      (({ hp, maxHp }) => ({ hp, maxHp }))(
+        gainExperience(
+          buildFixtureCharacter({ hp: 3, maxHp: 7, experience: 0 }),
+          1,
+          findFixtureGrowingLad,
+        ),
+      ),
+    ).toEqual({ hp: 6, maxHp: 10 });
+  });
+
+  it("XG4: an ability with another trigger does nothing on experience gain", () => {
+    expect(
+      (({ experience, attack, hp, maxHp }) => ({
+        experience,
+        attack,
+        hp,
+        maxHp,
+      }))(
+        gainExperience(
+          buildFixtureCharacter({ experience: 0 }),
+          3,
+          findFixtureBattleStartAbility,
+        ),
+      ),
+    ).toEqual({ experience: 3, attack: 7, hp: 10, maxHp: 10 });
+  });
+
+  it("XG5: Growing Lad's total depends only on the final XP, whichever way round a merge happens", () => {
+    const veteran = gainExperience(
+      buildFixtureCharacter({ id: "veteran" }),
+      5,
+      findFixtureGrowingLad,
+    );
+    const fresh = buildFixtureCharacter({ id: "fresh" });
+
+    const veteranAbsorbsFresh = mergeCharacterInto(
+      veteran,
+      fresh,
+      findFixtureGrowingLad,
+    );
+    const freshAbsorbsVeteran = mergeCharacterInto(
+      fresh,
+      veteran,
+      findFixtureGrowingLad,
+    );
+
+    expect(
+      [veteranAbsorbsFresh, freshAbsorbsVeteran].map(
+        ({ experience, attack, hp, maxHp }) => ({
+          experience,
+          attack,
+          hp,
+          maxHp,
+        }),
+      ),
+    ).toEqual([
+      { experience: 6, attack: 10, hp: 28, maxHp: 28 },
+      { experience: 6, attack: 10, hp: 28, maxHp: 28 },
+    ]);
+  });
+
+  it("XG6: the real Borin gains Growing Lad through the default lookup", () => {
+    expect(
+      (({ experience, attack, hp, maxHp }) => ({
+        experience,
+        attack,
+        hp,
+        maxHp,
+      }))(
+        gainExperience(
+          buildFixtureCharacter({
+            id: "real-borin",
+            characterTemplateId: "borin",
+            experience: 0,
+          }),
+          3,
+        ),
+      ),
+    ).toEqual({ experience: 3, attack: 7, hp: 13, maxHp: 13 });
+  });
 });
