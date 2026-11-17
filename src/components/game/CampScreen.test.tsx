@@ -516,6 +516,25 @@ describe("CampScreen", () => {
     }).toEqual({ levelPills: 3, overlayExperienceBars: 1, inlineExperienceBars: 2 });
   });
 
+  it("RT1: the player's roster slots are in left-to-right document order: the backline (slot 7) first, the front (slot 1) last", () => {
+    renderCampScreen();
+
+    expect(
+      screen
+        .getAllByRole("button")
+        .map((button) => button.getAttribute("aria-label"))
+        .filter((label) => label?.startsWith("Slot ")),
+    ).toEqual([
+      "Slot 7: empty",
+      "Slot 6: empty",
+      "Slot 5: empty",
+      "Slot 4: empty",
+      "Slot 3: empty",
+      "Slot 2: empty",
+      "Slot 1: Borin, level 1",
+    ]);
+  });
+
   it("(w) with a matching shop character selected, the matching dwarf is a merge target with its XP bar revealed and a merge marker", async () => {
     const user = userEvent.setup();
     renderCampScreen(matchingShopRenderOverrides);
@@ -824,10 +843,16 @@ describe("CampScreen", () => {
     }).toEqual({ disabled: true, pressed: "true", active: "true" });
   });
 
-  // DOM order matches slot index (flex-row-reverse only reverses the
-  // visual layout, never the DOM tree order RosterSlab maps the slots in).
+  // deliberate test-helper fix: select slots by their index attribute, not
+  // document position (Phase 12 tab-order change)
+  //
+  // Selects by data-roster-slot-index, never by document position: the
+  // player's slab renders slots in visual (left-to-right) order, so
+  // document order is no longer slot order (Phase 12).
   function playerSlotRoot(slotIndex: number): Element | null {
-    return document.querySelectorAll("[data-roster-slot]")[slotIndex] ?? null;
+    return document.querySelector(
+      `[data-roster-slot][data-roster-slot-index="${slotIndex}"]`,
+    );
   }
 
   it("(an1) after a merge, the source slot exits as merged-away and other slots shuffle", async () => {

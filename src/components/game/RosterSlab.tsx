@@ -53,8 +53,15 @@ export function RosterSlab({
   showsCharacterProgression = false,
   trailingControls,
 }: RosterSlabProps) {
-  const slots = Array.from({ length: SLOT_COUNT }, (_, i) => characters[i]);
   const facing = variant === "enemy" ? "left" : "right";
+  // Document order matches visual order (left to right) so Tab and screen
+  // readers walk the roster the way it reads: the player's backline first
+  // and front (slot 1) last on the right; the enemy's front first on the
+  // left. Keys stay the slot index so each slot's RosterSlot persists.
+  const slotIndexesInDisplayOrder =
+    variant === "player"
+      ? Array.from({ length: SLOT_COUNT }, (_, slotIndex) => slotIndex).reverse()
+      : Array.from({ length: SLOT_COUNT }, (_, slotIndex) => slotIndex);
 
   return (
     // The leading and trailing boxes are flex-1 basis-0, so they start at
@@ -65,47 +72,57 @@ export function RosterSlab({
     // decides whether to provide controls; the slab never learns the phase.
     <div className="flex w-full h-72 bg-linear-to-b from-slate-100 via-slate-200 to-slate-300 px-5 py-4">
       <div data-roster-slab-leading-area className="min-w-0 flex-1 basis-0" />
-      <div
-        className={`flex h-full shrink-0 justify-center gap-12 ${
-          variant === "player" ? "flex-row-reverse" : "flex-row"
-        }`}
-      >
-        {slots.map((character, i) => (
-          // Keyed by POSITION, not by the occupant's id: the slot is fixed
-          // furniture and must PERSIST as the same component instance while
-          // its occupant changes, so that RosterSlot's internal
-          // AnimatePresence can observe the swap and play exit+entrance.
-          // Keying by character id here would remount the whole RosterSlot
-          // (including AnimatePresence) on every occupant change, which is
-          // exactly the bug this fixes.
-          <div key={i} className="h-full aspect-3/4">
-            {slotInteraction ? (
-              <InteractiveRosterSlotButton
-                slotIndex={i}
-                character={character ?? undefined}
-                facing={facing}
-                isNext={presentsFrontSlotAsOnDeck && i === 0 && Boolean(character)}
-                buttonLabel={slotInteraction.slotButtonLabel(i)}
-                isSelected={slotInteraction.selectedSlotIndex === i}
-                isEnabled={slotInteraction.isSlotEnabled(i)}
-                onClick={() => slotInteraction.onSlotClick(i)}
-                isDraggable={slotInteraction.isSlotDraggable(i)}
-                presentation={slotInteraction.slotPresentation(i)}
-                exitKind={slotInteraction.slotExitKind(i)}
-                showsCharacterProgression={showsCharacterProgression}
-                isMatchingHeldItem={slotInteraction.isSlotMatchingHeldItem(i)}
-              />
-            ) : (
-              <RosterSlot
-                slotIndex={i}
-                character={character ?? undefined}
-                facing={facing}
-                isNext={presentsFrontSlotAsOnDeck && i === 0 && Boolean(character)}
-                showsCharacterProgression={showsCharacterProgression}
-              />
-            )}
-          </div>
-        ))}
+      <div className="flex h-full shrink-0 flex-row justify-center gap-12">
+        {slotIndexesInDisplayOrder.map((slotIndex) => {
+          const character = characters[slotIndex];
+
+          return (
+            // Keyed by POSITION, not by the occupant's id: the slot is fixed
+            // furniture and must PERSIST as the same component instance while
+            // its occupant changes, so that RosterSlot's internal
+            // AnimatePresence can observe the swap and play exit+entrance.
+            // Keying by character id here would remount the whole RosterSlot
+            // (including AnimatePresence) on every occupant change, which is
+            // exactly the bug this fixes.
+            <div key={slotIndex} className="h-full aspect-3/4">
+              {slotInteraction ? (
+                <InteractiveRosterSlotButton
+                  slotIndex={slotIndex}
+                  character={character ?? undefined}
+                  facing={facing}
+                  isNext={
+                    presentsFrontSlotAsOnDeck &&
+                    slotIndex === 0 &&
+                    Boolean(character)
+                  }
+                  buttonLabel={slotInteraction.slotButtonLabel(slotIndex)}
+                  isSelected={slotInteraction.selectedSlotIndex === slotIndex}
+                  isEnabled={slotInteraction.isSlotEnabled(slotIndex)}
+                  onClick={() => slotInteraction.onSlotClick(slotIndex)}
+                  isDraggable={slotInteraction.isSlotDraggable(slotIndex)}
+                  presentation={slotInteraction.slotPresentation(slotIndex)}
+                  exitKind={slotInteraction.slotExitKind(slotIndex)}
+                  showsCharacterProgression={showsCharacterProgression}
+                  isMatchingHeldItem={slotInteraction.isSlotMatchingHeldItem(
+                    slotIndex,
+                  )}
+                />
+              ) : (
+                <RosterSlot
+                  slotIndex={slotIndex}
+                  character={character ?? undefined}
+                  facing={facing}
+                  isNext={
+                    presentsFrontSlotAsOnDeck &&
+                    slotIndex === 0 &&
+                    Boolean(character)
+                  }
+                  showsCharacterProgression={showsCharacterProgression}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
       <div
         data-roster-slab-trailing-area

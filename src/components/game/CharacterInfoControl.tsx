@@ -28,7 +28,7 @@ export function CharacterInfoControl({ character }: CharacterInfoControlProps) {
         // Its own hover and focus state shows the player is on the "i"
         // itself, not just the card; the card stays revealed meanwhile
         // (globals.css).
-        className="absolute -top-2 -right-2 z-10 flex size-7 cursor-pointer items-center justify-center rounded-full bg-slate-700 text-white shadow ring-2 ring-white transition-transform hover:scale-110 hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-ring motion-reduce:transition-none motion-reduce:hover:scale-100"
+        className="absolute -top-2 -right-2 z-10 flex size-7 cursor-pointer items-center justify-center rounded-full bg-slate-700 text-white shadow ring-2 ring-white transition-transform hover:scale-110 hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-ring motion-reduce:transition-none motion-reduce:hover:scale-100 focus-visible:bg-slate-900 focus-visible:scale-110 motion-reduce:focus-visible:scale-100"
       >
         <span
           aria-hidden="true"
