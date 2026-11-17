@@ -49,7 +49,8 @@
     "experienceGainFloater": "+{experienceGained} XP",
     "levelUpFloater": "Level up!",
     "sellGoldFloater": "+{gold} gold",
-    "armourLabel": "{armour} armour"
+    "armourLabel": "{armour} armour",
+    "close": "Close"
   },
   "characterClass": {
     "warrior": "Warrior",

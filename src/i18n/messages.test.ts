@@ -36,7 +36,8 @@ describe("locale message parity", () => {
   // roster animation floaters, and again for Phase 12's armour
   // (armourLabel for the card's shield, armourDamage and armourBreak for
   // the battle log), and again for Phase 12's ability namespace (ability
-  // name, summary and level texts, keyed by ability id) —
+  // name, summary and level texts, keyed by ability id), and close for the
+  // expanded-card dialog's close button —
   // deliberate test-data updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
@@ -89,6 +90,7 @@ describe("locale message parity", () => {
     "levelUpFloater",
     "sellGoldFloater",
     "armourLabel",
+    "close",
   ];
   const expectedBattleKeys = [
     "battleStart",

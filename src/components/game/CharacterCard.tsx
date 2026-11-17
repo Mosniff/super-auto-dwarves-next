@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Image from "next/image";
 import { Shield } from "lucide-react";
 import { useTranslations } from "next-intl";
@@ -27,6 +28,7 @@ interface CharacterCardProps {
   animateHpDrop?: boolean;
   showHpBar?: boolean;
   showTextBox?: boolean;
+  textBoxContent?: ReactNode;
   showLevel?: boolean;
   showExperienceBar?: boolean;
 }
@@ -62,6 +64,7 @@ export function CharacterCard({
   animateHpDrop = false,
   showHpBar = false,
   showTextBox = false,
+  textBoxContent,
   showLevel = false,
   showExperienceBar = false,
 }: CharacterCardProps) {
@@ -257,18 +260,21 @@ export function CharacterCard({
           ))}
         </div>
 
-        {/* Reserved for abilities, which are unspecified; do not put
-            content here. Off the standard card by default; Phase 12's
-            expanded card view turns it on. */}
+        {/* The text box is off on the standard card; the expanded-card
+            dialog turns it on and fills it with the character's ability
+            (CharacterDetailDialog). The card itself never looks up
+            abilities. */}
         {showTextBox && (
           <div
             data-character-text-box
-            className="relative mx-card-inset h-card-text-box-height shrink-0 rounded-card-panel"
+            className="relative mx-card-inset min-h-card-text-box-height shrink-0 rounded-card-panel px-card-bar-x py-card-bar-y"
             style={{
               background: "var(--texture-card-panel)",
               boxShadow: "var(--shadow-recess)",
             }}
-          />
+          >
+            {textBoxContent}
+          </div>
         )}
 
         <div

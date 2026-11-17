@@ -328,4 +328,18 @@ describe("CharacterCard", () => {
       armourShield?.getAttribute("aria-label"),
     ]).toEqual(["2", "2", "2 armour"]);
   });
+
+  it("C19: renders textBoxContent inside the text box when showTextBox is set", () => {
+    renderWithMessages(
+      <CharacterCard
+        character={buildTestCharacter({ id: "c19", name: "Fixture Dwarf" })}
+        showTextBox
+        textBoxContent={<span>Ability text</span>}
+      />,
+    );
+
+    expect(
+      document.querySelector("[data-character-text-box]")?.textContent,
+    ).toBe("Ability text");
+  });
 });

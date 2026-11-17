@@ -79,6 +79,10 @@
   --spacing-card-armour-badge: 18cqw;
   --spacing-card-armour-inset: 2cqw;
   --text-card-armour: 8cqw;
+  /* Phase 12 expanded card's ability text; the human tunes these. */
+  --text-card-ability-name: 6cqw;
+  --text-card-ability-body: 4.5cqw;
+  --spacing-card-ability-gap: 2cqw;
   --border-width-card-xp-segment: 0.5cqw;
   --radius-card-bar: 2.5cqw;
   --radius-card-portrait: 1cqw;
@@ -300,6 +304,10 @@
       var(--color-heart-red-400),
       var(--color-heart-red-700)
     );
+
+  /* Phase 12 expanded-card dialog size; the human tunes these. */
+  --expanded-card-width: 22rem;
+  --expanded-card-height: 40rem;
 }
 
 @layer base {

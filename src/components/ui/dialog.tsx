@@ -51,9 +51,13 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  // "Close" is an English fallback for shadcn compatibility only; app
+  // callers pass a translated label.
+  closeButtonLabel = "Close",
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
   showCloseButton?: boolean
+  closeButtonLabel?: string
 }) {
   return (
     <DialogPortal>
@@ -76,7 +80,7 @@ function DialogContent({
             >
               <XIcon
               />
-              <span className="sr-only">Close</span>
+              <span className="sr-only">{closeButtonLabel}</span>
             </Button>
           </DialogPrimitive.Close>
         )}
