@@ -9,6 +9,9 @@ export const QUIET_BEAT_DURATION_MS = 400;
 // DROP beats carry the most choreography (roster launch, delayed active
 // entrance, dying card's poof, pile arrival), so they get the longest dwell.
 export const DROP_BEAT_DURATION_MS = 1100;
+// The opening "prepare" beat (BATTLE_START) carries the fronts' launch into
+// the action zone and the gaps closing; the human tunes it.
+export const PREPARE_BEAT_DURATION_MS = 900;
 
 export function beatDurationMs(beatType: BeatType | undefined): number {
   if (beatType === "DROP") {
@@ -17,6 +20,10 @@ export function beatDurationMs(beatType: BeatType | undefined): number {
 
   if (beatType === "CLASH") {
     return EVENTFUL_BEAT_DURATION_MS;
+  }
+
+  if (beatType === "BATTLE_START") {
+    return PREPARE_BEAT_DURATION_MS;
   }
 
   return QUIET_BEAT_DURATION_MS;

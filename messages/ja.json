@@ -69,7 +69,7 @@
     "food": "食料"
   },
   "battle": {
-    "battleStart": "バトル開始！",
+    "battleStart": "ドワーフとモンスターが戦いに備える",
     "turnStart": "ターン{turn}",
     "attack": "{attacker}が{target}をこうげき！",
     "damage": "{target}に{amount}ダメージ！（残りHP {resultingHp}）",

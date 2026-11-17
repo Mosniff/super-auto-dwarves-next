@@ -104,7 +104,9 @@ describe("BattleScreen", () => {
       const advanceButton = screen.getByRole("button", { name: /advance/i });
 
       fireEvent.click(advanceButton);
-      expect(screen.getByText("Battle start!")).toBeInTheDocument();
+      expect(
+        screen.getByText("The dwarves and the monsters prepare for battle"),
+      ).toBeInTheDocument();
 
       act(() => {
         vi.advanceTimersByTime(AUTOPLAY_INTERVAL_MS);
@@ -112,7 +114,9 @@ describe("BattleScreen", () => {
 
       fireEvent.click(advanceButton);
       expect(screen.getByText("Turn 1")).toBeInTheDocument();
-      expect(screen.queryByText("Battle start!")).not.toBeInTheDocument();
+      expect(
+        screen.queryByText("The dwarves and the monsters prepare for battle"),
+      ).not.toBeInTheDocument();
     });
   });
 
