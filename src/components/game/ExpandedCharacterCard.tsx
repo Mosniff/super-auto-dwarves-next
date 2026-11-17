@@ -112,7 +112,7 @@ export function ExpandedCharacterCard({
         >
           <span
             data-expanded-card-experience-label
-            className="text-base font-bold"
+            className="text-lg font-bold leading-none text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]"
           >
             {t("experienceBarLabel")}
           </span>
@@ -123,7 +123,7 @@ export function ExpandedCharacterCard({
                 data-expanded-card-experience-segment={
                   segmentIndex < filledSegmentCount ? "filled" : "empty"
                 }
-                className={`flex-1 rounded-full ${
+                className={`flex-1 rounded-full border-2 border-(--experience-segment-border) ${
                   segmentIndex < filledSegmentCount
                     ? "bg-amber-400"
                     : "bg-black/40"
@@ -138,7 +138,7 @@ export function ExpandedCharacterCard({
           </div>
           <span
             data-expanded-card-experience-caption
-            className="text-base font-bold italic"
+            className="text-base font-bold italic leading-none text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]"
           >
             {experienceCaption.progressKind === "maxLevel"
               ? t("experienceBarMaxLevel")
@@ -156,14 +156,16 @@ export function ExpandedCharacterCard({
             boxShadow: "var(--shadow-stat-pill)",
           }}
         >
-          {character.characterClassIds.map((characterClassId, characterClassIndex) => (
-            <span key={characterClassId} className="flex items-center gap-2">
-              {characterClassIndex > 0 && <span aria-hidden="true">·</span>}
-              <span data-expanded-card-class={characterClassId}>
-                {tCharacterClass(characterClassId)}
+          {character.characterClassIds.map(
+            (characterClassId, characterClassIndex) => (
+              <span key={characterClassId} className="flex items-center gap-2">
+                {characterClassIndex > 0 && <span aria-hidden="true">·</span>}
+                <span data-expanded-card-class={characterClassId}>
+                  {tCharacterClass(characterClassId)}
+                </span>
               </span>
-            </span>
-          ))}
+            ),
+          )}
         </div>
 
         <div data-expanded-card-ability-area className="relative">
@@ -184,7 +186,11 @@ export function ExpandedCharacterCard({
           {abilityContent && (
             <span
               data-expanded-card-ability-label
-              className="absolute top-0 right-0 rounded-tr-lg rounded-bl-lg bg-(--color-iron-700) px-3 py-1 text-sm font-bold uppercase tracking-wide text-(--color-parchment-50)"
+              className="absolute top-0 right-0 rounded-tr-lg rounded-bl-lg px-3 py-1 text-sm font-bold uppercase tracking-wide text-(--color-parchment-50)"
+              style={{
+                backgroundImage:
+                  "linear-gradient(to bottom, var(--color-copper-500), var(--color-copper-700))",
+              }}
             >
               {t("abilityLabel")}
             </span>
@@ -214,7 +220,10 @@ export function ExpandedCharacterCard({
               <span aria-hidden="true" className="text-(--color-parchment-50)">
                 ⚔
               </span>
-              <span data-expanded-card-stat="attack" className="text-(--color-parchment-50)">
+              <span
+                data-expanded-card-stat="attack"
+                className="text-(--color-parchment-50)"
+              >
                 {character.attack}
               </span>
             </span>

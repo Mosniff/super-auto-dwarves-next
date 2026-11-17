@@ -123,6 +123,11 @@
   /* ── Heart red (max-HP stat badge) ───────────────── */
   --color-heart-red-400: #a83232; /* light gradient stop */
   --color-heart-red-700: #6e1f1f; /* dark gradient stop */
+
+  /* ── Copper (warm metal accent) ──────────────────── */
+  --color-copper-300: #c08a5e; /* light copper — highlight / gradient top */
+  --color-copper-500: #9c6440; /* primary copper */
+  --color-copper-700: #6e4329; /* dark copper — gradient bottom / shadow */
 }
 
 :root {
@@ -395,7 +400,9 @@
   opacity: 1;
   pointer-events: auto;
 }
-[data-camp-dragging="true"] [data-info-control-host] [data-character-info-control] {
+[data-camp-dragging="true"]
+  [data-info-control-host]
+  [data-character-info-control] {
   opacity: 0;
   pointer-events: none;
 }
@@ -413,8 +420,12 @@
 [data-card-wash-revealed]:hover [data-character-experience-mask],
 [data-card-wash-revealed]:focus-visible [data-character-experience-mask],
 [data-card-wash-revealed="true"] [data-character-experience-mask],
-[data-info-control-host]:hover [data-card-wash-revealed] [data-character-experience-mask],
-[data-info-control-host]:has(:focus-visible) [data-card-wash-revealed] [data-character-experience-mask] {
+[data-info-control-host]:hover
+  [data-card-wash-revealed]
+  [data-character-experience-mask],
+[data-info-control-host]:has(:focus-visible)
+  [data-card-wash-revealed]
+  [data-character-experience-mask] {
   opacity: 1;
 }
 
@@ -469,13 +480,13 @@
       ease-in-out var(--experience-beat-delay) both;
   }
   [data-experience-beat="levelledUp"] [data-roster-slot-beat-target] {
-    animation: roster-level-up-beat var(--experience-beat-duration)
-      ease-in-out var(--experience-beat-delay) both;
+    animation: roster-level-up-beat var(--experience-beat-duration) ease-in-out
+      var(--experience-beat-delay) both;
   }
   [data-experience-beat="experienceGained"] [data-roster-slot-xp-ring],
   [data-experience-beat="levelledUp"] [data-roster-slot-xp-ring] {
-    animation: roster-xp-ring-flash var(--experience-beat-duration)
-      ease-in-out var(--experience-beat-delay) both;
+    animation: roster-xp-ring-flash var(--experience-beat-duration) ease-in-out
+      var(--experience-beat-delay) both;
   }
   [data-experience-beat="levelledUp"] [data-character-level] {
     animation: level-pill-pop var(--experience-beat-duration) ease-in-out
