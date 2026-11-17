@@ -995,6 +995,80 @@ describe("CampScreen", () => {
     );
   });
 
+  it("AN6: a merge whose ability added hp shows a '+N HP' floater after the XP floater", async () => {
+    const user = userEvent.setup();
+    const { rerenderCampScreen } = renderCampScreen({
+      playerCampRoster: fixtureTwoBorinCampRoster,
+      revision: 5,
+    });
+
+    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Slot 2: Borin, level 1" }),
+    );
+
+    const mergedRoster: CampRoster = [
+      null,
+      {
+        ...fixtureMatchingBorin,
+        experience: 1,
+        attack: fixtureMatchingBorin.attack + 1,
+        hp: fixtureMatchingBorin.hp + 2,
+        maxHp: fixtureMatchingBorin.maxHp + 2,
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+    ];
+
+    rerenderCampScreen({ playerCampRoster: mergedRoster, revision: 6 });
+
+    expect(screen.queryByText("+1 HP") !== null).toBe(true);
+  });
+
+  it("AN7: a merge with no ability hp shows no HP floater", async () => {
+    const user = userEvent.setup();
+    const { rerenderCampScreen } = renderCampScreen({
+      playerCampRoster: fixtureTwoBorinCampRoster,
+      revision: 5,
+    });
+
+    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Slot 2: Borin, level 1" }),
+    );
+
+    const mergedRoster: CampRoster = [
+      null,
+      {
+        ...fixtureMatchingBorin,
+        experience: 1,
+        attack: fixtureMatchingBorin.attack + 1,
+        hp: fixtureMatchingBorin.hp + 1,
+        maxHp: fixtureMatchingBorin.maxHp + 1,
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+    ];
+
+    rerenderCampScreen({ playerCampRoster: mergedRoster, revision: 6 });
+
+    expect(
+      document.querySelector('[data-roster-slot-floater="abilityHp"]'),
+    ).toBeNull();
+  });
+
   it("(an5) a merge that crosses a level threshold plays a level-up beat", async () => {
     const user = userEvent.setup();
     // The target starts at 2 XP — still level 1 (3 XP is needed for level 2).

@@ -1,4 +1,8 @@
-import { levelFromExperience, type CharacterLevel } from "@/lib/game/characterExperience";
+import {
+  BASE_STAT_GAIN_PER_EXPERIENCE_POINT,
+  levelFromExperience,
+  type CharacterLevel,
+} from "@/lib/game/characterExperience";
 import type { CampIntent } from "./campSelection";
 
 export type RosterSlotExitKind = "shuffle" | "mergedAway" | "sold";
@@ -76,4 +80,29 @@ export function experienceGainBeat(
   }
 
   return { beatKind: "experienceGained", experienceGained };
+}
+
+export interface ExperienceAndMaxHp {
+  experience: number;
+  maxHp: number;
+}
+
+// Display-only: the hp an ability added on promotion, derived from the same
+// dwarf before and after a refresh. Counted only when XP rose, so max-hp
+// changes from any other source never show as an ability floater.
+export function abilityHpGainFromRefresh(
+  previous: ExperienceAndMaxHp,
+  current: ExperienceAndMaxHp,
+): number {
+  if (current.experience <= previous.experience) {
+    return 0;
+  }
+
+  const experienceGained = current.experience - previous.experience;
+  const abilityHpGained =
+    current.maxHp -
+    previous.maxHp -
+    experienceGained * BASE_STAT_GAIN_PER_EXPERIENCE_POINT;
+
+  return Math.max(abilityHpGained, 0);
 }

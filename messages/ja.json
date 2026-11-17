@@ -52,7 +52,8 @@
     "armourLabel": "アーマー{armour}",
     "close": "閉じる",
     "characterInfoLabel": "{name}の詳細",
-    "abilityLabel": "アビリティ"
+    "abilityLabel": "アビリティ",
+    "abilityHpFloater": "HP+{hp}"
   },
   "characterClass": {
     "warrior": "戦士",

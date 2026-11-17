@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import {
+  abilityHpGainFromRefresh,
   experienceGainBeat,
   rosterSlotExitKind,
   type SubmittedCampIntent,
@@ -80,5 +81,19 @@ describe("rosterSlotAnimation", () => {
       { beatKind: "levelledUp", experienceGained: 1, newLevel: 2 },
       { beatKind: "levelledUp", experienceGained: 15, newLevel: 5 },
     ]);
+  });
+
+  it("AH1: abilityHpGainFromRefresh is the max-hp rise beyond the base gain, only when XP rose", () => {
+    expect(
+      (
+        [
+          [{ experience: 0, maxHp: 7 }, { experience: 1, maxHp: 9 }],
+          [{ experience: 0, maxHp: 7 }, { experience: 3, maxHp: 13 }],
+          [{ experience: 0, maxHp: 7 }, { experience: 1, maxHp: 8 }],
+          [{ experience: 2, maxHp: 7 }, { experience: 2, maxHp: 7 }],
+          [{ experience: 6, maxHp: 28 }, { experience: 6, maxHp: 30 }],
+        ] as const
+      ).map(([previous, current]) => abilityHpGainFromRefresh(previous, current)),
+    ).toEqual([1, 3, 0, 0, 0]);
   });
 });

@@ -52,7 +52,8 @@
     "armourLabel": "{armour} armour",
     "close": "Close",
     "characterInfoLabel": "Details: {name}",
-    "abilityLabel": "Ability"
+    "abilityLabel": "Ability",
+    "abilityHpFloater": "+{hp} HP"
   },
   "characterClass": {
     "warrior": "Warrior",

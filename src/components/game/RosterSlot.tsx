@@ -10,7 +10,11 @@ import {
 import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/game/character";
 import { CHARACTER_SELL_PRICE } from "@/lib/game/shop";
-import { experienceGainBeat, type RosterSlotExitKind } from "./rosterSlotAnimation";
+import {
+  abilityHpGainFromRefresh,
+  experienceGainBeat,
+  type RosterSlotExitKind,
+} from "./rosterSlotAnimation";
 import { CharacterCard } from "./CharacterCard";
 
 interface RosterSlotProps {
@@ -56,6 +60,9 @@ const EXPERIENCE_BEAT_DELAY_S = 0.35;
 // Rise-and-fade floaters ("+N gold", "+N XP", "Level up!").
 const FLOATER_RISE_Y = -40;
 const FLOATER_DURATION_S = 1.2;
+
+// Shortly after the XP floater (the ruling); the human tunes it.
+const ABILITY_HP_FLOATER_DELAY_S = EXPERIENCE_BEAT_DELAY_S + 0.5;
 
 export function RosterSlot({
   character,
@@ -112,32 +119,39 @@ export function RosterSlot({
   // remounts on a first mount, and this target was already mounted — so
   // rather than depend on a ref whose null-ness is unexplained, the beat
   // became state with CSS motion, like the existing XP-bar reveal).
-  const previousExperienceRef = useRef<{
+  const previousProgressRef = useRef<{
     characterId: string;
     experience: number;
+    maxHp: number;
   } | null>(null);
   const [experienceBeatSequence, setExperienceBeatSequence] = useState(0);
-  const [activeExperienceBeat, setActiveExperienceBeat] = useState<
-    ReturnType<typeof experienceGainBeat> | null
-  >(null);
+  const [activeExperienceBeat, setActiveExperienceBeat] = useState<ReturnType<
+    typeof experienceGainBeat
+  > | null>(null);
   const [isExperienceBeatActive, setIsExperienceBeatActive] = useState(false);
+  // Separate from activeExperienceBeat so it isn't cleared when the XP
+  // floater's onAnimationComplete clears that state.
+  const [abilityHpFloater, setAbilityHpFloater] = useState<{
+    sequence: number;
+    hpGained: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!character) {
-      previousExperienceRef.current = null;
+      previousProgressRef.current = null;
       return;
     }
 
-    const previousExperience = previousExperienceRef.current;
+    const previousProgress = previousProgressRef.current;
 
     if (
       showsCharacterProgression &&
       !prefersReducedMotion &&
-      previousExperience !== null &&
-      previousExperience.characterId === character.id
+      previousProgress !== null &&
+      previousProgress.characterId === character.id
     ) {
       const beat = experienceGainBeat(
-        previousExperience.experience,
+        previousProgress.experience,
         character.experience,
       );
 
@@ -145,14 +159,27 @@ export function RosterSlot({
         setExperienceBeatSequence((sequence) => sequence + 1);
         setActiveExperienceBeat(beat);
         setIsExperienceBeatActive(true);
+
+        const abilityHpGained = abilityHpGainFromRefresh(
+          previousProgress,
+          character,
+        );
+
+        if (abilityHpGained > 0) {
+          setAbilityHpFloater((floater) => ({
+            sequence: (floater?.sequence ?? 0) + 1,
+            hpGained: abilityHpGained,
+          }));
+        }
       }
     }
 
-    previousExperienceRef.current = {
+    previousProgressRef.current = {
       characterId: character.id,
       experience: character.experience,
+      maxHp: character.maxHp,
     };
-  }, [character?.id, character?.experience]);
+  }, [character?.id, character?.experience, character?.maxHp]);
 
   // Player slabs are facing="right" (front of the reversed row is at screen
   // right); enemy slabs are facing="left" (front of the normal row is at
@@ -329,7 +356,10 @@ export function RosterSlot({
                     }
               }
             >
-              <div data-roster-slot-beat-target className="relative h-full w-full">
+              <div
+                data-roster-slot-beat-target
+                className="relative h-full w-full"
+              >
                 <CharacterCard
                   character={character}
                   facing={facing}
@@ -378,7 +408,7 @@ export function RosterSlot({
           clips them. */}
       {goldFloaterSequence > 0 && (
         <motion.span
-          key={goldFloaterSequence}
+          key={`gold-${goldFloaterSequence}`}
           data-roster-slot-floater="gold"
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-1/3 z-20 text-center text-lg font-bold text-(--color-parchment-50) [text-shadow:0_1px_2px_rgba(0,0,0,0.8)]"
@@ -392,7 +422,7 @@ export function RosterSlot({
       )}
       {activeExperienceBeat && activeExperienceBeat.beatKind !== "none" && (
         <motion.span
-          key={experienceBeatSequence}
+          key={`experience-${experienceBeatSequence}`}
           data-roster-slot-floater="experience"
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 top-1/3 z-20 text-center text-lg font-bold text-(--color-parchment-50) [text-shadow:0_1px_2px_rgba(0,0,0,0.8)]"
@@ -412,6 +442,23 @@ export function RosterSlot({
             : t("experienceGainFloater", {
                 experienceGained: activeExperienceBeat.experienceGained,
               })}
+        </motion.span>
+      )}
+      {abilityHpFloater && (
+        <motion.span
+          key={`ability-hp-${abilityHpFloater.sequence}`}
+          data-roster-slot-floater="abilityHp"
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-1/2 z-20 text-center text-lg font-bold text-emerald-300 [text-shadow:0_1px_2px_rgba(0,0,0,0.8)]"
+          initial={{ y: 0, opacity: 0 }}
+          animate={{ y: [0, FLOATER_RISE_Y], opacity: [0, 1, 1, 0] }}
+          transition={{
+            duration: FLOATER_DURATION_S,
+            delay: ABILITY_HP_FLOATER_DELAY_S,
+          }}
+          onAnimationComplete={() => setAbilityHpFloater(null)}
+        >
+          {t("abilityHpFloater", { hp: abilityHpFloater.hpGained })}
         </motion.span>
       )}
     </div>
