@@ -4,6 +4,7 @@ import { resolveBattle } from "@/lib/battle/resolveBattle";
 import { createEmptyCampRoster, squeezeCampRoster, type CampRoster } from "./campRoster";
 import { resolveCampBattle } from "./resolveCampBattle";
 import { buildTestCharacter } from "@/test/characterFixtures";
+import { buildTestEnemyEncounter } from "@/test/enemyEncounterFixtures";
 
 // mechanical refactor: replaced with a single buildTestCharacter call
 function buildFixtureCharacter(
@@ -30,6 +31,11 @@ const fixtureEnemies: Character[] = [
   buildFixtureCharacter("fixture-enemy-2", "Enemy Two", 3, 8),
 ];
 
+const fixtureEnemyEncounter = buildTestEnemyEncounter({
+  enemyFactionId: "dwarf",
+  enemyCharacters: fixtureEnemies,
+});
+
 describe("resolveCampBattle", () => {
   it("(a) squeezes the camp roster into the player's starting line, front first", () => {
     const characterA = buildFixtureCharacter("character-a", "Dwarf A", 3, 5);
@@ -44,7 +50,7 @@ describe("resolveCampBattle", () => {
       null,
     ];
 
-    const resolvedBattle = resolveCampBattle(campRosterWithGaps, fixtureEnemies);
+    const resolvedBattle = resolveCampBattle(campRosterWithGaps, fixtureEnemyEncounter);
 
     expect(
       resolvedBattle.initialState.player.activeCharacters.map(
@@ -66,7 +72,7 @@ describe("resolveCampBattle", () => {
       null,
     ];
 
-    const resolvedBattle = resolveCampBattle(campRosterWithGaps, fixtureEnemies);
+    const resolvedBattle = resolveCampBattle(campRosterWithGaps, fixtureEnemyEncounter);
 
     expect(
       resolvedBattle.initialState.enemy.activeCharacters.map(
@@ -80,7 +86,7 @@ describe("resolveCampBattle", () => {
 
     const resolvedBattle = resolveCampBattle(
       allEmptyCampRoster,
-      fixtureEnemies,
+      fixtureEnemyEncounter,
     );
 
     expect(resolvedBattle.events.map((battleEvent) => battleEvent.type)).toEqual(
@@ -105,12 +111,16 @@ describe("resolveCampBattle", () => {
       null,
     ];
 
-    const resolvedBattle = resolveCampBattle(campRosterWithGaps, fixtureEnemies);
+    const resolvedBattle = resolveCampBattle(campRosterWithGaps, fixtureEnemyEncounter);
 
+    // deliberate assertion rewrite: resolveBattle(…, fixtureEnemies) before; resolveBattle(…, fixtureEnemies, undefined, undefined, { playerFactionId: "dwarf", enemyFactionId: "dwarf" }) after — Phase 13
     expect(resolvedBattle).toEqual(
       resolveBattle(
         squeezeCampRoster(campRosterWithGaps).activeCharacters,
         fixtureEnemies,
+        undefined,
+        undefined,
+        { playerFactionId: "dwarf", enemyFactionId: "dwarf" },
       ),
     );
   });
@@ -128,8 +138,26 @@ describe("resolveCampBattle", () => {
     ];
     const campRosterClone = structuredClone(campRosterWithGaps);
 
-    resolveCampBattle(campRosterWithGaps, fixtureEnemies);
+    resolveCampBattle(campRosterWithGaps, fixtureEnemyEncounter);
 
     expect(campRosterWithGaps).toEqual(campRosterClone);
+  });
+
+  it("(f) passes the player's faction and the encounter's faction to the battle start", () => {
+    const resolvedBattle = resolveCampBattle(
+      createEmptyCampRoster(),
+      buildTestEnemyEncounter({
+        enemyFactionId: "kobold",
+        enemyCharacters: fixtureEnemies,
+      }),
+    );
+
+    expect(resolvedBattle.events[0]).toEqual({
+      type: "BATTLE_START",
+      playerFactionId: "dwarf",
+      enemyFactionId: "kobold",
+      beatIndex: 0,
+      beatType: "BATTLE_START",
+    });
   });
 });

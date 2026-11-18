@@ -33,6 +33,7 @@ describe("useBattlePlayback", () => {
     expect(result.current.isFinished).toBe(false);
   });
 
+  // deliberate assertion rewrite: { kind: "battleStart" } before; { kind: "battleStart", playerFactionId: "dwarf", enemyFactionId: "dwarf" } after — Phase 13
   it("advance() steps forward one beat", () => {
     const { result } = renderHook(() => useBattlePlayback(resolvedBattle));
 
@@ -41,7 +42,7 @@ describe("useBattlePlayback", () => {
     });
 
     expect(result.current.currentBeatDescriptors).toEqual([
-      { kind: "battleStart" },
+      { kind: "battleStart", playerFactionId: "dwarf", enemyFactionId: "dwarf" },
     ]);
     expect(result.current.isFinished).toBe(false);
   });
@@ -148,6 +149,7 @@ describe("useBattlePlayback", () => {
       vi.useRealTimers();
     });
 
+    // deliberate assertion rewrite: { kind: "battleStart" } before; { kind: "battleStart", playerFactionId: "dwarf", enemyFactionId: "dwarf" } after — Phase 13
     it("play() auto-advances one beat per interval", () => {
       const { result } = renderHook(() => useBattlePlayback(resolvedBattle));
 
@@ -162,7 +164,7 @@ describe("useBattlePlayback", () => {
       });
 
       expect(result.current.currentBeatDescriptors).toEqual([
-        { kind: "battleStart" },
+        { kind: "battleStart", playerFactionId: "dwarf", enemyFactionId: "dwarf" },
       ]);
 
       act(() => {
@@ -192,6 +194,7 @@ describe("useBattlePlayback", () => {
       expect(result.current.isPlaying).toBe(false);
     });
 
+    // deliberate assertion rewrite: { kind: "battleStart" } before; { kind: "battleStart", playerFactionId: "dwarf", enemyFactionId: "dwarf" } after — Phase 13
     it("pause() stops auto-advancing", () => {
       const { result } = renderHook(() => useBattlePlayback(resolvedBattle));
 
@@ -204,7 +207,7 @@ describe("useBattlePlayback", () => {
       });
 
       expect(result.current.currentBeatDescriptors).toEqual([
-        { kind: "battleStart" },
+        { kind: "battleStart", playerFactionId: "dwarf", enemyFactionId: "dwarf" },
       ]);
 
       act(() => {
@@ -218,7 +221,7 @@ describe("useBattlePlayback", () => {
       });
 
       expect(result.current.currentBeatDescriptors).toEqual([
-        { kind: "battleStart" },
+        { kind: "battleStart", playerFactionId: "dwarf", enemyFactionId: "dwarf" },
       ]);
     });
 

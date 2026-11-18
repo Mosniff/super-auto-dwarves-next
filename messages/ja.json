@@ -82,7 +82,7 @@
     "food": "食料"
   },
   "battle": {
-    "battleStart": "ドワーフとモンスターが戦いに備える",
+    "battleStart": "{playerFaction}と{enemyFaction}が戦いに備える",
     "frontsEngage": "両軍がぶつかり合う！",
     "turnStart": "ターン{turn}",
     "attack": "{attacker}が{target}をこうげき！",

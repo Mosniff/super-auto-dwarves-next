@@ -1,5 +1,6 @@
 import type { Character } from "@/lib/game/character";
 import type { CharacterAbilityId } from "@/lib/game/characterAbilities";
+import type { CharacterFactionId } from "@/lib/game/characterFactions";
 
 export interface Roster {
   // contiguous, front-anchored fighting line; index 0 is the front
@@ -58,8 +59,11 @@ export type BattleEventPayload =
       targetId: string;
       value: number;
     }
+  // Carries each side's faction, for the opening log line (Phase 13).
   | {
       type: "BATTLE_START";
+      playerFactionId: CharacterFactionId;
+      enemyFactionId: CharacterFactionId;
     }
   // No state change: the fronts step into the action zone on this beat
   // (presentation, step 11b). Emitted only when both sides still have
@@ -109,7 +113,11 @@ export interface ResolvedBattle {
 // message layer needs. Keyed on `kind` (not `type`) to stay visually
 // distinct from BattleEventPayload's discriminant.
 export type BattleEventDescriptor =
-  | { kind: "battleStart" }
+  | {
+      kind: "battleStart";
+      playerFactionId: CharacterFactionId;
+      enemyFactionId: CharacterFactionId;
+    }
   | { kind: "frontsEngage" }
   | { kind: "turnStart"; turn: number }
   | { kind: "attack"; attacker: string; target: string }

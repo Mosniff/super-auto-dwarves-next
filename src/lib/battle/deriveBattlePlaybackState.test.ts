@@ -29,10 +29,13 @@ describe("deriveBattlePlaybackState", () => {
     expect(playbackView.isFinished).toBe(false);
   });
 
+  // deliberate assertion rewrite: { kind: "battleStart" } before; { kind: "battleStart", playerFactionId: "dwarf", enemyFactionId: "dwarf" } after — Phase 13
   it("at playbackBeat 0 / viewingBeat 0: only BATTLE_START is applied", () => {
     const playbackView = deriveBattlePlaybackState(resolvedBattle, 0, 0);
 
-    expect(playbackView.currentBeatDescriptors).toEqual([{ kind: "battleStart" }]);
+    expect(playbackView.currentBeatDescriptors).toEqual([
+      { kind: "battleStart", playerFactionId: "dwarf", enemyFactionId: "dwarf" },
+    ]);
     expect(playbackView.isFinished).toBe(false);
   });
 
@@ -67,6 +70,7 @@ describe("deriveBattlePlaybackState", () => {
     expect(playbackView.currentState).toEqual(manuallyReducedState);
   });
 
+  // deliberate assertion rewrite: { kind: "battleStart" } before; { kind: "battleStart", playerFactionId: "dwarf", enemyFactionId: "dwarf" } after — Phase 13
   it("viewing an earlier beat does not rewind the battle state", () => {
     const playbackView = deriveBattlePlaybackState(
       resolvedBattle,
@@ -80,7 +84,9 @@ describe("deriveBattlePlaybackState", () => {
     );
 
     expect(playbackView.currentState).toEqual(manuallyReducedState);
-    expect(playbackView.currentBeatDescriptors).toEqual([{ kind: "battleStart" }]);
+    expect(playbackView.currentBeatDescriptors).toEqual([
+      { kind: "battleStart", playerFactionId: "dwarf", enemyFactionId: "dwarf" },
+    ]);
   });
 
   it("at a clash beat, currentBeatType is CLASH", () => {
@@ -140,7 +146,7 @@ describe("deriveBattlePlaybackState", () => {
         enemy: { activeCharacters: abilityEnemyCharacters, downedCharacters: [] },
       },
       events: [
-        { type: "BATTLE_START", beatIndex: 0, beatType: "BATTLE_START" },
+        { type: "BATTLE_START", playerFactionId: "dwarf", enemyFactionId: "dwarf", beatIndex: 0, beatType: "BATTLE_START" },
         {
           type: "ABILITY_ACTIVATE",
           characterId: "p2",

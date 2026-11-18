@@ -82,7 +82,7 @@
     "food": "Food"
   },
   "battle": {
-    "battleStart": "The dwarves and the monsters prepare for battle",
+    "battleStart": "The {playerFaction} and the {enemyFaction} prepare for battle",
     "frontsEngage": "The parties clash!",
     "turnStart": "Turn {turn}",
     "attack": "{attacker} attacks {target}",

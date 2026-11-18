@@ -9,10 +9,21 @@ describe("describeBattleEvent", () => {
     ["p3", "Ogden"],
   ]);
 
+  // deliberate assertion rewrite: { type: "BATTLE_START", beatIndex: 0, beatType: "BATTLE_START" } / { kind: "battleStart" } before; event gains playerFactionId: "dwarf", enemyFactionId: "kobold"; expectation becomes { kind: "battleStart", playerFactionId: "dwarf", enemyFactionId: "kobold" } after — Phase 13
   it("describes BATTLE_START", () => {
-    const event: BattleEvent = { type: "BATTLE_START", beatIndex: 0, beatType: "BATTLE_START" };
+    const event: BattleEvent = {
+      type: "BATTLE_START",
+      playerFactionId: "dwarf",
+      enemyFactionId: "kobold",
+      beatIndex: 0,
+      beatType: "BATTLE_START",
+    };
 
-    expect(describeBattleEvent(event, nameMap)).toEqual({ kind: "battleStart" });
+    expect(describeBattleEvent(event, nameMap)).toEqual({
+      kind: "battleStart",
+      playerFactionId: "dwarf",
+      enemyFactionId: "kobold",
+    });
   });
 
   it("DE1: FRONTS_ENGAGE describes as frontsEngage", () => {

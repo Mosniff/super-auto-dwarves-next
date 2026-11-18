@@ -945,4 +945,37 @@ describe("resolveBattle", () => {
       "BATTLE_END",
     ]);
   });
+
+  it("RF1: BATTLE_START carries the dwarf/dwarf fixture default when no factions are given", () => {
+    const { events } = resolveBattle(
+      [buildTestCharacter({ id: "p1" })],
+      [buildTestCharacter({ id: "e1" })],
+    );
+
+    expect(events[0]).toEqual({
+      type: "BATTLE_START",
+      playerFactionId: "dwarf",
+      enemyFactionId: "dwarf",
+      beatIndex: 0,
+      beatType: "BATTLE_START",
+    });
+  });
+
+  it("RF2: BATTLE_START carries the factions it is given", () => {
+    const { events } = resolveBattle(
+      [buildTestCharacter({ id: "p1" })],
+      [buildTestCharacter({ id: "e1", characterFactionId: "kobold" })],
+      undefined,
+      undefined,
+      { playerFactionId: "dwarf", enemyFactionId: "kobold" },
+    );
+
+    expect(events[0]).toEqual({
+      type: "BATTLE_START",
+      playerFactionId: "dwarf",
+      enemyFactionId: "kobold",
+      beatIndex: 0,
+      beatType: "BATTLE_START",
+    });
+  });
 });

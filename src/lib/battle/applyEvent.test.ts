@@ -170,6 +170,8 @@ describe("applyEvent", () => {
     it("BATTLE_START does not change state", () => {
       const event: BattleEvent = {
         type: "BATTLE_START",
+        playerFactionId: "dwarf",
+        enemyFactionId: "dwarf",
         beatIndex: 0,
         beatType: "BATTLE_START",
       };

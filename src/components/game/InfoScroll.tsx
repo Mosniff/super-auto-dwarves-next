@@ -46,6 +46,7 @@ export function InfoScroll({
   const t = useTranslations("battle");
   const translateCommon = useTranslations("common");
   const translateAbility = useTranslations("ability");
+  const translateFaction = useTranslations("faction");
 
   return (
     <div className="flex h-full flex-col">
@@ -73,12 +74,24 @@ export function InfoScroll({
             <ul className="min-h-0 flex-1 space-y-1 overflow-y-auto">
               {currentBeatDescriptors.map((currentBeatDescriptor, index) => {
                 const message = battleLogMessage(currentBeatDescriptor);
+                // Faction words are translated here, at the leaf (Phase 13).
+                const messageParams = {
+                  ...message.params,
+                  ...Object.fromEntries(
+                    Object.entries(message.factionParams ?? {}).map(
+                      ([paramName, characterFactionId]) => [
+                        paramName,
+                        translateFaction(`${characterFactionId}.pluralName`),
+                      ],
+                    ),
+                  ),
+                };
 
                 return (
                   <li key={index} className="text-sm text-ink-700">
                     {message.namespace === "ability"
-                      ? translateAbility(message.key, message.params)
-                      : t(message.key, message.params)}
+                      ? translateAbility(message.key, messageParams)
+                      : t(message.key, messageParams)}
                   </li>
                 );
               })}

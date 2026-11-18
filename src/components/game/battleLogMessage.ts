@@ -1,4 +1,5 @@
 import type { BattleEventDescriptor } from "@/lib/battle/types";
+import type { CharacterFactionId } from "@/lib/game/characterFactions";
 
 export function battleLogMessage(
   descriptor: BattleEventDescriptor,
@@ -9,10 +10,19 @@ export function battleLogMessage(
   namespace?: "ability";
   key: string;
   params?: Record<string, string | number>;
+  // Faction ids the leaf translates into each faction's pluralName (the
+  // faction namespace) and adds to params under these names (Phase 13).
+  factionParams?: Record<string, CharacterFactionId>;
 } {
   switch (descriptor.kind) {
     case "battleStart":
-      return { key: "battleStart" };
+      return {
+        key: "battleStart",
+        factionParams: {
+          playerFaction: descriptor.playerFactionId,
+          enemyFaction: descriptor.enemyFactionId,
+        },
+      };
     case "frontsEngage":
       return { key: "frontsEngage" };
     case "turnStart":

@@ -8,7 +8,6 @@ import { readCurrentUserId } from "@/lib/supabase/readCurrentUserId";
 import { prismaGameRepository } from "@/lib/persistence/prismaGameRepository";
 import { loadSavedGameForUser } from "@/lib/persistence/loadSavedGameForUser";
 import { listCharacterTemplates } from "@/lib/game/characterTemplates";
-import { DUMMY_ENEMY_ROSTER } from "@/lib/game/dummyEnemyRoster";
 import { resolveCampBattle } from "@/lib/game/resolveCampBattle";
 import {
   advanceGameAction,
@@ -21,8 +20,8 @@ import {
 // Never signs anyone in. It renders whichever screen the saved phase
 // dictates — camp in campPhase, battle in battlePhase. The battle is
 // resolved here, on the server, from the saved camp roster against the
-// placeholder enemy; it is deterministic, so a reload replays the
-// identical battle and nothing battle-derived is stored.
+// stored enemy encounter (Phase 13); it is deterministic, so a reload
+// replays the identical battle.
 export default async function PlayPage() {
   const userId = await readCurrentUserId();
 
@@ -68,9 +67,17 @@ export default async function PlayPage() {
     );
   }
 
+  // Present in battlePhase: buildGameStateFromLoadedRecord rejects a
+  // battlePhase save without one (Phase 13).
+  const enemyEncounter = savedGame.gameState.enemyEncounter;
+
+  if (enemyEncounter === null) {
+    throw new Error("A battlePhase game has no stored enemy encounter.");
+  }
+
   const resolvedBattle = resolveCampBattle(
     savedGame.gameState.playerRoster,
-    DUMMY_ENEMY_ROSTER,
+    enemyEncounter,
   );
 
   return (

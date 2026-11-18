@@ -3,10 +3,18 @@ import { battleLogMessage } from "./battleLogMessage";
 import type { BattleEventDescriptor } from "@/lib/battle/types";
 
 describe("battleLogMessage", () => {
+  // deliberate assertion rewrite: { kind: "battleStart" } / { key: "battleStart" } before; descriptor gains playerFactionId: "dwarf", enemyFactionId: "kobold"; expectation becomes { key: "battleStart", factionParams: { playerFaction: "dwarf", enemyFaction: "kobold" } } after — Phase 13
   it("maps battleStart", () => {
-    const descriptor: BattleEventDescriptor = { kind: "battleStart" };
+    const descriptor: BattleEventDescriptor = {
+      kind: "battleStart",
+      playerFactionId: "dwarf",
+      enemyFactionId: "kobold",
+    };
 
-    expect(battleLogMessage(descriptor)).toEqual({ key: "battleStart" });
+    expect(battleLogMessage(descriptor)).toEqual({
+      key: "battleStart",
+      factionParams: { playerFaction: "dwarf", enemyFaction: "kobold" },
+    });
   });
 
   it("LM1: frontsEngage maps to its own key", () => {

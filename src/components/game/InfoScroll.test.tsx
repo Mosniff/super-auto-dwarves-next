@@ -75,4 +75,14 @@ describe("InfoScroll", () => {
       screen.queryByText("Borin gained 1 armour!") !== null,
     ]).toEqual([true, true]);
   });
+
+  it("IS1: renders the battle-start line with both factions' plural names", () => {
+    renderInfoScroll([
+      { kind: "battleStart", playerFactionId: "dwarf", enemyFactionId: "kobold" },
+    ]);
+
+    expect(
+      screen.getByText("The dwarves and the kobolds prepare for battle"),
+    ).toBeInTheDocument();
+  });
 });

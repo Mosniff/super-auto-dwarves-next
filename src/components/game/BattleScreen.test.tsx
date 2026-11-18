@@ -90,6 +90,7 @@ describe("BattleScreen", () => {
       vi.useRealTimers();
     });
 
+    // deliberate assertion rewrite: "The dwarves and the monsters prepare for battle" before; "The dwarves and the dwarves prepare for battle" after (the resolver's dwarf/dwarf default) — Phase 13
     it("progresses the battle log", () => {
       // fireEvent (not userEvent) so we don't need to configure userEvent
       // for fake timers; the post-advance lock still needs releasing
@@ -106,7 +107,7 @@ describe("BattleScreen", () => {
 
       fireEvent.click(advanceButton);
       expect(
-        screen.getByText("The dwarves and the monsters prepare for battle"),
+        screen.getByText("The dwarves and the dwarves prepare for battle"),
       ).toBeInTheDocument();
 
       act(() => {
@@ -116,7 +117,7 @@ describe("BattleScreen", () => {
       fireEvent.click(advanceButton);
       expect(screen.getByText("The parties clash!")).toBeInTheDocument();
       expect(
-        screen.queryByText("The dwarves and the monsters prepare for battle"),
+        screen.queryByText("The dwarves and the dwarves prepare for battle"),
       ).not.toBeInTheDocument();
     });
   });
@@ -493,7 +494,7 @@ describe("BattleScreen", () => {
           },
         },
         events: [
-          { type: "BATTLE_START", beatIndex: 0, beatType: "BATTLE_START" },
+          { type: "BATTLE_START", playerFactionId: "dwarf", enemyFactionId: "dwarf", beatIndex: 0, beatType: "BATTLE_START" },
           {
             type: "ABILITY_ACTIVATE",
             characterId: "p2",
@@ -578,7 +579,7 @@ describe("BattleScreen", () => {
           },
         },
         events: [
-          { type: "BATTLE_START", beatIndex: 0, beatType: "BATTLE_START" },
+          { type: "BATTLE_START", playerFactionId: "dwarf", enemyFactionId: "dwarf", beatIndex: 0, beatType: "BATTLE_START" },
           {
             type: "ATTACK",
             attackerId: "p1",

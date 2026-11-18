@@ -6,6 +6,10 @@ import type {
   ResolvedBattle,
 } from "./types";
 import type { Character } from "@/lib/game/character";
+import {
+  PLAYER_FACTION_ID,
+  type CharacterFactionId,
+} from "@/lib/game/characterFactions";
 import { applyEvent } from "./applyEvent";
 import { resolveHit } from "./resolveHit";
 import {
@@ -14,11 +18,24 @@ import {
   type BattleStartAbilityPlanner,
 } from "./battleStartAbilities";
 
+export interface BattleSideFactionIds {
+  playerFactionId: CharacterFactionId;
+  enemyFactionId: CharacterFactionId;
+}
+
+// A fixture convenience only: the camp seam (resolveCampBattle) always
+// passes both sides' factions explicitly (Phase 13).
+const DEFAULT_BATTLE_SIDE_FACTION_IDS: BattleSideFactionIds = {
+  playerFactionId: PLAYER_FACTION_ID,
+  enemyFactionId: PLAYER_FACTION_ID,
+};
+
 export function resolveBattle(
   playerCharacters: Character[],
   enemyCharacters: Character[],
   maxTurns: number = 20,
   planAbility: BattleStartAbilityPlanner = planBattleStartAbility,
+  battleSideFactionIds: BattleSideFactionIds = DEFAULT_BATTLE_SIDE_FACTION_IDS,
 ): ResolvedBattle {
   const initialState: BattleState = {
     player: { activeCharacters: playerCharacters, downedCharacters: [] },
@@ -45,7 +62,11 @@ export function resolveBattle(
     workingState = applyEvent(workingState, event);
   };
 
-  emitEvent({ type: "BATTLE_START" });
+  emitEvent({
+    type: "BATTLE_START",
+    playerFactionId: battleSideFactionIds.playerFactionId,
+    enemyFactionId: battleSideFactionIds.enemyFactionId,
+  });
 
   // Battle-start sub-phases (Phase 12). Simultaneity within a sub-phase:
   // every ability firing in it chooses its targets and amounts from a

@@ -9,7 +9,11 @@ export function describeBattleEvent(
 
   switch (event.type) {
     case "BATTLE_START":
-      return { kind: "battleStart" };
+      return {
+        kind: "battleStart",
+        playerFactionId: event.playerFactionId,
+        enemyFactionId: event.enemyFactionId,
+      };
     case "FRONTS_ENGAGE":
       return { kind: "frontsEngage" };
     case "TURN_START":
