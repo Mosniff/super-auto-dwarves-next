@@ -360,7 +360,41 @@ describe("BattleScreen", () => {
     ]);
   });
 
-  it("BI2: after the first beat, both action-zone cards have info controls", () => {
+  it("BI2: after the engage beat, both action-zone cards have info controls", () => {
+    // deliberate assertion rewrite: the fronts reach the action zone on the engage beat (Phase 12 step 11b)
+    vi.useFakeTimers();
+    try {
+      renderWithMessages(
+        <BattleScreen
+          resolvedBattle={playerWinResolvedBattle}
+          playerCampRoster={playerWinCampRoster}
+        />,
+      );
+
+      const advanceButton = screen.getByRole("button", { name: /advance/i });
+      fireEvent.click(advanceButton);
+
+      act(() => {
+        vi.advanceTimersByTime(AUTOPLAY_INTERVAL_MS);
+      });
+
+      fireEvent.click(advanceButton);
+
+      expect(
+        [
+          ...document.querySelectorAll(
+            "[data-active-card-host] [data-character-info-control]",
+          ),
+        ]
+          .map((infoControl) => infoControl.getAttribute("aria-label"))
+          .sort(),
+      ).toEqual(["Details: Grukk", "Details: Borin"].sort());
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("BI4: after the prepare beat, both fronts are still on their benches and the action zone is empty", () => {
     renderWithMessages(
       <BattleScreen
         resolvedBattle={playerWinResolvedBattle}
@@ -371,15 +405,21 @@ describe("BattleScreen", () => {
     const advanceButton = screen.getByRole("button", { name: /advance/i });
     fireEvent.click(advanceButton);
 
-    expect(
-      [
+    expect({
+      actionZoneLabels: [
         ...document.querySelectorAll(
           "[data-active-card-host] [data-character-info-control]",
         ),
+      ].map((infoControl) => infoControl.getAttribute("aria-label")),
+      allLabels: [
+        ...document.querySelectorAll("[data-character-info-control]"),
       ]
         .map((infoControl) => infoControl.getAttribute("aria-label"))
         .sort(),
-    ).toEqual(["Details: Grukk", "Details: Borin"].sort());
+    }).toEqual({
+      actionZoneLabels: [],
+      allLabels: ["Details: Borin", "Details: Grukk"],
+    });
   });
 
   it("BI3: opening a battle info control during autoplay pauses the battle", () => {

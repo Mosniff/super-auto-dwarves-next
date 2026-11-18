@@ -2,7 +2,11 @@ import { describe, it, expect } from "vitest";
 import type { Character } from "@/lib/game/character";
 import type { CampRoster } from "@/lib/game/campRoster";
 import { buildTestCharacter } from "@/test/characterFixtures";
-import { presentBattleBoard } from "./battleBoardPresentation";
+import { resolveBattle } from "@/lib/battle/resolveBattle";
+import {
+  battleBoardStage,
+  presentBattleBoard,
+} from "./battleBoardPresentation";
 
 // mechanical refactor: replaced with a single buildTestCharacter call
 function buildFixtureCharacter(id: string, name: string): Character {
@@ -36,12 +40,13 @@ describe("presentBattleBoard", () => {
       null,
     ];
 
+    // deliberate input rewrite: hasBattleStarted became battleBoardStage (Phase 12 step 11b)
     const presentation = presentBattleBoard({
       battleState: {
         player: { activeCharacters: [aldric, brann], downedCharacters: [] },
         enemy: { activeCharacters: [xog, yarl], downedCharacters: [] },
       },
-      hasBattleStarted: false,
+      battleBoardStage: "beforeBattle",
       playerCampRoster,
     });
 
@@ -64,12 +69,13 @@ describe("presentBattleBoard", () => {
       null,
     ];
 
+    // deliberate input rewrite: hasBattleStarted became battleBoardStage (Phase 12 step 11b)
     const presentation = presentBattleBoard({
       battleState: {
         player: { activeCharacters: [], downedCharacters: [] },
         enemy: { activeCharacters: [xog], downedCharacters: [] },
       },
-      hasBattleStarted: false,
+      battleBoardStage: "beforeBattle",
       playerCampRoster,
     });
 
@@ -81,7 +87,65 @@ describe("presentBattleBoard", () => {
     });
   });
 
-  it("(c) once the battle has started, each front character is in the action zone and the benches are squeezed", () => {
+  it("(c) once the fronts have engaged, each front character is in the action zone and the benches are squeezed", () => {
+    const playerCampRoster: CampRoster = [
+      aldric,
+      null,
+      brann,
+      null,
+      null,
+      null,
+      null,
+    ];
+
+    // deliberate input rewrite: hasBattleStarted became battleBoardStage (Phase 12 step 11b)
+    const presentation = presentBattleBoard({
+      battleState: {
+        player: { activeCharacters: [aldric, brann], downedCharacters: [] },
+        enemy: { activeCharacters: [xog, yarl], downedCharacters: [] },
+      },
+      battleBoardStage: "engaged",
+      playerCampRoster,
+    });
+
+    expect(presentation).toEqual({
+      playerBenchCharacters: [brann],
+      playerFrontCharacter: aldric,
+      enemyBenchCharacters: [yarl],
+      enemyFrontCharacter: xog,
+    });
+  });
+
+  it("(d) once the fronts have engaged, presentation follows the battle state, not the camp roster", () => {
+    const playerCampRoster: CampRoster = [
+      aldric,
+      null,
+      brann,
+      null,
+      null,
+      null,
+      null,
+    ];
+
+    // deliberate input rewrite: hasBattleStarted became battleBoardStage (Phase 12 step 11b)
+    const presentation = presentBattleBoard({
+      battleState: {
+        player: { activeCharacters: [brann], downedCharacters: [aldric] },
+        enemy: { activeCharacters: [xog], downedCharacters: [yarl] },
+      },
+      battleBoardStage: "engaged",
+      playerCampRoster,
+    });
+
+    expect(presentation).toEqual({
+      playerBenchCharacters: [],
+      playerFrontCharacter: brann,
+      enemyBenchCharacters: [],
+      enemyFrontCharacter: xog,
+    });
+  });
+
+  it("(e) while preparing, everyone stays on the bench with the gaps closed, and both fronts are empty", () => {
     const playerCampRoster: CampRoster = [
       aldric,
       null,
@@ -97,43 +161,32 @@ describe("presentBattleBoard", () => {
         player: { activeCharacters: [aldric, brann], downedCharacters: [] },
         enemy: { activeCharacters: [xog, yarl], downedCharacters: [] },
       },
-      hasBattleStarted: true,
+      battleBoardStage: "preparing",
       playerCampRoster,
     });
 
     expect(presentation).toEqual({
-      playerBenchCharacters: [brann],
-      playerFrontCharacter: aldric,
-      enemyBenchCharacters: [yarl],
-      enemyFrontCharacter: xog,
+      playerBenchCharacters: [aldric, brann],
+      playerFrontCharacter: undefined,
+      enemyBenchCharacters: [xog, yarl],
+      enemyFrontCharacter: undefined,
     });
   });
 
-  it("(d) once the battle has started, presentation follows the battle state, not the camp roster", () => {
-    const playerCampRoster: CampRoster = [
-      aldric,
-      null,
-      brann,
-      null,
-      null,
-      null,
-      null,
-    ];
+  it("(f) the stage follows the playback beat: preparing until the engage beat has been applied; a battle that never engages stays preparing", () => {
+    const engagingBattle = resolveBattle([aldric], [xog]);
+    const neverEngagingBattle = resolveBattle([], [xog]);
 
-    const presentation = presentBattleBoard({
-      battleState: {
-        player: { activeCharacters: [brann], downedCharacters: [aldric] },
-        enemy: { activeCharacters: [xog], downedCharacters: [yarl] },
-      },
-      hasBattleStarted: true,
-      playerCampRoster,
-    });
-
-    expect(presentation).toEqual({
-      playerBenchCharacters: [],
-      playerFrontCharacter: brann,
-      enemyBenchCharacters: [],
-      enemyFrontCharacter: xog,
-    });
+    expect([
+      [-1, 0, 1, 2].map((playbackBeat) =>
+        battleBoardStage(engagingBattle.events, playbackBeat),
+      ),
+      [0, 1].map((playbackBeat) =>
+        battleBoardStage(neverEngagingBattle.events, playbackBeat),
+      ),
+    ]).toEqual([
+      ["beforeBattle", "preparing", "engaged", "engaged"],
+      ["preparing", "preparing"],
+    ]);
   });
 });

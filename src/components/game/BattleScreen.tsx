@@ -7,7 +7,10 @@ import { RosterSlab } from "@/components/game/RosterSlab";
 import type { ResolvedBattle } from "@/lib/battle/types";
 import type { CampRoster } from "@/lib/game/campRoster";
 import { useBattlePlayback } from "@/hooks/useBattlePlayback";
-import { presentBattleBoard } from "@/components/game/battleBoardPresentation";
+import {
+  battleBoardStage,
+  presentBattleBoard,
+} from "@/components/game/battleBoardPresentation";
 
 interface BattleScreenProps {
   resolvedBattle: ResolvedBattle;
@@ -30,7 +33,6 @@ export function BattleScreen({
     currentBeatCharacterEffects,
     playbackBeat,
     isFinished,
-    hasBattleStarted,
     advance,
     canAdvance,
     viewPreviousBeat,
@@ -56,7 +58,7 @@ export function BattleScreen({
     enemyFrontCharacter,
   } = presentBattleBoard({
     battleState: currentState,
-    hasBattleStarted,
+    battleBoardStage: battleBoardStage(resolvedBattle.events, playbackBeat),
     playerCampRoster,
   });
 
