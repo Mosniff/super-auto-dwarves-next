@@ -340,6 +340,55 @@ describe("CharacterCard", () => {
     ]);
   });
 
+  it("C23: a template with a portrait shows its image; one without shows the '?' fallback", () => {
+    renderWithMessages(
+      <>
+        <CharacterCard
+          character={buildTestCharacter({
+            id: "c23a",
+            name: "Borin",
+            characterTemplateId: "borin",
+          })}
+        />
+        <CharacterCard
+          character={buildTestCharacter({ id: "c23b", name: "Grukk" })}
+        />
+      </>,
+    );
+
+    expect(
+      [...document.querySelectorAll("[data-character-portrait]")].map(
+        (portrait) => [
+          portrait.querySelector("img") !== null,
+          portrait.querySelector("[data-character-portrait-fallback]") !==
+            null,
+        ],
+      ),
+    ).toEqual([
+      [true, false],
+      [false, true],
+    ]);
+  });
+
+  it("C24: the fallback keeps the character's name as its accessible label and isn't mirrored for left-facing cards", () => {
+    renderWithMessages(
+      <CharacterCard
+        character={buildTestCharacter({ id: "c24", name: "Grukk" })}
+        facing="left"
+      />,
+    );
+
+    const fallback = document.querySelector(
+      "[data-character-portrait-fallback]",
+    );
+
+    expect([
+      fallback?.getAttribute("aria-label") ?? null,
+      fallback?.getAttribute("role") ?? null,
+      fallback !== null && fallback.closest('[style*="scaleX(-1)"]') === null,
+    ]).toEqual(["Grukk", "img", true]);
+  });
+
   it("C20: renders the reveal wash without the XP bar when showRevealWash is set", () => {
     renderWithMessages(
       <CharacterCard

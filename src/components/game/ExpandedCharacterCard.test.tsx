@@ -133,4 +133,17 @@ describe("ExpandedCharacterCard", () => {
       ),
     ).toEqual(["Ability", null]);
   });
+
+  it("E6: the expanded card shows the '?' fallback for a template without a portrait", () => {
+    renderWithMessages(
+      <ExpandedCharacterCard
+        character={buildTestCharacter({ id: "e6", name: "Grukk" })}
+      />,
+    );
+
+    expect([
+      document.querySelector("[data-expanded-character-card] img") !== null,
+      document.querySelector("[data-character-portrait-fallback]") !== null,
+    ]).toEqual([false, true]);
+  });
 });

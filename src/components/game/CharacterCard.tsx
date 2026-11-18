@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { Shield } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/game/character";
@@ -11,6 +10,7 @@ import {
   tierRomanNumeral,
   type HpDisplayTone,
 } from "./characterCardDisplay";
+import { CharacterPortrait } from "./CharacterPortrait";
 
 // The layout borrows a trading-card frame structure: a bordered, textured
 // body holding a name bar, the portrait (carrying an optional HP or XP
@@ -154,21 +154,15 @@ export function CharacterCard({
           data-character-portrait
           className="relative mx-card-inset min-h-0 flex-1 overflow-hidden rounded-card-portrait"
         >
-          <div
-            className="absolute inset-0"
-            style={facing === "left" ? { transform: "scaleX(-1)" } : undefined}
-          >
-            <Image
-              src="/character_portraits/placeholder.png"
-              alt={character.name}
-              fill
-              className={`object-cover transition-[filter,opacity] duration-200 ease-out ${
-                isDowned ? "grayscale brightness-75" : ""
-              }`}
-              sizes={ACTIVE_CARD_RENDERED_WIDTH_PX}
-              quality={90}
-            />
-          </div>
+          <CharacterPortrait
+            character={character}
+            facing={facing}
+            sizes={ACTIVE_CARD_RENDERED_WIDTH_PX}
+            imageClassName={`transition-[filter,opacity] duration-200 ease-out ${
+              isDowned ? "grayscale brightness-75" : ""
+            }`}
+            fallbackTextClassName="text-card-portrait-fallback"
+          />
           {showHpBar && (
             <div
               data-character-hp-bar

@@ -1,7 +1,6 @@
 "use client";
 
 import type { ReactNode } from "react";
-import Image from "next/image";
 import { Shield } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/game/character";
@@ -13,6 +12,7 @@ import {
   tierRomanNumeral,
   type HpDisplayTone,
 } from "./characterCardDisplay";
+import { CharacterPortrait } from "./CharacterPortrait";
 
 // CharacterCard sizes everything in cqw, which draws one design at many
 // sizes (a ~100px shop tile and a 288px action card alike). The expanded
@@ -79,13 +79,10 @@ export function ExpandedCharacterCard({
 
         <div className="flex justify-center">
           <div className="relative aspect-3/4 h-(--expanded-card-portrait-height) overflow-hidden rounded-md">
-            <Image
-              src="/character_portraits/placeholder.png"
-              alt={character.name}
-              fill
-              className="object-cover"
+            <CharacterPortrait
+              character={character}
               sizes="(min-width: 2560px) 26rem, 20rem"
-              quality={90}
+              fallbackTextClassName="text-9xl"
             />
             {character.armour > 0 && (
               <div
