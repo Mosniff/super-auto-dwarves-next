@@ -11,6 +11,13 @@ export interface BeatCharacterEffect {
   brokenFromArmour: number | null;
 }
 
+// What the battle screen hands down to its cards (Phase 12); beatKey is
+// the playback beat, so per-beat animations replay.
+export interface CurrentBeatEffects {
+  beatKey: number;
+  characterEffects: Readonly<Record<string, BeatCharacterEffect>>;
+}
+
 export function beatCharacterEffects(
   beatEvents: readonly BattleEvent[],
 ): Record<string, BeatCharacterEffect> {

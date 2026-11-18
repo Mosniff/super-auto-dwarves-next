@@ -27,6 +27,8 @@ export function BattleScreen({
     currentState,
     currentBeatDescriptors,
     currentBeatType,
+    currentBeatCharacterEffects,
+    playbackBeat,
     isFinished,
     hasBattleStarted,
     advance,
@@ -39,6 +41,11 @@ export function BattleScreen({
     play,
     pause,
   } = useBattlePlayback(resolvedBattle);
+
+  const currentBeat = {
+    beatKey: playbackBeat,
+    characterEffects: currentBeatCharacterEffects,
+  };
 
   useReportPhaseAdvanceAvailability("battlePhase", isFinished);
 
@@ -63,6 +70,7 @@ export function BattleScreen({
       presentsPlayerFrontSlotAsOnDeck
       showsPlayerInfoControls
       onPlayerInfoControlOpen={pause}
+      playerCurrentBeat={currentBeat}
     >
       <section className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
         <ActionZone
@@ -72,6 +80,7 @@ export function BattleScreen({
           enemyDownedCharacters={currentState.enemy.downedCharacters}
           currentBeatDescriptors={currentBeatDescriptors}
           currentBeatType={currentBeatType}
+          currentBeat={currentBeat}
           onAdvance={advance}
           canAdvance={canAdvance}
           isFinished={isFinished}
@@ -91,6 +100,7 @@ export function BattleScreen({
         presentsFrontSlotAsOnDeck
         showsInfoControls
         onInfoControlOpen={pause}
+        currentBeat={currentBeat}
       />
     </GameScreenShell>
   );

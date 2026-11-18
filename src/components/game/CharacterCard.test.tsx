@@ -309,6 +309,37 @@ describe("CharacterCard", () => {
     ]).toEqual(["2", "2", "2 armour"]);
   });
 
+  it("C22: armourBeat: a broken shield shows the old armour; a gained shield is marked; no beat, no marker", () => {
+    renderWithMessages(
+      <>
+        <CharacterCard
+          character={buildTestCharacter({ id: "c22a", name: "Fixture Dwarf", armour: 0 })}
+          armourBeat={{ armourBeatKind: "broken", beatKey: 3, brokenFromArmour: 2 }}
+        />
+        <CharacterCard
+          character={buildTestCharacter({ id: "c22b", name: "Fixture Dwarf", armour: 1 })}
+          armourBeat={{ armourBeatKind: "gained", beatKey: 3 }}
+        />
+        <CharacterCard
+          character={buildTestCharacter({ id: "c22c", name: "Fixture Dwarf", armour: 1 })}
+        />
+      </>,
+    );
+
+    expect(
+      [...document.querySelectorAll("[data-character-armour]")].map(
+        (armourShield) => [
+          armourShield.getAttribute("data-character-armour"),
+          armourShield.getAttribute("data-armour-beat"),
+        ],
+      ),
+    ).toEqual([
+      ["2", "broken"],
+      ["1", "gained"],
+      ["1", "none"],
+    ]);
+  });
+
   it("C20: renders the reveal wash without the XP bar when showRevealWash is set", () => {
     renderWithMessages(
       <CharacterCard

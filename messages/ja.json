@@ -76,6 +76,8 @@
     "drop": "{character}が倒れた",
     "armourDamage": "{target}のアーマーが{amount}ダメージを防いだ",
     "armourBreak": "{target}のアーマーが壊れた！",
+    "armourGainFloater": "アーマー+{amount}",
+    "armourBreakFloater": "ブレイク！",
     "timeout": "ターン上限に到達 — 引き分け",
     "victory": "勝利！",
     "defeat": "敗北",

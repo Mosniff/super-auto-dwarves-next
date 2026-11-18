@@ -10,12 +10,14 @@ import {
 import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/game/character";
 import { CHARACTER_SELL_PRICE } from "@/lib/game/shop";
+import type { BeatCharacterEffect } from "@/lib/battle/beatCharacterEffects";
 import {
   abilityHpGainFromRefresh,
   experienceGainBeat,
   type RosterSlotExitKind,
 } from "./rosterSlotAnimation";
 import { CharacterCard } from "./CharacterCard";
+import { armourBeatFromEffect, BattleBeatFloaters } from "./BattleBeatFloaters";
 
 interface RosterSlotProps {
   character?: Character;
@@ -28,6 +30,10 @@ interface RosterSlotProps {
   exitKind?: RosterSlotExitKind;
   // Display-only, used only for the data-roster-slot-index attribute.
   slotIndex?: number;
+  // Phase 12 battle beat animations: what this beat did to this slot's
+  // character, if anything, and the beat it belongs to (for re-keying).
+  beatEffect?: BeatCharacterEffect;
+  beatKey?: number;
 }
 
 const SHUFFLE_EXIT_DURATION_S = 0.3;
@@ -71,6 +77,8 @@ export function RosterSlot({
   showsCharacterProgression = false,
   exitKind = "shuffle",
   slotIndex,
+  beatEffect,
+  beatKey,
 }: RosterSlotProps) {
   const prefersReducedMotion = useReducedMotion();
   const showNextHalo = isNext && Boolean(character);
@@ -308,6 +316,7 @@ export function RosterSlot({
       data-roster-slot-exit-kind={exitKind}
       data-experience-beat-active={String(isExperienceBeatActive)}
       data-experience-beat={experienceBeatAttribute}
+      data-ability-acting={beatEffect?.isActing ? "true" : "false"}
       {...rosterSlotIndexAttributes}
     >
       <div
@@ -365,6 +374,7 @@ export function RosterSlot({
                   facing={facing}
                   showLevel={showsCharacterProgression}
                   showExperienceBar={showsCharacterProgression}
+                  armourBeat={armourBeatFromEffect(beatEffect, beatKey)}
                 />
                 {/* The recess clips outer glows, so the glow is inset. At
                     opacity 0 except during the CSS-driven XP-beat
@@ -461,6 +471,7 @@ export function RosterSlot({
           {t("abilityHpFloater", { hp: abilityHpFloater.hpGained })}
         </motion.span>
       )}
+      <BattleBeatFloaters beatEffect={beatEffect} beatKey={beatKey} />
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { motion, useIsPresent, useReducedMotion } from "motion/react";
 import type { Character } from "@/lib/game/character";
 import type { GamePhase } from "@/lib/game/types";
+import type { CurrentBeatEffects } from "@/lib/battle/beatCharacterEffects";
 import { GamePhaseBanner } from "./GamePhaseBanner";
 import { RosterSlab, type RosterSlotInteraction } from "./RosterSlab";
 
@@ -20,6 +21,8 @@ interface GameScreenShellProps {
   // own info controls.
   showsPlayerInfoControls?: boolean;
   onPlayerInfoControlOpen?: () => void;
+  // Phase 12 battle beat animations, for the player's bench.
+  playerCurrentBeat?: CurrentBeatEffects;
   children: React.ReactNode;
 }
 
@@ -32,6 +35,7 @@ export function GameScreenShell({
   playerRosterTrailingControls,
   showsPlayerInfoControls = false,
   onPlayerInfoControlOpen,
+  playerCurrentBeat,
   children,
 }: GameScreenShellProps) {
   const prefersReducedMotion = useReducedMotion();
@@ -66,6 +70,7 @@ export function GameScreenShell({
             trailingControls={playerRosterTrailingControls}
             showsInfoControls={showsPlayerInfoControls}
             onInfoControlOpen={onPlayerInfoControlOpen}
+            currentBeat={playerCurrentBeat}
           />
         </div>
         <GamePhaseBanner gamePhase={gamePhase} />

@@ -1,4 +1,5 @@
 import type { Character } from "@/lib/game/character";
+import type { CurrentBeatEffects } from "@/lib/battle/beatCharacterEffects";
 import type { CampTargetPresentation } from "./campSelection";
 import type { RosterSlotExitKind } from "./rosterSlotAnimation";
 import { CharacterInfoControl } from "./CharacterInfoControl";
@@ -50,6 +51,9 @@ interface RosterSlabProps {
   // own.
   showsInfoControls?: boolean;
   onInfoControlOpen?: () => void;
+  // Phase 12 battle beat animations; display-only, and only read by the
+  // non-interactive slot branches (camp's interactive slots never get it).
+  currentBeat?: CurrentBeatEffects;
 }
 
 export function RosterSlab({
@@ -61,6 +65,7 @@ export function RosterSlab({
   trailingControls,
   showsInfoControls = false,
   onInfoControlOpen,
+  currentBeat,
 }: RosterSlabProps) {
   const facing = variant === "enemy" ? "left" : "right";
   // Document order matches visual order (left to right) so Tab and screen
@@ -132,6 +137,12 @@ export function RosterSlab({
                       Boolean(character)
                     }
                     showsCharacterProgression={showsCharacterProgression}
+                    beatEffect={
+                      character
+                        ? currentBeat?.characterEffects[character.id]
+                        : undefined
+                    }
+                    beatKey={currentBeat?.beatKey}
                   />
                   {character && (
                     <CharacterInfoControl
@@ -152,6 +163,12 @@ export function RosterSlab({
                     Boolean(character)
                   }
                   showsCharacterProgression={showsCharacterProgression}
+                  beatEffect={
+                    character
+                      ? currentBeat?.characterEffects[character.id]
+                      : undefined
+                  }
+                  beatKey={currentBeat?.beatKey}
                 />
               )}
             </div>

@@ -249,6 +249,19 @@
   --level-up-beat-scale: 1.12;
   --level-pill-pop-scale: 1.4;
 
+  /* ── Battle beat animations (Phase 12) ───────────────
+     The human tunes these. --ability-receive-delay and --armour-break-delay
+     must match BattleBeatFloaters.tsx's ABILITY_RECEIVE_DELAY_S and
+     ARMOUR_BREAK_DELAY_S. */
+  --ability-caster-glow: var(--color-copper-300);
+  --ability-caster-lift: -6px;
+  --ability-caster-duration: 0.6s;
+  --ability-receive-delay: 0.3s;
+  --armour-pop-duration: 0.4s;
+  --armour-pop-scale: 1.4;
+  --armour-break-delay: 0.28s;
+  --armour-break-duration: 0.5s;
+
   /* ── Header divider ──────────────────────────────────
      An engraved groove between header sections; tune here. */
   --header-divider-height: 1.75rem;
@@ -607,5 +620,78 @@
   [data-experience-beat="levelledUp"] [data-character-level] {
     animation: level-pill-pop var(--experience-beat-duration) ease-in-out
       var(--experience-beat-delay) both;
+  }
+}
+
+/* Phase 12 battle beat animations. State comes from data attributes set in
+   JS (data-ability-acting, data-armour-beat); motion lives here. Reduced
+   motion gets none, and a breaking shield is hidden outright (it would
+   otherwise linger showing armour that's already gone). */
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes ability-caster-pulse {
+    0%,
+    100% {
+      transform: translateY(0);
+      filter: drop-shadow(0 0 0 transparent);
+    }
+    40% {
+      transform: translateY(var(--ability-caster-lift));
+      filter: drop-shadow(0 0 14px var(--ability-caster-glow));
+    }
+  }
+  [data-ability-acting="true"] [data-roster-slot-beat-target],
+  [data-ability-acting="true"] [data-active-card-frame] {
+    animation: ability-caster-pulse var(--ability-caster-duration)
+      ease-in-out;
+  }
+  @keyframes armour-pop {
+    0% {
+      transform: scale(0.4);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(var(--armour-pop-scale));
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  [data-armour-beat="gained"] {
+    animation: armour-pop var(--armour-pop-duration) ease-out
+      var(--ability-receive-delay) both;
+  }
+  @keyframes armour-break {
+    0% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    15% {
+      transform: translateX(-3px);
+    }
+    30% {
+      transform: translateX(3px);
+    }
+    45% {
+      transform: translateX(-3px);
+    }
+    60% {
+      transform: translateX(3px);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(0) scale(0.6);
+      opacity: 0;
+    }
+  }
+  [data-armour-beat="broken"] {
+    animation: armour-break var(--armour-break-duration) ease-in
+      var(--armour-break-delay) both;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-armour-beat="broken"] {
+    display: none;
   }
 }

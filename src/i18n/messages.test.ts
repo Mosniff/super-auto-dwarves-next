@@ -40,7 +40,8 @@ describe("locale message parity", () => {
   // expanded-card dialog's close button, and characterInfoLabel for the
   // info control, and abilityLabel for the expanded card's Ability tab,
   // and abilityHpFloater for the ability-hp promotion floater, and
-  // battleCry/targetEffect for an ability's battle-log lines —
+  // battleCry/targetEffect for an ability's battle-log lines, and
+  // armourGainFloater/armourBreakFloater for battle beat floaters —
   // deliberate test-data updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
@@ -110,6 +111,8 @@ describe("locale message parity", () => {
     "draw",
     "armourDamage",
     "armourBreak",
+    "armourGainFloater",
+    "armourBreakFloater",
   ];
 
   it("english has exactly the expected common keys", () => {

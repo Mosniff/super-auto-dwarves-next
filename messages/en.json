@@ -76,6 +76,8 @@
     "drop": "{character} drops",
     "armourDamage": "{target}'s armour absorbs {amount} damage",
     "armourBreak": "{target}'s armour breaks!",
+    "armourGainFloater": "+{amount} armour",
+    "armourBreakFloater": "BREAK!",
     "timeout": "Turn limit reached — stalemate",
     "victory": "Victory!",
     "defeat": "Defeat",

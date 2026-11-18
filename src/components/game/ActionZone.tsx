@@ -2,6 +2,7 @@ import { ActiveCard } from "@/components/game/ActiveCard";
 import { DiscardPile } from "@/components/game/DiscardPile";
 import { InfoScroll } from "@/components/game/InfoScroll";
 import type { BattleEventDescriptor, BeatType } from "@/lib/battle/types";
+import type { CurrentBeatEffects } from "@/lib/battle/beatCharacterEffects";
 import type { Character } from "@/lib/game/character";
 
 interface ActionZoneProps {
@@ -11,6 +12,8 @@ interface ActionZoneProps {
   enemyDownedCharacters: Character[];
   currentBeatDescriptors: BattleEventDescriptor[];
   currentBeatType?: BeatType;
+  // Phase 12 battle beat animations; display-only.
+  currentBeat?: CurrentBeatEffects;
   onAdvance: () => void;
   canAdvance: boolean;
   isFinished: boolean;
@@ -31,6 +34,7 @@ export function ActionZone({
   enemyDownedCharacters,
   currentBeatDescriptors,
   currentBeatType,
+  currentBeat,
   onAdvance,
   canAdvance,
   isFinished,
@@ -54,6 +58,7 @@ export function ActionZone({
           character={playerFrontCharacter}
           facing="right"
           currentBeatType={currentBeatType}
+          currentBeat={currentBeat}
           onInfoControlOpen={onInfoControlOpen}
         />
         <div className="h-64 w-md">
@@ -75,6 +80,7 @@ export function ActionZone({
           character={enemyFrontCharacter}
           facing="left"
           currentBeatType={currentBeatType}
+          currentBeat={currentBeat}
           onInfoControlOpen={onInfoControlOpen}
         />
       </div>

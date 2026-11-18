@@ -7,15 +7,19 @@ import {
   type Easing,
 } from "motion/react";
 import type { BeatType } from "@/lib/battle/types";
+import type { CurrentBeatEffects } from "@/lib/battle/beatCharacterEffects";
 import type { Character } from "@/lib/game/character";
 import { CharacterCard } from "./CharacterCard";
 import { CharacterInfoControl } from "./CharacterInfoControl";
+import { armourBeatFromEffect, BattleBeatFloaters } from "./BattleBeatFloaters";
 
 interface ActiveCardProps {
   character?: Character;
   facing?: "left" | "right";
   currentBeatType?: BeatType;
   onInfoControlOpen?: () => void;
+  // Phase 12 battle beat animations; display-only.
+  currentBeat?: CurrentBeatEffects;
 }
 
 // Starting values — the human tunes these by eye.
@@ -50,9 +54,13 @@ export function ActiveCard({
   facing = "right",
   currentBeatType,
   onInfoControlOpen,
+  currentBeat,
 }: ActiveCardProps) {
   const prefersReducedMotion = useReducedMotion();
   const isClashing = currentBeatType === "CLASH";
+  const beatEffect = character
+    ? currentBeat?.characterEffects[character.id]
+    : undefined;
   // Reduced motion disables the clash animation entirely — cards sit fully
   // static rather than playing a scaled-down version.
   const shouldAnimateClash = isClashing && !prefersReducedMotion;
@@ -197,9 +205,11 @@ export function ActiveCard({
               data-info-control-host
               data-active-card-host
               data-info-control-revealed="false"
+              data-ability-acting={beatEffect?.isActing ? "true" : "false"}
               className="relative"
             >
               <div
+                data-active-card-frame
                 className="relative h-96 w-72 overflow-hidden rounded-xl border-2 p-3"
                 style={{
                   backgroundColor: "var(--color-portrait-brown)",
@@ -213,12 +223,20 @@ export function ActiveCard({
                   facing={facing}
                   showHpBar
                   animateHpDrop={shouldAnimateClash}
+                  armourBeat={armourBeatFromEffect(
+                    beatEffect,
+                    currentBeat?.beatKey,
+                  )}
                 />
               </div>
               <CharacterInfoControl
                 key={character.id}
                 character={character}
                 onOpen={onInfoControlOpen}
+              />
+              <BattleBeatFloaters
+                beatEffect={beatEffect}
+                beatKey={currentBeat?.beatKey}
               />
             </div>
           ) : (

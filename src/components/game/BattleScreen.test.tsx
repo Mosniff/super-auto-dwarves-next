@@ -11,6 +11,7 @@ import {
   act,
 } from "@/test/renderWithMessages";
 import { resolveBattle } from "@/lib/battle/resolveBattle";
+import type { ResolvedBattle } from "@/lib/battle/types";
 import type { Character } from "@/lib/game/character";
 import { createEmptyCampRoster, type CampRoster } from "@/lib/game/campRoster";
 import { buildTestCharacter } from "@/test/characterFixtures";
@@ -411,5 +412,193 @@ describe("BattleScreen", () => {
       screen.queryByRole("button", { name: "Autoplay: Off", hidden: true }) !==
         null,
     ).toBe(true);
+  });
+
+  describe("battle beat animations", () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    // Advances from the unstarted state to beat 0 (BATTLE_START), then to
+    // beat 1, following the same click + fake-timer pattern as "clicking
+    // Advance" above (the post-advance lock needs releasing between
+    // clicks via vi.advanceTimersByTime).
+    function advanceToBeatOne() {
+      const advanceButton = screen.getByRole("button", { name: /advance/i });
+
+      fireEvent.click(advanceButton);
+      act(() => {
+        vi.advanceTimersByTime(AUTOPLAY_INTERVAL_MS);
+      });
+      fireEvent.click(advanceButton);
+    }
+
+    it("BX1: an ability beat marks the caster as acting, pops the receiver's shield and shows a '+1 armour' floater", () => {
+      vi.useFakeTimers();
+
+      const abilityResolvedBattle: ResolvedBattle = {
+        initialState: {
+          player: {
+            activeCharacters: [
+              buildTestCharacter({ id: "p1", name: "Borin", hp: 7, maxHp: 7, armour: 0 }),
+              buildTestCharacter({ id: "p2", name: "Ogden", hp: 8, maxHp: 8, armour: 0 }),
+            ],
+            downedCharacters: [],
+          },
+          enemy: {
+            activeCharacters: [
+              buildTestCharacter({ id: "e1", name: "Grukk", hp: 20, maxHp: 20, armour: 0 }),
+            ],
+            downedCharacters: [],
+          },
+        },
+        events: [
+          { type: "BATTLE_START", beatIndex: 0, beatType: "BATTLE_START" },
+          {
+            type: "ABILITY_ACTIVATE",
+            characterId: "p2",
+            abilityId: "tighten-those-straps-son",
+            beatIndex: 1,
+            beatType: "ABILITY",
+          },
+          {
+            type: "STAT_CHANGE",
+            targetId: "p1",
+            stat: "armour",
+            amount: 1,
+            resultingValue: 1,
+            source: "p2",
+            sourceAbilityId: "tighten-those-straps-son",
+            beatIndex: 1,
+            beatType: "ABILITY",
+          },
+          {
+            type: "BATTLE_END",
+            outcome: "playerWin",
+            beatIndex: 2,
+            beatType: "BATTLE_END",
+          },
+        ],
+      };
+
+      renderWithMessages(
+        <BattleScreen
+          resolvedBattle={abilityResolvedBattle}
+          playerCampRoster={emptyCampRoster}
+        />,
+      );
+
+      advanceToBeatOne();
+
+      expect({
+        actingCount: document.querySelectorAll('[data-ability-acting="true"]')
+          .length,
+        gainedShieldArmour:
+          document
+            .querySelector('[data-armour-beat="gained"]')
+            ?.getAttribute("data-character-armour") ?? null,
+        gainFloater: screen.queryByText("+1 armour") !== null,
+      }).toEqual({
+        actingCount: 1,
+        gainedShieldArmour: "1",
+        gainFloater: true,
+      });
+    });
+
+    it("BX2: an armour break keeps the old armour on a breaking shield and shows 'BREAK!'", () => {
+      vi.useFakeTimers();
+
+      const armourBreakResolvedBattle: ResolvedBattle = {
+        initialState: {
+          player: {
+            activeCharacters: [
+              buildTestCharacter({
+                id: "p1",
+                name: "Borin",
+                attack: 5,
+                hp: 7,
+                maxHp: 7,
+                armour: 0,
+              }),
+            ],
+            downedCharacters: [],
+          },
+          enemy: {
+            activeCharacters: [
+              buildTestCharacter({
+                id: "e1",
+                name: "Grukk",
+                attack: 1,
+                hp: 5,
+                maxHp: 5,
+                armour: 2,
+              }),
+            ],
+            downedCharacters: [],
+          },
+        },
+        events: [
+          { type: "BATTLE_START", beatIndex: 0, beatType: "BATTLE_START" },
+          {
+            type: "ATTACK",
+            attackerId: "p1",
+            targetId: "e1",
+            value: 5,
+            beatIndex: 1,
+            beatType: "CLASH",
+          },
+          {
+            type: "ATTACK",
+            attackerId: "e1",
+            targetId: "p1",
+            value: 1,
+            beatIndex: 1,
+            beatType: "CLASH",
+          },
+          {
+            type: "ARMOUR_DAMAGE",
+            targetId: "e1",
+            amount: 2,
+            resultingArmour: 0,
+            source: "p1",
+            beatIndex: 1,
+            beatType: "CLASH",
+          },
+          {
+            type: "DAMAGE",
+            targetId: "p1",
+            amount: 1,
+            resultingHp: 6,
+            source: "e1",
+            beatIndex: 1,
+            beatType: "CLASH",
+          },
+          { type: "TIMEOUT", beatIndex: 2, beatType: "TIMEOUT" },
+          {
+            type: "BATTLE_END",
+            outcome: "draw",
+            beatIndex: 3,
+            beatType: "BATTLE_END",
+          },
+        ],
+      };
+
+      renderWithMessages(
+        <BattleScreen
+          resolvedBattle={armourBreakResolvedBattle}
+          playerCampRoster={emptyCampRoster}
+        />,
+      );
+
+      advanceToBeatOne();
+
+      expect({
+        brokenShieldArmour:
+          document
+            .querySelector('[data-armour-beat="broken"]')
+            ?.getAttribute("data-character-armour") ?? null,
+        breakFloater: screen.queryByText("BREAK!") !== null,
+      }).toEqual({ brokenShieldArmour: "2", breakFloater: true });
+    });
   });
 });

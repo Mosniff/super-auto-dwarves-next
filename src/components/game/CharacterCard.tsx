@@ -22,6 +22,10 @@ import {
 // the numbers there, in one place. The expanded view is a separate
 // component (ExpandedCharacterCard), not a variant of this card.
 
+export type ArmourBeat =
+  | { armourBeatKind: "gained"; beatKey: number }
+  | { armourBeatKind: "broken"; beatKey: number; brokenFromArmour: number };
+
 interface CharacterCardProps {
   character: Character;
   facing?: "left" | "right";
@@ -31,6 +35,7 @@ interface CharacterCardProps {
   showExperienceBar?: boolean;
   showInlineExperienceBar?: boolean;
   showRevealWash?: boolean;
+  armourBeat?: ArmourBeat;
 }
 
 // Tuned by eye later by the human.
@@ -97,6 +102,7 @@ export function CharacterCard({
   showExperienceBar = false,
   showInlineExperienceBar = false,
   showRevealWash = false,
+  armourBeat,
 }: CharacterCardProps) {
   const hpFillRatio = hpBarFillRatio(character.hp, character.maxHp);
   const isDowned = character.hp <= 0;
@@ -108,6 +114,10 @@ export function CharacterCard({
   const level = levelFromExperience(character.experience);
   const { isMaxLevel } = experienceBarSegments(character.experience);
   const experienceCaption = experienceBarCaption(character.experience);
+  const shownArmour =
+    armourBeat?.armourBeatKind === "broken"
+      ? armourBeat.brokenFromArmour
+      : character.armour;
 
   return (
     // @container, carrying no container-relative sizing of its own: an
@@ -228,11 +238,20 @@ export function CharacterCard({
               </span>
             </div>
           )}
-          {character.armour > 0 && (
+          {shownArmour > 0 && (
+            // A broken shield keeps showing the armour it had for its beat
+            // while it shakes away (globals.css); keyed by beat so the
+            // animation replays.
             <div
-              data-character-armour={character.armour}
+              key={
+                armourBeat
+                  ? `${armourBeat.armourBeatKind}-${armourBeat.beatKey}`
+                  : "steady"
+              }
+              data-character-armour={shownArmour}
+              data-armour-beat={armourBeat?.armourBeatKind ?? "none"}
               role="img"
-              aria-label={t("armourLabel", { armour: character.armour })}
+              aria-label={t("armourLabel", { armour: shownArmour })}
               className="absolute right-card-armour-inset top-card-armour-inset flex size-card-armour-badge items-center justify-center"
             >
               <Shield
@@ -240,7 +259,7 @@ export function CharacterCard({
                 className="absolute inset-0 size-full fill-(--color-iron-700) text-(--color-parchment-50)"
               />
               <span className="relative text-card-armour font-bold leading-none text-(--color-parchment-50)">
-                {character.armour}
+                {shownArmour}
               </span>
             </div>
           )}
