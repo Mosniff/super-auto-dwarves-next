@@ -12,6 +12,7 @@ import {
   SOLD_CHARACTER_SHOP_SLOT,
 } from "@/test/characterShopFixtures";
 import { buildTestCharacter } from "@/test/characterFixtures";
+import { buildTestEnemyEncounter } from "@/test/enemyEncounterFixtures";
 
 // Arbitrary fixture value — starting gold is not yet specified.
 const FIXTURE_GOLD = 10;
@@ -42,8 +43,10 @@ function buildFixtureGameState(
     playerRoster: buildFixtureCampRoster(),
     gold: FIXTURE_GOLD,
     day,
+    depth: day,
     phase,
     characterShopSlots: buildFixtureCharacterShopSlots(),
+    enemyEncounter: null,
     ...overrides,
   };
 }
@@ -293,5 +296,18 @@ describe("advanceGame", () => {
     );
 
     expect(nextGameState.gold).toBe(7);
+  });
+
+  it("AG1: returning to camp clears the stored enemy encounter", () => {
+    const battlePhaseGameState = buildFixtureGameState("battlePhase", 1, {
+      enemyEncounter: buildTestEnemyEncounter(),
+    });
+
+    const nextGameState = advanceGame(
+      battlePhaseGameState,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
+    );
+
+    expect(nextGameState.enemyEncounter).toBeNull();
   });
 });

@@ -21,11 +21,13 @@ export function createNewGameState(
     playerRoster: createEmptyCampRoster(),
     gold: CAMP_STARTING_GOLD,
     day: 1,
+    depth: 1,
     phase: "campPhase",
     characterShopSlots: rollCharacterShopSlots(
       STARTING_OPEN_CHARACTER_SHOP_SLOT_COUNT,
       characterShopRollingSources.availableCharacterTemplates,
       characterShopRollingSources.chooseRandomIndex,
     ),
+    enemyEncounter: null,
   };
 }

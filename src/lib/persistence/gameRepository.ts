@@ -7,10 +7,14 @@ export interface LoadedGameRecord {
   persistedPlayerRoster: unknown;
   gold: number;
   day: number;
+  depth: number;
   phase: GamePhase;
   // Deliberately unknown — the database cannot promise this column's shape;
   // validating it is the handler's job (see parsePersistedCharacterShopSlots.ts).
   persistedCharacterShopSlots: unknown;
+  // Deliberately unknown — validating it is the handler's job (see
+  // parsePersistedEnemyEncounter.ts). Null when no battle is in progress.
+  persistedEnemyEncounter: unknown;
   revision: number;
   createdAt: Date;
 }

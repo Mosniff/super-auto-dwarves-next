@@ -41,6 +41,14 @@ model Game {
   // sold), rolled on the server at every camp start; validated by
   // parsePersistedCharacterShopSlots (Phase 9).
   characterShopSlots Json
+  // How deep the run has gone; incremented with day on battle -> camp
+  // (Phase 13).
+  depth Int @default(1)
+  // The stored enemy for the battle in progress ({ enemyFactionId,
+  // enemyCharacters, battleSeed }), generated once at camp -> battle so
+  // every re-resolve replays the same battle; null in camp. Validated by
+  // parsePersistedEnemyEncounter (Phase 13).
+  enemyEncounter Json?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

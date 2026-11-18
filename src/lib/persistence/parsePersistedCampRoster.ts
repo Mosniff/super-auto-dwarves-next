@@ -25,7 +25,7 @@ function hasValidCharacterClassIds(characterClassIds: unknown): boolean {
 // the level is derived from it (levelFromExperience) and never stored.
 // armour must be a non-negative integer. characterFactionId must be a known
 // faction id (Phase 13).
-function isValidPersistedCharacter(
+export function isValidPersistedCharacter(
   candidateCharacter: unknown,
 ): candidateCharacter is Character {
   if (

@@ -73,6 +73,8 @@ function buildFixtureLoadedGameRecord(
     day: 2,
     phase: "campPhase",
     persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
+    depth: 1,
+    persistedEnemyEncounter: null,
     revision: 5,
     createdAt: new Date("2026-10-13T00:00:00.000Z"),
     ...overrides,
@@ -86,6 +88,7 @@ const fixtureRepositionIntent: RepositionCharacterIntent = {
 };
 
 describe("repositionCharacterForUser", () => {
+  // deliberate assertion rewrite: the saved game state gains depth 1 and enemyEncounter null (before: no depth or enemyEncounter; after: depth: 1, enemyEncounter: null) — Phase 13 save shape
   it("(a) saves the moved roster with gold and purchases unchanged, and reports accepted", async () => {
     const { gameRepository, recordedSaveGameStateCalls } =
       buildFakeGameRepository(buildFixtureLoadedGameRecord());
@@ -109,8 +112,10 @@ describe("repositionCharacterForUser", () => {
       playerRoster: expectedCampRoster,
       gold: 10,
       day: 2,
+      depth: 1,
       phase: "campPhase",
       characterShopSlots: buildFixtureCharacterShopSlots(),
+      enemyEncounter: null,
     };
 
     expect(result).toEqual({ outcome: "accepted" });

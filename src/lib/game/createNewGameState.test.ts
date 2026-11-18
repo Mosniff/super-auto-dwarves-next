@@ -89,4 +89,15 @@ describe("createNewGameState", () => {
     ]);
     expect(recordedOptionCounts).toEqual([2, 2, 2]);
   });
+
+  it("N2: starts at depth 1 with no stored enemy encounter", () => {
+    const newGameState = createNewGameState(
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
+    );
+
+    expect({
+      depth: newGameState.depth,
+      enemyEncounter: newGameState.enemyEncounter,
+    }).toEqual({ depth: 1, enemyEncounter: null });
+  });
 });

@@ -87,6 +87,8 @@ function buildFixtureLoadedGameRecord(
     day: 2,
     phase: "campPhase",
     persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
+    depth: 1,
+    persistedEnemyEncounter: null,
     revision: 5,
     createdAt: new Date("2026-10-13T00:00:00.000Z"),
     ...overrides,
@@ -110,6 +112,7 @@ function buildFixtureDependencies(gameRepository: GameRepository) {
 }
 
 describe("buyCharacterForUser", () => {
+  // deliberate assertion rewrite: the saved game state gains depth 1 and enemyEncounter null (before: no depth or enemyEncounter; after: depth: 1, enemyEncounter: null) — Phase 13 save shape
   it("(a) saves the bought character, spent gold and sold shop slot, and reports accepted", async () => {
     const { gameRepository, recordedSaveGameStateCalls } =
       buildFakeGameRepository(buildFixtureLoadedGameRecord());
@@ -158,8 +161,10 @@ describe("buyCharacterForUser", () => {
       playerRoster: expectedCampRoster,
       gold: 7,
       day: 2,
+      depth: 1,
       phase: "campPhase",
       characterShopSlots: expectedCharacterShopSlots,
+      enemyEncounter: null,
     };
 
     expect(result).toEqual({ outcome: "accepted" });
@@ -295,6 +300,7 @@ describe("buyCharacterForUser", () => {
     ).toEqual([]);
   });
 
+  // deliberate assertion rewrite: the saved game state gains depth 1 and enemyEncounter null (before: no depth or enemyEncounter; after: depth: 1, enemyEncounter: null) — Phase 13 save shape
   it("(i) saves a merge-buy onto a matching dwarf, and reports accepted", async () => {
     // mechanical refactor: replaced with buildTestCharacter
     const matchingRosterCharacter: Character = buildTestCharacter({
@@ -359,8 +365,10 @@ describe("buyCharacterForUser", () => {
       playerRoster: expectedCampRoster,
       gold: 7,
       day: 2,
+      depth: 1,
       phase: "campPhase",
       characterShopSlots: expectedCharacterShopSlots,
+      enemyEncounter: null,
     };
 
     expect(result).toEqual({ outcome: "accepted" });

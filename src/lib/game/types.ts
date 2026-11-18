@@ -1,5 +1,6 @@
 import type { CampRoster } from "./campRoster";
 import type { CharacterShopSlots } from "./characterShopSlots";
+import type { EnemyEncounter } from "./enemyEncounter";
 
 export type GamePhase = "campPhase" | "battlePhase";
 
@@ -10,6 +11,11 @@ export interface GameState {
   playerRoster: CampRoster;
   gold: number;
   day: number;
+  // how deep the run has gone; incremented with day (Phase 13)
+  depth: number;
   phase: GamePhase;
   characterShopSlots: CharacterShopSlots;
+  // the stored enemy for the battle in progress: present in battlePhase,
+  // null in campPhase (Phase 13)
+  enemyEncounter: EnemyEncounter | null;
 }

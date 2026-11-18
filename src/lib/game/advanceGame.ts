@@ -42,6 +42,8 @@ export function advanceGame(
           characterShopRollingSources.availableCharacterTemplates,
           characterShopRollingSources.chooseRandomIndex,
         ),
+        // the battle is over; its stored enemy goes with it (Phase 13)
+        enemyEncounter: null,
       };
     }
     default: {

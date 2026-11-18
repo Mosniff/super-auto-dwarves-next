@@ -11,6 +11,7 @@ import {
   SOLD_CHARACTER_SHOP_SLOT,
 } from "@/test/characterShopFixtures";
 import { buildTestCharacter } from "@/test/characterFixtures";
+import { buildTestEnemyEncounter } from "@/test/enemyEncounterFixtures";
 
 // Arbitrary fixture value — starting gold is not yet specified.
 const FIXTURE_GOLD = 10;
@@ -75,8 +76,11 @@ function buildFixtureLoadedGameRecord(
     persistedPlayerRoster: fixtureCampRoster,
     gold: FIXTURE_GOLD,
     day,
+    depth: day,
     phase,
     persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
+    persistedEnemyEncounter:
+      phase === "battlePhase" ? buildTestEnemyEncounter() : null,
     revision: 5,
     createdAt: new Date("2026-10-13T00:00:00.000Z"),
   };
@@ -145,6 +149,8 @@ describe("advanceGameForUser", () => {
       day: 1,
       phase: "campPhase",
       persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
+      depth: 1,
+      persistedEnemyEncounter: null,
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     };
@@ -212,6 +218,8 @@ describe("advanceGameForUser", () => {
         LOCKED_CHARACTER_SHOP_SLOT,
         LOCKED_CHARACTER_SHOP_SLOT,
       ],
+      depth: 1,
+      persistedEnemyEncounter: buildTestEnemyEncounter(),
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     };
@@ -252,6 +260,8 @@ describe("advanceGameForUser", () => {
       day: 1,
       phase: "campPhase",
       persistedCharacterShopSlots: "not-a-shop",
+      depth: 1,
+      persistedEnemyEncounter: null,
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     };

@@ -61,6 +61,8 @@ describe("loadSavedGameForUser", () => {
       day: 3,
       phase: "campPhase",
       persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
+      depth: 1,
+      persistedEnemyEncounter: null,
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     });
@@ -85,6 +87,8 @@ describe("loadSavedGameForUser", () => {
       day: 1,
       phase: "campPhase",
       persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
+      depth: 1,
+      persistedEnemyEncounter: null,
       revision: 5,
       createdAt: fixtureCreatedAt,
     });
@@ -105,6 +109,8 @@ describe("loadSavedGameForUser", () => {
       day: 1,
       phase: "campPhase",
       persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
+      depth: 1,
+      persistedEnemyEncounter: null,
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     });
@@ -122,6 +128,8 @@ describe("loadSavedGameForUser", () => {
       day: 1,
       phase: "campPhase",
       persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
+      depth: 1,
+      persistedEnemyEncounter: null,
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     });
@@ -142,6 +150,8 @@ describe("loadSavedGameForUser", () => {
       day: 1,
       phase: "campPhase",
       persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
+      depth: 1,
+      persistedEnemyEncounter: null,
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     });
@@ -162,6 +172,8 @@ describe("loadSavedGameForUser", () => {
       day: 1,
       phase: "campPhase",
       persistedCharacterShopSlots: "not-a-shop",
+      depth: 1,
+      persistedEnemyEncounter: null,
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     });

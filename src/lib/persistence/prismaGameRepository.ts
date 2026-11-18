@@ -2,6 +2,17 @@ import { Prisma } from "@/generated/prisma/client";
 import { prismaClient } from "./prismaClient";
 import { GameAlreadyExistsError } from "./gameAlreadyExistsError";
 import type { GameRepository } from "./gameRepository";
+import type { EnemyEncounter } from "@/lib/game/enemyEncounter";
+
+// A nullable JSON column can't take a plain null: Prisma needs DbNull to
+// write a database NULL. Otherwise the same cast as playerRoster below.
+function toPersistedEnemyEncounter(
+  enemyEncounter: EnemyEncounter | null,
+): Prisma.InputJsonValue | typeof Prisma.DbNull {
+  return enemyEncounter === null
+    ? Prisma.DbNull
+    : (enemyEncounter as unknown as Prisma.InputJsonValue);
+}
 
 // The real GameRepository, backed by Prisma. Deliberately not unit-tested —
 // this is pure Prisma wiring with no logic of its own; first exercised
@@ -29,12 +40,16 @@ export const prismaGameRepository: GameRepository = {
       persistedPlayerRoster: gameRow.playerRoster,
       gold: gameRow.gold,
       day: gameRow.day,
+      depth: gameRow.depth,
       phase: gameRow.phase,
       // Passed straight through, deliberately NOT cast to
       // CharacterShopSlots — casting here would bypass
       // parsePersistedCharacterShopSlots entirely. Validation is the
       // handler's job, not this repository's.
       persistedCharacterShopSlots: gameRow.characterShopSlots,
+      // Passed straight through, deliberately NOT cast — validation is
+      // parsePersistedEnemyEncounter's job. A database NULL reads as null.
+      persistedEnemyEncounter: gameRow.enemyEncounter,
       revision: gameRow.revision,
       createdAt: gameRow.createdAt,
     };
@@ -56,11 +71,13 @@ export const prismaGameRepository: GameRepository = {
         playerRoster: nextGameState.playerRoster as unknown as Prisma.InputJsonValue,
         gold: nextGameState.gold,
         day: nextGameState.day,
+        depth: nextGameState.depth,
         phase: nextGameState.phase,
         // Same cast as playerRoster above: telling Prisma how to store
         // already-validated data, not bypassing validation.
         characterShopSlots:
           nextGameState.characterShopSlots as unknown as Prisma.InputJsonValue,
+        enemyEncounter: toPersistedEnemyEncounter(nextGameState.enemyEncounter),
         revision: { increment: 1 },
       },
     });
@@ -77,11 +94,15 @@ export const prismaGameRepository: GameRepository = {
             initialGameState.playerRoster as unknown as Prisma.InputJsonValue,
           gold: initialGameState.gold,
           day: initialGameState.day,
+          depth: initialGameState.depth,
           phase: initialGameState.phase,
           // Same cast as playerRoster above: telling Prisma how to store
           // already-validated data, not bypassing validation.
           characterShopSlots:
             initialGameState.characterShopSlots as unknown as Prisma.InputJsonValue,
+          enemyEncounter: toPersistedEnemyEncounter(
+            initialGameState.enemyEncounter,
+          ),
         },
       });
     } catch (error) {
