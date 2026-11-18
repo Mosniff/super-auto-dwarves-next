@@ -10,6 +10,7 @@ export function spawnCharacterFromTemplate(
     characterTemplateId: characterTemplate.characterTemplateId,
     name: characterTemplate.name,
     tier: characterTemplate.tier,
+    characterFactionId: characterTemplate.characterFactionId,
     characterClassIds: [...characterTemplate.characterClassIds],
     attack: characterTemplate.attack,
     // hp starts at maxHp — a freshly spawned character is at full health.

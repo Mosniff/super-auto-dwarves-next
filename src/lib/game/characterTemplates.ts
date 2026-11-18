@@ -1,4 +1,5 @@
 import type { CharacterClassId } from "./characterClasses";
+import type { CharacterFactionId } from "./characterFactions";
 import type { CharacterTier } from "./characterTiers";
 import type { CharacterAbilityId } from "./characterAbilities";
 
@@ -6,6 +7,7 @@ export interface CharacterTemplate {
   readonly characterTemplateId: string;
   readonly name: string;
   readonly tier: CharacterTier;
+  readonly characterFactionId: CharacterFactionId;
   readonly characterClassIds: readonly CharacterClassId[];
   readonly attack: number;
   readonly maxHp: number;
@@ -23,6 +25,7 @@ export const CHARACTER_TEMPLATES: Readonly<Record<string, CharacterTemplate>> =
       characterTemplateId: "borin",
       name: "Borin",
       tier: 1,
+      characterFactionId: "dwarf",
       characterClassIds: ["warrior"],
       attack: 4,
       maxHp: 7,
@@ -33,6 +36,7 @@ export const CHARACTER_TEMPLATES: Readonly<Record<string, CharacterTemplate>> =
       characterTemplateId: "ogden",
       name: "Ogden",
       tier: 1,
+      characterFactionId: "dwarf",
       characterClassIds: ["warrior"],
       attack: 3,
       maxHp: 8,
@@ -43,6 +47,7 @@ export const CHARACTER_TEMPLATES: Readonly<Record<string, CharacterTemplate>> =
       characterTemplateId: "norbin",
       name: "Norbin",
       tier: 1,
+      characterFactionId: "dwarf",
       characterClassIds: ["merchant"],
       attack: 1,
       maxHp: 3,

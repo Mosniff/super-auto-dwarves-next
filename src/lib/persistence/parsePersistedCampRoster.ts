@@ -1,5 +1,6 @@
 import { isCharacterClassId } from "@/lib/game/characterClasses";
 import { isCharacterExperience } from "@/lib/game/characterExperience";
+import { isCharacterFactionId } from "@/lib/game/characterFactions";
 import { isCharacterTier } from "@/lib/game/characterTiers";
 import type { Character } from "@/lib/game/character";
 import { CAMP_ROSTER_SLOT_COUNT, type CampRoster } from "@/lib/game/campRoster";
@@ -22,7 +23,8 @@ function hasValidCharacterClassIds(characterClassIds: unknown): boolean {
 // their template, so characterTemplateId only needs to be a non-empty
 // string. experience must be an integer from 0 to MAX_CHARACTER_EXPERIENCE;
 // the level is derived from it (levelFromExperience) and never stored.
-// armour must be a non-negative integer.
+// armour must be a non-negative integer. characterFactionId must be a known
+// faction id (Phase 13).
 function isValidPersistedCharacter(
   candidateCharacter: unknown,
 ): candidateCharacter is Character {
@@ -43,6 +45,7 @@ function isValidPersistedCharacter(
     armour,
     characterTemplateId,
     tier,
+    characterFactionId,
     characterClassIds,
     experience,
   } = candidateCharacter as Record<string, unknown>;
@@ -62,6 +65,7 @@ function isValidPersistedCharacter(
     typeof characterTemplateId === "string" &&
     characterTemplateId.length > 0 &&
     isCharacterTier(tier) &&
+    isCharacterFactionId(characterFactionId) &&
     hasValidCharacterClassIds(characterClassIds) &&
     isCharacterExperience(experience)
   );

@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { isCharacterClassId } from "./characterClasses";
 import { isCharacterTier } from "./characterTiers";
+import { isCharacterFactionId } from "./characterFactions";
 import { CHARACTER_ABILITY_IDS } from "./characterAbilities";
 import {
   CHARACTER_TEMPLATES,
@@ -11,11 +12,13 @@ import {
 const TEMPLATE_ID_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 
 describe("characterTemplates", () => {
+  // deliberate assertion rewrite: expected value gains characterFactionId "dwarf" (before: no characterFactionId; after: characterFactionId: "dwarf") — Phase 13 factions
   it("P1: findCharacterTemplate returns the borin template", () => {
     expect(findCharacterTemplate("borin")).toEqual({
       characterTemplateId: "borin",
       name: "Borin",
       tier: 1,
+      characterFactionId: "dwarf",
       characterClassIds: ["warrior"],
       attack: 4,
       maxHp: 7,
@@ -67,6 +70,17 @@ describe("characterTemplates", () => {
     ).toEqual([]);
   });
 
+  it("P13: every template has a valid faction", () => {
+    expect(
+      Object.values(CHARACTER_TEMPLATES)
+        .filter(
+          (characterTemplate) =>
+            !isCharacterFactionId(characterTemplate.characterFactionId),
+        )
+        .map((characterTemplate) => characterTemplate.characterTemplateId),
+    ).toEqual([]);
+  });
+
   it("P7: every template has 1-3 distinct, valid class ids", () => {
     function hasInvalidClassIds(characterClassIds: readonly unknown[]): boolean {
       if (characterClassIds.length < 1 || characterClassIds.length > 3) {
@@ -113,11 +127,13 @@ describe("characterTemplates", () => {
     ).toEqual([]);
   });
 
+  // deliberate assertion rewrite: expected value gains characterFactionId "dwarf" (before: no characterFactionId; after: characterFactionId: "dwarf") — Phase 13 factions
   it("P10: findCharacterTemplate returns the ogden template", () => {
     expect(findCharacterTemplate("ogden")).toEqual({
       characterTemplateId: "ogden",
       name: "Ogden",
       tier: 1,
+      characterFactionId: "dwarf",
       characterClassIds: ["warrior"],
       attack: 3,
       maxHp: 8,
@@ -139,11 +155,13 @@ describe("characterTemplates", () => {
     ).toEqual([]);
   });
 
+  // deliberate assertion rewrite: expected value gains characterFactionId "dwarf" (before: no characterFactionId; after: characterFactionId: "dwarf") — Phase 13 factions
   it("P12: findCharacterTemplate returns the norbin template", () => {
     expect(findCharacterTemplate("norbin")).toEqual({
       characterTemplateId: "norbin",
       name: "Norbin",
       tier: 1,
+      characterFactionId: "dwarf",
       characterClassIds: ["merchant"],
       attack: 1,
       maxHp: 3,

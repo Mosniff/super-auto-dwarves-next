@@ -1,3 +1,4 @@
+import type { CharacterFactionId } from "./characterFactions";
 import type { CharacterTier } from "./characterTiers";
 import type { CharacterClassId } from "./characterClasses";
 
@@ -9,6 +10,8 @@ export interface Character {
   characterTemplateId: string;
   name: string;
   tier: CharacterTier;
+  // copied from the template, like the classes (Phase 13)
+  characterFactionId: CharacterFactionId;
   characterClassIds: CharacterClassId[];
   attack: number;
   hp: number;

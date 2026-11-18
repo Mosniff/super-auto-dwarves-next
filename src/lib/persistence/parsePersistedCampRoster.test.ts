@@ -269,4 +269,36 @@ describe("parsePersistedCampRoster", () => {
 
     expect(rosters.map(doesParseThrow)).toEqual([false, false]);
   });
+
+  it("(q) throws when characterFactionId is missing, unknown or the wrong type", () => {
+    const baseCharacter = buildFixtureCharacter("character-a", "Dwarf A");
+    const {
+      characterFactionId: _removedCharacterFactionId,
+      ...characterWithoutFaction
+    } = baseCharacter;
+
+    const variants: unknown[] = [
+      characterWithoutFaction,
+      { ...baseCharacter, characterFactionId: "goblin" },
+      { ...baseCharacter, characterFactionId: "Dwarf" },
+      { ...baseCharacter, characterFactionId: "" },
+      { ...baseCharacter, characterFactionId: 1 },
+      { ...baseCharacter, characterFactionId: null },
+    ];
+
+    expect(variants.map(buildRosterWithFirstSlot).map(doesParseThrow)).toEqual(
+      [true, true, true, true, true, true],
+    );
+  });
+
+  it("(r) accepts every known faction", () => {
+    const baseCharacter = buildFixtureCharacter("character-a", "Dwarf A");
+
+    const rosters: unknown[] = [
+      buildRosterWithFirstSlot({ ...baseCharacter, characterFactionId: "dwarf" }),
+      buildRosterWithFirstSlot({ ...baseCharacter, characterFactionId: "kobold" }),
+    ];
+
+    expect(rosters.map(doesParseThrow)).toEqual([false, false]);
+  });
 });

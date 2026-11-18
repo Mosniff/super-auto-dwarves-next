@@ -2,12 +2,14 @@ import { describe, it, expect } from "vitest";
 import { buildTestCharacter, buildTestCharacterTemplate } from "./characterFixtures";
 
 describe("characterFixtures", () => {
+  // deliberate assertion rewrite: expected value gains characterFactionId "dwarf" (before: no characterFactionId; after: characterFactionId: "dwarf") — Phase 13 factions
   it("B1: buildTestCharacter returns the documented defaults", () => {
     expect(buildTestCharacter()).toEqual({
       id: "fixture-character",
       characterTemplateId: "fixture-dwarf",
       name: "Fixture Dwarf",
       tier: 1,
+      characterFactionId: "dwarf",
       characterClassIds: ["warrior"],
       attack: 4,
       hp: 7,
@@ -17,6 +19,7 @@ describe("characterFixtures", () => {
     });
   });
 
+  // deliberate assertion rewrite: expected value gains characterFactionId "dwarf" (before: no characterFactionId; after: characterFactionId: "dwarf") — Phase 13 factions
   it("B2: buildTestCharacter applies overrides and keeps the other defaults", () => {
     expect(
       buildTestCharacter({ id: "p1", name: "Borin", attack: 5, armour: 2, experience: 3 }),
@@ -25,6 +28,7 @@ describe("characterFixtures", () => {
       characterTemplateId: "fixture-dwarf",
       name: "Borin",
       tier: 1,
+      characterFactionId: "dwarf",
       characterClassIds: ["warrior"],
       attack: 5,
       hp: 7,
@@ -59,11 +63,13 @@ describe("characterFixtures", () => {
     ]).toEqual([true, true]);
   });
 
+  // deliberate assertion rewrite: expected value gains characterFactionId "dwarf" (before: no characterFactionId; after: characterFactionId: "dwarf") — Phase 13 factions
   it("T1: buildTestCharacterTemplate returns the documented defaults", () => {
     expect(buildTestCharacterTemplate()).toEqual({
       characterTemplateId: "fixture-dwarf",
       name: "Fixture Dwarf",
       tier: 1,
+      characterFactionId: "dwarf",
       characterClassIds: ["warrior"],
       attack: 4,
       maxHp: 7,
@@ -72,6 +78,7 @@ describe("characterFixtures", () => {
     });
   });
 
+  // deliberate assertion rewrite: expected value gains characterFactionId "dwarf" (before: no characterFactionId; after: characterFactionId: "dwarf") — Phase 13 factions
   it("T2: buildTestCharacterTemplate applies overrides and keeps the other defaults", () => {
     expect(
       buildTestCharacterTemplate({
@@ -84,6 +91,7 @@ describe("characterFixtures", () => {
       characterTemplateId: "fixture-dwarf-two",
       name: "Fixture Dwarf",
       tier: 2,
+      characterFactionId: "dwarf",
       characterClassIds: ["smith", "miner"],
       attack: 4,
       maxHp: 8,

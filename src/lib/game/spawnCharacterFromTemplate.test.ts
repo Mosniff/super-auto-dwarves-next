@@ -14,6 +14,7 @@ const fixtureTemplate = buildTestCharacterTemplate({
 });
 
 describe("spawnCharacterFromTemplate", () => {
+  // deliberate assertion rewrite: expected value gains characterFactionId "dwarf" (before: no characterFactionId; after: characterFactionId: "dwarf") — Phase 13 factions
   it("S1: builds an owned character from a template with a fresh id, hp at maxHp and no experience", () => {
     const spawnedCharacter = spawnCharacterFromTemplate(
       fixtureTemplate,
@@ -25,6 +26,7 @@ describe("spawnCharacterFromTemplate", () => {
       characterTemplateId: "fixture-dwarf",
       name: "Fixture Dwarf",
       tier: 2,
+      characterFactionId: "dwarf",
       characterClassIds: ["smith", "miner"],
       attack: 3,
       hp: 9,
@@ -43,5 +45,16 @@ describe("spawnCharacterFromTemplate", () => {
     expect(spawnedCharacter.characterClassIds).not.toBe(
       fixtureTemplate.characterClassIds,
     );
+  });
+
+  it("S3: the spawned character copies the template's faction", () => {
+    const koboldTemplate = buildTestCharacterTemplate({
+      characterFactionId: "kobold",
+    });
+
+    expect(
+      spawnCharacterFromTemplate(koboldTemplate, "new-character-2")
+        .characterFactionId,
+    ).toBe("kobold");
   });
 });
