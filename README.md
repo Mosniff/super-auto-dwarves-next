@@ -2,7 +2,7 @@
 
 A fantasy auto-battler inspired by Super Auto Pets, Choose Your Own Adventure games, and Dungeons & Dragons. The game features both PvE and asynchronous PvP battles.
 
-> **Status:** Architecture and tech stack decided; project scaffolded. The **fundamental battle system** is specified (see [Battle system](#battle-system)), the app is **internationalized** (English + Japanese, via next-intl), and the **save loop** is playable end to end: guest sessions, one save per user, buying and arranging dwarves, then battling with them against a placeholder enemy. Characters are real game data: classes, tiers and character templates are defined, and every dwarf — yours and the placeholder enemy — is spawned from a template. The character shop has 8 slots (3 open, 5 locked), rolled on the server at every camp start and stored with the game, and dwarves are bought from it slot by slot. Dwarves gain **experience and levels** by merging duplicates — buying a matching dwarf onto one, or merging two roster dwarves in a merge/sell mode (hold Shift or use the toggle) — and can be **sold** for gold. Other game systems (cards, richer shopping, abilities — and so what levels actually do) remain to be defined — see the [Roadmap](#roadmap) and `CLAUDE.md` for contributor/architecture conventions.
+> **Status:** Architecture and tech stack decided; project scaffolded. The **fundamental battle system** is specified (see [Battle system](#battle-system)), the app is **internationalized** (English + Japanese, via next-intl), and the **save loop** is playable end to end: guest sessions, one save per user, buying and arranging dwarves, then battling with them against a placeholder enemy. Characters are real game data: classes, tiers and character templates are defined, and every dwarf — yours and the placeholder enemy — is spawned from a template. The character shop has 8 slots (3 open, 5 locked), rolled on the server at every camp start and stored with the game, and dwarves are bought from it slot by slot. Dwarves gain **experience and levels** by merging duplicates — buying a matching dwarf onto one, or merging two roster dwarves in a merge/sell mode (hold Shift or use the toggle) — and can be **sold** for gold. Each dwarf type has an **ability** whose strength grows with its level (three so far: one that fires on gaining experience, one at the start of battle, one at the start of camp), and characters can have **armour**, which absorbs hits. An "i" on any card opens an expanded view with its ability's level texts. Other game systems (cards, richer shopping, enemies, battle consequences, more abilities) remain to be defined — see the [Roadmap](#roadmap) and `CLAUDE.md` for contributor/architecture conventions.
 
 ---
 
@@ -55,13 +55,17 @@ This describes the **fundamental battle system** — the base combat loop that e
 
 Each character also carries a `maxHp` — the full-health ceiling `hp` can never exceed. Nothing raises `hp` in the fundamental system yet, so this is unexercised until healing/buffs exist.
 
-Non-front characters do nothing in the fundamental system (abilities will later let them act).
+Non-front characters do nothing in the fundamental system; abilities let them act (see below).
 
 **Simultaneity.** The two front characters attack _at the same time_: both attacks are resolved against the state as it was at the start of the turn, so a character's death does not cancel the blow it already threw. If both front characters would drop each other in the same turn, **both drop**.
 
 **Ending.** The battle ends when at least one roster is empty. The side with characters remaining **wins**; if both rosters empty on the same turn, it's a **draw**.
 
-**Future extension.** Abilities and triggered effects (e.g. "on battle start", "on taking damage", "on drop") build on this loop without changing its fundamentals. They are out of scope for the fundamental system and specified separately when added.
+**Armour (Phase 12).** A character with armour takes hits on its armour instead of its hp. A hit at least as big as the armour breaks it (armour becomes 0) and the rest of that hit is lost; hp is never touched by a hit that lands on armour.
+
+**The battle opening (Phase 12).** A battle starts with a **prepare** beat (the gaps in the roster close), then the **battle-start abilities** fire, then the parties **engage** (the front characters step into the action zone), then turn 1. Battle-start abilities are simultaneous within their phase: they all choose their targets from the state at the start of the phase, each acting character gets its own moment, and anyone they drop leaves together at the end of the phase.
+
+**Abilities (Phase 12).** Every character type has one ability, with five strengths for its five levels, fired at named trigger points. Three exist: on gaining experience (Borin's Growing Lad: extra hp), at the start of battle (Ogden's Tighten Those Straps Son: armour for allies ahead of him) and at the start of camp (Norbin's Penny Pincher: extra gold). More triggers (e.g. "on taking damage", "on drop") build on this loop without changing its fundamentals; they are specified when added.
 
 For the technical design of how a battle is computed, transmitted, replayed, and animated (the event stream, `applyEvent`, animation beats), see the "Battle data architecture" section in `CLAUDE.md`.
 
@@ -123,7 +127,8 @@ The **fundamental battle system** is specified (see above). Still to be specifie
 - [ ] Enemy generation — PvE opponents and PvP roster snapshots
 - [ ] Battle consequences — game over on loss, rewards on win
 - [ ] Card model and card types
-- [~] Character stats and progression / leveling rules — experience and levels defined _(Phase 11)_; level effects arrive with abilities
+- [x] Abilities, armour and the expanded card — armour as a stat that absorbs hits; one ability per character type with five level strengths and three triggers (gaining experience, battle start, camp start); a battle opening of prepare → abilities → engage; an "i" control and expanded card view; a clearer held selection; character portraits; a start-of-camp sequence _(Phase 12; see `CLAUDE.md` → "Abilities and armour (Phase 12)")_
+- [~] Character stats and progression / leveling rules — experience and levels defined _(Phase 11)_; levels set ability strength and armour joins attack and hp _(Phase 12)_
 - [~] Roster construction and constraints (shopping phase) — camp rules and the character shop defined, with equipment, magic and food sections shown as "Coming soon" placeholders _(Phase 10)_; paid rerolls, tier gating, open-slot growth, rules for the other shop sections still to come (merging and selling arrived in Phase 11)
-- [ ] Character abilities and triggered effects (extends the fundamental battle system)
-- [~] Data model (Prisma schema) — the User/Game save model is now defined _(see `CLAUDE.md` → "Persistence & save model")_; schema for the game systems below (cards, progression, abilities) still pending
+- [~] Character abilities and triggered effects (extends the fundamental battle system) — three abilities and triggers _(Phase 12)_; more triggers and abilities to come
+- [~] Data model (Prisma schema) — the User/Game save model is now defined _(see `CLAUDE.md` → "Persistence & save model")_; schema for the game systems still to come (cards, enemies) pending; abilities need none — they're looked up through each character's template
