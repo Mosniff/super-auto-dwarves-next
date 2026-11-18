@@ -3,6 +3,7 @@ import { deriveBattlePlaybackState } from "./deriveBattlePlaybackState";
 import { resolveBattle } from "./resolveBattle";
 import { applyEvent } from "./applyEvent";
 import type { Character } from "@/lib/game/character";
+import type { ResolvedBattle } from "./types";
 import { buildTestCharacter } from "@/test/characterFixtures";
 
 describe("deriveBattlePlaybackState", () => {
@@ -122,5 +123,57 @@ describe("deriveBattlePlaybackState", () => {
     );
 
     expect(playbackView.currentBeatType).toBe("CLASH");
+  });
+
+  it("DP-E1: exposes the playback beat's character effects", () => {
+    const abilityPlayerCharacters: Character[] = [
+      buildTestCharacter({ id: "p1", name: "Borin", attack: 2, hp: 3, maxHp: 3, armour: 0 }),
+      buildTestCharacter({ id: "p2", name: "Ogden", attack: 3, hp: 8, maxHp: 8, armour: 0 }),
+    ];
+    const abilityEnemyCharacters: Character[] = [
+      buildTestCharacter({ id: "e1", name: "Grukk", attack: 0, hp: 6, maxHp: 6, armour: 0 }),
+    ];
+
+    const abilityResolvedBattle: ResolvedBattle = {
+      initialState: {
+        player: { activeCharacters: abilityPlayerCharacters, downedCharacters: [] },
+        enemy: { activeCharacters: abilityEnemyCharacters, downedCharacters: [] },
+      },
+      events: [
+        { type: "BATTLE_START", beatIndex: 0, beatType: "BATTLE_START" },
+        {
+          type: "ABILITY_ACTIVATE",
+          characterId: "p2",
+          abilityId: "tighten-those-straps-son",
+          beatIndex: 1,
+          beatType: "ABILITY",
+        },
+        {
+          type: "STAT_CHANGE",
+          targetId: "p1",
+          stat: "armour",
+          amount: 1,
+          resultingValue: 1,
+          source: "p2",
+          sourceAbilityId: "tighten-those-straps-son",
+          beatIndex: 1,
+          beatType: "ABILITY",
+        },
+      ],
+    };
+
+    expect(
+      [0, 1].map(
+        (playbackBeat) =>
+          deriveBattlePlaybackState(abilityResolvedBattle, playbackBeat, playbackBeat)
+            .currentBeatCharacterEffects,
+      ),
+    ).toEqual([
+      {},
+      {
+        p2: { isActing: true, armourGained: 0, brokenFromArmour: null },
+        p1: { isActing: false, armourGained: 1, brokenFromArmour: null },
+      },
+    ]);
   });
 });

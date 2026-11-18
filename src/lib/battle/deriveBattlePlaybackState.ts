@@ -7,6 +7,10 @@ import type {
 import { applyEvent } from "./applyEvent";
 import { describeBattleEvent } from "./describeBattleEvent";
 import { buildNameMap } from "./buildNameMap";
+import {
+  beatCharacterEffects,
+  type BeatCharacterEffect,
+} from "./beatCharacterEffects";
 
 interface BattlePlaybackView {
   currentState: BattleState;
@@ -14,6 +18,9 @@ interface BattlePlaybackView {
   allBeatDescriptors: BattleEventDescriptor[][];
   isFinished: boolean;
   currentBeatType: BeatType | undefined;
+  // For the playback beat (what's animating now), not the viewing beat
+  // (the log being read).
+  currentBeatCharacterEffects: Record<string, BeatCharacterEffect>;
 }
 
 export function deriveBattlePlaybackState(
@@ -54,11 +61,16 @@ export function deriveBattlePlaybackState(
     (event) => event.beatIndex === playbackBeat,
   )?.beatType;
 
+  const currentBeatCharacterEffects = beatCharacterEffects(
+    resolvedBattle.events.filter((event) => event.beatIndex === playbackBeat),
+  );
+
   return {
     currentState,
     currentBeatDescriptors,
     allBeatDescriptors,
     isFinished,
     currentBeatType,
+    currentBeatCharacterEffects,
   };
 }
