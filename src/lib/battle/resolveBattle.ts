@@ -8,11 +8,17 @@ import type {
 import type { Character } from "@/lib/game/character";
 import { applyEvent } from "./applyEvent";
 import { resolveHit } from "./resolveHit";
+import {
+  BATTLE_START_SUB_PHASES,
+  planBattleStartAbility,
+  type BattleStartAbilityPlanner,
+} from "./battleStartAbilities";
 
 export function resolveBattle(
   playerCharacters: Character[],
   enemyCharacters: Character[],
   maxTurns: number = 20,
+  planAbility: BattleStartAbilityPlanner = planBattleStartAbility,
 ): ResolvedBattle {
   const initialState: BattleState = {
     player: { activeCharacters: playerCharacters, downedCharacters: [] },
@@ -40,6 +46,114 @@ export function resolveBattle(
   };
 
   emitEvent({ type: "BATTLE_START" });
+
+  // Battle-start sub-phases (Phase 12). Simultaneity within a sub-phase:
+  // every ability firing in it chooses its targets and amounts from a
+  // SNAPSHOT taken at the start of that sub-phase — so two pre-battle
+  // archers both fire and both hit, even if one would otherwise have
+  // dropped the other first. Actors come from that snapshot (not the
+  // current working state) for the same reason: an actor knocked to 0 hp
+  // earlier in the same phase still fires. Each acting character gets its
+  // own ABILITY beat, and the resulting values in its outcome events are
+  // read from the CURRENT working state, so effects stack. Drops are held
+  // until every actor in the sub-phase has gone, then all happen together
+  // in one DROP beat, player front to back then enemy front to back.
+  for (const subPhase of BATTLE_START_SUB_PHASES) {
+    const snapshot = workingState;
+
+    const actors = [
+      ...snapshot.player.activeCharacters.map((actor, actorIndex) => ({
+        actor,
+        actorIndex,
+        allies: snapshot.player.activeCharacters,
+        opponents: snapshot.enemy.activeCharacters,
+      })),
+      ...snapshot.enemy.activeCharacters.map((actor, actorIndex) => ({
+        actor,
+        actorIndex,
+        allies: snapshot.enemy.activeCharacters,
+        opponents: snapshot.player.activeCharacters,
+      })),
+    ];
+
+    for (const { actor, actorIndex, allies, opponents } of actors) {
+      const plan = planAbility({
+        subPhase,
+        actor,
+        actorIndex,
+        allies,
+        opponents,
+      });
+
+      if (plan === null) {
+        continue;
+      }
+
+      startNewBeat("ABILITY");
+      emitEvent({
+        type: "ABILITY_ACTIVATE",
+        characterId: actor.id,
+        abilityId: plan.abilityId,
+      });
+
+      for (const effect of plan.effects) {
+        const target =
+          workingState.player.activeCharacters.find(
+            (character) => character.id === effect.targetId,
+          ) ??
+          workingState.enemy.activeCharacters.find(
+            (character) => character.id === effect.targetId,
+          );
+
+        // Drops are held until the end of the sub-phase, so targets are
+        // present in practice; this guard is defensive.
+        if (target === undefined) {
+          continue;
+        }
+
+        if (effect.effectKind === "statChange") {
+          const currentStatValue = ((): number => {
+            switch (effect.stat) {
+              case "armour":
+                return target.armour;
+              default: {
+                const exhaustiveStatCheck: never = effect.stat;
+                return exhaustiveStatCheck;
+              }
+            }
+          })();
+
+          emitEvent({
+            type: "STAT_CHANGE",
+            targetId: effect.targetId,
+            stat: effect.stat,
+            amount: effect.amount,
+            resultingValue: currentStatValue + effect.amount,
+            source: actor.id,
+            sourceAbilityId: plan.abilityId,
+          });
+        } else {
+          emitEvent(resolveHit(target, Math.max(0, effect.amount), actor.id));
+        }
+      }
+    }
+
+    const droppedCharacters = [
+      ...workingState.player.activeCharacters.filter(
+        (character) => character.hp <= 0,
+      ),
+      ...workingState.enemy.activeCharacters.filter(
+        (character) => character.hp <= 0,
+      ),
+    ];
+
+    if (droppedCharacters.length > 0) {
+      startNewBeat("DROP");
+      for (const droppedCharacter of droppedCharacters) {
+        emitEvent({ type: "DROP", characterId: droppedCharacter.id });
+      }
+    }
+  }
 
   let currentTurn = 1;
 

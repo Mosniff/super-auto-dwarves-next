@@ -3,6 +3,7 @@ import { resolveBattle } from "./resolveBattle";
 import { applyEvent } from "./applyEvent";
 import type { Character } from "@/lib/game/character";
 import { buildTestCharacter } from "@/test/characterFixtures";
+import type { BattleStartAbilityPlanner } from "./battleStartAbilities";
 
 describe("resolveBattle", () => {
   it("a one-sided lethal exchange ends in a win for the surviving side", () => {
@@ -512,5 +513,379 @@ describe("resolveBattle", () => {
         beatType: "BATTLE_END",
       },
     });
+  });
+
+  // The O-tests below deliberately use the real Ogden template and the
+  // real Tighten Those Straps Son ability data (not fixtures), so they
+  // also prove the whole path from template to resolver.
+  function buildFixtureOgden(
+    id: string,
+    experienceForLevel: number,
+  ): Character {
+    return buildTestCharacter({
+      id,
+      name: "Ogden",
+      characterTemplateId: "ogden",
+      attack: 3,
+      hp: 8,
+      maxHp: 8,
+      armour: 0,
+      experience: experienceForLevel,
+    });
+  }
+
+  function buildFixtureGrukk(id: string): Character {
+    return buildTestCharacter({
+      id,
+      name: "Grukk",
+      attack: 0,
+      hp: 20,
+      maxHp: 20,
+      armour: 0,
+      characterTemplateId: "fixture-dwarf",
+      tier: 1,
+      characterClassIds: ["warrior"],
+      experience: 0,
+    });
+  }
+
+  function abilityBeatEventsOf(events: ReturnType<typeof resolveBattle>["events"]) {
+    return events.filter((event) => event.beatType === "ABILITY");
+  }
+
+  it("O1: a level-1 Ogden behind Borin gives Borin 1 armour in his own beat, straight after the prepare beat", () => {
+    const playerCharacters: Character[] = [
+      buildTestCharacter({
+        id: "p1",
+        name: "Borin",
+        characterTemplateId: "fixture-dwarf",
+        tier: 1,
+        characterClassIds: ["warrior"],
+        attack: 2,
+        hp: 10,
+        maxHp: 10,
+        armour: 0,
+        experience: 0,
+      }),
+      buildFixtureOgden("p2", 0),
+    ];
+    const enemyCharacters: Character[] = [buildFixtureGrukk("e1")];
+
+    const { events } = resolveBattle(playerCharacters, enemyCharacters, 1);
+
+    expect({
+      abilityBeatEvents: abilityBeatEventsOf(events),
+      firstTurnBeat: events.find((event) => event.type === "TURN_START")
+        ?.beatIndex,
+    }).toEqual({
+      abilityBeatEvents: [
+        {
+          type: "ABILITY_ACTIVATE",
+          characterId: "p2",
+          abilityId: "tighten-those-straps-son",
+          beatIndex: 1,
+          beatType: "ABILITY",
+        },
+        {
+          type: "STAT_CHANGE",
+          targetId: "p1",
+          stat: "armour",
+          amount: 1,
+          resultingValue: 1,
+          source: "p2",
+          sourceAbilityId: "tighten-those-straps-son",
+          beatIndex: 1,
+          beatType: "ABILITY",
+        },
+      ],
+      firstTurnBeat: 2,
+    });
+  });
+
+  it("O2: two Ogdens stack: targets come from the snapshot, resulting armour from the current state", () => {
+    const playerCharacters: Character[] = [
+      buildTestCharacter({
+        id: "p1",
+        name: "Borin",
+        characterTemplateId: "fixture-dwarf",
+        tier: 1,
+        characterClassIds: ["warrior"],
+        attack: 2,
+        hp: 10,
+        maxHp: 10,
+        armour: 0,
+        experience: 0,
+      }),
+      buildFixtureOgden("p2", 0),
+      buildFixtureOgden("p3", 3),
+    ];
+    const enemyCharacters: Character[] = [buildFixtureGrukk("e1")];
+
+    const { events } = resolveBattle(playerCharacters, enemyCharacters, 1);
+
+    expect(
+      events
+        .filter((event) => event.type === "STAT_CHANGE")
+        .map((event) => [event.targetId, event.resultingValue, event.beatIndex]),
+    ).toEqual([
+      ["p1", 1, 1],
+      ["p1", 2, 2],
+      ["p2", 1, 2],
+    ]);
+  });
+
+  it("O3: a level-1 Ogden at the front shouts but has no effect", () => {
+    const playerCharacters: Character[] = [
+      buildFixtureOgden("p1", 0),
+      buildTestCharacter({
+        id: "p2",
+        name: "Borin",
+        characterTemplateId: "fixture-dwarf",
+        tier: 1,
+        characterClassIds: ["warrior"],
+        attack: 2,
+        hp: 10,
+        maxHp: 10,
+        armour: 0,
+        experience: 0,
+      }),
+    ];
+    const enemyCharacters: Character[] = [buildFixtureGrukk("e1")];
+
+    const { events } = resolveBattle(playerCharacters, enemyCharacters, 1);
+
+    expect(abilityBeatEventsOf(events).map((event) => event.type)).toEqual([
+      "ABILITY_ACTIVATE",
+    ]);
+  });
+
+  it("O4: a level-4 Ogden with only one ally ahead targets just that ally", () => {
+    const playerCharacters: Character[] = [
+      buildTestCharacter({
+        id: "p1",
+        name: "Borin",
+        characterTemplateId: "fixture-dwarf",
+        tier: 1,
+        characterClassIds: ["warrior"],
+        attack: 2,
+        hp: 10,
+        maxHp: 10,
+        armour: 0,
+        experience: 0,
+      }),
+      buildFixtureOgden("p2", 10),
+    ];
+    const enemyCharacters: Character[] = [buildFixtureGrukk("e1")];
+
+    const { events } = resolveBattle(playerCharacters, enemyCharacters, 1);
+
+    expect(
+      events
+        .filter((event) => event.type === "STAT_CHANGE")
+        .map((event) => event.targetId),
+    ).toEqual(["p1"]);
+  });
+
+  it("O5: a level-5 Ogden buffs the whole party including himself, front to back", () => {
+    const playerCharacters: Character[] = [
+      buildTestCharacter({
+        id: "p1",
+        name: "Borin",
+        characterTemplateId: "fixture-dwarf",
+        tier: 1,
+        characterClassIds: ["warrior"],
+        attack: 2,
+        hp: 10,
+        maxHp: 10,
+        armour: 0,
+        experience: 0,
+      }),
+      buildFixtureOgden("p2", 15),
+      buildTestCharacter({
+        id: "p3",
+        name: "Borin",
+        characterTemplateId: "fixture-dwarf",
+        tier: 1,
+        characterClassIds: ["warrior"],
+        attack: 2,
+        hp: 10,
+        maxHp: 10,
+        armour: 0,
+        experience: 0,
+      }),
+    ];
+    const enemyCharacters: Character[] = [buildFixtureGrukk("e1")];
+
+    const { events } = resolveBattle(playerCharacters, enemyCharacters, 1);
+
+    expect(
+      events
+        .filter((event) => event.type === "STAT_CHANGE")
+        .map((event) => [event.targetId, event.resultingValue]),
+    ).toEqual([
+      ["p1", 1],
+      ["p2", 1],
+      ["p3", 1],
+    ]);
+  });
+
+  it("O6: beat order: player front to back, then enemy front to back", () => {
+    const playerCharacters: Character[] = [
+      buildFixtureOgden("p1", 0),
+      buildFixtureOgden("p2", 0),
+    ];
+    const enemyCharacters: Character[] = [
+      buildFixtureOgden("e1", 0),
+      buildFixtureOgden("e2", 0),
+    ];
+
+    const { events } = resolveBattle(playerCharacters, enemyCharacters, 1);
+
+    expect(
+      events
+        .filter((event) => event.type === "ABILITY_ACTIVATE")
+        .map((event) => [event.characterId, event.beatIndex]),
+    ).toEqual([
+      ["p1", 1],
+      ["p2", 2],
+      ["e1", 3],
+      ["e2", 4],
+    ]);
+  });
+
+  it("D1: two pre-battle damagers both fire, both hit, and drop together at the end of the phase", () => {
+    const playerCharacters: Character[] = [
+      buildTestCharacter({
+        id: "p1",
+        name: "Archer A",
+        attack: 0,
+        hp: 3,
+        maxHp: 3,
+        armour: 0,
+      }),
+    ];
+    const enemyCharacters: Character[] = [
+      buildTestCharacter({
+        id: "e1",
+        name: "Archer B",
+        attack: 0,
+        hp: 3,
+        maxHp: 3,
+        armour: 0,
+      }),
+    ];
+
+    // abilityId is a stand-in; no real damage ability exists yet.
+    const fixturePlanner: BattleStartAbilityPlanner = (context) => {
+      if (context.actor.id === "p1") {
+        return {
+          abilityId: "tighten-those-straps-son" as const,
+          effects: [
+            { effectKind: "damage" as const, targetId: "e1", amount: 5 },
+          ],
+        };
+      }
+      if (context.actor.id === "e1") {
+        return {
+          abilityId: "tighten-those-straps-son" as const,
+          effects: [
+            { effectKind: "damage" as const, targetId: "p1", amount: 5 },
+          ],
+        };
+      }
+      return null;
+    };
+
+    const { events } = resolveBattle(
+      playerCharacters,
+      enemyCharacters,
+      20,
+      fixturePlanner,
+    );
+
+    expect({
+      beats: events.map((event) => [
+        event.beatIndex,
+        event.beatType,
+        event.type,
+      ]),
+      outcome: events.at(-1),
+    }).toEqual({
+      beats: [
+        [0, "BATTLE_START", "BATTLE_START"],
+        [1, "ABILITY", "ABILITY_ACTIVATE"],
+        [1, "ABILITY", "DAMAGE"],
+        [2, "ABILITY", "ABILITY_ACTIVATE"],
+        [2, "ABILITY", "DAMAGE"],
+        [3, "DROP", "DROP"],
+        [3, "DROP", "DROP"],
+        [4, "BATTLE_END", "BATTLE_END"],
+      ],
+      outcome: {
+        type: "BATTLE_END",
+        outcome: "draw",
+        beatIndex: 4,
+        beatType: "BATTLE_END",
+      },
+    });
+  });
+
+  it("D2: ability damage goes through resolveHit, so armour takes it first", () => {
+    const playerCharacters: Character[] = [
+      buildTestCharacter({
+        id: "p1",
+        name: "Fixture Dwarf",
+        attack: 0,
+        hp: 5,
+        maxHp: 5,
+        armour: 0,
+      }),
+    ];
+    const enemyCharacters: Character[] = [
+      buildTestCharacter({
+        id: "e1",
+        name: "Grukk",
+        attack: 0,
+        hp: 5,
+        maxHp: 5,
+        armour: 3,
+      }),
+    ];
+
+    const fixturePlanner: BattleStartAbilityPlanner = (context) => {
+      if (context.actor.id === "p1") {
+        return {
+          abilityId: "tighten-those-straps-son",
+          effects: [{ effectKind: "damage", targetId: "e1", amount: 2 }],
+        };
+      }
+      return null;
+    };
+
+    const { events } = resolveBattle(
+      playerCharacters,
+      enemyCharacters,
+      1,
+      fixturePlanner,
+    );
+
+    expect(
+      events
+        .filter((event) => event.beatIndex === 1)
+        .map(({ beatIndex, beatType, ...payload }) => payload),
+    ).toEqual([
+      {
+        type: "ABILITY_ACTIVATE",
+        characterId: "p1",
+        abilityId: "tighten-those-straps-son",
+      },
+      {
+        type: "ARMOUR_DAMAGE",
+        targetId: "e1",
+        amount: 2,
+        resultingArmour: 1,
+        source: "p1",
+      },
+    ]);
   });
 });
