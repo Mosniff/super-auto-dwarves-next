@@ -1,6 +1,7 @@
 "use client";
 
 import { useTranslations } from "next-intl";
+import { DisplayedGold } from "@/components/game/headerGoldDisplay";
 
 interface GameStatusProps {
   day: number;
@@ -17,7 +18,7 @@ export function GameStatus({ day, gold, gems }: GameStatusProps) {
       className="flex items-center gap-4 text-parchment-50"
     >
       <span>{t("dayLabel", { day })}</span>
-      <span>{t("goldLabel", { gold })}</span>
+      <DisplayedGold gold={gold} />
       <span>{t("gemsLabel", { gems })}</span>
     </div>
   );

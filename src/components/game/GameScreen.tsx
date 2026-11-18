@@ -2,6 +2,8 @@
 
 import { AnimatePresence } from "motion/react";
 import { PhaseAdvanceAvailabilityProvider } from "@/components/game/phaseAdvanceAvailability";
+import { PhaseArrivalProvider } from "@/components/game/phaseArrival";
+import { HeaderGoldDisplayProvider } from "@/components/game/headerGoldDisplay";
 import type { GamePhase } from "@/lib/game/types";
 
 interface GameScreenProps {
@@ -23,20 +25,24 @@ interface GameScreenProps {
 export function GameScreen({ phase, header, children }: GameScreenProps) {
   return (
     <PhaseAdvanceAvailabilityProvider>
-      <div className="flex flex-1 flex-col">
-        {header}
-        <div className="grid flex-1 grid-cols-1 grid-rows-1 overflow-hidden">
-          <AnimatePresence initial={false}>
-            <div
-              key={phase}
-              className="col-start-1 row-start-1 flex min-h-0 flex-col"
-              data-game-screen-phase={phase}
-            >
-              {children}
+      <PhaseArrivalProvider phase={phase}>
+        <HeaderGoldDisplayProvider>
+          <div className="flex flex-1 flex-col">
+            {header}
+            <div className="grid flex-1 grid-cols-1 grid-rows-1 overflow-hidden">
+              <AnimatePresence initial={false}>
+                <div
+                  key={phase}
+                  className="col-start-1 row-start-1 flex min-h-0 flex-col"
+                  data-game-screen-phase={phase}
+                >
+                  {children}
+                </div>
+              </AnimatePresence>
             </div>
-          </AnimatePresence>
-        </div>
-      </div>
+          </div>
+        </HeaderGoldDisplayProvider>
+      </PhaseArrivalProvider>
     </PhaseAdvanceAvailabilityProvider>
   );
 }
