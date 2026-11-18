@@ -41,8 +41,9 @@ describe("locale message parity", () => {
   // info control, and abilityLabel for the expanded card's Ability tab,
   // and abilityHpFloater for the ability-hp promotion floater, and
   // battleCry/targetEffect for an ability's battle-log lines, and
-  // armourGainFloater/armourBreakFloater for battle beat floaters —
-  // deliberate test-data updates, not a weakening.
+  // armourGainFloater/armourBreakFloater for battle beat floaters, and
+  // Phase 12 step 10b-2: abilityGoldFloater (the start-of-camp "+X gold"
+  // floater) — deliberate test-data updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
     "advance",
@@ -93,6 +94,7 @@ describe("locale message parity", () => {
     "experienceGainFloater",
     "levelUpFloater",
     "sellGoldFloater",
+    "abilityGoldFloater",
     "armourLabel",
     "close",
     "characterInfoLabel",

@@ -2,10 +2,21 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
+import { useReducedMotion } from "motion/react";
 import { DragDropProvider, DragOverlay, PointerSensor } from "@dnd-kit/react";
 import { Accessibility } from "@dnd-kit/dom";
 import { GameScreenShell } from "@/components/game/GameScreenShell";
 import { useReportPhaseAdvanceAvailability } from "@/components/game/phaseAdvanceAvailability";
+import { useArrivedFromPhase } from "@/components/game/phaseArrival";
+import { useReportPendingHeaderGold } from "@/components/game/headerGoldDisplay";
+import {
+  CAMP_START_SEQUENCE_NOT_STARTED,
+  campStartActivationsToPlay,
+  campStartSequenceTimeline,
+  campStartSlotBeat,
+  advanceCampStartSequenceProgress,
+  pendingCampStartGold,
+} from "@/components/game/campStartSequence";
 import { ShopPanel } from "@/components/game/ShopPanel";
 import { CharacterCard } from "@/components/game/CharacterCard";
 import { MergeSellToggle } from "@/components/game/MergeSellToggle";
@@ -99,7 +110,51 @@ export function CampScreen({
   const [lastSubmittedCampIntent, setLastSubmittedCampIntent] =
     useState<SubmittedCampIntent | null>(null);
 
-  useReportPhaseAdvanceAvailability("campPhase", !isSubmittingCampIntent);
+  // Decided once, on the camp's first render: arrivedFromPhase stays
+  // "battlePhase" for the whole visit, so deciding on every render could
+  // replay it.
+  const arrivedFromPhase = useArrivedFromPhase();
+  const prefersReducedMotion = useReducedMotion();
+  const [campStartActivationsPlaying] = useState(() =>
+    campStartActivationsToPlay(
+      arrivedFromPhase,
+      prefersReducedMotion === true,
+      playerCampRoster,
+    ),
+  );
+  const [campStartProgress, setCampStartProgress] = useState(
+    CAMP_START_SEQUENCE_NOT_STARTED,
+  );
+
+  useEffect(() => {
+    const timeoutIds = campStartSequenceTimeline(
+      campStartActivationsPlaying.length,
+    ).map((timelineEvent) =>
+      window.setTimeout(() => {
+        setCampStartProgress((progress) =>
+          advanceCampStartSequenceProgress(progress, timelineEvent),
+        );
+      }, timelineEvent.atMs),
+    );
+
+    return () => {
+      timeoutIds.forEach((timeoutId) => window.clearTimeout(timeoutId));
+    };
+  }, [campStartActivationsPlaying]);
+
+  const isCampStartSequencePlaying =
+    campStartActivationsPlaying.length > 0 && !campStartProgress.isFinished;
+  const isCampInteractionLocked =
+    isSubmittingCampIntent || isCampStartSequencePlaying;
+
+  useReportPendingHeaderGold(
+    pendingCampStartGold(
+      campStartActivationsPlaying.map((activation) => activation.goldGained),
+      campStartProgress.landedActivationCount,
+    ),
+  );
+
+  useReportPhaseAdvanceAvailability("campPhase", !isCampInteractionLocked);
 
   // Radix's dismissable layer handles Escape first in the capture phase
   // and calls preventDefault(), so an Escape that closes a dialog never
@@ -205,7 +260,7 @@ export function CampScreen({
 
   function isClickEnabled(campClickTarget: CampClickTarget): boolean {
     return (
-      !isSubmittingCampIntent &&
+      !isCampInteractionLocked &&
       isCampClickEffective(
         campSelection,
         campClickTarget,
@@ -322,7 +377,9 @@ export function CampScreen({
                 isMergeOrSellModeActive={campInteractionMode === "mergeOrSell"}
                 isLatched={isMergeSellToggleLatched}
                 onClick={onMergeSellToggleClick}
-                isDisabled={isMergeSellToggleDisabled}
+                isDisabled={
+                  isMergeSellToggleDisabled || isCampStartSequencePlaying
+                }
               />
               <SellArea
                 isShown={
@@ -360,7 +417,7 @@ export function CampScreen({
                 : t("rosterSlotEmptyLabel", { slotNumber: slotIndex + 1 });
             },
             isSlotDraggable: (slotIndex) =>
-              !isSubmittingCampIntent &&
+              !isCampInteractionLocked &&
               isRosterSlotSelectable(
                 playerCampRoster,
                 slotIndex,
@@ -377,6 +434,12 @@ export function CampScreen({
                 campState,
                 characterTemplates,
                 campInteractionMode,
+              ),
+            slotCampStartBeat: (slotIndex) =>
+              campStartSlotBeat(
+                campStartActivationsPlaying,
+                campStartProgress,
+                slotIndex,
               ),
           }}
         >
@@ -396,7 +459,7 @@ export function CampScreen({
                 })
               }
               isShopSlotDraggable={(shopSlotIndex) =>
-                !isSubmittingCampIntent &&
+                !isCampInteractionLocked &&
                 isCharacterShopSlotSelectable(
                   campState,
                   characterTemplates,

@@ -2,6 +2,7 @@ import type { Character } from "@/lib/game/character";
 import type { CurrentBeatEffects } from "@/lib/battle/beatCharacterEffects";
 import type { CampTargetPresentation } from "./campSelection";
 import type { RosterSlotExitKind } from "./rosterSlotAnimation";
+import type { CampStartSlotBeat } from "./campStartSequence";
 import { CharacterInfoControl } from "./CharacterInfoControl";
 import { InteractiveRosterSlotButton } from "./InteractiveRosterSlotButton";
 import { RosterSlot } from "./RosterSlot";
@@ -25,6 +26,8 @@ export interface RosterSlotInteraction {
   // (isRosterSlotMatchingHeldItem), never a client-side template
   // comparison.
   isSlotMatchingHeldItem: (slotIndex: number) => boolean;
+  // Phase 12 start-of-camp sequence; display-only.
+  slotCampStartBeat?: (slotIndex: number) => CampStartSlotBeat | undefined;
 }
 
 interface RosterSlabProps {
@@ -120,6 +123,7 @@ export function RosterSlab({
                   isMatchingHeldItem={slotInteraction.isSlotMatchingHeldItem(
                     slotIndex,
                   )}
+                  campStartBeat={slotInteraction.slotCampStartBeat?.(slotIndex)}
                 />
               ) : showsInfoControls ? (
                 <div

@@ -3,7 +3,7 @@
 import {
   createContext,
   useContext,
-  useEffect,
+  useLayoutEffect,
   useState,
   type Dispatch,
   type ReactNode,
@@ -40,7 +40,10 @@ export function HeaderGoldDisplayProvider({
 export function useReportPendingHeaderGold(pendingGold: number): void {
   const { setPendingGold } = useContext(HeaderGoldDisplayContext);
 
-  useEffect(() => {
+  // useLayoutEffect, not useEffect: the header receives the final gold on
+  // the same render that camp arrives, so reporting after paint would
+  // flash the full amount for a frame.
+  useLayoutEffect(() => {
     setPendingGold(pendingGold);
     return () => setPendingGold(0);
   }, [pendingGold, setPendingGold]);

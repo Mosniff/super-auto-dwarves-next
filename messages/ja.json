@@ -49,6 +49,7 @@
     "experienceGainFloater": "経験値+{experienceGained}",
     "levelUpFloater": "レベルアップ！",
     "sellGoldFloater": "+{gold}ゴールド",
+    "abilityGoldFloater": "+{gold}ゴールド",
     "armourLabel": "アーマー{armour}",
     "close": "閉じる",
     "characterInfoLabel": "{name}の詳細",

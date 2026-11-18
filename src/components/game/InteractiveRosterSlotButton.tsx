@@ -6,6 +6,7 @@ import { ArrowRightLeft, ChevronsUp } from "lucide-react";
 import type { Character } from "@/lib/game/character";
 import type { CampClickTarget, CampTargetPresentation } from "./campSelection";
 import type { RosterSlotExitKind } from "./rosterSlotAnimation";
+import type { CampStartSlotBeat } from "./campStartSequence";
 import { CharacterInfoControl } from "./CharacterInfoControl";
 import { RosterSlot } from "./RosterSlot";
 
@@ -23,6 +24,8 @@ interface InteractiveRosterSlotButtonProps {
   exitKind: RosterSlotExitKind;
   showsCharacterProgression?: boolean;
   isMatchingHeldItem: boolean;
+  // Phase 12 start-of-camp sequence; display-only.
+  campStartBeat?: CampStartSlotBeat;
 }
 
 // Visual classes come from the presentation state only (plus dimming the
@@ -76,6 +79,7 @@ export function InteractiveRosterSlotButton({
   exitKind,
   showsCharacterProgression = false,
   isMatchingHeldItem,
+  campStartBeat,
 }: InteractiveRosterSlotButtonProps) {
   const campClickTarget: CampClickTarget = {
     targetKind: "rosterSlot",
@@ -145,6 +149,7 @@ export function InteractiveRosterSlotButton({
           isNext={isNext}
           exitKind={exitKind}
           showsCharacterProgression={showsCharacterProgression}
+          campStartBeat={campStartBeat}
         />
         {presentation === "mergeTarget" && (
           // Top-left, so the top-right stays free for Phase 12's info

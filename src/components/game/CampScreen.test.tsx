@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { StrictMode, type ReactElement } from "react";
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, afterEach, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import {
   act,
@@ -12,7 +12,9 @@ import {
 } from "@/test/renderWithMessages";
 import { GameScreen } from "./GameScreen";
 import { PhaseAdvanceButton } from "./PhaseAdvanceButton";
+import { DisplayedGold } from "./headerGoldDisplay";
 import type { Character } from "@/lib/game/character";
+import type { GamePhase } from "@/lib/game/types";
 import type { CampRoster } from "@/lib/game/campRoster";
 import type { CharacterShopSlots } from "@/lib/game/characterShopSlots";
 import type { CharacterTemplate } from "@/lib/game/characterTemplates";
@@ -1426,5 +1428,176 @@ describe("CampScreen", () => {
       hasPopupBefore,
       document.activeElement?.getAttribute("aria-label") ?? null,
     ]).toEqual(["dialog", "Details: Borin"]);
+  });
+});
+
+const fixtureNorbin: Character = buildTestCharacter({
+  id: "norbin-1",
+  name: "Norbin",
+  characterTemplateId: "norbin",
+});
+
+// The full /play frame (GameScreen + header), so the start-of-camp sequence
+// (which reads arrival from GameScreen's PhaseArrivalProvider and reports
+// pending gold up to the header) has somewhere real to run.
+function harnessElement(phase: GamePhase, revision: number): ReactElement {
+  return (
+    <GameScreen
+      phase={phase}
+      header={
+        <>
+          <PhaseAdvanceButton
+            gamePhase={phase}
+            advanceGameAction={async () => {}}
+          />
+          <DisplayedGold gold={11} />
+        </>
+      }
+    >
+      {phase === "campPhase" ? (
+        buildCampScreenElement({
+          playerCampRoster: [fixtureNorbin, null, null, null, null, null, null],
+          gold: 11,
+          revision,
+        })
+      ) : (
+        <div data-test-battle-placeholder />
+      )}
+    </GameScreen>
+  );
+}
+
+function renderCampArrival({
+  arrivesFromBattle,
+}: {
+  arrivesFromBattle: boolean;
+}) {
+  const renderResult = renderWithMessages(
+    harnessElement(arrivesFromBattle ? "battlePhase" : "campPhase", 5),
+  );
+
+  if (arrivesFromBattle) {
+    renderResult.rerender(harnessElement("campPhase", 5));
+  }
+
+  function rerenderCamp(revision: number) {
+    renderResult.rerender(harnessElement("campPhase", revision));
+  }
+
+  return { ...renderResult, rerenderCamp };
+}
+
+function observeCampStart() {
+  const advanceButton = document.querySelector(
+    "[data-phase-advance] button",
+  ) as HTMLButtonElement | null;
+  const frontSlotButton = screen.getByRole("button", {
+    name: "Slot 1: Norbin, level 1",
+  }) as HTMLButtonElement;
+  const frontSlotRoot = document.querySelector('[data-roster-slot-index="0"]');
+  const goldFloater = frontSlotRoot?.querySelector(
+    '[data-roster-slot-floater="abilityGold"]',
+  );
+
+  return {
+    headerGold:
+      document.querySelector("[data-displayed-gold]")?.textContent ?? null,
+    isFrontSlotButtonDisabled: frontSlotButton.disabled,
+    isAdvanceButtonEnabled: advanceButton !== null && !advanceButton.disabled,
+    frontSlotAbilityActing:
+      frontSlotRoot?.getAttribute("data-ability-acting") ?? null,
+    goldFloaterText: goldFloater?.textContent ?? null,
+  };
+}
+
+const idleObservation = {
+  headerGold: "11 gold",
+  isFrontSlotButtonDisabled: false,
+  isAdvanceButtonEnabled: true,
+  frontSlotAbilityActing: "false",
+  goldFloaterText: null,
+};
+
+describe("camp-start sequence", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("LK1: arriving from battle: the camp locks, Norbin pulses, '+1 gold' lands and the header counts up, then the camp unlocks", () => {
+    vi.useFakeTimers();
+    renderCampArrival({ arrivesFromBattle: true });
+
+    const observations = [observeCampStart()];
+
+    act(() => {
+      vi.advanceTimersByTime(550);
+    });
+    observations.push(observeCampStart());
+
+    act(() => {
+      vi.advanceTimersByTime(300);
+    });
+    observations.push(observeCampStart());
+
+    act(() => {
+      vi.advanceTimersByTime(1200);
+    });
+    observations.push(observeCampStart());
+
+    expect(observations).toEqual([
+      {
+        headerGold: "10 gold",
+        isFrontSlotButtonDisabled: true,
+        isAdvanceButtonEnabled: false,
+        frontSlotAbilityActing: "false",
+        goldFloaterText: null,
+      },
+      {
+        headerGold: "10 gold",
+        isFrontSlotButtonDisabled: true,
+        isAdvanceButtonEnabled: false,
+        frontSlotAbilityActing: "true",
+        goldFloaterText: null,
+      },
+      {
+        headerGold: "11 gold",
+        isFrontSlotButtonDisabled: true,
+        isAdvanceButtonEnabled: false,
+        frontSlotAbilityActing: "true",
+        goldFloaterText: "+1 gold",
+      },
+      idleObservation,
+    ]);
+  });
+
+  it("LK2: a camp re-render after the sequence never replays it", () => {
+    vi.useFakeTimers();
+    const { rerenderCamp } = renderCampArrival({ arrivesFromBattle: true });
+
+    act(() => {
+      vi.advanceTimersByTime(2050);
+    });
+
+    rerenderCamp(6);
+
+    act(() => {
+      vi.advanceTimersByTime(550);
+    });
+
+    expect(observeCampStart()).toEqual(idleObservation);
+  });
+
+  it("LK3: entering camp on a reload plays nothing and never locks", () => {
+    vi.useFakeTimers();
+    renderCampArrival({ arrivesFromBattle: false });
+
+    const observations = [observeCampStart()];
+
+    act(() => {
+      vi.advanceTimersByTime(550);
+    });
+    observations.push(observeCampStart());
+
+    expect(observations).toEqual([idleObservation, idleObservation]);
   });
 });

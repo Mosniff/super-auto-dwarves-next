@@ -49,6 +49,7 @@
     "experienceGainFloater": "+{experienceGained} XP",
     "levelUpFloater": "Level up!",
     "sellGoldFloater": "+{gold} gold",
+    "abilityGoldFloater": "+{gold} gold",
     "armourLabel": "{armour} armour",
     "close": "Close",
     "characterInfoLabel": "Details: {name}",

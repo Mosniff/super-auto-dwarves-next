@@ -16,6 +16,7 @@ import {
   experienceGainBeat,
   type RosterSlotExitKind,
 } from "./rosterSlotAnimation";
+import type { CampStartSlotBeat } from "./campStartSequence";
 import { CharacterCard } from "./CharacterCard";
 import { armourBeatFromEffect, BattleBeatFloaters } from "./BattleBeatFloaters";
 
@@ -34,6 +35,8 @@ interface RosterSlotProps {
   // character, if anything, and the beat it belongs to (for re-keying).
   beatEffect?: BeatCharacterEffect;
   beatKey?: number;
+  // Phase 12 start-of-camp sequence: display-only.
+  campStartBeat?: CampStartSlotBeat;
 }
 
 const SHUFFLE_EXIT_DURATION_S = 0.3;
@@ -79,6 +82,7 @@ export function RosterSlot({
   slotIndex,
   beatEffect,
   beatKey,
+  campStartBeat,
 }: RosterSlotProps) {
   const prefersReducedMotion = useReducedMotion();
   const showNextHalo = isNext && Boolean(character);
@@ -316,7 +320,9 @@ export function RosterSlot({
       data-roster-slot-exit-kind={exitKind}
       data-experience-beat-active={String(isExperienceBeatActive)}
       data-experience-beat={experienceBeatAttribute}
-      data-ability-acting={beatEffect?.isActing ? "true" : "false"}
+      data-ability-acting={
+        beatEffect?.isActing || campStartBeat?.isActing ? "true" : "false"
+      }
       {...rosterSlotIndexAttributes}
     >
       <div
@@ -469,6 +475,19 @@ export function RosterSlot({
           onAnimationComplete={() => setAbilityHpFloater(null)}
         >
           {t("abilityHpFloater", { hp: abilityHpFloater.hpGained })}
+        </motion.span>
+      )}
+      {campStartBeat && campStartBeat.landedGold !== null && (
+        <motion.span
+          key="camp-start-gold"
+          data-roster-slot-floater="abilityGold"
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-1/3 z-20 text-center text-lg font-bold text-amber-300 [text-shadow:0_1px_2px_rgba(0,0,0,0.8)]"
+          initial={{ y: 0, opacity: 0 }}
+          animate={{ y: [0, FLOATER_RISE_Y], opacity: [0, 1, 1, 0] }}
+          transition={{ duration: FLOATER_DURATION_S }}
+        >
+          {t("abilityGoldFloater", { gold: campStartBeat.landedGold })}
         </motion.span>
       )}
       <BattleBeatFloaters beatEffect={beatEffect} beatKey={beatKey} />
