@@ -155,6 +155,18 @@ export function resolveBattle(
     }
   }
 
+  // The fronts engage (Phase 12): its own beat after every battle-start
+  // ability and before turn 1, so the opening reads prepare → abilities →
+  // clash. No state change. Skipped when a side has no fighters, as the
+  // turn loop would be.
+  if (
+    workingState.player.activeCharacters.length > 0 &&
+    workingState.enemy.activeCharacters.length > 0
+  ) {
+    startNewBeat("ENGAGE");
+    emitEvent({ type: "FRONTS_ENGAGE" });
+  }
+
   let currentTurn = 1;
 
   while (

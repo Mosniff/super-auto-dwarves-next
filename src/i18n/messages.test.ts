@@ -43,7 +43,8 @@ describe("locale message parity", () => {
   // battleCry/targetEffect for an ability's battle-log lines, and
   // armourGainFloater/armourBreakFloater for battle beat floaters, and
   // Phase 12 step 10b-2: abilityGoldFloater (the start-of-camp "+X gold"
-  // floater) — deliberate test-data updates, not a weakening.
+  // floater), and Phase 12 step 11a: frontsEngage, the engage beat's log
+  // line — deliberate test-data updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
     "advance",
@@ -103,6 +104,7 @@ describe("locale message parity", () => {
   ];
   const expectedBattleKeys = [
     "battleStart",
+    "frontsEngage",
     "turnStart",
     "attack",
     "damage",

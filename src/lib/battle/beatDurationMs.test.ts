@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   beatDurationMs,
   DROP_BEAT_DURATION_MS,
+  ENGAGE_BEAT_DURATION_MS,
   EVENTFUL_BEAT_DURATION_MS,
   PREPARE_BEAT_DURATION_MS,
   QUIET_BEAT_DURATION_MS,
@@ -50,5 +51,16 @@ describe("beatDurationMs", () => {
 
   it("returns the eventful duration for an ABILITY beat", () => {
     expect(beatDurationMs("ABILITY")).toBe(EVENTFUL_BEAT_DURATION_MS);
+  });
+
+  it("BD1: returns the engage duration for an ENGAGE beat", () => {
+    expect(beatDurationMs("ENGAGE")).toBe(ENGAGE_BEAT_DURATION_MS);
+  });
+
+  it("BD2: the engage beat is longer than a quiet beat and within the DROP ceiling", () => {
+    expect([
+      ENGAGE_BEAT_DURATION_MS > QUIET_BEAT_DURATION_MS,
+      ENGAGE_BEAT_DURATION_MS <= DROP_BEAT_DURATION_MS,
+    ]).toEqual([true, true]);
   });
 });

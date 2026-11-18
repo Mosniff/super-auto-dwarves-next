@@ -114,7 +114,7 @@ describe("BattleScreen", () => {
       });
 
       fireEvent.click(advanceButton);
-      expect(screen.getByText("Turn 1")).toBeInTheDocument();
+      expect(screen.getByText("The parties clash!")).toBeInTheDocument();
       expect(
         screen.queryByText("The dwarves and the monsters prepare for battle"),
       ).not.toBeInTheDocument();

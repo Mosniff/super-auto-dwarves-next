@@ -371,6 +371,7 @@ describe("resolveBattle", () => {
       (event) => event.type === "DAMAGE" || event.type === "ARMOUR_DAMAGE",
     );
 
+    // deliberate assertion rewrite: the engage beat (Phase 12 step 11) shifts this.
     expect(hitEvents).toEqual([
       {
         type: "ARMOUR_DAMAGE",
@@ -378,7 +379,7 @@ describe("resolveBattle", () => {
         amount: 2,
         resultingArmour: 1,
         source: "p1",
-        beatIndex: 2,
+        beatIndex: 3,
         beatType: "CLASH",
       },
       {
@@ -387,7 +388,7 @@ describe("resolveBattle", () => {
         amount: 0,
         resultingArmour: 1,
         source: "e1",
-        beatIndex: 2,
+        beatIndex: 3,
         beatType: "CLASH",
       },
     ]);
@@ -439,6 +440,7 @@ describe("resolveBattle", () => {
       }),
     );
 
+    // deliberate assertion rewrite: the engage beat (Phase 12 step 11) shifts this.
     expect({ hitsOnEnemy, dropEvents, enemyAfterBattle }).toEqual({
       hitsOnEnemy: [
         {
@@ -447,7 +449,7 @@ describe("resolveBattle", () => {
           amount: 2,
           resultingArmour: 0,
           source: "p1",
-          beatIndex: 2,
+          beatIndex: 3,
           beatType: "CLASH",
         },
       ],
@@ -485,6 +487,7 @@ describe("resolveBattle", () => {
     );
     const hitsOnEnemy = hitEvents.filter((event) => event.targetId === "e1");
 
+    // deliberate assertion rewrite: the engage beat (Phase 12 step 11) shifts this.
     expect({ hitsOnEnemy, lastEvent: events.at(-1) }).toEqual({
       hitsOnEnemy: [
         {
@@ -493,7 +496,7 @@ describe("resolveBattle", () => {
           amount: 2,
           resultingArmour: 0,
           source: "p1",
-          beatIndex: 2,
+          beatIndex: 3,
           beatType: "CLASH",
         },
         {
@@ -502,14 +505,14 @@ describe("resolveBattle", () => {
           amount: 5,
           resultingHp: -2,
           source: "p1",
-          beatIndex: 4,
+          beatIndex: 5,
           beatType: "CLASH",
         },
       ],
       lastEvent: {
         type: "BATTLE_END",
         outcome: "playerWin",
-        beatIndex: 6,
+        beatIndex: 7,
         beatType: "BATTLE_END",
       },
     });
@@ -573,6 +576,7 @@ describe("resolveBattle", () => {
 
     const { events } = resolveBattle(playerCharacters, enemyCharacters, 1);
 
+    // deliberate assertion rewrite: the engage beat (Phase 12 step 11) shifts this.
     expect({
       abilityBeatEvents: abilityBeatEventsOf(events),
       firstTurnBeat: events.find((event) => event.type === "TURN_START")
@@ -598,7 +602,7 @@ describe("resolveBattle", () => {
           beatType: "ABILITY",
         },
       ],
-      firstTurnBeat: 2,
+      firstTurnBeat: 3,
     });
   });
 
@@ -886,6 +890,59 @@ describe("resolveBattle", () => {
         resultingArmour: 1,
         source: "p1",
       },
+    ]);
+  });
+
+  it("EN1: the fronts engage in their own beat between the prepare beat and turn 1", () => {
+    const playerCharacters: Character[] = [
+      buildTestCharacter({ id: "p1", name: "Borin" }),
+    ];
+    const enemyCharacters: Character[] = [buildFixtureGrukk("e1")];
+
+    const { events } = resolveBattle(playerCharacters, enemyCharacters, 1);
+
+    expect(
+      events
+        .slice(0, 3)
+        .map((event) => [event.beatIndex, event.beatType, event.type]),
+    ).toEqual([
+      [0, "BATTLE_START", "BATTLE_START"],
+      [1, "ENGAGE", "FRONTS_ENGAGE"],
+      [2, "TURN_START", "TURN_START"],
+    ]);
+  });
+
+  it("EN2: battle-start abilities fire before the fronts engage", () => {
+    const playerCharacters: Character[] = [
+      buildTestCharacter({ id: "p1", name: "Borin" }),
+      buildFixtureOgden("p2", 0),
+    ];
+    const enemyCharacters: Character[] = [buildFixtureGrukk("e1")];
+
+    const { events } = resolveBattle(playerCharacters, enemyCharacters, 1);
+
+    expect(
+      events
+        .slice(0, 5)
+        .map((event) => [event.beatIndex, event.beatType, event.type]),
+    ).toEqual([
+      [0, "BATTLE_START", "BATTLE_START"],
+      [1, "ABILITY", "ABILITY_ACTIVATE"],
+      [1, "ABILITY", "STAT_CHANGE"],
+      [2, "ENGAGE", "FRONTS_ENGAGE"],
+      [3, "TURN_START", "TURN_START"],
+    ]);
+  });
+
+  it("EN3: no engage when a side starts empty", () => {
+    const { events } = resolveBattle(
+      [buildTestCharacter({ id: "p1" })],
+      [],
+    );
+
+    expect(events.map((event) => event.type)).toEqual([
+      "BATTLE_START",
+      "BATTLE_END",
     ]);
   });
 });

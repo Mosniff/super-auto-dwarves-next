@@ -15,6 +15,18 @@ describe("describeBattleEvent", () => {
     expect(describeBattleEvent(event, nameMap)).toEqual({ kind: "battleStart" });
   });
 
+  it("DE1: FRONTS_ENGAGE describes as frontsEngage", () => {
+    const event: BattleEvent = {
+      type: "FRONTS_ENGAGE",
+      beatIndex: 1,
+      beatType: "ENGAGE",
+    };
+
+    expect(describeBattleEvent(event, new Map())).toEqual({
+      kind: "frontsEngage",
+    });
+  });
+
   it("describes TURN_START", () => {
     const event: BattleEvent = { type: "TURN_START", turn: 1, beatIndex: 0, beatType: "TURN_START" };
 

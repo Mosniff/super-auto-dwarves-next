@@ -71,6 +71,7 @@
   },
   "battle": {
     "battleStart": "ドワーフとモンスターが戦いに備える",
+    "frontsEngage": "両軍がぶつかり合う！",
     "turnStart": "ターン{turn}",
     "attack": "{attacker}が{target}をこうげき！",
     "damage": "{target}に{amount}ダメージ！（残りHP {resultingHp}）",

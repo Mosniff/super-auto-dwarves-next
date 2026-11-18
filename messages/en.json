@@ -71,6 +71,7 @@
   },
   "battle": {
     "battleStart": "The dwarves and the monsters prepare for battle",
+    "frontsEngage": "The parties clash!",
     "turnStart": "Turn {turn}",
     "attack": "{attacker} attacks {target}",
     "damage": "{target} takes {amount} damage ({resultingHp} HP)",

@@ -9,6 +9,12 @@ describe("battleLogMessage", () => {
     expect(battleLogMessage(descriptor)).toEqual({ key: "battleStart" });
   });
 
+  it("LM1: frontsEngage maps to its own key", () => {
+    const descriptor: BattleEventDescriptor = { kind: "frontsEngage" };
+
+    expect(battleLogMessage(descriptor)).toEqual({ key: "frontsEngage" });
+  });
+
   it("maps turnStart", () => {
     const descriptor: BattleEventDescriptor = { kind: "turnStart", turn: 3 };
 

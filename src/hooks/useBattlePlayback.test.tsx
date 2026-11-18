@@ -169,8 +169,9 @@ describe("useBattlePlayback", () => {
         vi.advanceTimersByTime(AUTOPLAY_INTERVAL_MS);
       });
 
+      // deliberate assertion rewrite: the engage beat (Phase 12 step 11) shifts this.
       expect(result.current.currentBeatDescriptors).toEqual([
-        { kind: "turnStart", turn: 1 },
+        { kind: "frontsEngage" },
       ]);
     });
 
@@ -295,8 +296,9 @@ describe("useBattlePlayback", () => {
         result.current.advance();
       });
 
+      // deliberate assertion rewrite: the engage beat (Phase 12 step 11) shifts this.
       expect(result.current.currentBeatDescriptors).toEqual([
-        { kind: "turnStart", turn: 1 },
+        { kind: "frontsEngage" },
       ]);
     });
 

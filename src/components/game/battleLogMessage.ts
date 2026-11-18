@@ -13,6 +13,8 @@ export function battleLogMessage(
   switch (descriptor.kind) {
     case "battleStart":
       return { key: "battleStart" };
+    case "frontsEngage":
+      return { key: "frontsEngage" };
     case "turnStart":
       return { key: "turnStart", params: { turn: descriptor.turn } };
     case "attack":

@@ -95,6 +95,7 @@ export function applyEvent(
       }
     case "ATTACK":
     case "BATTLE_START":
+    case "FRONTS_ENGAGE":
     case "TURN_START":
     case "TIMEOUT":
     case "BATTLE_END":

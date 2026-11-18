@@ -15,6 +15,7 @@ export interface BattleState {
 
 export type BeatType =
   | "BATTLE_START"
+  | "ENGAGE"
   | "TURN_START"
   | "CLASH"
   | "DROP"
@@ -60,6 +61,12 @@ export type BattleEventPayload =
   | {
       type: "BATTLE_START";
     }
+  // No state change: the fronts step into the action zone on this beat
+  // (presentation, step 11b). Emitted only when both sides still have
+  // fighters after the battle-start sub-phases.
+  | {
+      type: "FRONTS_ENGAGE";
+    }
   | {
       type: "BATTLE_END";
       outcome: "playerWin" | "enemyWin" | "draw";
@@ -103,6 +110,7 @@ export interface ResolvedBattle {
 // distinct from BattleEventPayload's discriminant.
 export type BattleEventDescriptor =
   | { kind: "battleStart" }
+  | { kind: "frontsEngage" }
   | { kind: "turnStart"; turn: number }
   | { kind: "attack"; attacker: string; target: string }
   | { kind: "damage"; target: string; amount: number; resultingHp: number }

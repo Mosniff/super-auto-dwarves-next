@@ -10,6 +10,8 @@ export function describeBattleEvent(
   switch (event.type) {
     case "BATTLE_START":
       return { kind: "battleStart" };
+    case "FRONTS_ENGAGE":
+      return { kind: "frontsEngage" };
     case "TURN_START":
       return { kind: "turnStart", turn: event.turn };
     case "ATTACK":
