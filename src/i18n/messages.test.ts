@@ -271,6 +271,7 @@ describe("locale message parity", () => {
             "targetEffect",
           ],
         ],
+        ["penny-pincher", ["levelText", "name", "summary"]],
       ],
       japanese: [
         ["growing-lad", ["levelText", "name", "summary"]],
@@ -285,6 +286,7 @@ describe("locale message parity", () => {
             "targetEffect",
           ],
         ],
+        ["penny-pincher", ["levelText", "name", "summary"]],
       ],
     });
   });

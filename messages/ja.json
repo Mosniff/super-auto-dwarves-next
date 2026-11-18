@@ -96,6 +96,11 @@
       "levelTextWholeParty": "自分を含む味方全員にアーマー+{armour}",
       "battleCry": "{character}：「ベルトを締めろ！」",
       "targetEffect": "{target}のアーマーが{amount}上がった！"
+    },
+    "penny-pincher": {
+      "name": "倹約家",
+      "summary": "キャンプフェイズごとに少しゴールドをかき集める",
+      "levelText": "キャンプ開始時、ゴールド+{gold}"
     }
   }
 }

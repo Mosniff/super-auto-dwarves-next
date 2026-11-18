@@ -15,8 +15,8 @@ describe("characterPortraitSrc", () => {
           characterPortraitSrc({ characterTemplateId }),
       ),
     ).toEqual([
-      "/character_portraits/placeholder.png",
-      "/character_portraits/placeholder.png",
+      "/character_portraits/borin.png",
+      "/character_portraits/ogden.png",
       null,
       null,
     ]);

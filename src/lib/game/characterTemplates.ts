@@ -18,6 +18,7 @@ export interface CharacterTemplate {
 // templates by hand.
 export const CHARACTER_TEMPLATES: Readonly<Record<string, CharacterTemplate>> =
   {
+    // Tier 1
     borin: {
       characterTemplateId: "borin",
       name: "Borin",
@@ -37,6 +38,16 @@ export const CHARACTER_TEMPLATES: Readonly<Record<string, CharacterTemplate>> =
       maxHp: 8,
       armour: 0,
       abilityId: "tighten-those-straps-son",
+    },
+    norbin: {
+      characterTemplateId: "norbin",
+      name: "Norbin",
+      tier: 1,
+      characterClassIds: ["merchant"],
+      attack: 1,
+      maxHp: 3,
+      armour: 0,
+      abilityId: "penny-pincher",
     },
   };
 

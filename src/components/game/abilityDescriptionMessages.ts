@@ -50,6 +50,15 @@ export function abilityDescriptionMessages(
           },
         ),
       };
+    case "penny-pincher":
+      return {
+        nameKey,
+        summaryKey,
+        levelTexts: ability.goldByLevel.map((gold) => ({
+          key: "penny-pincher.levelText",
+          params: { gold },
+        })),
+      };
     default: {
       const unreachableAbility: never = ability;
       throw new Error(

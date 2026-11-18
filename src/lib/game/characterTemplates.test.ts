@@ -33,7 +33,7 @@ describe("characterTemplates", () => {
       listCharacterTemplates().map(
         (characterTemplate) => characterTemplate.characterTemplateId,
       ),
-    ).toEqual(["borin", "ogden"]);
+    ).toEqual(["borin", "ogden", "norbin"]);
   });
 
   // P4-P8 are guards over hand-written template data, not behaviour under
@@ -137,5 +137,18 @@ describe("characterTemplates", () => {
         )
         .map((characterTemplate) => characterTemplate.characterTemplateId),
     ).toEqual([]);
+  });
+
+  it("P12: findCharacterTemplate returns the norbin template", () => {
+    expect(findCharacterTemplate("norbin")).toEqual({
+      characterTemplateId: "norbin",
+      name: "Norbin",
+      tier: 1,
+      characterClassIds: ["merchant"],
+      attack: 1,
+      maxHp: 3,
+      armour: 0,
+      abilityId: "penny-pincher",
+    });
   });
 });

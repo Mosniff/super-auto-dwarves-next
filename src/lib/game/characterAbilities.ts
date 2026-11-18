@@ -10,11 +10,15 @@
 export const CHARACTER_ABILITY_IDS = [
   "growing-lad",
   "tighten-those-straps-son",
+  "penny-pincher",
 ] as const;
 
 export type CharacterAbilityId = (typeof CHARACTER_ABILITY_IDS)[number];
 
-export type CharacterAbilityTrigger = "onExperienceGain" | "onBattleStartBuffs";
+export type CharacterAbilityTrigger =
+  | "onExperienceGain"
+  | "onBattleStartBuffs"
+  | "onCampStart";
 
 // Index 0 is level 1 ... index 4 is level 5.
 export type PerLevel<Value> = readonly [Value, Value, Value, Value, Value];
@@ -37,6 +41,12 @@ export type CharacterAbility =
       readonly trigger: "onBattleStartBuffs";
       readonly armourGrantedByLevel: PerLevel<number>;
       readonly targetingByLevel: PerLevel<AbilityTargeting>;
+    }
+  | {
+      readonly abilityId: "penny-pincher";
+      readonly trigger: "onCampStart";
+      // gold added at the start of each camp, by level
+      readonly goldByLevel: PerLevel<number>;
     };
 
 export const CHARACTER_ABILITIES: {
@@ -61,6 +71,11 @@ export const CHARACTER_ABILITIES: {
       { kind: "alliesAhead", count: 4 },
       { kind: "wholeParty" },
     ],
+  },
+  "penny-pincher": {
+    abilityId: "penny-pincher",
+    trigger: "onCampStart",
+    goldByLevel: [1, 2, 3, 4, 5],
   },
 };
 

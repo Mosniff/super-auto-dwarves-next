@@ -120,12 +120,21 @@ describe("abilityDescriptionMessages", () => {
       ],
       "tighten-those-straps-son": [
         "Tighten Those Straps Son",
-        "Ogden grants armour to allies ahead of him at the start of battle",
+        "Grant armour to allies ahead at the start of battle",
         "Grant +1 armour to the ally 1 ahead",
         "Grant +1 armour to allies up to 2 ahead",
         "Grant +1 armour to allies up to 3 ahead",
         "Grant +1 armour to allies up to 4 ahead",
-        "Grant +1 armour to the entire party, including himself",
+        "Grant +1 armour to the entire party, including self",
+      ],
+      "penny-pincher": [
+        "Penny Pincher",
+        "Scrounge up a little extra gold every camp phase",
+        "Gain +1 gold at the start of each camp",
+        "Gain +2 gold at the start of each camp",
+        "Gain +3 gold at the start of each camp",
+        "Gain +4 gold at the start of each camp",
+        "Gain +5 gold at the start of each camp",
       ],
     });
   });
@@ -160,6 +169,15 @@ describe("abilityDescriptionMessages", () => {
         "3つ前までの仲間にアーマー+1",
         "4つ前までの仲間にアーマー+1",
         "自分を含む味方全員にアーマー+1",
+      ],
+      "penny-pincher": [
+        "倹約家",
+        "キャンプフェイズごとに少しゴールドをかき集める",
+        "キャンプ開始時、ゴールド+1",
+        "キャンプ開始時、ゴールド+2",
+        "キャンプ開始時、ゴールド+3",
+        "キャンプ開始時、ゴールド+4",
+        "キャンプ開始時、ゴールド+5",
       ],
     });
   });

@@ -15,6 +15,7 @@ describe("characterAbilities", () => {
     ).toEqual([
       ["growing-lad", "growing-lad"],
       ["tighten-those-straps-son", "tighten-those-straps-son"],
+      ["penny-pincher", "penny-pincher"],
     ]);
   });
 
@@ -47,5 +48,13 @@ describe("characterAbilities", () => {
         (abilityId) => findCharacterAbility(abilityId)?.abilityId,
       ),
     ).toEqual([...CHARACTER_ABILITY_IDS]);
+  });
+
+  it("AB5: Penny Pincher is the human's design", () => {
+    expect(CHARACTER_ABILITIES["penny-pincher"]).toEqual({
+      abilityId: "penny-pincher",
+      trigger: "onCampStart",
+      goldByLevel: [1, 2, 3, 4, 5],
+    });
   });
 });

@@ -236,4 +236,62 @@ describe("advanceGame", () => {
     ]);
     expect(recordedOptionCounts).toEqual([2, 2, 2, 2]);
   });
+
+  const fixturePennyPincherAbility = {
+    abilityId: "penny-pincher",
+    trigger: "onCampStart",
+    goldByLevel: [2, 3, 5, 7, 11],
+  } as const;
+
+  function findFixturePennyPincherAbility(character: Character) {
+    return character.characterTemplateId === "fixture-pincher"
+      ? fixturePennyPincherAbility
+      : undefined;
+  }
+
+  function buildFixturePennyPincherCampRoster(): CampRoster {
+    return [
+      buildTestCharacter({
+        id: "fixture-pincher-1",
+        name: "Norbin",
+        characterTemplateId: "fixture-pincher",
+        experience: 3,
+      }),
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+    ];
+  }
+
+  it("AG1: returning to camp fires onCampStart abilities: gold is the starting gold plus what they add", () => {
+    const battlePhaseGameState = buildFixtureGameState("battlePhase", 1, {
+      playerRoster: buildFixturePennyPincherCampRoster(),
+    });
+
+    const nextGameState = advanceGame(
+      battlePhaseGameState,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
+      findFixturePennyPincherAbility,
+    );
+
+    expect(nextGameState.gold).toBe(CAMP_STARTING_GOLD + 3);
+  });
+
+  it("AG2: going from camp to battle fires nothing", () => {
+    const campPhaseGameState = buildFixtureGameState("campPhase", 1, {
+      gold: 7,
+      playerRoster: buildFixturePennyPincherCampRoster(),
+    });
+
+    const nextGameState = advanceGame(
+      campPhaseGameState,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
+      findFixturePennyPincherAbility,
+    );
+
+    expect(nextGameState.gold).toBe(7);
+  });
 });

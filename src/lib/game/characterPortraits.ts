@@ -9,6 +9,7 @@ import type { Character } from "./character";
 export const CHARACTER_PORTRAIT_FILE_NAMES: Readonly<Record<string, string>> = {
   borin: "borin.png",
   ogden: "ogden.png",
+  norbin: "norbin.png",
 };
 
 export function characterPortraitSrc(

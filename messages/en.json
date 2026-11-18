@@ -91,11 +91,16 @@
     },
     "tighten-those-straps-son": {
       "name": "Tighten Those Straps Son",
-      "summary": "Ogden grants armour to allies ahead of him at the start of battle",
+      "summary": "Grant armour to allies ahead at the start of battle",
       "levelTextAlliesAhead": "Grant +{armour} armour {count, plural, =1 {to the ally 1 ahead} other {to allies up to {count} ahead}}",
-      "levelTextWholeParty": "Grant +{armour} armour to the entire party, including himself",
+      "levelTextWholeParty": "Grant +{armour} armour to the entire party, including self",
       "battleCry": "{character}: \"Tighten those straps!\"",
       "targetEffect": "{target} gained {amount} armour!"
+    },
+    "penny-pincher": {
+      "name": "Penny Pincher",
+      "summary": "Scrounge up a little extra gold every camp phase",
+      "levelText": "Gain +{gold} gold at the start of each camp"
     }
   }
 }
