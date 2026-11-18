@@ -70,6 +70,10 @@ const EXPERIENCE_BEAT_DELAY_S = 0.35;
 const FLOATER_RISE_Y = -40;
 const FLOATER_DURATION_S = 1.2;
 
+// The XP beat ends when its floater would: delay + rise-and-fade.
+const EXPERIENCE_BEAT_LIFETIME_MS =
+  (EXPERIENCE_BEAT_DELAY_S + FLOATER_DURATION_S) * 1000;
+
 // Shortly after the XP floater (the ruling); the human tunes it.
 const ABILITY_HP_FLOATER_DELAY_S = EXPERIENCE_BEAT_DELAY_S + 0.5;
 
@@ -142,7 +146,7 @@ export function RosterSlot({
   > | null>(null);
   const [isExperienceBeatActive, setIsExperienceBeatActive] = useState(false);
   // Separate from activeExperienceBeat so it isn't cleared when the XP
-  // floater's onAnimationComplete clears that state.
+  // beat's timer clears that state.
   const [abilityHpFloater, setAbilityHpFloater] = useState<{
     sequence: number;
     hpGained: number;
@@ -192,6 +196,24 @@ export function RosterSlot({
       maxHp: character.maxHp,
     };
   }, [character?.id, character?.experience, character?.maxHp]);
+
+  // The XP beat's lifetime is owned by this timer, not by the floater's
+  // motion onAnimationComplete: that callback can fail to arrive (the stuck
+  // hover after a merge-buy, Phase 13 step 0), which left the beat — and
+  // the revealed XP bar — on for good. A new beat (sequence bump) clears
+  // the old timer and starts a fresh one.
+  useEffect(() => {
+    if (!isExperienceBeatActive) {
+      return;
+    }
+
+    const experienceBeatEndTimeout = setTimeout(() => {
+      setActiveExperienceBeat(null);
+      setIsExperienceBeatActive(false);
+    }, EXPERIENCE_BEAT_LIFETIME_MS);
+
+    return () => clearTimeout(experienceBeatEndTimeout);
+  }, [experienceBeatSequence, isExperienceBeatActive]);
 
   // Player slabs are facing="right" (front of the reversed row is at screen
   // right); enemy slabs are facing="left" (front of the normal row is at
@@ -447,10 +469,6 @@ export function RosterSlot({
           transition={{
             duration: FLOATER_DURATION_S,
             delay: EXPERIENCE_BEAT_DELAY_S,
-          }}
-          onAnimationComplete={() => {
-            setActiveExperienceBeat(null);
-            setIsExperienceBeatActive(false);
           }}
         >
           {activeExperienceBeat.beatKind === "levelledUp"

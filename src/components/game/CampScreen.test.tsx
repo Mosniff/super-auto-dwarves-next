@@ -1071,6 +1071,69 @@ describe("CampScreen", () => {
     ).toBeNull();
   });
 
+  it("AN8: the XP beat ends on its own timer, even when the floater's animation callback never arrives", async () => {
+    const user = userEvent.setup();
+    const { rerenderCampScreen } = renderCampScreen({
+      playerCampRoster: fixtureTwoBorinCampRoster,
+      revision: 5,
+    });
+
+    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Slot 2: Borin, level 1" }),
+    );
+
+    const mergedRoster: CampRoster = [
+      null,
+      {
+        ...fixtureMatchingBorin,
+        experience: 1,
+        attack: fixtureMatchingBorin.attack + 1,
+        hp: fixtureMatchingBorin.hp + 1,
+        maxHp: fixtureMatchingBorin.maxHp + 1,
+      },
+      null,
+      null,
+      null,
+      null,
+      null,
+    ];
+
+    // Only setTimeout/clearTimeout are faked: motion keeps running on the
+    // real requestAnimationFrame, so the floater's onAnimationComplete
+    // cannot arrive inside this test — standing in for the browser case
+    // where it never arrived.
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      rerenderCampScreen({ playerCampRoster: mergedRoster, revision: 6 });
+
+      const beforeActive = playerSlotRoot(1)?.getAttribute(
+        "data-experience-beat-active",
+      );
+
+      act(() => {
+        vi.advanceTimersByTime(2000);
+      });
+
+      expect({
+        beforeActive,
+        afterActive: playerSlotRoot(1)?.getAttribute(
+          "data-experience-beat-active",
+        ),
+        afterBeat: playerSlotRoot(1)?.getAttribute("data-experience-beat"),
+      }).toEqual({
+        beforeActive: "true",
+        afterActive: "false",
+        afterBeat: "none",
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("(an5) a merge that crosses a level threshold plays a level-up beat", async () => {
     const user = userEvent.setup();
     // The target starts at 2 XP — still level 1 (3 XP is needed for level 2).
