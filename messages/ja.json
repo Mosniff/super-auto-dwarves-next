@@ -20,6 +20,7 @@
     "cancel": "キャンセル",
     "startedOn": "{date}開始",
     "dayLabel": "{day}日目",
+    "depthLabel": "第{depth}階層",
     "phaseCamp": "キャンプ",
     "phaseBattle": "バトル",
     "deleteSaveTitle": "このセーブデータをさくじょしますか？",

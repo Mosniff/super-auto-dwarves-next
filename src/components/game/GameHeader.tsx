@@ -8,6 +8,7 @@ import type { GamePhase } from "@/lib/game/types";
 
 interface GameHeaderProps {
   day: number;
+  depth: number;
   gold: number;
   gamePhase: GamePhase;
   advanceGameAction: (formData: FormData) => Promise<void>;
@@ -19,6 +20,7 @@ const PLACEHOLDER_GEM_COUNT = 0;
 
 export async function GameHeader({
   day,
+  depth,
   gold,
   gamePhase,
   advanceGameAction,
@@ -38,7 +40,12 @@ export async function GameHeader({
           <LocaleSwitcher />
         </div>
         <div className="flex items-center gap-4">
-          <GameStatus day={day} gold={gold} gems={PLACEHOLDER_GEM_COUNT} />
+          <GameStatus
+            day={day}
+            depth={depth}
+            gold={gold}
+            gems={PLACEHOLDER_GEM_COUNT}
+          />
           <PhaseAdvanceButton
             gamePhase={gamePhase}
             advanceGameAction={advanceGameAction}

@@ -36,6 +36,8 @@ export function advanceGame(
         ...gameState,
         phase: "campPhase",
         day: gameState.day + 1,
+        // depth goes up with the day on every return to camp (Phase 13)
+        depth: gameState.depth + 1,
         gold: CAMP_STARTING_GOLD + campStartGoldGained,
         characterShopSlots: rollCharacterShopSlots(
           countOpenCharacterShopSlots(gameState.characterShopSlots),

@@ -310,4 +310,23 @@ describe("advanceGame", () => {
 
     expect(nextGameState.enemyEncounter).toBeNull();
   });
+
+  it("AG2: returning to camp increments the depth; entering battle leaves it unchanged", () => {
+    const shopSources =
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources;
+
+    expect({
+      intoBattle: advanceGame(
+        buildFixtureGameState("campPhase", 3, { depth: 3 }),
+        shopSources,
+      ).depth,
+      backToCamp: advanceGame(
+        buildFixtureGameState("battlePhase", 3, {
+          depth: 3,
+          enemyEncounter: buildTestEnemyEncounter(),
+        }),
+        shopSources,
+      ).depth,
+    }).toEqual({ intoBattle: 3, backToCamp: 4 });
+  });
 });

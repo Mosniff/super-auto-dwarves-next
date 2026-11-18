@@ -20,6 +20,7 @@
     "cancel": "Cancel",
     "startedOn": "Started {date}",
     "dayLabel": "Day {day}",
+    "depthLabel": "Depth {depth}",
     "phaseCamp": "Camp",
     "phaseBattle": "Battle",
     "deleteSaveTitle": "Delete this save?",
