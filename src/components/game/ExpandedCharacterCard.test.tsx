@@ -146,4 +146,21 @@ describe("ExpandedCharacterCard", () => {
       document.querySelector("[data-character-portrait-fallback]") !== null,
     ]).toEqual([false, true]);
   });
+
+  it("EF1: the type label reads the faction then the classes, joined by a slash", () => {
+    renderWithMessages(
+      <ExpandedCharacterCard
+        character={buildTestCharacter({
+          characterClassIds: ["warrior", "miner"],
+        })}
+      />,
+    );
+
+    expect({
+      label: q("[data-expanded-card-type-label]")?.textContent,
+      factionId: q("[data-expanded-card-faction]")?.getAttribute(
+        "data-expanded-card-faction",
+      ),
+    }).toEqual({ label: "Dwarf Warrior/Miner", factionId: "dwarf" });
+  });
 });

@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
 import { describe, it, expect } from "vitest";
-import { renderWithMessages, screen } from "@/test/renderWithMessages";
+import { NextIntlClientProvider } from "next-intl";
+import { render, renderWithMessages, screen } from "@/test/renderWithMessages";
+import japaneseMessages from "../../../messages/ja.json";
 import type { Character } from "@/lib/game/character";
 import { buildTestCharacter } from "@/test/characterFixtures";
 import { CharacterCard } from "./CharacterCard";
@@ -443,5 +445,51 @@ describe("CharacterCard", () => {
         insidePortrait: false,
       },
     ]);
+  });
+
+  it("CF1: the type label reads the faction then the classes, joined by a slash", () => {
+    renderWithMessages(
+      <CharacterCard
+        character={buildTestCharacter({ characterClassIds: ["smith", "miner"] })}
+      />,
+    );
+
+    expect({
+      label: document.querySelector("[data-character-type-label]")?.textContent,
+      factionId: document
+        .querySelector("[data-character-faction-id]")
+        ?.getAttribute("data-character-faction-id"),
+    }).toEqual({ label: "Dwarf Smith/Miner", factionId: "dwarf" });
+  });
+
+  it("CF2: in Japanese the faction joins the first class with の, and classes are joined by a full-width slash", () => {
+    render(
+      <NextIntlClientProvider locale="ja" messages={japaneseMessages}>
+        <CharacterCard
+          character={buildTestCharacter({
+            characterClassIds: ["warrior", "mage"],
+          })}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    expect(
+      document.querySelector("[data-character-type-label]")?.textContent,
+    ).toBe("ドワーフの戦士／魔法使い");
+  });
+
+  it("CF3: a kobold's label names its own faction", () => {
+    renderWithMessages(
+      <CharacterCard
+        character={buildTestCharacter({ characterFactionId: "kobold" })}
+      />,
+    );
+
+    expect({
+      label: document.querySelector("[data-character-type-label]")?.textContent,
+      factionId: document
+        .querySelector("[data-character-faction-id]")
+        ?.getAttribute("data-character-faction-id"),
+    }).toEqual({ label: "Kobold Warrior", factionId: "kobold" });
   });
 });

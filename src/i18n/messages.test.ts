@@ -4,6 +4,7 @@ import japaneseMessages from "../../messages/ja.json";
 import { CHARACTER_CLASS_IDS } from "@/lib/game/characterClasses";
 import { PLACEHOLDER_SHOP_SECTION_IDS } from "@/lib/game/placeholderShopSections";
 import { CHARACTER_ABILITY_IDS } from "@/lib/game/characterAbilities";
+import { CHARACTER_FACTION_IDS } from "@/lib/game/characterFactions";
 
 describe("locale message parity", () => {
   // Extended when the battle-log control buttons (Advance, Autoplay: On/Off)
@@ -44,7 +45,9 @@ describe("locale message parity", () => {
   // armourGainFloater/armourBreakFloater for battle beat floaters, and
   // Phase 12 step 10b-2: abilityGoldFloater (the start-of-camp "+X gold"
   // floater), and Phase 12 step 11a: frontsEngage, the engage beat's log
-  // line — deliberate test-data updates, not a weakening.
+  // line, and Phase 13's card label (characterTypeLabel,
+  // characterClassSeparator) — deliberate test-data updates, not a
+  // weakening.
   const expectedCommonKeys = [
     "appName",
     "advance",
@@ -101,6 +104,8 @@ describe("locale message parity", () => {
     "characterInfoLabel",
     "abilityLabel",
     "abilityHpFloater",
+    "characterTypeLabel",
+    "characterClassSeparator",
   ];
   const expectedBattleKeys = [
     "battleStart",
@@ -291,6 +296,55 @@ describe("locale message parity", () => {
           ],
         ],
         ["penny-pincher", ["levelText", "name", "summary"]],
+      ],
+    });
+  });
+
+  // Checked against the real faction list, so adding a faction without
+  // translating it fails here (Phase 13).
+  it("FA1: both locales have a faction entry for exactly the faction ids", () => {
+    function factionIds(messages: unknown): string[] {
+      return Object.keys(
+        (messages as Record<string, Record<string, unknown> | undefined>)
+          .faction ?? {},
+      ).sort();
+    }
+
+    expect({
+      english: factionIds(englishMessages),
+      japanese: factionIds(japaneseMessages),
+    }).toEqual({
+      english: [...CHARACTER_FACTION_IDS].sort(),
+      japanese: [...CHARACTER_FACTION_IDS].sort(),
+    });
+  });
+
+  it("FA2: each faction has exactly a name and a pluralName in both locales", () => {
+    function factionKeysByLocale(messages: unknown): [string, string[]][] {
+      const factionNamespace = (
+        messages as Record<
+          string,
+          Record<string, Record<string, string>> | undefined
+        >
+      ).faction;
+
+      return CHARACTER_FACTION_IDS.map((characterFactionId) => [
+        characterFactionId,
+        Object.keys(factionNamespace?.[characterFactionId] ?? {}).sort(),
+      ]);
+    }
+
+    expect({
+      english: factionKeysByLocale(englishMessages),
+      japanese: factionKeysByLocale(japaneseMessages),
+    }).toEqual({
+      english: [
+        ["dwarf", ["name", "pluralName"]],
+        ["kobold", ["name", "pluralName"]],
+      ],
+      japanese: [
+        ["dwarf", ["name", "pluralName"]],
+        ["kobold", ["name", "pluralName"]],
       ],
     });
   });

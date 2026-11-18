@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { Fragment, type ReactNode } from "react";
 import { Shield } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/game/character";
@@ -45,6 +45,7 @@ export function ExpandedCharacterCard({
 }: ExpandedCharacterCardProps) {
   const t = useTranslations("common");
   const tCharacterClass = useTranslations("characterClass");
+  const tFaction = useTranslations("faction");
   const level = levelFromExperience(character.experience);
   const hpTone = hpDisplayTone(character.hp, character.maxHp);
   const { segmentCount, filledSegmentCount, isMaxLevel } =
@@ -153,16 +154,34 @@ export function ExpandedCharacterCard({
             boxShadow: "var(--shadow-stat-pill)",
           }}
         >
-          {character.characterClassIds.map(
-            (characterClassId, characterClassIndex) => (
-              <span key={characterClassId} className="flex items-center gap-2">
-                {characterClassIndex > 0 && <span aria-hidden="true">·</span>}
-                <span data-expanded-card-class={characterClassId}>
-                  {tCharacterClass(characterClassId)}
+          {/* Same label as the small card: one inline run, pattern and
+              separator from the messages (Phase 13). */}
+          <span data-expanded-card-type-label>
+            {t.rich("characterTypeLabel", {
+              faction: () => (
+                <span
+                  data-expanded-card-faction={character.characterFactionId}
+                >
+                  {tFaction(`${character.characterFactionId}.name`)}
                 </span>
-              </span>
-            ),
-          )}
+              ),
+              classes: () =>
+                character.characterClassIds.map(
+                  (characterClassId, characterClassIndex) => (
+                    <Fragment key={characterClassId}>
+                      {characterClassIndex > 0 && (
+                        <span aria-hidden="true">
+                          {t("characterClassSeparator")}
+                        </span>
+                      )}
+                      <span data-expanded-card-class={characterClassId}>
+                        {tCharacterClass(characterClassId)}
+                      </span>
+                    </Fragment>
+                  ),
+                ),
+            })}
+          </span>
         </div>
 
         <div data-expanded-card-ability-area className="relative">

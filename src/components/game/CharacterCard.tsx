@@ -1,3 +1,4 @@
+import { Fragment } from "react";
 import { Shield } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/game/character";
@@ -108,6 +109,7 @@ export function CharacterCard({
   const isDowned = character.hp <= 0;
   const t = useTranslations("common");
   const tCharacterClass = useTranslations("characterClass");
+  const tFaction = useTranslations("faction");
   const tier = character.tier;
   const characterClassIds = character.characterClassIds;
   const hpTone = hpDisplayTone(character.hp, character.maxHp);
@@ -285,17 +287,33 @@ export function CharacterCard({
             boxShadow: "var(--shadow-stat-pill)",
           }}
         >
-          {characterClassIds.map((characterClassId, characterClassIndex) => (
-            <span
-              key={characterClassId}
-              className="flex items-center gap-card-label-gap"
-            >
-              {characterClassIndex > 0 && <span aria-hidden="true">·</span>}
-              <span data-character-class-id={characterClassId}>
-                {tCharacterClass(characterClassId)}
-              </span>
-            </span>
-          ))}
+          {/* One inline run, not flex items, so the pattern's own spacing
+              ("Dwarf Warrior", "ドワーフの戦士") renders as written. The
+              faction-then-classes order and the joiner live in the message
+              (characterTypeLabel); classes are joined by
+              characterClassSeparator (Phase 13). */}
+          <span data-character-type-label>
+            {t.rich("characterTypeLabel", {
+              faction: () => (
+                <span data-character-faction-id={character.characterFactionId}>
+                  {tFaction(`${character.characterFactionId}.name`)}
+                </span>
+              ),
+              classes: () =>
+                characterClassIds.map((characterClassId, characterClassIndex) => (
+                  <Fragment key={characterClassId}>
+                    {characterClassIndex > 0 && (
+                      <span aria-hidden="true">
+                        {t("characterClassSeparator")}
+                      </span>
+                    )}
+                    <span data-character-class-id={characterClassId}>
+                      {tCharacterClass(characterClassId)}
+                    </span>
+                  </Fragment>
+                )),
+            })}
+          </span>
         </div>
 
         <div

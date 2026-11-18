@@ -54,7 +54,9 @@
     "close": "閉じる",
     "characterInfoLabel": "{name}の詳細",
     "abilityLabel": "アビリティ",
-    "abilityHpFloater": "HP+{hp}"
+    "abilityHpFloater": "HP+{hp}",
+    "characterTypeLabel": "<faction></faction>の<classes></classes>",
+    "characterClassSeparator": "／"
   },
   "characterClass": {
     "warrior": "戦士",
@@ -62,6 +64,16 @@
     "merchant": "商人",
     "smith": "鍛冶屋",
     "miner": "鉱夫"
+  },
+  "faction": {
+    "dwarf": {
+      "name": "ドワーフ",
+      "pluralName": "ドワーフ"
+    },
+    "kobold": {
+      "name": "コボルド",
+      "pluralName": "コボルド"
+    }
   },
   "shopSection": {
     "characters": "キャラクター",

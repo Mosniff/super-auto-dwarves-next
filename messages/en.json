@@ -54,7 +54,9 @@
     "close": "Close",
     "characterInfoLabel": "Details: {name}",
     "abilityLabel": "Ability",
-    "abilityHpFloater": "+{hp} HP"
+    "abilityHpFloater": "+{hp} HP",
+    "characterTypeLabel": "<faction></faction> <classes></classes>",
+    "characterClassSeparator": "/"
   },
   "characterClass": {
     "warrior": "Warrior",
@@ -62,6 +64,16 @@
     "merchant": "Merchant",
     "smith": "Smith",
     "miner": "Miner"
+  },
+  "faction": {
+    "dwarf": {
+      "name": "Dwarf",
+      "pluralName": "dwarves"
+    },
+    "kobold": {
+      "name": "Kobold",
+      "pluralName": "kobolds"
+    }
   },
   "shopSection": {
     "characters": "Characters",
