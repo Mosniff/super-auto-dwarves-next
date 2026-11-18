@@ -7,6 +7,7 @@ import {
   CHARACTER_TEMPLATES,
   findCharacterTemplate,
   listCharacterTemplates,
+  listPlayerShopCharacterTemplates,
 } from "./characterTemplates";
 
 const TEMPLATE_ID_PATTERN = /^[a-z0-9]+(-[a-z0-9]+)*$/;
@@ -168,5 +169,13 @@ describe("characterTemplates", () => {
       armour: 0,
       abilityId: "penny-pincher",
     });
+  });
+
+  it("P14: the player's shop lists exactly the dwarf templates", () => {
+    expect(
+      listPlayerShopCharacterTemplates().map(
+        (characterTemplate) => characterTemplate.characterTemplateId,
+      ),
+    ).toEqual(["borin", "ogden", "norbin"]);
   });
 });

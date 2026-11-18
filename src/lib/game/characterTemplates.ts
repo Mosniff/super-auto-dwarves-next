@@ -1,5 +1,8 @@
 import type { CharacterClassId } from "./characterClasses";
-import type { CharacterFactionId } from "./characterFactions";
+import {
+  PLAYER_FACTION_ID,
+  type CharacterFactionId,
+} from "./characterFactions";
 import type { CharacterTier } from "./characterTiers";
 import type { CharacterAbilityId } from "./characterAbilities";
 
@@ -67,4 +70,14 @@ export function findCharacterTemplate(
 
 export function listCharacterTemplates(): CharacterTemplate[] {
   return Object.values(CHARACTER_TEMPLATES);
+}
+
+// The templates the player's shop may offer: the player's faction only
+// (Phase 13). Enemy templates (kobolds) exist for enemy rosters and must
+// never be rolled into the shop.
+export function listPlayerShopCharacterTemplates(): CharacterTemplate[] {
+  return listCharacterTemplates().filter(
+    (characterTemplate) =>
+      characterTemplate.characterFactionId === PLAYER_FACTION_ID,
+  );
 }

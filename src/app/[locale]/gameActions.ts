@@ -15,7 +15,10 @@ import { mergeCharacterForUser } from "@/lib/persistence/mergeCharacterForUser";
 import { sellCharacterForUser } from "@/lib/persistence/sellCharacterForUser";
 import { GameAlreadyExistsError } from "@/lib/persistence/gameAlreadyExistsError";
 import { isGamePhase } from "@/lib/game/isGamePhase";
-import { listCharacterTemplates } from "@/lib/game/characterTemplates";
+import {
+  listCharacterTemplates,
+  listPlayerShopCharacterTemplates,
+} from "@/lib/game/characterTemplates";
 import type { CharacterShopRollingSources } from "@/lib/game/characterShopSlots";
 import { parseIntegerFormValue } from "@/lib/forms/parseIntegerFormValue";
 
@@ -32,9 +35,10 @@ import { parseIntegerFormValue } from "@/lib/forms/parseIntegerFormValue";
 
 // The single place real randomness enters, on the server only — every pure
 // game module takes it injected (CLAUDE.md -> "Persistence & save model").
+// The shop rolls only the player's faction (Phase 13).
 function buildServerCharacterShopRollingSources(): CharacterShopRollingSources {
   return {
-    availableCharacterTemplates: listCharacterTemplates(),
+    availableCharacterTemplates: listPlayerShopCharacterTemplates(),
     chooseRandomIndex: (optionCount) => randomInt(optionCount),
   };
 }
