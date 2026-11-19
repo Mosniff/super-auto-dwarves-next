@@ -283,4 +283,27 @@ describe("advanceGameForUser", () => {
       ),
     ).toEqual([]);
   });
+
+  it("AF1: entering battle saves the encounter from the given creator", async () => {
+    const { gameRepository, recordedSaveGameStateCalls } =
+      buildFakeGameRepository(buildFixtureLoadedGameRecord("campPhase", 1));
+    const createdEnemyEncounter = buildTestEnemyEncounter({
+      enemyFactionId: "kobold",
+      battleSeed: 99,
+    });
+
+    await advanceGameForUser(
+      "fixture-user-1",
+      "campPhase",
+      gameRepository,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
+      () => createdEnemyEncounter,
+    );
+
+    expect(
+      recordedSaveGameStateCalls.map(
+        (recordedCall) => recordedCall.nextGameState.enemyEncounter,
+      ),
+    ).toEqual([createdEnemyEncounter]);
+  });
 });

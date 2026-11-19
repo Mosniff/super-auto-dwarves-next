@@ -9,6 +9,8 @@ import { findCharacterAbilityForCharacter } from "./characterAbilityLookup";
 import type { Character } from "./character";
 import type { CharacterAbility } from "./characterAbilities";
 import type { GameState } from "./types";
+import type { CreateEnemyEncounter } from "./enemyEncounter";
+import { buildPlaceholderEnemyEncounter } from "./dummyEnemyRoster";
 
 export function advanceGame(
   gameState: GameState,
@@ -16,10 +18,20 @@ export function advanceGame(
   findAbility: (
     character: Character,
   ) => CharacterAbility | undefined = findCharacterAbilityForCharacter,
+  // A fixture convenience default (seed 0); the server always passes its
+  // own, with a rolled seed (Phase 13).
+  createEnemyEncounter: CreateEnemyEncounter = () =>
+    buildPlaceholderEnemyEncounter(0),
 ): GameState {
   switch (gameState.phase) {
     case "campPhase":
-      return { ...gameState, phase: "battlePhase" };
+      // The enemy is created once, here, and stored, so every re-resolve
+      // of this battle replays it exactly (Phase 13).
+      return {
+        ...gameState,
+        phase: "battlePhase",
+        enemyEncounter: createEnemyEncounter(gameState),
+      };
     case "battlePhase": {
       // A future battle outcome will become an input to this transition
       // (CLAUDE.md → "Persistence & save model"). Every return to camp

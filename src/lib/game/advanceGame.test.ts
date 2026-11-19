@@ -13,6 +13,7 @@ import {
 } from "@/test/characterShopFixtures";
 import { buildTestCharacter } from "@/test/characterFixtures";
 import { buildTestEnemyEncounter } from "@/test/enemyEncounterFixtures";
+import { buildPlaceholderEnemyEncounter } from "./dummyEnemyRoster";
 
 // Arbitrary fixture value — starting gold is not yet specified.
 const FIXTURE_GOLD = 10;
@@ -328,5 +329,63 @@ describe("advanceGame", () => {
         shopSources,
       ).depth,
     }).toEqual({ intoBattle: 3, backToCamp: 4 });
+  });
+
+  it("AG3: entering battle stores the encounter created from the state leaving camp", () => {
+    const campPhaseGameState = buildFixtureGameState("campPhase", 2, {
+      depth: 2,
+    });
+    const createdEnemyEncounter = buildTestEnemyEncounter({
+      enemyFactionId: "kobold",
+      battleSeed: 7,
+    });
+    const receivedGameStates: GameState[] = [];
+
+    const nextGameState = advanceGame(
+      campPhaseGameState,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
+      undefined,
+      (enteringGameState) => {
+        receivedGameStates.push(enteringGameState);
+        return createdEnemyEncounter;
+      },
+    );
+
+    expect({
+      storedEnemyEncounter: nextGameState.enemyEncounter,
+      receivedGameStates,
+    }).toEqual({
+      storedEnemyEncounter: createdEnemyEncounter,
+      receivedGameStates: [campPhaseGameState],
+    });
+  });
+
+  it("AG4: returning to camp never creates an encounter", () => {
+    const receivedGameStates: GameState[] = [];
+
+    advanceGame(
+      buildFixtureGameState("battlePhase", 2, {
+        enemyEncounter: buildTestEnemyEncounter(),
+      }),
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
+      undefined,
+      (enteringGameState) => {
+        receivedGameStates.push(enteringGameState);
+        return buildTestEnemyEncounter();
+      },
+    );
+
+    expect(receivedGameStates).toEqual([]);
+  });
+
+  it("AG5: with no encounter creator, entering battle stores the seed-0 placeholder (the fixture default)", () => {
+    const nextGameState = advanceGame(
+      buildFixtureGameState("campPhase", 1),
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
+    );
+
+    expect(nextGameState.enemyEncounter).toEqual(
+      buildPlaceholderEnemyEncounter(0),
+    );
   });
 });

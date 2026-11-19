@@ -1,6 +1,7 @@
 import { advanceGame } from "@/lib/game/advanceGame";
 import type { GamePhase } from "@/lib/game/types";
 import type { CharacterShopRollingSources } from "@/lib/game/characterShopSlots";
+import type { CreateEnemyEncounter } from "@/lib/game/enemyEncounter";
 import { buildGameStateFromLoadedRecord } from "./buildGameStateFromLoadedRecord";
 import type { GameRepository } from "./gameRepository";
 
@@ -18,6 +19,9 @@ export async function advanceGameForUser(
   expectedCurrentPhase: GamePhase,
   gameRepository: GameRepository,
   characterShopRollingSources: CharacterShopRollingSources,
+  // Optional for tests only; advanceGameAction always passes one with a
+  // server-rolled seed (Phase 13).
+  createEnemyEncounter?: CreateEnemyEncounter,
 ): Promise<void> {
   const loadedGameRecord = await gameRepository.loadGameForUser(userId);
 
@@ -36,7 +40,12 @@ export async function advanceGameForUser(
 
   const currentGameState = buildGameStateFromLoadedRecord(loadedGameRecord);
 
-  const nextGameState = advanceGame(currentGameState, characterShopRollingSources);
+  const nextGameState = advanceGame(
+    currentGameState,
+    characterShopRollingSources,
+    undefined,
+    createEnemyEncounter,
+  );
 
   const saved = await gameRepository.saveGameState(
     loadedGameRecord.gameId,

@@ -15,6 +15,8 @@ import { mergeCharacterForUser } from "@/lib/persistence/mergeCharacterForUser";
 import { sellCharacterForUser } from "@/lib/persistence/sellCharacterForUser";
 import { GameAlreadyExistsError } from "@/lib/persistence/gameAlreadyExistsError";
 import { isGamePhase } from "@/lib/game/isGamePhase";
+import { buildPlaceholderEnemyEncounter } from "@/lib/game/dummyEnemyRoster";
+import { MAX_BATTLE_SEED } from "@/lib/game/enemyEncounter";
 import {
   listCharacterTemplates,
   listPlayerShopCharacterTemplates,
@@ -101,6 +103,9 @@ export async function advanceGameAction(formData: FormData): Promise<void> {
     submittedExpectedPhase,
     prismaGameRepository,
     buildServerCharacterShopRollingSources(),
+    // The battle seed is rolled here, on the server only, and stored with
+    // the placeholder enemy (Phase 13; step 6 swaps in real generation).
+    () => buildPlaceholderEnemyEncounter(randomInt(MAX_BATTLE_SEED + 1)),
   );
 
   // Advance keeps the player on /play, so like the camp actions it
