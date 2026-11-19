@@ -40,3 +40,27 @@ export function chooseEnemyListIdForDepth(
 
   return chosenEnemyListId;
 }
+
+// The real lists and the depth table (Phase 13, the human's design).
+// Kobolds at every depth for now.
+export const ENEMY_LISTS: Readonly<Record<string, EnemyList>> = {
+  kobolds: {
+    enemyListId: "kobolds",
+    enemyFactionId: "kobold",
+    entries: [
+      { characterTemplateId: "kobold-runt", cost: 1, position: 1 },
+      { characterTemplateId: "kobold-thief", cost: 2, position: 2 },
+    ],
+  },
+};
+
+export const ENEMY_LIST_DEPTH_BREAKPOINTS: readonly EnemyListDepthBreakpoint[] =
+  [{ fromDepth: 1, enemyListId: "kobolds" }];
+
+export function findEnemyList(enemyListId: string): EnemyList {
+  if (!Object.hasOwn(ENEMY_LISTS, enemyListId)) {
+    throw new Error(`Unknown enemy list: ${enemyListId}`);
+  }
+
+  return ENEMY_LISTS[enemyListId];
+}
