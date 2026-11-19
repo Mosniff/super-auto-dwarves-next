@@ -46,8 +46,9 @@ describe("locale message parity", () => {
   // Phase 12 step 10b-2: abilityGoldFloater (the start-of-camp "+X gold"
   // floater), and Phase 12 step 11a: frontsEngage, the engage beat's log
   // line, and Phase 13's card label (characterTypeLabel,
-  // characterClassSeparator), and Phase 13's header depth (depthLabel) —
-  // deliberate test-data updates, not a weakening.
+  // characterClassSeparator), Phase 13's header depth (depthLabel), and
+  // Phase 13's game over (continue, gameOverTitle, gameOverSummary,
+  // returnToMenu) — deliberate test-data updates, not a weakening.
   const expectedCommonKeys = [
     "appName",
     "advance",
@@ -77,6 +78,10 @@ describe("locale message parity", () => {
     "back",
     "toBattle",
     "returnToCamp",
+    "continue",
+    "gameOverTitle",
+    "gameOverSummary",
+    "returnToMenu",
     "goldLabel",
     "shopListingSoldLabel",
     "shopListingButtonLabel",

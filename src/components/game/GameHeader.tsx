@@ -12,6 +12,8 @@ interface GameHeaderProps {
   gold: number;
   gamePhase: GamePhase;
   advanceGameAction: (formData: FormData) => Promise<void>;
+  // See PhaseAdvanceButton (Phase 13).
+  isRunLost?: boolean;
 }
 
 // Gems aren't implemented yet; the counter's place in the UI is pinned.
@@ -24,6 +26,7 @@ export async function GameHeader({
   gold,
   gamePhase,
   advanceGameAction,
+  isRunLost = false,
 }: GameHeaderProps) {
   const t = await getTranslations("common");
 
@@ -49,6 +52,7 @@ export async function GameHeader({
           <PhaseAdvanceButton
             gamePhase={gamePhase}
             advanceGameAction={advanceGameAction}
+            isRunLost={isRunLost}
           />
         </div>
       </div>

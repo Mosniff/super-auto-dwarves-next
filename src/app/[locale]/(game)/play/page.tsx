@@ -3,15 +3,18 @@ import { redirect } from "@/i18n/navigation";
 import { BattleScreen } from "@/components/game/BattleScreen";
 import { CampScreen } from "@/components/game/CampScreen";
 import { GameHeader } from "@/components/game/GameHeader";
+import { GameOverScreen } from "@/components/game/GameOverScreen";
 import { GameScreen } from "@/components/game/GameScreen";
 import { readCurrentUserId } from "@/lib/supabase/readCurrentUserId";
 import { prismaGameRepository } from "@/lib/persistence/prismaGameRepository";
 import { loadSavedGameForUser } from "@/lib/persistence/loadSavedGameForUser";
 import { listCharacterTemplates } from "@/lib/game/characterTemplates";
 import { resolveCampBattle } from "@/lib/game/resolveCampBattle";
+import { storedBattleOutcome } from "@/lib/game/storedBattleOutcome";
 import {
   advanceGameAction,
   buyCharacterAction,
+  endRunAction,
   mergeCharacterAction,
   repositionCharacterAction,
   sellCharacterAction,
@@ -81,6 +84,11 @@ export default async function PlayPage() {
     enemyEncounter,
   );
 
+  // Decided here, on the server, from the stored battle (Phase 13): a lost
+  // battle turns the header button into Continue and supplies the
+  // game-over screen. The client never decides that the run is over.
+  const isRunLost = storedBattleOutcome(savedGame.gameState) === "enemyWin";
+
   return (
     <GameScreen
       phase={savedGame.gameState.phase}
@@ -91,7 +99,17 @@ export default async function PlayPage() {
           gold={savedGame.gameState.gold}
           gamePhase={savedGame.gameState.phase}
           advanceGameAction={advanceGameAction}
+          isRunLost={isRunLost}
         />
+      }
+      gameOverScreen={
+        isRunLost ? (
+          <GameOverScreen
+            day={savedGame.gameState.day}
+            depth={savedGame.gameState.depth}
+            endRunAction={endRunAction}
+          />
+        ) : undefined
       }
     >
       <BattleScreen
