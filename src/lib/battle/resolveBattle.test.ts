@@ -978,4 +978,32 @@ describe("resolveBattle", () => {
       beatType: "BATTLE_START",
     });
   });
+
+  it("RK1: the kobold abilities are inert for now: a battle with a Kobold Runt and a Kobold Thief activates no ability", () => {
+    const { events } = resolveBattle(
+      [buildTestCharacter({ id: "p1", attack: 1, hp: 30, maxHp: 30 })],
+      [
+        buildTestCharacter({
+          id: "e1",
+          characterTemplateId: "kobold-runt",
+          characterFactionId: "kobold",
+          attack: 1,
+          hp: 3,
+          maxHp: 3,
+        }),
+        buildTestCharacter({
+          id: "e2",
+          characterTemplateId: "kobold-thief",
+          characterFactionId: "kobold",
+          attack: 2,
+          hp: 3,
+          maxHp: 3,
+        }),
+      ],
+    );
+
+    expect(
+      events.filter((event) => event.type === "ABILITY_ACTIVATE"),
+    ).toEqual([]);
+  });
 });

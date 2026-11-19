@@ -256,6 +256,7 @@ describe("locale message parity", () => {
     });
   });
 
+  // deliberate assertion rewrite: the two kobold abilities join both locales' expected keys (before: growing-lad, tighten-those-straps-son, penny-pincher; after: those plus yip, yip-strike) — Phase 13
   it("M2: each ability has exactly its expected keys in both locales", () => {
     function abilityKeysByLocale(
       messages: unknown,
@@ -288,6 +289,11 @@ describe("locale message parity", () => {
           ],
         ],
         ["penny-pincher", ["levelText", "name", "summary"]],
+        ["yip", ["battleCry", "levelText", "name", "summary"]],
+        [
+          "yip-strike",
+          ["battleCry", "levelText", "name", "summary", "targetEffect"],
+        ],
       ],
       japanese: [
         ["growing-lad", ["levelText", "name", "summary"]],
@@ -303,6 +309,11 @@ describe("locale message parity", () => {
           ],
         ],
         ["penny-pincher", ["levelText", "name", "summary"]],
+        ["yip", ["battleCry", "levelText", "name", "summary"]],
+        [
+          "yip-strike",
+          ["battleCry", "levelText", "name", "summary", "targetEffect"],
+        ],
       ],
     });
   });
@@ -392,15 +403,28 @@ describe("locale message parity", () => {
     });
   });
 
-  it("CN2: the dwarves' names are the human's (English, and katakana in Japanese)", () => {
+  // deliberate assertion rewrite: the kobolds' names join both locales (before: borin, ogden, norbin; after: those plus kobold-runt, kobold-thief; renamed from "the dwarves' names … katakana in Japanese") — Phase 13
+  it("CN2: the characters' names are the human's (English, and Japanese)", () => {
     expect({
       english: (englishMessages as unknown as Record<string, unknown>)
         .characterName,
       japanese: (japaneseMessages as unknown as Record<string, unknown>)
         .characterName,
     }).toEqual({
-      english: { borin: "Borin", ogden: "Ogden", norbin: "Norbin" },
-      japanese: { borin: "ボリン", ogden: "オグデン", norbin: "ノービン" },
+      english: {
+        borin: "Borin",
+        ogden: "Ogden",
+        norbin: "Norbin",
+        "kobold-runt": "Kobold Runt",
+        "kobold-thief": "Kobold Thief",
+      },
+      japanese: {
+        borin: "ボリン",
+        ogden: "オグデン",
+        norbin: "ノービン",
+        "kobold-runt": "コボルドの小僧",
+        "kobold-thief": "コボルドの盗賊",
+      },
     });
   });
 });

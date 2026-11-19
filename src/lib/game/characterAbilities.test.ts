@@ -6,6 +6,7 @@ import {
 } from "./characterAbilities";
 
 describe("characterAbilities", () => {
+  // deliberate assertion rewrite: the two kobold abilities join the list (before: growing-lad, tighten-those-straps-son, penny-pincher; after: those plus yip, yip-strike) — Phase 13
   it("AB1: every ability is keyed by its own abilityId, in CHARACTER_ABILITY_IDS order", () => {
     expect(
       Object.entries(CHARACTER_ABILITIES).map(([abilityKey, ability]) => [
@@ -16,6 +17,8 @@ describe("characterAbilities", () => {
       ["growing-lad", "growing-lad"],
       ["tighten-those-straps-son", "tighten-those-straps-son"],
       ["penny-pincher", "penny-pincher"],
+      ["yip", "yip"],
+      ["yip-strike", "yip-strike"],
     ]);
   });
 
@@ -55,6 +58,22 @@ describe("characterAbilities", () => {
       abilityId: "penny-pincher",
       trigger: "onCampStart",
       goldByLevel: [1, 2, 3, 4, 5],
+    });
+  });
+
+  it("AB6: Yip! is the human's design: a turn-start ability with no data", () => {
+    expect(CHARACTER_ABILITIES.yip).toEqual({
+      abilityId: "yip",
+      trigger: "onTurnStart",
+    });
+  });
+
+  it("AB7: Yip Strike is the human's design: level N makes N hits of 1 damage at battle start", () => {
+    expect(CHARACTER_ABILITIES["yip-strike"]).toEqual({
+      abilityId: "yip-strike",
+      trigger: "onBattleStartDamage",
+      hitCountByLevel: [1, 2, 3, 4, 5],
+      damagePerHitByLevel: [1, 1, 1, 1, 1],
     });
   });
 });

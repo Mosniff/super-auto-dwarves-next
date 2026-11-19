@@ -57,6 +57,29 @@ export const CHARACTER_TEMPLATES: Readonly<Record<string, CharacterTemplate>> =
       armour: 0,
       abilityId: "penny-pincher",
     },
+    // Kobolds (Phase 13): enemy-only, never offered in the shop.
+    "kobold-runt": {
+      characterTemplateId: "kobold-runt",
+      name: "Kobold Runt",
+      tier: 1,
+      characterFactionId: "kobold",
+      characterClassIds: ["warrior"],
+      attack: 1,
+      maxHp: 3,
+      armour: 0,
+      abilityId: "yip",
+    },
+    "kobold-thief": {
+      characterTemplateId: "kobold-thief",
+      name: "Kobold Thief",
+      tier: 1,
+      characterFactionId: "kobold",
+      characterClassIds: ["warrior"],
+      attack: 2,
+      maxHp: 3,
+      armour: 0,
+      abilityId: "yip-strike",
+    },
   };
 
 export function findCharacterTemplate(

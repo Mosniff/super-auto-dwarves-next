@@ -73,7 +73,9 @@
   "characterName": {
     "borin": "ボリン",
     "ogden": "オグデン",
-    "norbin": "ノービン"
+    "norbin": "ノービン",
+    "kobold-runt": "コボルドの小僧",
+    "kobold-thief": "コボルドの盗賊"
   },
   "faction": {
     "dwarf": {
@@ -125,6 +127,19 @@
       "name": "倹約家",
       "summary": "キャンプフェイズごとに少しゴールドをかき集める",
       "levelText": "キャンプ開始時、ゴールド+{gold}"
+    },
+    "yip": {
+      "name": "キャン！",
+      "summary": "キャン！",
+      "levelText": "キャン！",
+      "battleCry": "{character}がキャンと鳴いた！"
+    },
+    "yip-strike": {
+      "name": "キャン・ストライク",
+      "summary": "静かな刃ほどよくキャンと鳴く！",
+      "levelText": "ランダムな敵に{damage}ダメージ{count, plural, =1 {} other {（{count}回）}}",
+      "battleCry": "{character}が影から襲いかかる！",
+      "targetEffect": "{target}に{amount}ダメージ！"
     }
   }
 }

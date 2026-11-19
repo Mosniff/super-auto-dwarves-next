@@ -1,4 +1,5 @@
 import type { CharacterAbility } from "@/lib/game/characterAbilities";
+import { CHARACTER_LEVELS } from "@/lib/game/characterExperience";
 
 // Keys are relative to the "ability" message namespace.
 export interface AbilityDescriptionMessages {
@@ -57,6 +58,24 @@ export function abilityDescriptionMessages(
         levelTexts: ability.goldByLevel.map((gold) => ({
           key: "penny-pincher.levelText",
           params: { gold },
+        })),
+      };
+    case "yip":
+      return {
+        nameKey,
+        summaryKey,
+        levelTexts: CHARACTER_LEVELS.map(() => ({
+          key: "yip.levelText",
+          params: {},
+        })),
+      };
+    case "yip-strike":
+      return {
+        nameKey,
+        summaryKey,
+        levelTexts: ability.hitCountByLevel.map((count, levelIndex) => ({
+          key: "yip-strike.levelText",
+          params: { damage: ability.damagePerHitByLevel[levelIndex], count },
         })),
       };
     default: {

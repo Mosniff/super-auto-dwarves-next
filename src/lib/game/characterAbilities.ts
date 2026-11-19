@@ -11,6 +11,8 @@ export const CHARACTER_ABILITY_IDS = [
   "growing-lad",
   "tighten-those-straps-son",
   "penny-pincher",
+  "yip",
+  "yip-strike",
 ] as const;
 
 export type CharacterAbilityId = (typeof CHARACTER_ABILITY_IDS)[number];
@@ -18,7 +20,11 @@ export type CharacterAbilityId = (typeof CHARACTER_ABILITY_IDS)[number];
 export type CharacterAbilityTrigger =
   | "onExperienceGain"
   | "onBattleStartBuffs"
-  | "onCampStart";
+  | "onCampStart"
+  // Phase 13: declared with the kobolds; no battle code fires them yet
+  // (step 7 adds their behaviour).
+  | "onTurnStart"
+  | "onBattleStartDamage";
 
 // Index 0 is level 1 ... index 4 is level 5.
 export type PerLevel<Value> = readonly [Value, Value, Value, Value, Value];
@@ -47,6 +53,18 @@ export type CharacterAbility =
       readonly trigger: "onCampStart";
       // gold added at the start of each camp, by level
       readonly goldByLevel: PerLevel<number>;
+    }
+  | {
+      // the Kobold Runt's joke: a yip at the start of every turn, no effect
+      readonly abilityId: "yip";
+      readonly trigger: "onTurnStart";
+    }
+  | {
+      // the Kobold Thief: hits of damage at random enemies at battle start
+      readonly abilityId: "yip-strike";
+      readonly trigger: "onBattleStartDamage";
+      readonly hitCountByLevel: PerLevel<number>;
+      readonly damagePerHitByLevel: PerLevel<number>;
     };
 
 export const CHARACTER_ABILITIES: {
@@ -76,6 +94,16 @@ export const CHARACTER_ABILITIES: {
     abilityId: "penny-pincher",
     trigger: "onCampStart",
     goldByLevel: [1, 2, 3, 4, 5],
+  },
+  yip: {
+    abilityId: "yip",
+    trigger: "onTurnStart",
+  },
+  "yip-strike": {
+    abilityId: "yip-strike",
+    trigger: "onBattleStartDamage",
+    hitCountByLevel: [1, 2, 3, 4, 5],
+    damagePerHitByLevel: [1, 1, 1, 1, 1],
   },
 };
 

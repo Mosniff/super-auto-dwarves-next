@@ -100,6 +100,7 @@ describe("abilityDescriptionMessages", () => {
     });
   });
 
+  // deliberate assertion rewrite: the two kobold abilities join the expected texts (before: growing-lad, tighten-those-straps-son, penny-pincher; after: those plus yip, yip-strike) — Phase 13
   it("D3: renders the real abilities in English", () => {
     expect(
       Object.fromEntries(
@@ -136,9 +137,20 @@ describe("abilityDescriptionMessages", () => {
         "Gain +4 gold at the start of each camp",
         "Gain +5 gold at the start of each camp",
       ],
+      yip: ["Yip!", "Yip!", "Yip!", "Yip!", "Yip!", "Yip!", "Yip!"],
+      "yip-strike": [
+        "Yip Strike",
+        "The silent blade yips best!",
+        "Strike a random enemy for 1 damage",
+        "Strike a random enemy for 1 damage, 2 times",
+        "Strike a random enemy for 1 damage, 3 times",
+        "Strike a random enemy for 1 damage, 4 times",
+        "Strike a random enemy for 1 damage, 5 times",
+      ],
     });
   });
 
+  // deliberate assertion rewrite: the two kobold abilities join the expected texts (before: growing-lad, tighten-those-straps-son, penny-pincher; after: those plus yip, yip-strike) — Phase 13
   it("D4: renders the real abilities in Japanese", () => {
     expect(
       Object.fromEntries(
@@ -178,6 +190,16 @@ describe("abilityDescriptionMessages", () => {
         "キャンプ開始時、ゴールド+3",
         "キャンプ開始時、ゴールド+4",
         "キャンプ開始時、ゴールド+5",
+      ],
+      yip: ["キャン！", "キャン！", "キャン！", "キャン！", "キャン！", "キャン！", "キャン！"],
+      "yip-strike": [
+        "キャン・ストライク",
+        "静かな刃ほどよくキャンと鳴く！",
+        "ランダムな敵に1ダメージ",
+        "ランダムな敵に1ダメージ（2回）",
+        "ランダムな敵に1ダメージ（3回）",
+        "ランダムな敵に1ダメージ（4回）",
+        "ランダムな敵に1ダメージ（5回）",
       ],
     });
   });

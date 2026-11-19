@@ -32,12 +32,13 @@ describe("characterTemplates", () => {
     expect(findCharacterTemplate("unknown-dwarf")).toBeUndefined();
   });
 
+  // deliberate assertion rewrite: the two kobold templates join the list (before: ["borin", "ogden", "norbin"]; after: ["borin", "ogden", "norbin", "kobold-runt", "kobold-thief"]) — Phase 13
   it("P3: listCharacterTemplates lists every template id", () => {
     expect(
       listCharacterTemplates().map(
         (characterTemplate) => characterTemplate.characterTemplateId,
       ),
-    ).toEqual(["borin", "ogden", "norbin"]);
+    ).toEqual(["borin", "ogden", "norbin", "kobold-runt", "kobold-thief"]);
   });
 
   // P4-P8 are guards over hand-written template data, not behaviour under
@@ -177,5 +178,33 @@ describe("characterTemplates", () => {
         (characterTemplate) => characterTemplate.characterTemplateId,
       ),
     ).toEqual(["borin", "ogden", "norbin"]);
+  });
+
+  it("P15: findCharacterTemplate returns the kobold-runt template", () => {
+    expect(findCharacterTemplate("kobold-runt")).toEqual({
+      characterTemplateId: "kobold-runt",
+      name: "Kobold Runt",
+      tier: 1,
+      characterFactionId: "kobold",
+      characterClassIds: ["warrior"],
+      attack: 1,
+      maxHp: 3,
+      armour: 0,
+      abilityId: "yip",
+    });
+  });
+
+  it("P16: findCharacterTemplate returns the kobold-thief template", () => {
+    expect(findCharacterTemplate("kobold-thief")).toEqual({
+      characterTemplateId: "kobold-thief",
+      name: "Kobold Thief",
+      tier: 1,
+      characterFactionId: "kobold",
+      characterClassIds: ["warrior"],
+      attack: 2,
+      maxHp: 3,
+      armour: 0,
+      abilityId: "yip-strike",
+    });
   });
 });
