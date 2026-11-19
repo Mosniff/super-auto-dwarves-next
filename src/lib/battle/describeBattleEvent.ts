@@ -25,6 +25,14 @@ export function describeBattleEvent(
         target: resolveName(event.targetId),
       };
     case "DAMAGE":
+      if (event.sourceAbilityId !== undefined) {
+        return {
+          kind: "abilityDamage",
+          abilityId: event.sourceAbilityId,
+          target: resolveName(event.targetId),
+          amount: event.amount,
+        };
+      }
       return {
         kind: "damage",
         target: resolveName(event.targetId),

@@ -75,6 +75,12 @@ export function battleLogMessage(
         key: `${descriptor.abilityId}.battleCry`,
         params: { character: descriptor.character },
       };
+    case "abilityDamage":
+      return {
+        namespace: "ability",
+        key: `${descriptor.abilityId}.targetEffect`,
+        params: { target: descriptor.target, amount: descriptor.amount },
+      };
     case "abilityStatChange":
       return {
         namespace: "ability",

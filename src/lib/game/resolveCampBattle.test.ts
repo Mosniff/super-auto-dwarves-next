@@ -5,6 +5,7 @@ import { createEmptyCampRoster, squeezeCampRoster, type CampRoster } from "./cam
 import { resolveCampBattle } from "./resolveCampBattle";
 import { buildTestCharacter } from "@/test/characterFixtures";
 import { buildTestEnemyEncounter } from "@/test/enemyEncounterFixtures";
+import { createSeededChooseRandomIndex } from "./seededRandomSource";
 
 // mechanical refactor: replaced with a single buildTestCharacter call
 function buildFixtureCharacter(
@@ -158,6 +159,45 @@ describe("resolveCampBattle", () => {
       enemyFactionId: "kobold",
       beatIndex: 0,
       beatType: "BATTLE_START",
+    });
+  });
+
+  it("(g) the stored seed drives the battle's randomness: one seed replays identically, and the resolve matches a source seeded from it", () => {
+    const campRoster = createEmptyCampRoster();
+    campRoster[0] = buildTestCharacter({ id: "p1", attack: 0, hp: 10, maxHp: 10 });
+    campRoster[1] = buildTestCharacter({ id: "p2", attack: 0, hp: 10, maxHp: 10 });
+    campRoster[2] = buildTestCharacter({ id: "p3", attack: 0, hp: 10, maxHp: 10 });
+    const thiefEncounter = buildTestEnemyEncounter({
+      enemyFactionId: "kobold",
+      enemyCharacters: [
+        buildTestCharacter({
+          id: "thief",
+          characterTemplateId: "kobold-thief",
+          characterFactionId: "kobold",
+          attack: 2,
+          hp: 3,
+          maxHp: 3,
+          experience: 15,
+        }),
+      ],
+      battleSeed: 2026,
+    });
+
+    expect({
+      replaysIdentically:
+        JSON.stringify(resolveCampBattle(campRoster, thiefEncounter)) ===
+        JSON.stringify(resolveCampBattle(campRoster, thiefEncounter)),
+      matchesSeededResolve: resolveCampBattle(campRoster, thiefEncounter),
+    }).toEqual({
+      replaysIdentically: true,
+      matchesSeededResolve: resolveBattle(
+        squeezeCampRoster(campRoster).activeCharacters,
+        thiefEncounter.enemyCharacters,
+        undefined,
+        undefined,
+        { playerFactionId: "dwarf", enemyFactionId: "kobold" },
+        createSeededChooseRandomIndex(2026),
+      ),
     });
   });
 });

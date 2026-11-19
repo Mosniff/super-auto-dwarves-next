@@ -44,6 +44,8 @@ export type BattleEventPayload =
       amount: number;
       resultingHp: number;
       source: string;
+      // present when an ability dealt it (Phase 13)
+      sourceAbilityId?: CharacterAbilityId;
     }
   | {
       type: "ARMOUR_DAMAGE";
@@ -125,6 +127,12 @@ export type BattleEventDescriptor =
   | { kind: "turnStart"; turn: number }
   | { kind: "attack"; attacker: string; target: string }
   | { kind: "damage"; target: string; amount: number; resultingHp: number }
+  | {
+      kind: "abilityDamage";
+      abilityId: CharacterAbilityId;
+      target: string;
+      amount: number;
+    }
   | {
       kind: "armourDamage";
       target: string;

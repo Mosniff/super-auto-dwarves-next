@@ -3,6 +3,7 @@ import type { ResolvedBattle } from "@/lib/battle/types";
 import { squeezeCampRoster, type CampRoster } from "./campRoster";
 import { PLAYER_FACTION_ID } from "./characterFactions";
 import type { EnemyEncounter } from "./enemyEncounter";
+import { createSeededChooseRandomIndex } from "./seededRandomSource";
 
 // The conversion seam from the saved game to a battle (CLAUDE.md ->
 // "Persistence & save model", camp-roster gaps); the camp roster is
@@ -23,5 +24,7 @@ export function resolveCampBattle(
       playerFactionId: PLAYER_FACTION_ID,
       enemyFactionId: enemyEncounter.enemyFactionId,
     },
+    // a fresh source from the stored seed on every resolve (Phase 13)
+    createSeededChooseRandomIndex(enemyEncounter.battleSeed),
   );
 }

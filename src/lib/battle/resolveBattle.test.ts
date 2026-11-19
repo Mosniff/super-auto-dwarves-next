@@ -979,7 +979,8 @@ describe("resolveBattle", () => {
     });
   });
 
-  it("RK1: the kobold abilities are inert for now: a battle with a Kobold Runt and a Kobold Thief activates no ability", () => {
+  // deliberate assertion rewrite: the Kobold Thief now strikes (before: no ABILITY_ACTIVATE at all; after: one yip-strike activation and one 1-damage hit carrying sourceAbilityId "yip-strike"); the Runt's Yip! stays inert until its own block — Phase 13
+  it("RK1: a level-1 Kobold Thief strikes once at battle start; the Kobold Runt's Yip! does nothing yet", () => {
     const { events } = resolveBattle(
       [buildTestCharacter({ id: "p1", attack: 1, hp: 30, maxHp: 30 })],
       [
@@ -1000,10 +1001,114 @@ describe("resolveBattle", () => {
           maxHp: 3,
         }),
       ],
+      20,
+      undefined,
+      undefined,
+      () => 0,
     );
 
     expect(
-      events.filter((event) => event.type === "ABILITY_ACTIVATE"),
-    ).toEqual([]);
+      events
+        .filter((event) => event.beatType === "ABILITY")
+        .map(({ beatIndex, beatType, ...payload }) => payload),
+    ).toEqual([
+      { type: "ABILITY_ACTIVATE", characterId: "e2", abilityId: "yip-strike" },
+      {
+        type: "DAMAGE",
+        targetId: "p1",
+        amount: 1,
+        resultingHp: 29,
+        source: "e2",
+        sourceAbilityId: "yip-strike",
+      },
+    ]);
+  });
+
+  function buildThief(experience: number): Character {
+    return buildTestCharacter({
+      id: "thief",
+      characterTemplateId: "kobold-thief",
+      characterFactionId: "kobold",
+      attack: 2,
+      hp: 3,
+      maxHp: 3,
+      experience,
+    });
+  }
+
+  // Returns the scripted indexes in order.
+  function scriptedChooser(scriptedIndexes: number[]) {
+    let nextScriptIndex = 0;
+    return () => {
+      const scriptedIndex = scriptedIndexes[nextScriptIndex];
+      nextScriptIndex += 1;
+      return scriptedIndex;
+    };
+  }
+
+  it("YS1: a level-3 Thief (6 XP) makes three 1-damage hits at random standing enemies, in the damage sub-phase after the buffs and before the engage", () => {
+    const { events } = resolveBattle(
+      [
+        buildTestCharacter({ id: "p1", attack: 0, hp: 10, maxHp: 10 }),
+        buildTestCharacter({ id: "p2", attack: 0, hp: 10, maxHp: 10 }),
+      ],
+      [buildThief(6)],
+      1,
+      undefined,
+      undefined,
+      scriptedChooser([1, 0, 1]),
+    );
+
+    expect(
+      events
+        .filter((event) => event.beatIndex <= 2)
+        .map((event) => [
+          event.beatIndex,
+          event.beatType,
+          event.type,
+          event.type === "DAMAGE" ? event.targetId : null,
+        ]),
+    ).toEqual([
+      [0, "BATTLE_START", "BATTLE_START", null],
+      [1, "ABILITY", "ABILITY_ACTIVATE", null],
+      [1, "ABILITY", "DAMAGE", "p2"],
+      [1, "ABILITY", "DAMAGE", "p1"],
+      [1, "ABILITY", "DAMAGE", "p2"],
+      [2, "ENGAGE", "FRONTS_ENGAGE", null],
+    ]);
+  });
+
+  it("YS2: hits are planned from the snapshot, so a second hit can land on an enemy the first already dropped; drops wait for the end of the sub-phase", () => {
+    // Level 2 (3 XP): two hits, both at p1 (always the first standing
+    // enemy). p1 has 1 hp: the first hit drops it to 0, the second lands
+    // anyway (-1), and p1 drops once, in the DROP beat after the ability.
+    const { events } = resolveBattle(
+      [
+        buildTestCharacter({ id: "p1", attack: 0, hp: 1, maxHp: 1 }),
+        buildTestCharacter({ id: "p2", attack: 0, hp: 10, maxHp: 10 }),
+      ],
+      [buildThief(3)],
+      1,
+      undefined,
+      undefined,
+      () => 0,
+    );
+
+    expect(
+      events
+        .filter((event) => event.beatIndex >= 1 && event.beatIndex <= 3)
+        .map((event) => [
+          event.beatType,
+          event.type,
+          event.type === "DAMAGE" ? event.resultingHp : null,
+          event.type === "DROP" ? event.characterId : null,
+        ]),
+    ).toEqual([
+      ["ABILITY", "ABILITY_ACTIVATE", null, null],
+      ["ABILITY", "DAMAGE", 0, null],
+      ["ABILITY", "DAMAGE", -1, null],
+      ["DROP", "DROP", null, "p1"],
+      ["ENGAGE", "FRONTS_ENGAGE", null, null],
+    ]);
   });
 });

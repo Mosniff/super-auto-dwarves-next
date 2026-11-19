@@ -235,4 +235,24 @@ describe("describeBattleEvent", () => {
       character: "unknown-id",
     });
   });
+
+  it("AD1: damage dealt by an ability becomes an abilityDamage descriptor", () => {
+    const event: BattleEvent = {
+      type: "DAMAGE",
+      targetId: "p1",
+      amount: 1,
+      resultingHp: 6,
+      source: "e1",
+      sourceAbilityId: "yip-strike",
+      beatIndex: 1,
+      beatType: "ABILITY",
+    };
+
+    expect(describeBattleEvent(event, nameMap)).toEqual({
+      kind: "abilityDamage",
+      abilityId: "yip-strike",
+      target: "Borin",
+      amount: 1,
+    });
+  });
 });

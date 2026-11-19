@@ -6,6 +6,8 @@ import type {
   ResolvedBattle,
 } from "./types";
 import type { Character } from "@/lib/game/character";
+import type { ChooseRandomIndex } from "@/lib/game/chooseRandomIndex";
+import { createSeededChooseRandomIndex } from "@/lib/game/seededRandomSource";
 import {
   PLAYER_FACTION_ID,
   type CharacterFactionId,
@@ -36,6 +38,10 @@ export function resolveBattle(
   maxTurns: number = 20,
   planAbility: BattleStartAbilityPlanner = planBattleStartAbility,
   battleSideFactionIds: BattleSideFactionIds = DEFAULT_BATTLE_SIDE_FACTION_IDS,
+  // The battle's seeded random source (Phase 13). The default (seed 0) is
+  // a fixture convenience; resolveCampBattle always seeds it from the
+  // stored battleSeed, so a re-resolve replays the same battle.
+  chooseRandomIndex: ChooseRandomIndex = createSeededChooseRandomIndex(0),
 ): ResolvedBattle {
   const initialState: BattleState = {
     player: { activeCharacters: playerCharacters, downedCharacters: [] },
@@ -104,6 +110,7 @@ export function resolveBattle(
         actorIndex,
         allies,
         opponents,
+        chooseRandomIndex,
       });
 
       if (plan === null) {
@@ -154,7 +161,15 @@ export function resolveBattle(
             sourceAbilityId: plan.abilityId,
           });
         } else {
-          emitEvent(resolveHit(target, Math.max(0, effect.amount), actor.id));
+          const hit = resolveHit(target, Math.max(0, effect.amount), actor.id);
+          // Damage from an ability carries its id, so the log can use the
+          // ability's own line (Phase 13); an armour hit keeps the generic
+          // armour line.
+          emitEvent(
+            hit.type === "DAMAGE"
+              ? { ...hit, sourceAbilityId: plan.abilityId }
+              : hit,
+          );
         }
       }
     }

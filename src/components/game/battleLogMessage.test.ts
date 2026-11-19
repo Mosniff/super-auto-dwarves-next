@@ -162,4 +162,19 @@ describe("battleLogMessage", () => {
       params: { target: "Borin", amount: 1 },
     });
   });
+
+  it("AD2: maps abilityDamage to the ability's own targetEffect line", () => {
+    const descriptor: BattleEventDescriptor = {
+      kind: "abilityDamage",
+      abilityId: "yip-strike",
+      target: "Borin",
+      amount: 1,
+    };
+
+    expect(battleLogMessage(descriptor)).toEqual({
+      namespace: "ability",
+      key: "yip-strike.targetEffect",
+      params: { target: "Borin", amount: 1 },
+    });
+  });
 });
