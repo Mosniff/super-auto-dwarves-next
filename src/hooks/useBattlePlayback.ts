@@ -1,9 +1,14 @@
 import { useEffect, useRef, useState } from "react";
 import type { ResolvedBattle } from "@/lib/battle/types";
+import type { Character } from "@/lib/game/character";
 import { deriveBattlePlaybackState } from "@/lib/battle/deriveBattlePlaybackState";
 import { beatDurationMs } from "@/lib/battle/beatDurationMs";
 
-export function useBattlePlayback(resolvedBattle: ResolvedBattle) {
+export function useBattlePlayback(
+  resolvedBattle: ResolvedBattle,
+  // translated names for the battle log (Phase 13)
+  displayCharacterName?: (character: Character) => string,
+) {
   const [playbackBeat, setPlaybackBeat] = useState(-1); // -1 = nothing applied yet
   const [viewingBeat, setViewingBeat] = useState(-1); // -1 = no beat displayed yet
   const [isPlaying, setIsPlaying] = useState(false);
@@ -20,6 +25,7 @@ export function useBattlePlayback(resolvedBattle: ResolvedBattle) {
     resolvedBattle,
     playbackBeat,
     viewingBeat,
+    displayCharacterName,
   );
 
   // Manual advancing is locked while a beat's animation is still playing, or

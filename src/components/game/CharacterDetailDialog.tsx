@@ -8,6 +8,7 @@ import type { CharacterAbility } from "@/lib/game/characterAbilities";
 import { findCharacterAbilityForCharacter } from "@/lib/game/characterAbilityLookup";
 import { abilityDescriptionMessages } from "./abilityDescriptionMessages";
 import { ExpandedCharacterCard } from "./ExpandedCharacterCard";
+import { useCharacterDisplayName } from "./characterDisplayName";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -70,6 +71,7 @@ export function CharacterDetailDialog({
   trigger,
 }: CharacterDetailDialogProps) {
   const tCommon = useTranslations("common");
+  const displayCharacterName = useCharacterDisplayName();
   const ability = findCharacterAbilityForCharacter(character);
   const hasAbility = ability !== undefined;
 
@@ -87,7 +89,7 @@ export function CharacterDetailDialog({
         // "Missing Description" warning rather than left to point nowhere.
         {...(hasAbility ? {} : { "aria-describedby": undefined })}
       >
-        <DialogTitle className="sr-only">{character.name}</DialogTitle>
+        <DialogTitle className="sr-only">{displayCharacterName(character)}</DialogTitle>
         {/* A deliberately larger close button than shadcn's default; the
             human tunes its look. */}
         <DialogClose asChild>

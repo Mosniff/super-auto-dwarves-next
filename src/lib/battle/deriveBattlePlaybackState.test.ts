@@ -182,4 +182,23 @@ describe("deriveBattlePlaybackState", () => {
       },
     ]);
   });
+
+  it("DP-N: the log's names come from the injected display name", () => {
+    const playbackView = deriveBattlePlaybackState(
+      resolvedBattle,
+      highestBeat,
+      highestBeat,
+      (character) => `${character.name} (shown)`,
+    );
+
+    const firstAttackDescriptor = playbackView.allBeatDescriptors
+      .flat()
+      .find((descriptor) => descriptor.kind === "attack");
+
+    expect(firstAttackDescriptor).toEqual({
+      kind: "attack",
+      attacker: "Borin (shown)",
+      target: "Grukk (shown)",
+    });
+  });
 });

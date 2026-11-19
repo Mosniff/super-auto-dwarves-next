@@ -70,6 +70,11 @@
     "smith": "Smith",
     "miner": "Miner"
   },
+  "characterName": {
+    "borin": "Borin",
+    "ogden": "Ogden",
+    "norbin": "Norbin"
+  },
   "faction": {
     "dwarf": {
       "name": "Dwarf",

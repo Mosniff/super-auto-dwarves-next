@@ -37,4 +37,28 @@ describe("buildNameMap", () => {
 
     expect(nameMap.size).toBe(0);
   });
+
+  it("BN3: uses the injected display name for every character", () => {
+    const initialState: BattleState = {
+      player: {
+        activeCharacters: [buildTestCharacter({ id: "p1", name: "Borin" })],
+        downedCharacters: [buildTestCharacter({ id: "p2", name: "Thrudi" })],
+      },
+      enemy: {
+        activeCharacters: [buildTestCharacter({ id: "e1", name: "Grukk" })],
+        downedCharacters: [],
+      },
+    };
+
+    const nameMap = buildNameMap(
+      initialState,
+      (character) => `${character.name} (shown)`,
+    );
+
+    expect([...nameMap.entries()]).toEqual([
+      ["p1", "Borin (shown)"],
+      ["p2", "Thrudi (shown)"],
+      ["e1", "Grukk (shown)"],
+    ]);
+  });
 });

@@ -1,3 +1,4 @@
+import type { Character } from "@/lib/game/character";
 import type {
   BattleEventDescriptor,
   BattleState,
@@ -27,8 +28,13 @@ export function deriveBattlePlaybackState(
   resolvedBattle: ResolvedBattle,
   playbackBeat: number,
   viewingBeat: number,
+  // the client's translated names for the log (Phase 13); see buildNameMap
+  displayCharacterName?: (character: Character) => string,
 ): BattlePlaybackView {
-  const nameMap = buildNameMap(resolvedBattle.initialState);
+  const nameMap = buildNameMap(
+    resolvedBattle.initialState,
+    displayCharacterName,
+  );
 
   const appliedEvents = resolvedBattle.events.filter(
     (event) => event.beatIndex <= playbackBeat,

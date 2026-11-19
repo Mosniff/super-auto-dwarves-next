@@ -7,6 +7,7 @@ import { RosterSlab } from "@/components/game/RosterSlab";
 import type { ResolvedBattle } from "@/lib/battle/types";
 import type { CampRoster } from "@/lib/game/campRoster";
 import { useBattlePlayback } from "@/hooks/useBattlePlayback";
+import { useCharacterDisplayName } from "@/components/game/characterDisplayName";
 import {
   battleBoardStage,
   presentBattleBoard,
@@ -26,6 +27,7 @@ export function BattleScreen({
   resolvedBattle,
   playerCampRoster,
 }: BattleScreenProps) {
+  const displayCharacterName = useCharacterDisplayName();
   const {
     currentState,
     currentBeatDescriptors,
@@ -42,7 +44,7 @@ export function BattleScreen({
     isPlaying,
     play,
     pause,
-  } = useBattlePlayback(resolvedBattle);
+  } = useBattlePlayback(resolvedBattle, displayCharacterName);
 
   const currentBeat = {
     beatKey: playbackBeat,

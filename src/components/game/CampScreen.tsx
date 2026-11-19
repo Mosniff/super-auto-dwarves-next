@@ -19,6 +19,7 @@ import {
 } from "@/components/game/campStartSequence";
 import { ShopPanel } from "@/components/game/ShopPanel";
 import { CharacterCard } from "@/components/game/CharacterCard";
+import { useCharacterDisplayName } from "@/components/game/characterDisplayName";
 import { MergeSellToggle } from "@/components/game/MergeSellToggle";
 import { MergeSellModeAnnouncer } from "@/components/game/MergeSellModeAnnouncer";
 import { SellArea } from "@/components/game/SellArea";
@@ -92,6 +93,7 @@ export function CampScreen({
   sellCharacterAction,
 }: CampScreenProps) {
   const t = useTranslations("common");
+  const displayCharacterName = useCharacterDisplayName();
 
   // The selection, drag-source selection and pending-ness below are UI
   // state only, for click/drag feedback and disabling tiles mid-submit.
@@ -411,7 +413,7 @@ export function CampScreen({
               return character
                 ? t("rosterSlotOccupiedLabel", {
                     slotNumber: slotIndex + 1,
-                    characterName: character.name,
+                    characterName: displayCharacterName(character),
                     level: levelFromExperience(character.experience),
                   })
                 : t("rosterSlotEmptyLabel", { slotNumber: slotIndex + 1 });

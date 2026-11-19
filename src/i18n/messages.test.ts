@@ -5,6 +5,7 @@ import { CHARACTER_CLASS_IDS } from "@/lib/game/characterClasses";
 import { PLACEHOLDER_SHOP_SECTION_IDS } from "@/lib/game/placeholderShopSections";
 import { CHARACTER_ABILITY_IDS } from "@/lib/game/characterAbilities";
 import { CHARACTER_FACTION_IDS } from "@/lib/game/characterFactions";
+import { listCharacterTemplates } from "@/lib/game/characterTemplates";
 
 describe("locale message parity", () => {
   // Extended when the battle-log control buttons (Advance, Autoplay: On/Off)
@@ -352,6 +353,54 @@ describe("locale message parity", () => {
         ["dwarf", ["name", "pluralName"]],
         ["kobold", ["name", "pluralName"]],
       ],
+    });
+  });
+
+  // Every real template must have a display name in both locales, so a new
+  // character can't ship without one (Phase 13).
+  it("CN1: both locales name exactly every template, each with a non-empty name", () => {
+    function namedTemplateIds(messages: unknown): [string, boolean][] {
+      const characterNameNamespace =
+        (messages as Record<string, Record<string, unknown> | undefined>)
+          .characterName ?? {};
+
+      return Object.keys(characterNameNamespace)
+        .sort()
+        .map((characterTemplateId) => {
+          const characterName = characterNameNamespace[characterTemplateId];
+          return [
+            characterTemplateId,
+            typeof characterName === "string" && characterName.length > 0,
+          ];
+        });
+    }
+
+    const expectedNamedTemplateIds = listCharacterTemplates()
+      .map((characterTemplate) => characterTemplate.characterTemplateId)
+      .sort()
+      .map((characterTemplateId): [string, boolean] => [
+        characterTemplateId,
+        true,
+      ]);
+
+    expect({
+      english: namedTemplateIds(englishMessages),
+      japanese: namedTemplateIds(japaneseMessages),
+    }).toEqual({
+      english: expectedNamedTemplateIds,
+      japanese: expectedNamedTemplateIds,
+    });
+  });
+
+  it("CN2: the dwarves' names are the human's (English, and katakana in Japanese)", () => {
+    expect({
+      english: (englishMessages as unknown as Record<string, unknown>)
+        .characterName,
+      japanese: (japaneseMessages as unknown as Record<string, unknown>)
+        .characterName,
+    }).toEqual({
+      english: { borin: "Borin", ogden: "Ogden", norbin: "Norbin" },
+      japanese: { borin: "ボリン", ogden: "オグデン", norbin: "ノービン" },
     });
   });
 });

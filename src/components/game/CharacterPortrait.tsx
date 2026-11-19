@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { Character } from "@/lib/game/character";
 import { characterPortraitSrc } from "@/lib/game/characterPortraits";
+import { useCharacterDisplayName } from "./characterDisplayName";
 
 interface CharacterPortraitProps {
   character: Character;
@@ -18,6 +19,7 @@ export function CharacterPortrait({
   fallbackTextClassName,
 }: CharacterPortraitProps) {
   const portraitSrc = characterPortraitSrc(character);
+  const displayCharacterName = useCharacterDisplayName();
 
   if (portraitSrc !== null) {
     return (
@@ -27,7 +29,7 @@ export function CharacterPortrait({
       >
         <Image
           src={portraitSrc}
-          alt={character.name}
+          alt={displayCharacterName(character)}
           fill
           className={`object-cover ${imageClassName ?? ""}`}
           sizes={sizes}
@@ -43,7 +45,7 @@ export function CharacterPortrait({
     <div
       data-character-portrait-fallback
       role="img"
-      aria-label={character.name}
+      aria-label={displayCharacterName(character)}
       className={`absolute inset-0 flex items-center justify-center bg-(--color-portrait-brown) ${imageClassName ?? ""}`}
     >
       <span

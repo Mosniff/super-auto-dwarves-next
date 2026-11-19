@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/game/character";
 import { CharacterDetailDialog } from "./CharacterDetailDialog";
+import { useCharacterDisplayName } from "./characterDisplayName";
 
 interface CharacterInfoControlProps {
   character: Character;
@@ -22,6 +23,7 @@ export function CharacterInfoControl({
   onOpen,
 }: CharacterInfoControlProps) {
   const t = useTranslations("common");
+  const displayCharacterName = useCharacterDisplayName();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   // The "i" is the dialog's DialogTrigger (passed below), so Radix
@@ -41,7 +43,7 @@ export function CharacterInfoControl({
         <button
           type="button"
           data-character-info-control
-          aria-label={t("characterInfoLabel", { name: character.name })}
+          aria-label={t("characterInfoLabel", { name: displayCharacterName(character) })}
           // Its own hover and focus state shows the player is on the "i"
           // itself, not just the card; the card stays revealed meanwhile
           // (globals.css).

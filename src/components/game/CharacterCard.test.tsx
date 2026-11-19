@@ -492,4 +492,31 @@ describe("CharacterCard", () => {
         ?.getAttribute("data-character-faction-id"),
     }).toEqual({ label: "Kobold Warrior", factionId: "kobold" });
   });
+
+  it("CN3: in Japanese a real template's name is translated, and a template with no entry falls back to the stored name", () => {
+    render(
+      <NextIntlClientProvider locale="ja" messages={japaneseMessages}>
+        <CharacterCard
+          character={buildTestCharacter({
+            id: "borin-1",
+            characterTemplateId: "borin",
+            name: "Borin",
+          })}
+        />
+        <CharacterCard
+          character={buildTestCharacter({ id: "fixture-1", name: "Fixture Dwarf" })}
+        />
+      </NextIntlClientProvider>,
+    );
+
+    expect({
+      translatedName: screen.queryByText("ボリン") !== null,
+      storedNameShown: screen.queryByText("Borin") !== null,
+      fallbackName: screen.queryByText("Fixture Dwarf") !== null,
+    }).toEqual({
+      translatedName: true,
+      storedNameShown: false,
+      fallbackName: true,
+    });
+  });
 });

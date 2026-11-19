@@ -13,6 +13,7 @@ import {
   type HpDisplayTone,
 } from "./characterCardDisplay";
 import { CharacterPortrait } from "./CharacterPortrait";
+import { useCharacterDisplayName } from "./characterDisplayName";
 
 // CharacterCard sizes everything in cqw, which draws one design at many
 // sizes (a ~100px shop tile and a 288px action card alike). The expanded
@@ -46,6 +47,7 @@ export function ExpandedCharacterCard({
   const t = useTranslations("common");
   const tCharacterClass = useTranslations("characterClass");
   const tFaction = useTranslations("faction");
+  const displayCharacterName = useCharacterDisplayName();
   const level = levelFromExperience(character.experience);
   const hpTone = hpDisplayTone(character.hp, character.maxHp);
   const { segmentCount, filledSegmentCount, isMaxLevel } =
@@ -71,7 +73,7 @@ export function ExpandedCharacterCard({
           }}
         >
           <span data-expanded-card-name className="text-3xl font-semibold">
-            {character.name}
+            {displayCharacterName(character)}
           </span>
           <span data-expanded-card-tier className="text-3xl font-bold">
             {tierRomanNumeral(character.tier)}

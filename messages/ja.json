@@ -70,6 +70,11 @@
     "smith": "鍛冶屋",
     "miner": "鉱夫"
   },
+  "characterName": {
+    "borin": "ボリン",
+    "ogden": "オグデン",
+    "norbin": "ノービン"
+  },
   "faction": {
     "dwarf": {
       "name": "ドワーフ",

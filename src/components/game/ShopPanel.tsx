@@ -3,6 +3,7 @@
 import { useId, type ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { useDraggable } from "@dnd-kit/react";
+import { useCharacterDisplayName } from "@/components/game/characterDisplayName";
 import { Hourglass, Lock } from "lucide-react";
 import type { CharacterShopSlots } from "@/lib/game/characterShopSlots";
 import type { CharacterTemplate } from "@/lib/game/characterTemplates";
@@ -276,6 +277,7 @@ export function ShopPanel({
   onShopSlotClick,
 }: ShopPanelProps) {
   const t = useTranslations("common");
+  const displayCharacterName = useCharacterDisplayName();
   const shopSectionTranslations = useTranslations("shopSection");
 
   const charactersHeadingId = useId();
@@ -333,7 +335,7 @@ export function ShopPanel({
                     presentation={shopSlotPresentation(shopSlotIndex)}
                     onClick={() => onShopSlotClick(shopSlotIndex)}
                     buttonLabel={t("shopListingButtonLabel", {
-                      characterName: matchedCharacterTemplate.name,
+                      characterName: displayCharacterName(matchedCharacterTemplate),
                     })}
                   />
                 );

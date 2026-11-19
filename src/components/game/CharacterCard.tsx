@@ -12,6 +12,7 @@ import {
   type HpDisplayTone,
 } from "./characterCardDisplay";
 import { CharacterPortrait } from "./CharacterPortrait";
+import { useCharacterDisplayName } from "./characterDisplayName";
 
 // The layout borrows a trading-card frame structure: a bordered, textured
 // body holding a name bar, the portrait (carrying an optional HP or XP
@@ -109,6 +110,7 @@ export function CharacterCard({
   const isDowned = character.hp <= 0;
   const t = useTranslations("common");
   const tCharacterClass = useTranslations("characterClass");
+  const displayCharacterName = useCharacterDisplayName();
   const tFaction = useTranslations("faction");
   const tier = character.tier;
   const characterClassIds = character.characterClassIds;
@@ -142,7 +144,7 @@ export function CharacterCard({
           }}
         >
           <span className="min-w-0 truncate text-card-title font-semibold leading-none">
-            {character.name}
+            {displayCharacterName(character)}
           </span>
           <span
             data-character-tier={tier}
