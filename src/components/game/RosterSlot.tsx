@@ -14,6 +14,7 @@ import type { BeatCharacterEffect } from "@/lib/battle/beatCharacterEffects";
 import {
   abilityHpGainFromRefresh,
   experienceGainBeat,
+  rosterSlotExitAnimation,
   type RosterSlotExitKind,
 } from "./rosterSlotAnimation";
 import type { CampStartSlotBeat } from "./campStartSequence";
@@ -37,7 +38,23 @@ interface RosterSlotProps {
   beatKey?: number;
   // Phase 12 start-of-camp sequence: display-only.
   campStartBeat?: CampStartSlotBeat;
+  // Phase 13, display-only: the characters that dropped in this battle
+  // beat, so a card leaving because it dropped plays the drop.
+  droppedCharacterIds?: ReadonlySet<string>;
 }
+
+// What a leaving card's exit variant receives (AnimatePresence's custom).
+interface RosterSlotExitCustom {
+  exitKind: RosterSlotExitKind;
+  droppedCharacterIds: ReadonlySet<string>;
+}
+
+const NO_DROPPED_CHARACTER_IDS: ReadonlySet<string> = new Set();
+
+// The in-place poof of a dropped card (Phase 13), matching ActiveCard's
+// front-card dissolve.
+const DROPPED_EXIT_SCALE = 1.1;
+const DROPPED_EXIT_DURATION_S = 0.4;
 
 const SHUFFLE_EXIT_DURATION_S = 0.3;
 const SHUFFLE_ENTER_DELAY_S = 0.15;
@@ -87,6 +104,7 @@ export function RosterSlot({
   beatEffect,
   beatKey,
   campStartBeat,
+  droppedCharacterIds = NO_DROPPED_CHARACTER_IDS,
 }: RosterSlotProps) {
   const prefersReducedMotion = useReducedMotion();
   const showNextHalo = isNext && Boolean(character);
@@ -230,16 +248,40 @@ export function RosterSlot({
   // later render may already describe a different occupant (and a
   // different exitKind for ITS eventual exit), so the exit variant must
   // receive the value that was current when this card was removed, not
-  // whatever the prop reads at animation time. The grandiose launch exit
-  // (the front slot's promotion) always takes priority over any exitKind,
-  // unchanged from before this file learned about exitKind at all.
+  // whatever the prop reads at animation time. A dropped card's poof comes
+  // first (Phase 13); then the grandiose launch (the front slot's
+  // promotion) takes priority over any exitKind — see
+  // rosterSlotExitAnimation. This closure belongs to the leaving card's
+  // last render, so departingCharacterId is the card that is leaving.
+  const departingCharacterId = character?.id;
+  const exitCustom: RosterSlotExitCustom = { exitKind, droppedCharacterIds };
   const cardExitVariants = {
-    exit: (exitKindAtExit: RosterSlotExitKind): TargetAndTransition => {
+    exit: ({
+      exitKind: exitKindAtExit,
+      droppedCharacterIds: droppedCharacterIdsAtExit,
+    }: RosterSlotExitCustom): TargetAndTransition => {
       if (prefersReducedMotion) {
         return { x: "0%", transition: { duration: 0 } };
       }
 
-      if (shouldUseGrandioseExit) {
+      const exitAnimation = rosterSlotExitAnimation({
+        exitKind: exitKindAtExit,
+        isFrontSlotOnDeck: shouldUseGrandioseExit,
+        hasDepartingCharacterDropped:
+          departingCharacterId !== undefined &&
+          droppedCharacterIdsAtExit.has(departingCharacterId),
+      });
+
+      if (exitAnimation === "dropped") {
+        return {
+          x: "0%",
+          opacity: 0,
+          scale: DROPPED_EXIT_SCALE,
+          transition: { duration: DROPPED_EXIT_DURATION_S, ease: "easeOut" },
+        };
+      }
+
+      if (exitAnimation === "launch") {
         return {
           // Wind-up (t 0 -> 0.5): x holds at "0%" (identical start/mid
           // keyframe = no movement) while scale, filter, and rotate do
@@ -291,7 +333,7 @@ export function RosterSlot({
         };
       }
 
-      if (exitKindAtExit === "mergedAway") {
+      if (exitAnimation === "mergedAway") {
         return {
           scale: MERGED_AWAY_EXIT_SCALE,
           opacity: 0,
@@ -303,7 +345,7 @@ export function RosterSlot({
         };
       }
 
-      if (exitKindAtExit === "sold") {
+      if (exitAnimation === "sold") {
         return {
           y: SOLD_EXIT_DROP_Y,
           opacity: 0,
@@ -371,14 +413,14 @@ export function RosterSlot({
             animates its entrance. */}
         <AnimatePresence
           initial={false}
-          custom={exitKind}
+          custom={exitCustom}
           onExitComplete={() => setIsLaunchingCardOut(false)}
         >
           {character && (
             <motion.div
               key={character.id}
               className="absolute inset-0 overflow-hidden rounded-md"
-              custom={exitKind}
+              custom={exitCustom}
               variants={cardExitVariants}
               initial={prefersReducedMotion ? false : { x: cardEnterInitialX }}
               animate={{ x: "0%" }}

@@ -7,6 +7,36 @@ import type { CampIntent } from "./campSelection";
 
 export type RosterSlotExitKind = "shuffle" | "mergedAway" | "sold";
 
+// How a card leaving a slot animates (Phase 13): a drop (the departing
+// character dropped this beat — battle-start damage can drop a bench card
+// before the engage) always plays the in-place poof, ahead of the front
+// slot's launch; otherwise the front slot launches and every other slot
+// plays its exit kind.
+export type RosterSlotExitAnimation =
+  | "dropped"
+  | "launch"
+  | RosterSlotExitKind;
+
+export function rosterSlotExitAnimation({
+  exitKind,
+  isFrontSlotOnDeck,
+  hasDepartingCharacterDropped,
+}: {
+  exitKind: RosterSlotExitKind;
+  isFrontSlotOnDeck: boolean;
+  hasDepartingCharacterDropped: boolean;
+}): RosterSlotExitAnimation {
+  if (hasDepartingCharacterDropped) {
+    return "dropped";
+  }
+
+  if (isFrontSlotOnDeck) {
+    return "launch";
+  }
+
+  return exitKind;
+}
+
 export interface SubmittedCampIntent {
   campIntent: CampIntent;
   submittedAtRevision: number;

@@ -104,6 +104,7 @@
     "armourBreak": "{target}'s armour breaks!",
     "armourGainFloater": "+{amount} armour",
     "armourBreakFloater": "BREAK!",
+    "abilityHpLossFloater": "−{amount} HP",
     "timeout": "Turn limit reached — stalemate",
     "victory": "Victory!",
     "defeat": "Defeat",

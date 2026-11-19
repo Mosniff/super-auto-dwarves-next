@@ -3,6 +3,7 @@ import { beatCharacterEffects } from "./beatCharacterEffects";
 import type { BattleEvent } from "./types";
 
 describe("beatCharacterEffects", () => {
+  // deliberate assertion rewrite: every effect gains abilityHpLost: 0 and isDropped: false (before: { isActing, armourGained, brokenFromArmour }; after: + abilityHpLost: 0, isDropped: false) — Phase 13
   it("BE1: an ability beat: the caster is acting, the target gained armour", () => {
     const beatEvents: BattleEvent[] = [
       {
@@ -26,11 +27,12 @@ describe("beatCharacterEffects", () => {
     ];
 
     expect(beatCharacterEffects(beatEvents)).toEqual({
-      p2: { isActing: true, armourGained: 0, brokenFromArmour: null },
-      p1: { isActing: false, armourGained: 1, brokenFromArmour: null },
+      p2: { isActing: true, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, isDropped: false },
+      p1: { isActing: false, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, isDropped: false },
     });
   });
 
+  // deliberate assertion rewrite: every effect gains abilityHpLost: 0 and isDropped: false (before: { isActing, armourGained, brokenFromArmour }; after: + abilityHpLost: 0, isDropped: false) — Phase 13
   it("BE2: a level-5 Ogden is both acting and receiving", () => {
     const beatEvents: BattleEvent[] = [
       {
@@ -76,12 +78,13 @@ describe("beatCharacterEffects", () => {
     ];
 
     expect(beatCharacterEffects(beatEvents)).toEqual({
-      p2: { isActing: true, armourGained: 1, brokenFromArmour: null },
-      p1: { isActing: false, armourGained: 1, brokenFromArmour: null },
-      p3: { isActing: false, armourGained: 1, brokenFromArmour: null },
+      p2: { isActing: true, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, isDropped: false },
+      p1: { isActing: false, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, isDropped: false },
+      p3: { isActing: false, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, isDropped: false },
     });
   });
 
+  // deliberate assertion rewrite: every effect gains abilityHpLost: 0 and isDropped: false (before: { isActing, armourGained, brokenFromArmour }; after: + abilityHpLost: 0, isDropped: false) — Phase 13
   it("BE3: a clash beat: only a break counts; a partial absorb and hp damage don't", () => {
     const beatEvents: BattleEvent[] = [
       {
@@ -121,10 +124,11 @@ describe("beatCharacterEffects", () => {
     ];
 
     expect(beatCharacterEffects(beatEvents)).toEqual({
-      e1: { isActing: false, armourGained: 0, brokenFromArmour: 2 },
+      e1: { isActing: false, armourGained: 0, brokenFromArmour: 2, abilityHpLost: 0, isDropped: false },
     });
   });
 
+  // deliberate assertion rewrite: every effect gains abilityHpLost: 0 and isDropped: false (before: { isActing, armourGained, brokenFromArmour }; after: + abilityHpLost: 0, isDropped: false) — Phase 13
   it("BE4: two armour gains in one beat add up", () => {
     const beatEvents: BattleEvent[] = [
       {
@@ -159,12 +163,52 @@ describe("beatCharacterEffects", () => {
     ];
 
     expect(beatCharacterEffects(beatEvents)).toEqual({
-      p3: { isActing: true, armourGained: 0, brokenFromArmour: null },
-      p1: { isActing: false, armourGained: 2, brokenFromArmour: null },
+      p3: { isActing: true, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, isDropped: false },
+      p1: { isActing: false, armourGained: 2, brokenFromArmour: null, abilityHpLost: 0, isDropped: false },
     });
   });
 
   it("BE5: an empty beat affects no one", () => {
     expect(beatCharacterEffects([])).toEqual({});
+  });
+
+  it("BE6: ability hits add up as abilityHpLost, a clash hit doesn't count, and a drop marks isDropped", () => {
+    const beatEvents: BattleEvent[] = [
+      {
+        type: "DAMAGE",
+        targetId: "p1",
+        amount: 1,
+        resultingHp: 4,
+        source: "thief",
+        sourceAbilityId: "yip-strike",
+        beatIndex: 1,
+        beatType: "ABILITY",
+      },
+      {
+        type: "DAMAGE",
+        targetId: "p1",
+        amount: 1,
+        resultingHp: 3,
+        source: "thief",
+        sourceAbilityId: "yip-strike",
+        beatIndex: 1,
+        beatType: "ABILITY",
+      },
+      {
+        type: "DAMAGE",
+        targetId: "p2",
+        amount: 4,
+        resultingHp: 0,
+        source: "e1",
+        beatIndex: 1,
+        beatType: "CLASH",
+      },
+      { type: "DROP", characterId: "p2", beatIndex: 1, beatType: "DROP" },
+    ];
+
+    expect(beatCharacterEffects(beatEvents)).toEqual({
+      p1: { isActing: false, armourGained: 0, brokenFromArmour: null, abilityHpLost: 2, isDropped: false },
+      p2: { isActing: false, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, isDropped: true },
+    });
   });
 });

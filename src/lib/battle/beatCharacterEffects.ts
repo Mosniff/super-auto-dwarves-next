@@ -9,6 +9,12 @@ export interface BeatCharacterEffect {
   armourGained: number;
   // the armour it had when a hit broke it (resultingArmour 0), else null
   brokenFromArmour: number | null;
+  // hp lost to ability hits this beat, for the "−N HP" floater; clash hits
+  // don't count (the human's call, Phase 13)
+  abilityHpLost: number;
+  // it dropped this beat (Phase 13): a bench card leaving because of a
+  // drop plays the drop, not the slide or the front's launch
+  isDropped: boolean;
 }
 
 // What the battle screen hands down to its cards (Phase 12); beatKey is
@@ -33,6 +39,8 @@ export function beatCharacterEffects(
       isActing: false,
       armourGained: 0,
       brokenFromArmour: null,
+      abilityHpLost: 0,
+      isDropped: false,
     };
     effectsByCharacterId[characterId] = createdEffect;
     return createdEffect;
@@ -57,6 +65,14 @@ export function beatCharacterEffects(
         effectFor(event.targetId).armourGained += armourGainedThisEvent;
         break;
       }
+      case "DAMAGE":
+        if (event.sourceAbilityId !== undefined) {
+          effectFor(event.targetId).abilityHpLost += event.amount;
+        }
+        break;
+      case "DROP":
+        effectFor(event.characterId).isDropped = true;
+        break;
       case "ARMOUR_DAMAGE":
         // A break removes all the armour, so amount is the armour it had.
         if (event.resultingArmour === 0) {

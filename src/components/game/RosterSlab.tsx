@@ -71,6 +71,13 @@ export function RosterSlab({
   currentBeat,
 }: RosterSlabProps) {
   const facing = variant === "enemy" ? "left" : "right";
+  // Phase 13: who dropped in this battle beat, so their bench cards leave
+  // with the drop (see RosterSlot).
+  const droppedCharacterIds = new Set(
+    Object.entries(currentBeat?.characterEffects ?? {})
+      .filter(([, beatEffect]) => beatEffect.isDropped)
+      .map(([characterId]) => characterId),
+  );
   // Document order matches visual order (left to right) so Tab and screen
   // readers walk the roster the way it reads: the player's backline first
   // and front (slot 1) last on the right; the enemy's front first on the
@@ -147,6 +154,7 @@ export function RosterSlab({
                         : undefined
                     }
                     beatKey={currentBeat?.beatKey}
+                    droppedCharacterIds={droppedCharacterIds}
                   />
                   {character && (
                     <CharacterInfoControl
@@ -173,6 +181,7 @@ export function RosterSlab({
                       : undefined
                   }
                   beatKey={currentBeat?.beatKey}
+                  droppedCharacterIds={droppedCharacterIds}
                 />
               )}
             </div>

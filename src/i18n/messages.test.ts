@@ -129,6 +129,7 @@ describe("locale message parity", () => {
     "armourBreak",
     "armourGainFloater",
     "armourBreakFloater",
+    "abilityHpLossFloater",
   ];
 
   it("english has exactly the expected common keys", () => {

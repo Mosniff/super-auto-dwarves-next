@@ -4,6 +4,7 @@ import {
   experienceGainBeat,
   rosterSlotExitKind,
   type SubmittedCampIntent,
+  rosterSlotExitAnimation,
 } from "./rosterSlotAnimation";
 
 const mergeFromThreeIntoZeroAtFive: SubmittedCampIntent = {
@@ -95,5 +96,35 @@ describe("rosterSlotAnimation", () => {
         ] as const
       ).map(([previous, current]) => abilityHpGainFromRefresh(previous, current)),
     ).toEqual([1, 3, 0, 0, 0]);
+  });
+
+  it("RX1: a dropped departing card always poofs; otherwise the front slot launches; otherwise its exit kind plays", () => {
+    expect([
+      rosterSlotExitAnimation({
+        exitKind: "shuffle",
+        isFrontSlotOnDeck: true,
+        hasDepartingCharacterDropped: true,
+      }),
+      rosterSlotExitAnimation({
+        exitKind: "sold",
+        isFrontSlotOnDeck: false,
+        hasDepartingCharacterDropped: true,
+      }),
+      rosterSlotExitAnimation({
+        exitKind: "shuffle",
+        isFrontSlotOnDeck: true,
+        hasDepartingCharacterDropped: false,
+      }),
+      rosterSlotExitAnimation({
+        exitKind: "mergedAway",
+        isFrontSlotOnDeck: false,
+        hasDepartingCharacterDropped: false,
+      }),
+      rosterSlotExitAnimation({
+        exitKind: "shuffle",
+        isFrontSlotOnDeck: false,
+        hasDepartingCharacterDropped: false,
+      }),
+    ]).toEqual(["dropped", "dropped", "launch", "mergedAway", "shuffle"]);
   });
 });

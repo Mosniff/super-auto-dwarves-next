@@ -43,7 +43,7 @@ export function armourBeatFromEffect(
 
 interface ActiveFloater {
   floaterKey: string;
-  floaterKind: "armourGain" | "armourBreak";
+  floaterKind: "armourGain" | "armourBreak" | "abilityHpLoss";
   amount: number;
 }
 
@@ -55,6 +55,7 @@ interface BattleBeatFloatersProps {
 const FLOATER_COLOR_CLASS_NAME: Record<ActiveFloater["floaterKind"], string> = {
   armourGain: "text-(--color-parchment-50)",
   armourBreak: "text-(--color-copper-300)",
+  abilityHpLoss: "text-(--color-heart-red-400)",
 };
 
 export function BattleBeatFloaters({
@@ -95,6 +96,18 @@ export function BattleBeatFloaters({
         },
       ]);
     }
+
+    // Ability hits only (the human's call, Phase 13); clash hits show none.
+    if (beatEffect !== undefined && beatEffect.abilityHpLost > 0) {
+      setActiveFloaters((floaters) => [
+        ...floaters,
+        {
+          floaterKey: `ability-hp-loss-${beatKey}`,
+          floaterKind: "abilityHpLoss",
+          amount: beatEffect.abilityHpLost,
+        },
+      ]);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- fires once per
     // beat; mirrors RosterSlot's experience-beat effect, keyed on beatKey
   }, [beatKey]);
@@ -116,9 +129,9 @@ export function BattleBeatFloaters({
           transition={{
             duration: FLOATER_DURATION_S,
             delay:
-              floater.floaterKind === "armourGain"
-                ? ABILITY_RECEIVE_DELAY_S
-                : ARMOUR_BREAK_DELAY_S,
+              floater.floaterKind === "armourBreak"
+                ? ARMOUR_BREAK_DELAY_S
+                : ABILITY_RECEIVE_DELAY_S,
           }}
           onAnimationComplete={() =>
             setActiveFloaters((floaters) =>
@@ -131,7 +144,9 @@ export function BattleBeatFloaters({
         >
           {floater.floaterKind === "armourGain"
             ? t("armourGainFloater", { amount: floater.amount })
-            : t("armourBreakFloater")}
+            : floater.floaterKind === "abilityHpLoss"
+              ? t("abilityHpLossFloater", { amount: floater.amount })
+              : t("armourBreakFloater")}
         </motion.span>
       ))}
     </>

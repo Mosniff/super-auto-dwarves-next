@@ -104,6 +104,7 @@
     "armourBreak": "{target}のアーマーが壊れた！",
     "armourGainFloater": "アーマー+{amount}",
     "armourBreakFloater": "ブレイク！",
+    "abilityHpLossFloater": "HP−{amount}",
     "timeout": "ターン上限に到達 — 引き分け",
     "victory": "勝利！",
     "defeat": "敗北",

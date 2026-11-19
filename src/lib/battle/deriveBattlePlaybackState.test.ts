@@ -131,6 +131,7 @@ describe("deriveBattlePlaybackState", () => {
     expect(playbackView.currentBeatType).toBe("CLASH");
   });
 
+  // deliberate assertion rewrite: every effect gains abilityHpLost: 0 and isDropped: false (before: { isActing, armourGained, brokenFromArmour }; after: + abilityHpLost: 0, isDropped: false) — Phase 13
   it("DP-E1: exposes the playback beat's character effects", () => {
     const abilityPlayerCharacters: Character[] = [
       buildTestCharacter({ id: "p1", name: "Borin", attack: 2, hp: 3, maxHp: 3, armour: 0 }),
@@ -177,8 +178,8 @@ describe("deriveBattlePlaybackState", () => {
     ).toEqual([
       {},
       {
-        p2: { isActing: true, armourGained: 0, brokenFromArmour: null },
-        p1: { isActing: false, armourGained: 1, brokenFromArmour: null },
+        p2: { isActing: true, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, isDropped: false },
+        p1: { isActing: false, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, isDropped: false },
       },
     ]);
   });
