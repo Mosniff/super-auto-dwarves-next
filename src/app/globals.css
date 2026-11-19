@@ -258,6 +258,9 @@
   --ability-caster-glow: var(--color-copper-300);
   --ability-caster-lift: -6px;
   --ability-caster-duration: 0.6s;
+  /* a turn-start ability's pulse (Phase 13): must not exceed
+     TURN_START_ABILITY_BEAT_DURATION_MS in beatDurationMs.ts */
+  --ability-caster-quick-duration: 0.3s;
   --ability-receive-delay: 0.3s;
   --armour-pop-duration: 0.4s;
   --armour-pop-scale: 1.4;
@@ -645,6 +648,9 @@
   [data-ability-acting="true"] [data-active-card-frame] {
     animation: ability-caster-pulse var(--ability-caster-duration)
       ease-in-out;
+  }
+  [data-ability-caster-pulse="quick"] {
+    --ability-caster-duration: var(--ability-caster-quick-duration);
   }
   @keyframes armour-pop {
     0% {

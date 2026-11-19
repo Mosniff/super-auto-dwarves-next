@@ -15,6 +15,9 @@ export const PREPARE_BEAT_DURATION_MS = 800;
 // The engage beat (ENGAGE): the fronts launch into the action zone
 // (presentation in step 11b).
 export const ENGAGE_BEAT_DURATION_MS = 900;
+// A turn-start ability's beat (Phase 13, Yip!): one per actor every turn,
+// so it is kept short — the human's call, ~300 ms.
+export const TURN_START_ABILITY_BEAT_DURATION_MS = 300;
 
 export function beatDurationMs(beatType: BeatType | undefined): number {
   if (beatType === "DROP") {
@@ -34,5 +37,21 @@ export function beatDurationMs(beatType: BeatType | undefined): number {
     return ENGAGE_BEAT_DURATION_MS;
   }
 
+  if (beatType === "TURN_START_ABILITY") {
+    return TURN_START_ABILITY_BEAT_DURATION_MS;
+  }
+
   return QUIET_BEAT_DURATION_MS;
+}
+
+// Which caster pulse a beat plays (Phase 13): a turn-start ability's beat
+// is too short for the normal pulse (--ability-caster-duration), so it
+// plays the quick one (--ability-caster-quick-duration in globals.css,
+// which must not exceed TURN_START_ABILITY_BEAT_DURATION_MS).
+export type AbilityCasterPulseKind = "normal" | "quick";
+
+export function abilityCasterPulseKind(
+  beatType: BeatType | undefined,
+): AbilityCasterPulseKind {
+  return beatType === "TURN_START_ABILITY" ? "quick" : "normal";
 }

@@ -49,6 +49,7 @@ export function BattleScreen({
   const currentBeat = {
     beatKey: playbackBeat,
     characterEffects: currentBeatCharacterEffects,
+    beatType: currentBeatType,
   };
 
   useReportPhaseAdvanceAvailability("battlePhase", isFinished);

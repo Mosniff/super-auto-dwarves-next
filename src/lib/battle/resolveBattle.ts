@@ -12,6 +12,7 @@ import {
   PLAYER_FACTION_ID,
   type CharacterFactionId,
 } from "@/lib/game/characterFactions";
+import { findCharacterAbilityForCharacter } from "@/lib/game/characterAbilityLookup";
 import { applyEvent } from "./applyEvent";
 import { resolveHit } from "./resolveHit";
 import {
@@ -213,6 +214,30 @@ export function resolveBattle(
     startNewBeat("TURN_START");
     emitEvent({ type: "TURN_START", turn: currentTurn });
     currentTurn += 1;
+
+    // Turn-start abilities (Phase 13, Yip!): every active character with an
+    // onTurnStart ability gets its own short beat, bench included, player
+    // front to back then enemy front to back (the human's calls). Yip! is
+    // only its log line and caster pulse, so nothing here changes state
+    // yet; the first onTurnStart ability with an effect will need the
+    // battle-start sub-phases' snapshot and held drops.
+    const turnStartActors = [
+      ...workingState.player.activeCharacters,
+      ...workingState.enemy.activeCharacters,
+    ];
+    for (const turnStartActor of turnStartActors) {
+      const turnStartAbility = findCharacterAbilityForCharacter(turnStartActor);
+      if (turnStartAbility?.trigger !== "onTurnStart") {
+        continue;
+      }
+
+      startNewBeat("TURN_START_ABILITY");
+      emitEvent({
+        type: "ABILITY_ACTIVATE",
+        characterId: turnStartActor.id,
+        abilityId: turnStartAbility.abilityId,
+      });
+    }
 
     const playerFrontCharacter = workingState.player.activeCharacters[0];
     const enemyFrontCharacter = workingState.enemy.activeCharacters[0];

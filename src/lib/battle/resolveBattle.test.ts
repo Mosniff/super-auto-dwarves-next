@@ -980,7 +980,8 @@ describe("resolveBattle", () => {
   });
 
   // deliberate assertion rewrite: the Kobold Thief now strikes (before: no ABILITY_ACTIVATE at all; after: one yip-strike activation and one 1-damage hit carrying sourceAbilityId "yip-strike"); the Runt's Yip! stays inert until its own block — Phase 13
-  it("RK1: a level-1 Kobold Thief strikes once at battle start; the Kobold Runt's Yip! does nothing yet", () => {
+  // deliberate title rewrite: Yip! now fires, on its own turn-start beats, so none of it is in the battle-start ABILITY beats this test filters (before: "the Kobold Runt's Yip! does nothing yet"; after: "the Kobold Runt's Yip! is not a battle-start ability") — Phase 13
+  it("RK1: a level-1 Kobold Thief strikes once at battle start; the Kobold Runt's Yip! is not a battle-start ability", () => {
     const { events } = resolveBattle(
       [buildTestCharacter({ id: "p1", attack: 1, hp: 30, maxHp: 30 })],
       [
@@ -1109,6 +1110,80 @@ describe("resolveBattle", () => {
       ["ABILITY", "DAMAGE", -1, null],
       ["DROP", "DROP", null, "p1"],
       ["ENGAGE", "FRONTS_ENGAGE", null, null],
+    ]);
+  });
+
+  function buildRunt(id: string, hp: number): Character {
+    return buildTestCharacter({
+      id,
+      characterTemplateId: "kobold-runt",
+      characterFactionId: "kobold",
+      attack: 0,
+      hp,
+      maxHp: hp,
+    });
+  }
+
+  it("TS1: after the turn-start beat, each active onTurnStart character gets its own short beat — player front to back, then enemy, bench included — before the clash", () => {
+    const { events } = resolveBattle(
+      [
+        buildTestCharacter({ id: "p1", attack: 0, hp: 10, maxHp: 10 }),
+        buildRunt("p2", 10),
+      ],
+      [buildRunt("e1", 10), buildRunt("e2", 10)],
+      1,
+    );
+
+    expect(
+      events
+        .filter((event) => event.beatIndex >= 2 && event.beatIndex <= 6)
+        .filter((event) => event.type !== "ATTACK" && event.type !== "DAMAGE")
+        .map((event) => [
+          event.beatIndex,
+          event.beatType,
+          event.type,
+          event.type === "ABILITY_ACTIVATE"
+            ? `${event.characterId}:${event.abilityId}`
+            : null,
+        ]),
+    ).toEqual([
+      [2, "TURN_START", "TURN_START", null],
+      [3, "TURN_START_ABILITY", "ABILITY_ACTIVATE", "p2:yip"],
+      [4, "TURN_START_ABILITY", "ABILITY_ACTIVATE", "e1:yip"],
+      [5, "TURN_START_ABILITY", "ABILITY_ACTIVATE", "e2:yip"],
+    ]);
+    expect(
+      events.find((event) => event.beatIndex === 6)?.beatType,
+    ).toBe("CLASH");
+  });
+
+  it("TS2: Yip! fires every turn, and a dropped Runt yips no more", () => {
+    const { events } = resolveBattle(
+      [buildTestCharacter({ id: "p1", attack: 1, hp: 10, maxHp: 10 })],
+      [buildRunt("e1", 1), buildRunt("e2", 10)],
+      2,
+    );
+
+    expect(
+      events.flatMap((event) => {
+        switch (event.type) {
+          case "TURN_START":
+            return [`turn ${event.turn}`];
+          case "ABILITY_ACTIVATE":
+            return [`${event.characterId} yips`];
+          case "DROP":
+            return [`${event.characterId} drops`];
+          default:
+            return [];
+        }
+      }),
+    ).toEqual([
+      "turn 1",
+      "e1 yips",
+      "e2 yips",
+      "e1 drops",
+      "turn 2",
+      "e2 yips",
     ]);
   });
 });

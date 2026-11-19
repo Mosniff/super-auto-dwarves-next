@@ -1,4 +1,4 @@
-import type { BattleEvent } from "./types";
+import type { BattleEvent, BeatType } from "./types";
 
 // Display-only (Phase 12): what one beat did to each character, for the
 // battle's beat animations — whether it fired an ability, how much armour
@@ -22,6 +22,8 @@ export interface BeatCharacterEffect {
 export interface CurrentBeatEffects {
   beatKey: number;
   characterEffects: Readonly<Record<string, BeatCharacterEffect>>;
+  // the beat's type, for its caster pulse speed (Phase 13)
+  beatType: BeatType | undefined;
 }
 
 export function beatCharacterEffects(

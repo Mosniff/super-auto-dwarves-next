@@ -1,5 +1,6 @@
 import type { Character } from "@/lib/game/character";
 import type { CurrentBeatEffects } from "@/lib/battle/beatCharacterEffects";
+import { abilityCasterPulseKind } from "@/lib/battle/beatDurationMs";
 import type { CampTargetPresentation } from "./campSelection";
 import type { RosterSlotExitKind } from "./rosterSlotAnimation";
 import type { CampStartSlotBeat } from "./campStartSequence";
@@ -155,6 +156,9 @@ export function RosterSlab({
                     }
                     beatKey={currentBeat?.beatKey}
                     droppedCharacterIds={droppedCharacterIds}
+                    abilityCasterPulse={abilityCasterPulseKind(
+                      currentBeat?.beatType,
+                    )}
                   />
                   {character && (
                     <CharacterInfoControl
@@ -182,6 +186,9 @@ export function RosterSlab({
                   }
                   beatKey={currentBeat?.beatKey}
                   droppedCharacterIds={droppedCharacterIds}
+                  abilityCasterPulse={abilityCasterPulseKind(
+                    currentBeat?.beatType,
+                  )}
                 />
               )}
             </div>

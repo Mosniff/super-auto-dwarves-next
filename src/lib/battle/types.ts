@@ -22,7 +22,9 @@ export type BeatType =
   | "DROP"
   | "TIMEOUT"
   | "BATTLE_END"
-  | "ABILITY";
+  | "ABILITY"
+  // a turn-start ability's short beat (Phase 13, Yip!), one per actor
+  | "TURN_START_ABILITY";
 
 interface BeatMetadata {
   // Groups events that should be presented together as one animation beat.

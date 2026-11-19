@@ -1,11 +1,13 @@
 import { describe, it, expect } from "vitest";
 import {
+  abilityCasterPulseKind,
   beatDurationMs,
   DROP_BEAT_DURATION_MS,
   ENGAGE_BEAT_DURATION_MS,
   EVENTFUL_BEAT_DURATION_MS,
   PREPARE_BEAT_DURATION_MS,
   QUIET_BEAT_DURATION_MS,
+  TURN_START_ABILITY_BEAT_DURATION_MS,
 } from "./beatDurationMs";
 
 describe("beatDurationMs", () => {
@@ -62,5 +64,20 @@ describe("beatDurationMs", () => {
       ENGAGE_BEAT_DURATION_MS > QUIET_BEAT_DURATION_MS,
       ENGAGE_BEAT_DURATION_MS <= DROP_BEAT_DURATION_MS,
     ]).toEqual([true, true]);
+  });
+
+  it("BD3: a turn-start ability beat gets its own duration, shorter than a quiet beat (so within the DROP ceiling)", () => {
+    expect([
+      beatDurationMs("TURN_START_ABILITY"),
+      TURN_START_ABILITY_BEAT_DURATION_MS < QUIET_BEAT_DURATION_MS,
+    ]).toEqual([TURN_START_ABILITY_BEAT_DURATION_MS, true]);
+  });
+
+  it("BD4: only a turn-start ability beat plays the quick caster pulse", () => {
+    expect([
+      abilityCasterPulseKind("TURN_START_ABILITY"),
+      abilityCasterPulseKind("ABILITY"),
+      abilityCasterPulseKind(undefined),
+    ]).toEqual(["quick", "normal", "normal"]);
   });
 });

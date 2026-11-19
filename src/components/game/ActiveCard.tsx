@@ -7,6 +7,7 @@ import {
   type Easing,
 } from "motion/react";
 import type { BeatType } from "@/lib/battle/types";
+import { abilityCasterPulseKind } from "@/lib/battle/beatDurationMs";
 import type { CurrentBeatEffects } from "@/lib/battle/beatCharacterEffects";
 import type { Character } from "@/lib/game/character";
 import { CharacterCard } from "./CharacterCard";
@@ -206,6 +207,9 @@ export function ActiveCard({
               data-active-card-host
               data-info-control-revealed="false"
               data-ability-acting={beatEffect?.isActing ? "true" : "false"}
+              data-ability-caster-pulse={abilityCasterPulseKind(
+                currentBeatType,
+              )}
               className="relative"
             >
               <div

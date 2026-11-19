@@ -11,6 +11,7 @@ import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/game/character";
 import { CHARACTER_SELL_PRICE } from "@/lib/game/shop";
 import type { BeatCharacterEffect } from "@/lib/battle/beatCharacterEffects";
+import type { AbilityCasterPulseKind } from "@/lib/battle/beatDurationMs";
 import {
   abilityHpGainFromRefresh,
   experienceGainBeat,
@@ -41,6 +42,9 @@ interface RosterSlotProps {
   // Phase 13, display-only: the characters that dropped in this battle
   // beat, so a card leaving because it dropped plays the drop.
   droppedCharacterIds?: ReadonlySet<string>;
+  // Phase 13, display-only: a turn-start ability's beat plays the quick
+  // caster pulse (see abilityCasterPulseKind).
+  abilityCasterPulse?: AbilityCasterPulseKind;
 }
 
 // What a leaving card's exit variant receives (AnimatePresence's custom).
@@ -105,6 +109,7 @@ export function RosterSlot({
   beatKey,
   campStartBeat,
   droppedCharacterIds = NO_DROPPED_CHARACTER_IDS,
+  abilityCasterPulse = "normal",
 }: RosterSlotProps) {
   const prefersReducedMotion = useReducedMotion();
   const showNextHalo = isNext && Boolean(character);
@@ -387,6 +392,7 @@ export function RosterSlot({
       data-ability-acting={
         beatEffect?.isActing || campStartBeat?.isActing ? "true" : "false"
       }
+      data-ability-caster-pulse={abilityCasterPulse}
       {...rosterSlotIndexAttributes}
     >
       <div
