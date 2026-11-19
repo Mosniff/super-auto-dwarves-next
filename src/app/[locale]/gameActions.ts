@@ -8,6 +8,7 @@ import { readCurrentUserId } from "@/lib/supabase/readCurrentUserId";
 import { prismaUserRepository } from "@/lib/persistence/prismaUserRepository";
 import { prismaGameRepository } from "@/lib/persistence/prismaGameRepository";
 import { createGameForUser } from "@/lib/persistence/createGameForUser";
+import { endRunForUser } from "@/lib/persistence/endRunForUser";
 import { advanceGameForUser } from "@/lib/persistence/advanceGameForUser";
 import { buyCharacterForUser } from "@/lib/persistence/buyCharacterForUser";
 import { repositionCharacterForUser } from "@/lib/persistence/repositionCharacterForUser";
@@ -259,6 +260,23 @@ export async function deleteGameAction(): Promise<void> {
   const userId = await requireSignedInUserId();
 
   await prismaGameRepository.deleteGameForUser(userId);
+
+  await redirectToLocalePath("/saves");
+}
+
+// The game-over screen's "Return to menu" (Phase 13): the server alone
+// decides whether the run is over. A lost run's save is deleted and the
+// player goes to /saves (a route change, so a redirect); a refused intent
+// re-renders /play in place.
+export async function endRunAction(): Promise<void> {
+  const userId = await requireSignedInUserId();
+
+  const endRunResult = await endRunForUser(userId, prismaGameRepository);
+
+  if (endRunResult === "runNotLost") {
+    refresh();
+    return;
+  }
 
   await redirectToLocalePath("/saves");
 }

@@ -67,6 +67,15 @@ function buildFakeGameRepository(
   return { gameRepository, recordedSaveGameStateCalls };
 }
 
+// A battle the fixture roster wins: its one 3/5 dwarf beats this 1/1
+// enemy. A lost battle can't be advanced out of (Phase 13), so the
+// battlePhase fixtures must be winnable.
+const fixtureWinnableEnemyEncounter = buildTestEnemyEncounter({
+  enemyCharacters: [
+    buildTestCharacter({ id: "fixture-enemy-1", attack: 1, hp: 1, maxHp: 1 }),
+  ],
+});
+
 function buildFixtureLoadedGameRecord(
   phase: GamePhase,
   day: number,
@@ -80,7 +89,7 @@ function buildFixtureLoadedGameRecord(
     phase,
     persistedCharacterShopSlots: buildFixtureCharacterShopSlots(),
     persistedEnemyEncounter:
-      phase === "battlePhase" ? buildTestEnemyEncounter() : null,
+      phase === "battlePhase" ? fixtureWinnableEnemyEncounter : null,
     revision: 5,
     createdAt: new Date("2026-10-13T00:00:00.000Z"),
   };
@@ -219,7 +228,7 @@ describe("advanceGameForUser", () => {
         LOCKED_CHARACTER_SHOP_SLOT,
       ],
       depth: 1,
-      persistedEnemyEncounter: buildTestEnemyEncounter(),
+      persistedEnemyEncounter: fixtureWinnableEnemyEncounter,
       revision: 5,
       createdAt: new Date("2026-10-13T00:00:00.000Z"),
     };
@@ -305,5 +314,72 @@ describe("advanceGameForUser", () => {
         (recordedCall) => recordedCall.nextGameState.enemyEncounter,
       ),
     ).toEqual([createdEnemyEncounter]);
+  });
+
+  it("AF2: an ordinary advance out of a lost battle is ignored, saving nothing", async () => {
+    const { gameRepository, recordedSaveGameStateCalls } =
+      buildFakeGameRepository({
+        ...buildFixtureLoadedGameRecord("battlePhase", 1),
+        // the fixture dwarf (3/5) loses to this 4/7 enemy
+        persistedEnemyEncounter: buildTestEnemyEncounter({
+          enemyCharacters: [
+            buildTestCharacter({
+              id: "fixture-enemy-1",
+              attack: 4,
+              hp: 7,
+              maxHp: 7,
+            }),
+          ],
+        }),
+      });
+
+    await advanceGameForUser(
+      "fixture-user-1",
+      "battlePhase",
+      gameRepository,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
+    );
+
+    expect(recordedSaveGameStateCalls).toEqual([]);
+  });
+
+  it("AF3: a drawn battle survives: advancing returns to camp", async () => {
+    const drawnPlayerRoster: CampRoster = [
+      buildTestCharacter({ id: "fixture-dwarf-1", attack: 5, hp: 5, maxHp: 5 }),
+      null,
+      null,
+      null,
+      null,
+      null,
+      null,
+    ];
+    const { gameRepository, recordedSaveGameStateCalls } =
+      buildFakeGameRepository({
+        ...buildFixtureLoadedGameRecord("battlePhase", 1),
+        persistedPlayerRoster: drawnPlayerRoster,
+        persistedEnemyEncounter: buildTestEnemyEncounter({
+          enemyCharacters: [
+            buildTestCharacter({
+              id: "fixture-enemy-1",
+              attack: 5,
+              hp: 5,
+              maxHp: 5,
+            }),
+          ],
+        }),
+      });
+
+    await advanceGameForUser(
+      "fixture-user-1",
+      "battlePhase",
+      gameRepository,
+      buildFixtureCharacterShopRollingSources().characterShopRollingSources,
+    );
+
+    expect(
+      recordedSaveGameStateCalls.map(
+        (recordedCall) => recordedCall.nextGameState.phase,
+      ),
+    ).toEqual(["campPhase"]);
   });
 });

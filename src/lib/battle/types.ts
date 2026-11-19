@@ -34,6 +34,9 @@ interface BeatMetadata {
 
 // The event payloads (no beat) — used by the resolver when emitting.
 // Discriminated union of logged state-change events. Starts minimal; grows per-test.
+// How a battle ended; only enemyWin ends the run (Phase 13).
+export type BattleOutcome = "playerWin" | "enemyWin" | "draw";
+
 export type BattleEventPayload =
   | {
       type: "DAMAGE";
@@ -73,7 +76,7 @@ export type BattleEventPayload =
     }
   | {
       type: "BATTLE_END";
-      outcome: "playerWin" | "enemyWin" | "draw";
+      outcome: BattleOutcome;
     }
   | {
       type: "TURN_START";
@@ -130,7 +133,7 @@ export type BattleEventDescriptor =
     }
   | { kind: "drop"; character: string }
   | { kind: "timeout" }
-  | { kind: "battleEnd"; outcome: "playerWin" | "enemyWin" | "draw" }
+  | { kind: "battleEnd"; outcome: BattleOutcome }
   | { kind: "abilityActivate"; abilityId: CharacterAbilityId; character: string }
   | {
       kind: "abilityStatChange";

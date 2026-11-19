@@ -1,4 +1,5 @@
 import { advanceGame } from "@/lib/game/advanceGame";
+import { storedBattleOutcome } from "@/lib/game/storedBattleOutcome";
 import type { GamePhase } from "@/lib/game/types";
 import type { CharacterShopRollingSources } from "@/lib/game/characterShopSlots";
 import type { CreateEnemyEncounter } from "@/lib/game/enemyEncounter";
@@ -39,6 +40,13 @@ export async function advanceGameForUser(
   }
 
   const currentGameState = buildGameStateFromLoadedRecord(loadedGameRecord);
+
+  if (storedBattleOutcome(currentGameState) === "enemyWin") {
+    // A lost battle ends the run; only the end-run intent may leave it
+    // (Phase 13). An ordinary advance (a stale tab or a tampered form) is
+    // ignored, like a stale phase.
+    return;
+  }
 
   const nextGameState = advanceGame(
     currentGameState,
