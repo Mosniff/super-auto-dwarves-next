@@ -14,6 +14,7 @@ function buildFakePlayerSessionDependencies(options: {
 }) {
   const ensureUserExistsCalls: string[] = [];
   let signInAsGuestCallCount = 0;
+  const signInAsGuestCalls: (string | undefined)[] = [];
 
   const userRepository: UserRepository = {
     ensureUserExists: async (userId) => {
@@ -26,8 +27,9 @@ function buildFakePlayerSessionDependencies(options: {
 
   const dependencies: PlayerSessionDependencies = {
     readCurrentUserId: async () => options.currentUserId,
-    signInAsGuest: async () => {
+    signInAsGuest: async (captchaToken?: string) => {
       signInAsGuestCallCount += 1;
+      signInAsGuestCalls.push(captchaToken);
       if (options.signInAsGuestShouldReject) {
         throw new Error("Fixture signInAsGuest rejection.");
       }
@@ -40,6 +42,7 @@ function buildFakePlayerSessionDependencies(options: {
     dependencies,
     ensureUserExistsCalls,
     getSignInAsGuestCallCount: () => signInAsGuestCallCount,
+    signInAsGuestCalls,
   };
 }
 
@@ -107,5 +110,38 @@ describe("startPlayerSession", () => {
     });
 
     await expect(startPlayerSession(dependencies)).rejects.toThrow();
+  });
+
+  it("(g) with no session and a captcha token, passes the token to signInAsGuest exactly once", async () => {
+    const { dependencies, signInAsGuestCalls } =
+      buildFakePlayerSessionDependencies({
+        currentUserId: null,
+        guestUserId: NEW_GUEST_USER_ID,
+      });
+
+    await startPlayerSession(dependencies, "fixture-captcha-token");
+
+    expect(signInAsGuestCalls).toEqual(["fixture-captcha-token"]);
+  });
+
+  it("(h) with no session and no captcha token, calls signInAsGuest with undefined", async () => {
+    const { dependencies, signInAsGuestCalls } =
+      buildFakePlayerSessionDependencies({
+        currentUserId: null,
+        guestUserId: NEW_GUEST_USER_ID,
+      });
+
+    await startPlayerSession(dependencies);
+
+    expect(signInAsGuestCalls).toEqual([undefined]);
+  });
+
+  it("(i) with an existing session and a captcha token, never signs in as guest", async () => {
+    const { dependencies, signInAsGuestCalls } =
+      buildFakePlayerSessionDependencies({ currentUserId: EXISTING_USER_ID });
+
+    await startPlayerSession(dependencies, "fixture-captcha-token");
+
+    expect(signInAsGuestCalls).toEqual([]);
   });
 });
