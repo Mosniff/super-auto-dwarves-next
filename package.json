@@ -14,8 +14,8 @@
   "dependencies": {
     "@dnd-kit/dom": "0.5.3",
     "@dnd-kit/react": "0.5.3",
-    "@prisma/adapter-pg": "7.10.0",
-    "@prisma/client": "7.10.0",
+    "@prisma/adapter-pg": "7.10.1",
+    "@prisma/client": "7.10.1",
     "@supabase/ssr": "0.12.7",
     "@supabase/supabase-js": "2.118.0",
     "class-variance-authority": "^0.7.1",
@@ -44,7 +44,7 @@
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
     "jsdom": "^28.1.0",
-    "prisma": "7.10.0",
+    "prisma": "7.10.1",
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.9"
