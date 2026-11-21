@@ -198,8 +198,10 @@ describe("deriveBattlePlaybackState", () => {
 
     expect(firstAttackDescriptor).toEqual({
       kind: "attack",
-      attacker: "Borin (shown)",
-      target: "Grukk (shown)",
+      // deliberate assertion rewrite: "Borin (shown)" → { name: "Borin (shown)", side: "player" } (Phase 14)
+      attacker: { name: "Borin (shown)", side: "player" },
+      // deliberate assertion rewrite: "Grukk (shown)" → { name: "Grukk (shown)", side: "enemy" } (Phase 14)
+      target: { name: "Grukk (shown)", side: "enemy" },
     });
   });
 });

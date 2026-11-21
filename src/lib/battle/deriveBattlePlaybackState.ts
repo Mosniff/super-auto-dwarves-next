@@ -7,7 +7,7 @@ import type {
 } from "./types";
 import { applyEvent } from "./applyEvent";
 import { describeBattleEvent } from "./describeBattleEvent";
-import { buildNameMap } from "./buildNameMap";
+import { buildCharacterLabelMap } from "./buildCharacterLabelMap";
 import {
   beatCharacterEffects,
   type BeatCharacterEffect,
@@ -28,10 +28,10 @@ export function deriveBattlePlaybackState(
   resolvedBattle: ResolvedBattle,
   playbackBeat: number,
   viewingBeat: number,
-  // the client's translated names for the log (Phase 13); see buildNameMap
+  // the client's translated names for the log (Phase 13); see buildCharacterLabelMap
   displayCharacterName?: (character: Character) => string,
 ): BattlePlaybackView {
-  const nameMap = buildNameMap(
+  const characterLabelMap = buildCharacterLabelMap(
     resolvedBattle.initialState,
     displayCharacterName,
   );
@@ -55,7 +55,7 @@ export function deriveBattlePlaybackState(
   );
   for (const event of resolvedBattle.events) {
     allBeatDescriptors[event.beatIndex].push(
-      describeBattleEvent(event, nameMap),
+      describeBattleEvent(event, characterLabelMap),
     );
   }
 

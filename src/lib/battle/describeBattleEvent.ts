@@ -1,11 +1,15 @@
-import type { BattleEvent, BattleEventDescriptor } from "./types";
+import type {
+  BattleCharacterLabel,
+  BattleEvent,
+  BattleEventDescriptor,
+} from "./types";
 
 export function describeBattleEvent(
   event: BattleEvent,
-  nameMap: Map<string, string>,
+  characterLabelMap: Map<string, BattleCharacterLabel>,
 ): BattleEventDescriptor {
-  const resolveName = (characterId: string) =>
-    nameMap.get(characterId) ?? characterId;
+  const resolveCharacterLabel = (characterId: string): BattleCharacterLabel =>
+    characterLabelMap.get(characterId) ?? { name: characterId, side: "unknown" };
 
   switch (event.type) {
     case "BATTLE_START":
@@ -21,33 +25,33 @@ export function describeBattleEvent(
     case "ATTACK":
       return {
         kind: "attack",
-        attacker: resolveName(event.attackerId),
-        target: resolveName(event.targetId),
+        attacker: resolveCharacterLabel(event.attackerId),
+        target: resolveCharacterLabel(event.targetId),
       };
     case "DAMAGE":
       if (event.sourceAbilityId !== undefined) {
         return {
           kind: "abilityDamage",
           abilityId: event.sourceAbilityId,
-          target: resolveName(event.targetId),
+          target: resolveCharacterLabel(event.targetId),
           amount: event.amount,
         };
       }
       return {
         kind: "damage",
-        target: resolveName(event.targetId),
+        target: resolveCharacterLabel(event.targetId),
         amount: event.amount,
         resultingHp: event.resultingHp,
       };
     case "ARMOUR_DAMAGE":
       return {
         kind: "armourDamage",
-        target: resolveName(event.targetId),
+        target: resolveCharacterLabel(event.targetId),
         amount: event.amount,
         resultingArmour: event.resultingArmour,
       };
     case "DROP":
-      return { kind: "drop", character: resolveName(event.characterId) };
+      return { kind: "drop", character: resolveCharacterLabel(event.characterId) };
     case "TIMEOUT":
       return { kind: "timeout" };
     case "BATTLE_END":
@@ -56,13 +60,13 @@ export function describeBattleEvent(
       return {
         kind: "abilityActivate",
         abilityId: event.abilityId,
-        character: resolveName(event.characterId),
+        character: resolveCharacterLabel(event.characterId),
       };
     case "STAT_CHANGE":
       return {
         kind: "abilityStatChange",
         abilityId: event.sourceAbilityId,
-        target: resolveName(event.targetId),
+        target: resolveCharacterLabel(event.targetId),
         stat: event.stat,
         amount: event.amount,
         resultingValue: event.resultingValue,

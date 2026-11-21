@@ -1,12 +1,12 @@
 import { describe, it, expect } from "vitest";
 import { describeBattleEvent } from "./describeBattleEvent";
-import type { BattleEvent } from "./types";
+import type { BattleCharacterLabel, BattleEvent } from "./types";
 
 describe("describeBattleEvent", () => {
-  const nameMap = new Map([
-    ["p1", "Borin"],
-    ["e1", "Grukk"],
-    ["p3", "Ogden"],
+  const characterLabelMap = new Map<string, BattleCharacterLabel>([
+    ["p1", { name: "Borin", side: "player" }],
+    ["e1", { name: "Grukk", side: "enemy" }],
+    ["p3", { name: "Ogden", side: "player" }],
   ]);
 
   // deliberate assertion rewrite: { type: "BATTLE_START", beatIndex: 0, beatType: "BATTLE_START" } / { kind: "battleStart" } before; event gains playerFactionId: "dwarf", enemyFactionId: "kobold"; expectation becomes { kind: "battleStart", playerFactionId: "dwarf", enemyFactionId: "kobold" } after — Phase 13
@@ -19,7 +19,7 @@ describe("describeBattleEvent", () => {
       beatType: "BATTLE_START",
     };
 
-    expect(describeBattleEvent(event, nameMap)).toEqual({
+    expect(describeBattleEvent(event, characterLabelMap)).toEqual({
       kind: "battleStart",
       playerFactionId: "dwarf",
       enemyFactionId: "kobold",
@@ -41,7 +41,7 @@ describe("describeBattleEvent", () => {
   it("describes TURN_START", () => {
     const event: BattleEvent = { type: "TURN_START", turn: 1, beatIndex: 0, beatType: "TURN_START" };
 
-    expect(describeBattleEvent(event, nameMap)).toEqual({
+    expect(describeBattleEvent(event, characterLabelMap)).toEqual({
       kind: "turnStart",
       turn: 1,
     });
@@ -57,10 +57,12 @@ describe("describeBattleEvent", () => {
       beatType: "CLASH",
     };
 
-    expect(describeBattleEvent(event, nameMap)).toEqual({
+    expect(describeBattleEvent(event, characterLabelMap)).toEqual({
       kind: "attack",
-      attacker: "Borin",
-      target: "Grukk",
+      // deliberate assertion rewrite: "Borin" → { name: "Borin", side: "player" } (Phase 14)
+      attacker: { name: "Borin", side: "player" },
+      // deliberate assertion rewrite: "Grukk" → { name: "Grukk", side: "enemy" } (Phase 14)
+      target: { name: "Grukk", side: "enemy" },
     });
   });
 
@@ -75,9 +77,10 @@ describe("describeBattleEvent", () => {
       beatType: "CLASH",
     };
 
-    expect(describeBattleEvent(event, nameMap)).toEqual({
+    expect(describeBattleEvent(event, characterLabelMap)).toEqual({
       kind: "damage",
-      target: "Grukk",
+      // deliberate assertion rewrite: "Grukk" → { name: "Grukk", side: "enemy" } (Phase 14)
+      target: { name: "Grukk", side: "enemy" },
       amount: 4,
       resultingHp: 2,
     });
@@ -94,9 +97,10 @@ describe("describeBattleEvent", () => {
       beatType: "CLASH",
     };
 
-    expect(describeBattleEvent(event, nameMap)).toEqual({
+    expect(describeBattleEvent(event, characterLabelMap)).toEqual({
       kind: "damage",
-      target: "Grukk",
+      // deliberate assertion rewrite: "Grukk" → { name: "Grukk", side: "enemy" } (Phase 14)
+      target: { name: "Grukk", side: "enemy" },
       amount: 5,
       resultingHp: -1,
     });
@@ -110,16 +114,17 @@ describe("describeBattleEvent", () => {
       beatType: "DROP",
     };
 
-    expect(describeBattleEvent(event, nameMap)).toEqual({
+    expect(describeBattleEvent(event, characterLabelMap)).toEqual({
       kind: "drop",
-      character: "Borin",
+      // deliberate assertion rewrite: "Borin" → { name: "Borin", side: "player" } (Phase 14)
+      character: { name: "Borin", side: "player" },
     });
   });
 
   it("describes TIMEOUT", () => {
     const event: BattleEvent = { type: "TIMEOUT", beatIndex: 0, beatType: "TIMEOUT" };
 
-    expect(describeBattleEvent(event, nameMap)).toEqual({ kind: "timeout" });
+    expect(describeBattleEvent(event, characterLabelMap)).toEqual({ kind: "timeout" });
   });
 
   it("describes BATTLE_END with outcome playerWin", () => {
@@ -130,7 +135,7 @@ describe("describeBattleEvent", () => {
       beatType: "BATTLE_END",
     };
 
-    expect(describeBattleEvent(event, nameMap)).toEqual({
+    expect(describeBattleEvent(event, characterLabelMap)).toEqual({
       kind: "battleEnd",
       outcome: "playerWin",
     });
@@ -144,7 +149,7 @@ describe("describeBattleEvent", () => {
       beatType: "BATTLE_END",
     };
 
-    expect(describeBattleEvent(event, nameMap)).toEqual({
+    expect(describeBattleEvent(event, characterLabelMap)).toEqual({
       kind: "battleEnd",
       outcome: "enemyWin",
     });
@@ -158,7 +163,7 @@ describe("describeBattleEvent", () => {
       beatType: "BATTLE_END",
     };
 
-    expect(describeBattleEvent(event, nameMap)).toEqual({
+    expect(describeBattleEvent(event, characterLabelMap)).toEqual({
       kind: "battleEnd",
       outcome: "draw",
     });
@@ -175,9 +180,10 @@ describe("describeBattleEvent", () => {
       beatType: "CLASH",
     };
 
-    expect(describeBattleEvent(event, nameMap)).toEqual({
+    expect(describeBattleEvent(event, characterLabelMap)).toEqual({
       kind: "armourDamage",
-      target: "Grukk",
+      // deliberate assertion rewrite: "Grukk" → { name: "Grukk", side: "enemy" } (Phase 14)
+      target: { name: "Grukk", side: "enemy" },
       amount: 2,
       resultingArmour: 1,
     });
@@ -192,10 +198,11 @@ describe("describeBattleEvent", () => {
       beatType: "ABILITY",
     };
 
-    expect(describeBattleEvent(event, nameMap)).toEqual({
+    expect(describeBattleEvent(event, characterLabelMap)).toEqual({
       kind: "abilityActivate",
       abilityId: "tighten-those-straps-son",
-      character: "Ogden",
+      // deliberate assertion rewrite: "Ogden" → { name: "Ogden", side: "player" } (Phase 14)
+      character: { name: "Ogden", side: "player" },
     });
   });
 
@@ -212,17 +219,18 @@ describe("describeBattleEvent", () => {
       beatType: "ABILITY",
     };
 
-    expect(describeBattleEvent(event, nameMap)).toEqual({
+    expect(describeBattleEvent(event, characterLabelMap)).toEqual({
       kind: "abilityStatChange",
       abilityId: "tighten-those-straps-son",
-      target: "Borin",
+      // deliberate assertion rewrite: "Borin" → { name: "Borin", side: "player" } (Phase 14)
+      target: { name: "Borin", side: "player" },
       stat: "armour",
       amount: 1,
       resultingValue: 2,
     });
   });
 
-  it("falls back to the raw id when a character id is not in the nameMap", () => {
+  it("falls back to the raw id, with side unknown, when a character id is not in the label map", () => {
     const event: BattleEvent = {
       type: "DROP",
       characterId: "unknown-id",
@@ -230,9 +238,10 @@ describe("describeBattleEvent", () => {
       beatType: "DROP",
     };
 
-    expect(describeBattleEvent(event, nameMap)).toEqual({
+    expect(describeBattleEvent(event, characterLabelMap)).toEqual({
       kind: "drop",
-      character: "unknown-id",
+      // deliberate assertion rewrite: "unknown-id" → { name: "unknown-id", side: "unknown" } (Phase 14)
+      character: { name: "unknown-id", side: "unknown" },
     });
   });
 
@@ -248,10 +257,11 @@ describe("describeBattleEvent", () => {
       beatType: "ABILITY",
     };
 
-    expect(describeBattleEvent(event, nameMap)).toEqual({
+    expect(describeBattleEvent(event, characterLabelMap)).toEqual({
       kind: "abilityDamage",
       abilityId: "yip-strike",
-      target: "Borin",
+      // deliberate assertion rewrite: "Borin" → { name: "Borin", side: "player" } (Phase 14)
+      target: { name: "Borin", side: "player" },
       amount: 1,
     });
   });

@@ -124,7 +124,8 @@ describe("useBattlePlayback", () => {
 
       expect(result.current.currentState).toEqual(finalState);
       expect(result.current.currentBeatDescriptors).toEqual([
-        { kind: "drop", character: "Grukk" },
+        // deliberate assertion rewrite: "Grukk" → { name: "Grukk", side: "enemy" } (Phase 14)
+        { kind: "drop", character: { name: "Grukk", side: "enemy" } },
       ]);
       expect(result.current.canViewNext).toBe(true);
 

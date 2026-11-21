@@ -25,20 +25,33 @@ function renderInfoScroll(currentBeatDescriptors: BattleEventDescriptor[]) {
 describe("InfoScroll", () => {
   it("renders an attack descriptor as interpolated English text", () => {
     renderInfoScroll([
-      { kind: "attack", attacker: "Borin", target: "Grukk" },
+      // deliberate input rewrite: name string → label (Phase 14)
+      {
+        kind: "attack",
+        attacker: { name: "Borin", side: "player" },
+        target: { name: "Grukk", side: "enemy" },
+      },
     ]);
 
-    expect(screen.getByText("Borin attacks Grukk")).toBeInTheDocument();
+    // deliberate assertion rewrite: getByText → queryByText !== null, so a red fails on value; expected text unchanged (Phase 14)
+    expect(screen.queryByText("Borin attacks Grukk") !== null).toBe(true);
   });
 
   it("renders a damage descriptor as interpolated English text", () => {
     renderInfoScroll([
-      { kind: "damage", target: "Grukk", amount: 4, resultingHp: 2 },
+      // deliberate input rewrite: name string → label (Phase 14)
+      {
+        kind: "damage",
+        target: { name: "Grukk", side: "enemy" },
+        amount: 4,
+        resultingHp: 2,
+      },
     ]);
 
+    // deliberate assertion rewrite: getByText → queryByText !== null, so a red fails on value; expected text unchanged (Phase 14)
     expect(
-      screen.getByText("Grukk takes 4 damage (2 HP)"),
-    ).toBeInTheDocument();
+      screen.queryByText("Grukk takes 4 damage (2 HP)") !== null,
+    ).toBe(true);
   });
 
   it("renders a battleEnd playerWin descriptor as Victory!", () => {
@@ -58,12 +71,14 @@ describe("InfoScroll", () => {
       {
         kind: "abilityActivate",
         abilityId: "tighten-those-straps-son",
-        character: "Ogden",
+        // deliberate input rewrite: name string → label (Phase 14)
+        character: { name: "Ogden", side: "player" },
       },
       {
         kind: "abilityStatChange",
         abilityId: "tighten-those-straps-son",
-        target: "Borin",
+        // deliberate input rewrite: name string → label (Phase 14)
+        target: { name: "Borin", side: "player" },
         stat: "armour",
         amount: 1,
         resultingValue: 2,

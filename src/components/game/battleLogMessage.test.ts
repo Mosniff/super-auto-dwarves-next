@@ -35,8 +35,10 @@ describe("battleLogMessage", () => {
   it("maps attack", () => {
     const descriptor: BattleEventDescriptor = {
       kind: "attack",
-      attacker: "Borin",
-      target: "Grukk",
+      // deliberate input rewrite: name string → label (Phase 14)
+      attacker: { name: "Borin", side: "player" },
+      // deliberate input rewrite: name string → label (Phase 14)
+      target: { name: "Grukk", side: "enemy" },
     };
 
     expect(battleLogMessage(descriptor)).toEqual({
@@ -48,7 +50,8 @@ describe("battleLogMessage", () => {
   it("maps damage", () => {
     const descriptor: BattleEventDescriptor = {
       kind: "damage",
-      target: "Grukk",
+      // deliberate input rewrite: name string → label (Phase 14)
+      target: { name: "Grukk", side: "enemy" },
       amount: 4,
       resultingHp: 2,
     };
@@ -62,7 +65,8 @@ describe("battleLogMessage", () => {
   it("maps armourDamage with armour left to armourDamage", () => {
     const descriptor: BattleEventDescriptor = {
       kind: "armourDamage",
-      target: "Grukk",
+      // deliberate input rewrite: name string → label (Phase 14)
+      target: { name: "Grukk", side: "enemy" },
       amount: 2,
       resultingArmour: 1,
     };
@@ -76,7 +80,8 @@ describe("battleLogMessage", () => {
   it("maps armourDamage that breaks the armour to armourBreak", () => {
     const descriptor: BattleEventDescriptor = {
       kind: "armourDamage",
-      target: "Grukk",
+      // deliberate input rewrite: name string → label (Phase 14)
+      target: { name: "Grukk", side: "enemy" },
       amount: 3,
       resultingArmour: 0,
     };
@@ -90,7 +95,8 @@ describe("battleLogMessage", () => {
   it("maps drop", () => {
     const descriptor: BattleEventDescriptor = {
       kind: "drop",
-      character: "Borin",
+      // deliberate input rewrite: name string → label (Phase 14)
+      character: { name: "Borin", side: "player" },
     };
 
     expect(battleLogMessage(descriptor)).toEqual({
@@ -136,7 +142,8 @@ describe("battleLogMessage", () => {
     const descriptor: BattleEventDescriptor = {
       kind: "abilityActivate",
       abilityId: "tighten-those-straps-son",
-      character: "Ogden",
+      // deliberate input rewrite: name string → label (Phase 14)
+      character: { name: "Ogden", side: "player" },
     };
 
     expect(battleLogMessage(descriptor)).toEqual({
@@ -150,7 +157,8 @@ describe("battleLogMessage", () => {
     const descriptor: BattleEventDescriptor = {
       kind: "abilityStatChange",
       abilityId: "tighten-those-straps-son",
-      target: "Borin",
+      // deliberate input rewrite: name string → label (Phase 14)
+      target: { name: "Borin", side: "player" },
       stat: "armour",
       amount: 1,
       resultingValue: 2,
@@ -167,7 +175,8 @@ describe("battleLogMessage", () => {
     const descriptor: BattleEventDescriptor = {
       kind: "abilityDamage",
       abilityId: "yip-strike",
-      target: "Borin",
+      // deliberate input rewrite: name string → label (Phase 14)
+      target: { name: "Borin", side: "player" },
       amount: 1,
     };
 

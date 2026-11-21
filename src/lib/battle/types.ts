@@ -115,6 +115,15 @@ export interface ResolvedBattle {
   events: BattleEvent[];
 }
 
+// Which side a battle-log name belongs to (Phase 14). "unknown" only for
+// an id missing from the label map, which the resolver never produces.
+export type BattleCharacterSide = "player" | "enemy" | "unknown";
+
+export interface BattleCharacterLabel {
+  name: string;
+  side: BattleCharacterSide;
+}
+
 // Structured, language-agnostic descriptors for the battle log — one per
 // BattleEvent kind, carrying only the resolved params a future per-locale
 // message layer needs. Keyed on `kind` (not `type`) to stay visually
@@ -127,28 +136,28 @@ export type BattleEventDescriptor =
     }
   | { kind: "frontsEngage" }
   | { kind: "turnStart"; turn: number }
-  | { kind: "attack"; attacker: string; target: string }
-  | { kind: "damage"; target: string; amount: number; resultingHp: number }
+  | { kind: "attack"; attacker: BattleCharacterLabel; target: BattleCharacterLabel }
+  | { kind: "damage"; target: BattleCharacterLabel; amount: number; resultingHp: number }
   | {
       kind: "abilityDamage";
       abilityId: CharacterAbilityId;
-      target: string;
+      target: BattleCharacterLabel;
       amount: number;
     }
   | {
       kind: "armourDamage";
-      target: string;
+      target: BattleCharacterLabel;
       amount: number;
       resultingArmour: number;
     }
-  | { kind: "drop"; character: string }
+  | { kind: "drop"; character: BattleCharacterLabel }
   | { kind: "timeout" }
   | { kind: "battleEnd"; outcome: BattleOutcome }
-  | { kind: "abilityActivate"; abilityId: CharacterAbilityId; character: string }
+  | { kind: "abilityActivate"; abilityId: CharacterAbilityId; character: BattleCharacterLabel }
   | {
       kind: "abilityStatChange";
       abilityId: CharacterAbilityId;
-      target: string;
+      target: BattleCharacterLabel;
       stat: "armour";
       amount: number;
       resultingValue: number;

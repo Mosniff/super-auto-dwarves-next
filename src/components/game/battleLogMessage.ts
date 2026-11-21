@@ -30,13 +30,13 @@ export function battleLogMessage(
     case "attack":
       return {
         key: "attack",
-        params: { attacker: descriptor.attacker, target: descriptor.target },
+        params: { attacker: descriptor.attacker.name, target: descriptor.target.name },
       };
     case "damage":
       return {
         key: "damage",
         params: {
-          target: descriptor.target,
+          target: descriptor.target.name,
           amount: descriptor.amount,
           resultingHp: descriptor.resultingHp,
         },
@@ -47,13 +47,13 @@ export function battleLogMessage(
       // place that decides what it means, the same way battleEnd's raw
       // outcome maps to its key.
       return descriptor.resultingArmour === 0
-        ? { key: "armourBreak", params: { target: descriptor.target } }
+        ? { key: "armourBreak", params: { target: descriptor.target.name } }
         : {
             key: "armourDamage",
-            params: { target: descriptor.target, amount: descriptor.amount },
+            params: { target: descriptor.target.name, amount: descriptor.amount },
           };
     case "drop":
-      return { key: "drop", params: { character: descriptor.character } };
+      return { key: "drop", params: { character: descriptor.character.name } };
     case "timeout":
       return { key: "timeout" };
     case "battleEnd":
@@ -73,19 +73,19 @@ export function battleLogMessage(
       return {
         namespace: "ability",
         key: `${descriptor.abilityId}.battleCry`,
-        params: { character: descriptor.character },
+        params: { character: descriptor.character.name },
       };
     case "abilityDamage":
       return {
         namespace: "ability",
         key: `${descriptor.abilityId}.targetEffect`,
-        params: { target: descriptor.target, amount: descriptor.amount },
+        params: { target: descriptor.target.name, amount: descriptor.amount },
       };
     case "abilityStatChange":
       return {
         namespace: "ability",
         key: `${descriptor.abilityId}.targetEffect`,
-        params: { target: descriptor.target, amount: descriptor.amount },
+        params: { target: descriptor.target.name, amount: descriptor.amount },
       };
     default: {
       const exhaustiveCheck: never = descriptor;
