@@ -352,7 +352,7 @@
      4/3 turns a card's width into its height (cards are 3:4). */
   --roster-slab-padding-y: clamp(0.5rem, calc(var(--layout-window-height) * 0.016), 1rem);
   --roster-slot-gap: clamp(1rem, calc(var(--layout-window-width) * 0.025), 3rem);
-  --roster-side-area-width: 11rem;
+  --roster-side-area-width: 9rem;
   --roster-card-height: min(
     16rem,
     calc(var(--layout-window-height) * 0.25 - 2 * var(--roster-slab-padding-y)),

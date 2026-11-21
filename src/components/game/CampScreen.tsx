@@ -374,7 +374,7 @@ export function CampScreen({
           playerBenchCharacters={playerCampRoster}
           showsPlayerCharacterProgression
           playerRosterTrailingControls={
-            <div className="flex w-full flex-1 flex-col gap-3 px-6">
+            <div className="flex w-full flex-1 flex-col gap-3 px-2">
               <MergeSellToggle
                 isMergeOrSellModeActive={campInteractionMode === "mergeOrSell"}
                 isLatched={isMergeSellToggleLatched}
