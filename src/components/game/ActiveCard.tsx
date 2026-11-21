@@ -24,8 +24,8 @@ interface ActiveCardProps {
 }
 
 // Starting values — the human tunes these by eye.
-// Scaled 1.5x to match the card's 50% size increase (h-64 w-48 -> h-96 w-72),
-// so the lunge still reads at the same proportion of card width as before.
+// Fixed pixels tuned for the old 288 × 384 card; they don't scale with the
+// window-fitted card (Phase 14). Revisit in the beat-flare work.
 const WIND_UP_OFFSET_PX = 180;
 const LUNGE_OFFSET_PX = 60;
 const OVERSHOOT_OFFSET_PX = 8;

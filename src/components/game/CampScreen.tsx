@@ -445,7 +445,7 @@ export function CampScreen({
               ),
           }}
         >
-          <section className="flex flex-1 flex-col items-center justify-center gap-4 p-6">
+          <section className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 p-(--camp-centre-padding)">
             <ShopPanel
               characterShopSlots={characterShopSlots}
               characterTemplates={characterTemplates}

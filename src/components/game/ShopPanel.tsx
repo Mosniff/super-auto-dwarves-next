@@ -147,12 +147,15 @@ type RecessedShopSlotLook = "open" | "locked" | "comingSoon";
 function ComingSoonLabel() {
   const t = useTranslations("common");
 
+  // One line, never wrapped. On the single-tile Food shelf the label may
+  // extend past the tile into the shelf gap; the overlay ignores pointer
+  // events, so it's harmless.
   return (
     <div
       data-shop-section-coming-soon
-      className="flex items-center gap-2 rounded-md bg-slate-400/80 px-3 py-1.5 text-xl font-medium uppercase tracking-wide text-parchment-200"
+      className="flex items-center gap-2 rounded-md bg-slate-400/80 px-3 py-1.5 whitespace-nowrap text-(length:--shop-coming-soon-font-size) font-medium uppercase tracking-wide text-parchment-200"
     >
-      <Hourglass aria-hidden="true" className="h-4 w-4" />
+      <Hourglass aria-hidden="true" className="size-[1em] shrink-0" />
       {t("shopSectionComingSoonLabel")}
     </div>
   );
