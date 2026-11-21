@@ -399,6 +399,42 @@
     )
   );
   --shop-coming-soon-font-size: clamp(0.75rem, calc(var(--shop-tile-width) * 0.11), 1.25rem);
+
+  /* Expanded card (CharacterDetailDialog). Its insides are fixed rem
+     sizes (about 1,060px tall with the dialog's padding), so the whole
+     card shrinks with CSS zoom, stepped by window height in the media
+     queries after this block. 1 = full size. The human tunes the steps;
+     a smooth rebuild may come with the Part 4 card redesign. */
+  --expanded-card-zoom: 1;
+}
+
+/* Expanded card zoom steps (Phase 14): each step fits the ~1,060px card
+   into windows down to the next step's height. Later rules win, so keep
+   them in descending order. */
+@media (max-height: 1100px) {
+  :root {
+    --expanded-card-zoom: 0.9;
+  }
+}
+@media (max-height: 990px) {
+  :root {
+    --expanded-card-zoom: 0.8;
+  }
+}
+@media (max-height: 880px) {
+  :root {
+    --expanded-card-zoom: 0.7;
+  }
+}
+@media (max-height: 780px) {
+  :root {
+    --expanded-card-zoom: 0.6;
+  }
+}
+@media (max-height: 680px) {
+  :root {
+    --expanded-card-zoom: 0.52;
+  }
 }
 
 @layer base {

@@ -33,15 +33,15 @@ const MODE_LABELS = [
 // it; clicking latches the mode and shows the lock, which is what keeps
 // working once Shift is released.
 //
-// Renders only the toggle button — the hint and the sell box are
-// CampScreen's own, reserved-space siblings in the trailing group
-// (CLAUDE.md -> "Camp: shop, roster and intents").
+// Renders the toggle button, including its mode label and the "(hold SHIFT)"
+// hint; the sell box is CampScreen's own reserved-space sibling in the
+// trailing group (CLAUDE.md → "Camp: shop, roster and intents").
 //
 // The toggle is disabled while a shop card is held: the interaction mode
 // never affects a shop hold (it buys or merge-buys in either mode), so the
 // controls must tell the truth about being inert rather than looking live.
-// A latch stays visible but inert — disabled:opacity-50 dims the labels,
-// the "(hold SHIFT)" sub-label, the track, the knob and the lock together.
+// A latch stays visible but inert — disabled:opacity-50 dims the whole
+// button — mode label, track, knob, lock and hint — together.
 export function MergeSellToggle({
   isMergeOrSellModeActive,
   isLatched,
@@ -66,7 +66,8 @@ export function MergeSellToggle({
       >
         <span aria-hidden="true" className="grid">
           {MODE_LABELS.map(({ mode, translationKey }) => {
-            const isShown = (mode === "mergeOrSell") === isMergeOrSellModeActive;
+            const isShown =
+              (mode === "mergeOrSell") === isMergeOrSellModeActive;
 
             return (
               <span

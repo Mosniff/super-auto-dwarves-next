@@ -55,9 +55,10 @@ export function ExpandedCharacterCard({
   const experienceCaption = experienceBarCaption(character.experience);
 
   return (
+    // The whole card is zoomed to fit the window (globals.css → "Expanded card zoom steps").
     <div
       data-expanded-character-card
-      className="flex items-stretch justify-center gap-(--expanded-card-wing-gap)"
+      className="flex items-stretch justify-center gap-(--expanded-card-wing-gap) [zoom:var(--expanded-card-zoom)]"
     >
       {/* Left wing (future equipment panel) goes here. */}
       <div
