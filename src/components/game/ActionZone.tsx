@@ -61,7 +61,7 @@ export function ActionZone({
           currentBeat={currentBeat}
           onInfoControlOpen={onInfoControlOpen}
         />
-        <div className="h-64 w-md">
+        <div className="h-(--info-scroll-height) w-(--info-scroll-width)">
           <InfoScroll
             currentBeatDescriptors={currentBeatDescriptors}
             onAdvance={onAdvance}

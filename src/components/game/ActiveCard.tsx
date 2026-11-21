@@ -214,7 +214,7 @@ export function ActiveCard({
             >
               <div
                 data-active-card-frame
-                className="relative h-96 w-72 overflow-hidden rounded-xl border-2 p-3"
+                className="relative aspect-3/4 h-(--active-card-height) overflow-hidden rounded-xl border-2 p-3"
                 style={{
                   backgroundColor: "var(--color-portrait-brown)",
                   borderColor: "var(--color-portrait-brown-rim)",
@@ -245,10 +245,10 @@ export function ActiveCard({
             </div>
           ) : (
             // A wiped side's slot: no visible box (no background/border/shadow/
-            // text) but the SAME h-96 w-72 footprint, so the flex row's layout
+            // text) but the same footprint as the frame, so the flex row's layout
             // is unaffected — otherwise justify-center would re-center around
             // the surviving card and InfoScroll (the popLayout-class bug).
-            <div className="h-96 w-72" />
+            <div className="aspect-3/4 h-(--active-card-height)" />
           )}
         </motion.div>
       </motion.div>

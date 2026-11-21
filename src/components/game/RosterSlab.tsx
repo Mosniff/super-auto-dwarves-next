@@ -8,6 +8,7 @@ import { CharacterInfoControl } from "./CharacterInfoControl";
 import { InteractiveRosterSlotButton } from "./InteractiveRosterSlotButton";
 import { RosterSlot } from "./RosterSlot";
 
+// globals.css's --roster-card-height assumes this count (7) and must change with it.
 const SLOT_COUNT = 7;
 
 // Optional click-select (and, in camp, drag-and-drop) wiring for the
@@ -95,9 +96,9 @@ export function RosterSlab({
     // growing it and shifting the slots; controls wider than the box
     // overflow symmetrically rather than moving the roster. The screen
     // decides whether to provide controls; the slab never learns the phase.
-    <div className="flex w-full h-72 bg-linear-to-b from-slate-100 via-slate-200 to-slate-300 px-5 py-4">
+    <div className="flex w-full h-(--roster-slab-height) bg-linear-to-b from-slate-100 via-slate-200 to-slate-300 px-5 py-(--roster-slab-padding-y)">
       <div data-roster-slab-leading-area className="min-w-0 flex-1 basis-0" />
-      <div className="flex h-full shrink-0 flex-row justify-center gap-12">
+      <div className="flex h-full shrink-0 flex-row justify-center gap-(--roster-slot-gap)">
         {slotIndexesInDisplayOrder.map((slotIndex) => {
           const character = characters[slotIndex];
 

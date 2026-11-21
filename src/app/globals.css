@@ -338,6 +338,51 @@
       var(--color-heart-red-400),
       var(--color-heart-red-700)
     );
+
+  /* ── Window-fitting layout (Phase 14) ───────────────
+     The game screen is exactly one window tall. Below the minimum window
+     (--layout-min-width × --layout-min-height) sizes stop shrinking and
+     the page scrolls instead. Containers size from the window, whichever
+     of height and width runs out first; the cards' insides already scale
+     with the card (cqw). Each cap is the size before Phase 14. All
+     values are for the human to tune. */
+  --layout-min-width: 80rem; /* 1280px */
+  --layout-min-height: 40rem; /* 640px */
+  --layout-window-width: max(100vw, var(--layout-min-width));
+  --layout-window-height: max(100dvh, var(--layout-min-height));
+
+  --game-header-height: clamp(3rem, calc(var(--layout-window-height) * 0.07), 4.5rem);
+  --phase-banner-height: clamp(2.5rem, calc(var(--layout-window-height) * 0.07), 4.25rem);
+  --phase-banner-font-size: clamp(1.25rem, calc(var(--layout-window-height) * 0.03), 1.875rem);
+
+  /* Roster slabs (both sides). The width term reserves the slab's side
+     padding (2.5rem), room either side of the slot row for camp's
+     controls, and the gaps between slots; 7 is RosterSlab's slot count;
+     4/3 turns a card's width into its height (cards are 3:4). */
+  --roster-slab-padding-y: clamp(0.5rem, calc(var(--layout-window-height) * 0.016), 1rem);
+  --roster-slot-gap: clamp(1rem, calc(var(--layout-window-width) * 0.025), 3rem);
+  --roster-side-area-width: 11rem;
+  --roster-card-height: min(
+    16rem,
+    calc(var(--layout-window-height) * 0.25 - 2 * var(--roster-slab-padding-y)),
+    calc(
+      (var(--layout-window-width) - 2.5rem - 2 * var(--roster-side-area-width) - 6 * var(--roster-slot-gap))
+        / 7 * 4 / 3
+    )
+  );
+  --roster-slab-height: calc(var(--roster-card-height) + 2 * var(--roster-slab-padding-y));
+
+  /* Battle centre: the height left between the two slabs (0.25rem is
+     the player slab's iron bottom edge). */
+  --battle-centre-padding: clamp(0.5rem, calc(var(--layout-window-height) * 0.02), 1.5rem);
+  --battle-centre-height: calc(
+    var(--layout-window-height) - var(--game-header-height) - var(--phase-banner-height)
+      - 2 * var(--roster-slab-height) - 0.25rem
+  );
+  --active-card-height: min(24rem, calc(var(--battle-centre-height) - 2 * var(--battle-centre-padding)));
+  --info-scroll-height: min(16rem, calc(var(--active-card-height) * 0.85));
+  --info-scroll-width: min(28rem, calc(var(--layout-window-width) * 0.3));
+  --discard-pile-height: var(--roster-card-height);
 }
 
 @layer base {

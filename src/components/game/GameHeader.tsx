@@ -33,7 +33,7 @@ export async function GameHeader({
   return (
     <header className="w-full">
       {/* ── Utility strip ─────────────────────────────── */}
-      <div className="flex items-center justify-between border-b border-iron-900/40 bg-slate-300 px-4 py-4">
+      <div className="flex items-center justify-between border-b border-iron-900/40 bg-slate-300 h-(--game-header-height) px-4">
         <div className="flex items-center gap-4">
           <span className="text-xl font-semibold tracking-wide text-parchment-50">
             {t("appName")}

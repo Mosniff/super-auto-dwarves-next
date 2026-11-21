@@ -50,7 +50,7 @@ export function GameScreen({
       <PhaseAdvanceAvailabilityProvider>
         <PhaseArrivalProvider phase={phase}>
           <HeaderGoldDisplayProvider>
-            <div className="flex flex-1 flex-col">
+            <div className="flex min-h-0 flex-1 flex-col">
               {header}
               <div className="grid flex-1 grid-cols-1 grid-rows-1 overflow-hidden">
                 <AnimatePresence initial={false}>

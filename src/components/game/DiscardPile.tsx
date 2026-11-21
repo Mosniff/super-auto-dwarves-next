@@ -7,8 +7,6 @@ interface DiscardPileProps {
   variant: "player" | "enemy";
 }
 
-const CARD_WIDTH_PX = 192; // w-48
-const CARD_HEIGHT_PX = 256; // h-64
 
 const RING_INSET_PX = 12; // breathing room around the card-back
 
@@ -22,10 +20,7 @@ export function DiscardPile({ downedCharacters }: DiscardPileProps) {
   const t = useTranslations("common");
 
   return (
-    <div
-      className="relative shrink-0"
-      style={{ width: CARD_WIDTH_PX, height: CARD_HEIGHT_PX }}
-    >
+    <div className="relative aspect-3/4 h-(--discard-pile-height) shrink-0">
       {hasDowned && (
         // Blank card-back — no character info, no portrait, no stats. Stays
         // exactly like this as the pile grows; only the count badge changes.

@@ -47,7 +47,7 @@ export function GameScreenShell({
   // departing screen.
   return (
     <main
-      className="flex flex-1 flex-col"
+      className="flex min-h-0 flex-1 flex-col"
       data-game-screen-presence={isPresent ? "present" : "exiting"}
     >
       <div
@@ -80,7 +80,7 @@ export function GameScreenShell({
           in from the right (see GameScreen). */}
       <motion.div
         data-game-screen-region="content"
-        className="flex flex-1 flex-col"
+        className="flex min-h-0 flex-1 flex-col"
         inert={!isPresent}
         initial={prefersReducedMotion ? false : { x: "100%" }}
         animate={{ x: "0%" }}
