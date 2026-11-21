@@ -1,11 +1,38 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Flag,
+  Swords,
+  HeartCrack,
+  Shield,
+  ShieldOff,
+  Skull,
+  Hourglass,
+  Sparkles,
+  type LucideIcon,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { battleLogMessage } from "@/components/game/battleLogMessage";
+import {
+  battleLogLinePresentation,
+  type BattleLogLineIcon,
+} from "@/components/game/battleLogLinePresentation";
 import { textHighlightTags } from "@/components/game/textHighlightTags";
 import type { BattleEventDescriptor } from "@/lib/battle/types";
+
+const BATTLE_LOG_LINE_ICONS: Record<BattleLogLineIcon, LucideIcon> = {
+  flag: Flag,
+  swords: Swords,
+  damage: HeartCrack,
+  armour: Shield,
+  armourBreak: ShieldOff,
+  drop: Skull,
+  timeout: Hourglass,
+  ability: Sparkles,
+};
 
 const ROD_GRADIENT =
   "linear-gradient(to bottom, var(--color-parchment-200), var(--color-parchment-50) 45%, var(--color-parchment-400))";
@@ -88,17 +115,39 @@ export function InfoScroll({
                   ),
                 };
 
+                const presentation =
+                  battleLogLinePresentation(currentBeatDescriptor);
+                const LineIcon =
+                  presentation.icon === null
+                    ? null
+                    : BATTLE_LOG_LINE_ICONS[presentation.icon];
+
                 return (
-                  <li key={index} className="text-sm text-ink-700">
-                    {message.namespace === "ability"
-                      ? translateAbility.rich(message.key, {
-                          ...messageParams,
-                          ...textHighlightTags(message.characterSides),
-                        })
-                      : t.rich(message.key, {
-                          ...messageParams,
-                          ...textHighlightTags(message.characterSides),
-                        })}
+                  <li
+                    key={index}
+                    data-log-line-icon={presentation.icon ?? undefined}
+                    data-log-line-emphasis={presentation.emphasis}
+                    data-log-line-side={presentation.markerSide ?? undefined}
+                    className="flex items-start gap-2 text-sm text-ink-700"
+                  >
+                    {LineIcon !== null && (
+                      <LineIcon
+                        aria-hidden="true"
+                        data-log-line-icon-glyph
+                        className="mt-0.5 size-[1em] shrink-0"
+                      />
+                    )}
+                    <span>
+                      {message.namespace === "ability"
+                        ? translateAbility.rich(message.key, {
+                            ...messageParams,
+                            ...textHighlightTags(message.characterSides),
+                          })
+                        : t.rich(message.key, {
+                            ...messageParams,
+                            ...textHighlightTags(message.characterSides),
+                          })}
+                    </span>
                   </li>
                 );
               })}

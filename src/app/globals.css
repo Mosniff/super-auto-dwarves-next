@@ -878,3 +878,44 @@
 [data-expanded-card-ability-box] [data-highlight="number"] {
   color: var(--highlight-ability-number-colour);
 }
+
+/* ── Battle log lines (Phase 14) ─────────────────────
+   InfoScroll's <li> carries data-log-line-emphasis / -side / -icon from
+   battleLogLinePresentation. A thin edge in the acting side's colour; the
+   turn as a centred divider; the outcome large and centred. The human
+   tunes these. */
+[data-log-line-emphasis="line"] {
+  border-left: 3px solid transparent;
+  padding-left: 0.5rem;
+}
+[data-log-line-side="player"] {
+  border-left-color: var(--highlight-player-colour);
+}
+[data-log-line-side="enemy"] {
+  border-left-color: var(--highlight-enemy-colour);
+}
+[data-log-line-side="player"] [data-log-line-icon-glyph] {
+  color: var(--highlight-player-colour);
+}
+[data-log-line-side="enemy"] [data-log-line-icon-glyph] {
+  color: var(--highlight-enemy-colour);
+}
+[data-log-line-emphasis="turnHeading"] {
+  align-items: center;
+  font-variant: small-caps;
+  letter-spacing: 0.08em;
+  font-weight: 600;
+  opacity: 0.75;
+}
+[data-log-line-emphasis="turnHeading"]::before,
+[data-log-line-emphasis="turnHeading"]::after {
+  content: "";
+  flex: 1;
+  border-top: 1px solid currentColor;
+  opacity: 0.5;
+}
+[data-log-line-emphasis="outcome"] {
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+}

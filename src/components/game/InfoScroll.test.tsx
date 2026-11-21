@@ -38,6 +38,14 @@ function logHighlights() {
   );
 }
 
+function logLinePresentations() {
+  return [...document.querySelectorAll("li")].map((logLine) => ({
+    icon: logLine.getAttribute("data-log-line-icon"),
+    emphasis: logLine.getAttribute("data-log-line-emphasis"),
+    side: logLine.getAttribute("data-log-line-side"),
+  }));
+}
+
 describe("InfoScroll", () => {
   it("renders an attack descriptor as interpolated English text", () => {
     renderInfoScroll([
@@ -169,6 +177,39 @@ describe("InfoScroll", () => {
       { highlight: "character", side: "player", text: "Ogden" },
       { highlight: "character", side: "player", text: "Borin" },
       { highlight: "number", side: null, text: "1" },
+    ]);
+  });
+
+  it("IL1: each line carries its icon, emphasis and side as data attributes", () => {
+    renderInfoScroll([
+      {
+        kind: "attack",
+        attacker: { name: "Grukk", side: "enemy" },
+        target: { name: "Borin", side: "player" },
+      },
+      {
+        kind: "damage",
+        target: { name: "Borin", side: "player" },
+        amount: 2,
+        resultingHp: 3,
+      },
+    ]);
+
+    expect(logLinePresentations()).toEqual([
+      { icon: "swords", emphasis: "line", side: "enemy" },
+      { icon: "damage", emphasis: "line", side: "player" },
+    ]);
+  });
+
+  it("IL2: a turn line is a heading and an outcome line is emphasised, with no icon or side", () => {
+    renderInfoScroll([
+      { kind: "turnStart", turn: 3 },
+      { kind: "battleEnd", outcome: "enemyWin" },
+    ]);
+
+    expect(logLinePresentations()).toEqual([
+      { icon: null, emphasis: "turnHeading", side: null },
+      { icon: null, emphasis: "outcome", side: null },
     ]);
   });
 });
