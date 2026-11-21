@@ -1,5 +1,6 @@
 import type { BattleEventDescriptor } from "@/lib/battle/types";
 import type { CharacterFactionId } from "@/lib/game/characterFactions";
+import type { CharacterNameSides } from "./textHighlightTags";
 
 export function battleLogMessage(
   descriptor: BattleEventDescriptor,
@@ -13,6 +14,8 @@ export function battleLogMessage(
   // Faction ids the leaf translates into each faction's pluralName (the
   // faction namespace) and adds to params under these names (Phase 13).
   factionParams?: Record<string, CharacterFactionId>;
+  // each name parameter's side, for the leaf's highlight colours (Phase 14)
+  characterSides?: CharacterNameSides;
 } {
   switch (descriptor.kind) {
     case "battleStart":
@@ -31,6 +34,10 @@ export function battleLogMessage(
       return {
         key: "attack",
         params: { attacker: descriptor.attacker.name, target: descriptor.target.name },
+        characterSides: {
+          attacker: descriptor.attacker.side,
+          target: descriptor.target.side,
+        },
       };
     case "damage":
       return {
@@ -40,6 +47,7 @@ export function battleLogMessage(
           amount: descriptor.amount,
           resultingHp: descriptor.resultingHp,
         },
+        characterSides: { target: descriptor.target.side },
       };
     case "armourDamage":
       // The break/absorb choice lives here, not in the descriptor — the
@@ -47,13 +55,22 @@ export function battleLogMessage(
       // place that decides what it means, the same way battleEnd's raw
       // outcome maps to its key.
       return descriptor.resultingArmour === 0
-        ? { key: "armourBreak", params: { target: descriptor.target.name } }
+        ? {
+            key: "armourBreak",
+            params: { target: descriptor.target.name },
+            characterSides: { target: descriptor.target.side },
+          }
         : {
             key: "armourDamage",
             params: { target: descriptor.target.name, amount: descriptor.amount },
+            characterSides: { target: descriptor.target.side },
           };
     case "drop":
-      return { key: "drop", params: { character: descriptor.character.name } };
+      return {
+        key: "drop",
+        params: { character: descriptor.character.name },
+        characterSides: { character: descriptor.character.side },
+      };
     case "timeout":
       return { key: "timeout" };
     case "battleEnd":
@@ -74,18 +91,21 @@ export function battleLogMessage(
         namespace: "ability",
         key: `${descriptor.abilityId}.battleCry`,
         params: { character: descriptor.character.name },
+        characterSides: { character: descriptor.character.side },
       };
     case "abilityDamage":
       return {
         namespace: "ability",
         key: `${descriptor.abilityId}.targetEffect`,
         params: { target: descriptor.target.name, amount: descriptor.amount },
+        characterSides: { target: descriptor.target.side },
       };
     case "abilityStatChange":
       return {
         namespace: "ability",
         key: `${descriptor.abilityId}.targetEffect`,
         params: { target: descriptor.target.name, amount: descriptor.amount },
+        characterSides: { target: descriptor.target.side },
       };
     default: {
       const exhaustiveCheck: never = descriptor;

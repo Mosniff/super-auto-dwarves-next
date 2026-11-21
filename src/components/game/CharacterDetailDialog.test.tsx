@@ -105,4 +105,31 @@ describe("CharacterDetailDialog", () => {
       describedById ? document.getElementById(describedById)?.textContent : undefined,
     ).toBe("Gain more HP per promotion");
   });
+
+  it("CD-H1: each level text highlights its number", () => {
+    renderWithMessages(
+      <CharacterDetailDialog
+        character={fixtureCharacter}
+        open
+        onOpenChange={() => {}}
+      />,
+    );
+
+    expect(
+      [
+        ...document.querySelectorAll(
+          "[data-ability-level-text] [data-highlight]",
+        ),
+      ].map((highlightElement) => [
+        highlightElement.getAttribute("data-highlight"),
+        highlightElement.textContent,
+      ]),
+    ).toEqual([
+      ["number", "+1"],
+      ["number", "+2"],
+      ["number", "+3"],
+      ["number", "+4"],
+      ["number", "+5"],
+    ]);
+  });
 });

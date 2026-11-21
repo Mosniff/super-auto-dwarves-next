@@ -8,6 +8,7 @@ import type { CharacterAbility } from "@/lib/game/characterAbilities";
 import { findCharacterAbilityForCharacter } from "@/lib/game/characterAbilityLookup";
 import { abilityDescriptionMessages } from "./abilityDescriptionMessages";
 import { ExpandedCharacterCard } from "./ExpandedCharacterCard";
+import { textHighlightTags } from "./textHighlightTags";
 import { useCharacterDisplayName } from "./characterDisplayName";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,7 +44,7 @@ function AbilityDescription({ ability }: { ability: CharacterAbility }) {
       </p>
       <DialogDescription asChild>
         <p data-ability-summary className="italic">
-          {t(summaryKey)}
+          {t.rich(summaryKey, textHighlightTags())}
         </p>
       </DialogDescription>
       <ol className="flex flex-col gap-2">
@@ -56,7 +57,12 @@ function AbilityDescription({ ability }: { ability: CharacterAbility }) {
             <span data-ability-level-label className="shrink-0 font-bold">
               {tCommon("levelPill", { level: levelIndex + 1 })}
             </span>
-            <span data-ability-level-text>{t(levelText.key, levelText.params)}</span>
+            <span data-ability-level-text>
+              {t.rich(levelText.key, {
+                ...levelText.params,
+                ...textHighlightTags(),
+              })}
+            </span>
           </li>
         ))}
       </ol>

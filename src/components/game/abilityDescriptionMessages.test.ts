@@ -22,14 +22,16 @@ function renderAbilityTexts(
     getMessageFallback: ({ namespace, key }) => `MISSING:${namespace}.${key}`,
   });
 
-  // createTranslator infers strict key/ICU-argument types from `messages`;
-  // production code uses useTranslations without typed messages (see
-  // InfoScroll's t(message.key, message.params)), whose t is loosely typed.
-  // This test-only cast stands in for that looser signature.
-  const translate = translator as (
+  // deliberate test-helper rewrite: translate through markup with identity tags (Phase 14)
+  // Ability texts carry rich-text highlight tags (Phase 14); markup renders
+  // them to a plain string with each tag as an identity, so these tests keep
+  // checking the words. Test-only cast for the looser production signature.
+  const translateMarkup = translator.markup as (
     key: string,
-    values?: Record<string, number>,
+    values?: Record<string, number | ((chunks: string) => string)>,
   ) => string;
+  const translate = (key: string, values: Record<string, number> = {}) =>
+    translateMarkup(key, { ...values, number: (chunks) => chunks });
 
   const { nameKey, summaryKey, levelTexts } = abilityDescriptionMessages(ability);
 

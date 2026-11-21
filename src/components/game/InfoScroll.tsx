@@ -4,6 +4,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { battleLogMessage } from "@/components/game/battleLogMessage";
+import { textHighlightTags } from "@/components/game/textHighlightTags";
 import type { BattleEventDescriptor } from "@/lib/battle/types";
 
 const ROD_GRADIENT =
@@ -90,8 +91,14 @@ export function InfoScroll({
                 return (
                   <li key={index} className="text-sm text-ink-700">
                     {message.namespace === "ability"
-                      ? translateAbility(message.key, messageParams)
-                      : t(message.key, messageParams)}
+                      ? translateAbility.rich(message.key, {
+                          ...messageParams,
+                          ...textHighlightTags(message.characterSides),
+                        })
+                      : t.rich(message.key, {
+                          ...messageParams,
+                          ...textHighlightTags(message.characterSides),
+                        })}
                   </li>
                 );
               })}

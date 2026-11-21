@@ -128,6 +128,7 @@
 
   /* ── Copper (warm metal accent) ──────────────────── */
   --color-copper-300: #c08a5e; /* light copper — highlight / gradient top */
+  --color-copper-400: #b8703f; /* bright copper: ability-text numbers (Phase 14) */
   --color-copper-500: #9c6440; /* primary copper */
   --color-copper-700: #6e4329; /* dark copper — gradient bottom / shadow */
 }
@@ -342,35 +343,67 @@
   --layout-window-width: max(100vw, var(--layout-min-width));
   --layout-window-height: max(100dvh, var(--layout-min-height));
 
-  --game-header-height: clamp(3rem, calc(var(--layout-window-height) * 0.07), 4.5rem);
-  --phase-banner-height: clamp(2.5rem, calc(var(--layout-window-height) * 0.07), 4.25rem);
-  --phase-banner-font-size: clamp(1.25rem, calc(var(--layout-window-height) * 0.03), 1.875rem);
+  --game-header-height: clamp(
+    3rem,
+    calc(var(--layout-window-height) * 0.07),
+    4.5rem
+  );
+  --phase-banner-height: clamp(
+    2.5rem,
+    calc(var(--layout-window-height) * 0.07),
+    4.25rem
+  );
+  --phase-banner-font-size: clamp(
+    1.25rem,
+    calc(var(--layout-window-height) * 0.03),
+    1.875rem
+  );
 
   /* Roster slabs (both sides). The width term reserves the slab's side
      padding (2.5rem), room either side of the slot row for camp's
      controls, and the gaps between slots; 7 is RosterSlab's slot count;
      4/3 turns a card's width into its height (cards are 3:4). */
-  --roster-slab-padding-y: clamp(0.5rem, calc(var(--layout-window-height) * 0.016), 1rem);
-  --roster-slot-gap: clamp(1rem, calc(var(--layout-window-width) * 0.025), 3rem);
+  --roster-slab-padding-y: clamp(
+    0.5rem,
+    calc(var(--layout-window-height) * 0.016),
+    1rem
+  );
+  --roster-slot-gap: clamp(
+    1rem,
+    calc(var(--layout-window-width) * 0.025),
+    3rem
+  );
   --roster-side-area-width: 9rem;
   --roster-card-height: min(
     16rem,
     calc(var(--layout-window-height) * 0.25 - 2 * var(--roster-slab-padding-y)),
     calc(
-      (var(--layout-window-width) - 2.5rem - 2 * var(--roster-side-area-width) - 6 * var(--roster-slot-gap))
-        / 7 * 4 / 3
+      (
+          var(--layout-window-width) - 2.5rem - 2 *
+            var(--roster-side-area-width) - 6 * var(--roster-slot-gap)
+        ) /
+        7 * 4 / 3
     )
   );
-  --roster-slab-height: calc(var(--roster-card-height) + 2 * var(--roster-slab-padding-y));
+  --roster-slab-height: calc(
+    var(--roster-card-height) + 2 * var(--roster-slab-padding-y)
+  );
 
   /* Battle centre: the height left between the two slabs (0.25rem is
      the player slab's iron bottom edge). */
-  --battle-centre-padding: clamp(0.5rem, calc(var(--layout-window-height) * 0.02), 1.5rem);
-  --battle-centre-height: calc(
-    var(--layout-window-height) - var(--game-header-height) - var(--phase-banner-height)
-      - 2 * var(--roster-slab-height) - 0.25rem
+  --battle-centre-padding: clamp(
+    0.5rem,
+    calc(var(--layout-window-height) * 0.02),
+    1.5rem
   );
-  --active-card-height: min(24rem, calc(var(--battle-centre-height) - 2 * var(--battle-centre-padding)));
+  --battle-centre-height: calc(
+    var(--layout-window-height) - var(--game-header-height) -
+      var(--phase-banner-height) - 2 * var(--roster-slab-height) - 0.25rem
+  );
+  --active-card-height: min(
+    24rem,
+    calc(var(--battle-centre-height) - 2 * var(--battle-centre-padding))
+  );
   --info-scroll-height: min(16rem, calc(var(--active-card-height) * 0.85));
   --info-scroll-width: min(28rem, calc(var(--layout-window-width) * 0.3));
   --discard-pile-height: var(--roster-card-height);
@@ -382,23 +415,41 @@
      tile width. The 2560×1440 cap matches the old 3xl size. */
   --camp-centre-padding: var(--battle-centre-padding);
   --camp-centre-height: calc(
-    var(--layout-window-height) - var(--game-header-height) - var(--phase-banner-height)
-      - var(--roster-slab-height) - 0.25rem
+    var(--layout-window-height) - var(--game-header-height) -
+      var(--phase-banner-height) - var(--roster-slab-height) - 0.25rem
   );
-  --shop-tile-gap: clamp(0.5rem, calc(var(--layout-window-width) * 0.008), 1.25rem);
-  --shop-section-gap: clamp(1.5rem, calc(var(--layout-window-width) * 0.025), 6rem);
+  --shop-tile-gap: clamp(
+    0.5rem,
+    calc(var(--layout-window-width) * 0.008),
+    1.25rem
+  );
+  --shop-section-gap: clamp(
+    1.5rem,
+    calc(var(--layout-window-width) * 0.025),
+    6rem
+  );
   --shop-tile-width: min(
     13.5rem,
     calc(
-      (var(--camp-centre-height) - 2 * var(--camp-centre-padding) - 1.75rem - var(--shop-tile-gap))
-        * 3 / 8
+      (
+          var(--camp-centre-height) - 2 * var(--camp-centre-padding) - 1.75rem -
+            var(--shop-tile-gap)
+        ) *
+        3 / 8
     ),
     calc(
-      (var(--layout-window-width) - 2 * var(--camp-centre-padding) - 4rem
-        - 5 * var(--shop-tile-gap) - 3 * var(--shop-section-gap)) / 9
+      (
+          var(--layout-window-width) - 2 * var(--camp-centre-padding) - 4rem -
+            5 * var(--shop-tile-gap) - 3 * var(--shop-section-gap)
+        ) /
+        9
     )
   );
-  --shop-coming-soon-font-size: clamp(0.75rem, calc(var(--shop-tile-width) * 0.11), 1.25rem);
+  --shop-coming-soon-font-size: clamp(
+    0.75rem,
+    calc(var(--shop-tile-width) * 0.11),
+    1.25rem
+  );
 
   /* Expanded card (CharacterDetailDialog). Its insides are fixed rem
      sizes (about 1,060px tall with the dialog's padding), so the whole
@@ -743,8 +794,7 @@
   }
   [data-ability-acting="true"] [data-roster-slot-beat-target],
   [data-ability-acting="true"] [data-active-card-frame] {
-    animation: ability-caster-pulse var(--ability-caster-duration)
-      ease-in-out;
+    animation: ability-caster-pulse var(--ability-caster-duration) ease-in-out;
   }
   [data-ability-caster-pulse="quick"] {
     --ability-caster-duration: var(--ability-caster-quick-duration);
@@ -799,4 +849,32 @@
   [data-armour-beat="broken"] {
     display: none;
   }
+}
+
+/* ── Text highlights (Phase 14) ─────────────────────
+   Rich-text tags in the battle log and the expanded card's ability box
+   render as [data-highlight] spans (textHighlightTags.tsx): character
+   names coloured by side, game-value numbers in their own colour. The
+   human tunes these. */
+:root {
+  --highlight-font-weight: 600;
+  --highlight-player-colour: #1f5f8b;
+  --highlight-enemy-colour: #a3321f;
+  --highlight-number-colour: #8a5a12;
+  --highlight-ability-number-colour: var(--color-copper-400);
+}
+[data-highlight] {
+  font-weight: var(--highlight-font-weight);
+}
+[data-highlight="character"][data-side="player"] {
+  color: var(--highlight-player-colour);
+}
+[data-highlight="character"][data-side="enemy"] {
+  color: var(--highlight-enemy-colour);
+}
+[data-highlight="number"] {
+  color: var(--highlight-number-colour);
+}
+[data-expanded-card-ability-box] [data-highlight="number"] {
+  color: var(--highlight-ability-number-colour);
 }

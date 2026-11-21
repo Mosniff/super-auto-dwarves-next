@@ -429,3 +429,153 @@ describe("locale message parity", () => {
     });
   });
 });
+
+describe("rich-text highlight tags", () => {
+  const HIGHLIGHT_TAG_NAMES = [
+    "attackerName",
+    "targetName",
+    "characterName",
+    "number",
+  ];
+  // characterTypeLabel's slot tags (Phase 13), the only other tags in use.
+  const KNOWN_TAG_NAMES = [...HIGHLIGHT_TAG_NAMES, "faction", "classes"];
+  const CHARACTER_NAME_PLACEHOLDER_NAMES = ["attacker", "target", "character"];
+  const VALUE_PLACEHOLDER_NAMES = [
+    "amount",
+    "resultingHp",
+    "extraHp",
+    "armour",
+    "gold",
+    "damage",
+    "count",
+  ];
+  // Rendered as plain text (t(), not t.rich), so they must carry no tags.
+  const PLAIN_TEXT_BATTLE_KEYS = [
+    "armourGainFloater",
+    "armourBreakFloater",
+    "abilityHpLossFloater",
+  ];
+  const messagesByLocale: Record<string, Record<string, unknown>> = {
+    en: englishMessages,
+    ja: japaneseMessages,
+  };
+
+  function flattenMessages(
+    messages: unknown,
+    pathPrefix = "",
+  ): [string, string][] {
+    if (typeof messages === "string") return [[pathPrefix, messages]];
+    return Object.entries(messages as Record<string, unknown>).flatMap(
+      ([key, value]) =>
+        flattenMessages(value, pathPrefix === "" ? key : `${pathPrefix}.${key}`),
+    );
+  }
+
+  // Battle-log and ability-description messages: battle minus the floaters,
+  // ability minus the names.
+  function richTextMessages(locale: string): [string, string][] {
+    const messages = messagesByLocale[locale];
+    return [
+      ...flattenMessages(messages.battle, "battle").filter(
+        ([path]) =>
+          !PLAIN_TEXT_BATTLE_KEYS.some(
+            (plainTextKey) => path === `battle.${plainTextKey}`,
+          ),
+      ),
+      ...flattenMessages(messages.ability, "ability").filter(
+        ([path]) => !path.endsWith(".name"),
+      ),
+    ];
+  }
+
+  function tagNamesIn(message: string): string[] {
+    return [
+      ...new Set(
+        [...message.matchAll(/<\/?([A-Za-z][\w-]*)>/g)].map(
+          (match) => match[1],
+        ),
+      ),
+    ].sort();
+  }
+
+  it("HT1: every tag in either locale is a known tag", () => {
+    const unknownTags = Object.keys(messagesByLocale).flatMap((locale) =>
+      flattenMessages(messagesByLocale[locale]).flatMap(([path, message]) =>
+        tagNamesIn(message)
+          .filter((tagName) => !KNOWN_TAG_NAMES.includes(tagName))
+          .map((tagName) => `${locale}:${path}:${tagName}`),
+      ),
+    );
+
+    expect(unknownTags).toEqual([]);
+  });
+
+  it("HT2: each message uses the same tags in both locales", () => {
+    const japaneseMessagesByPath = new Map(flattenMessages(japaneseMessages));
+    const mismatchingPaths = flattenMessages(englishMessages)
+      .filter(
+        ([path, englishMessage]) =>
+          JSON.stringify(tagNamesIn(englishMessage)) !==
+          JSON.stringify(tagNamesIn(japaneseMessagesByPath.get(path) ?? "")),
+      )
+      .map(([path]) => path);
+
+    expect(mismatchingPaths).toEqual([]);
+  });
+
+  it("HT3: every character-name placeholder is wrapped in its own tag", () => {
+    const unwrappedPlaceholders = Object.keys(messagesByLocale).flatMap(
+      (locale) =>
+        richTextMessages(locale).flatMap(([path, message]) =>
+          CHARACTER_NAME_PLACEHOLDER_NAMES.filter(
+            (placeholderName) =>
+              message.split(`{${placeholderName}}`).length !==
+              message.split(
+                `<${placeholderName}Name>{${placeholderName}}</${placeholderName}Name>`,
+              ).length,
+          ).map((placeholderName) => `${locale}:${path}:${placeholderName}`),
+        ),
+    );
+
+    expect(unwrappedPlaceholders).toEqual([]);
+  });
+
+  it("HT4: every game-value placeholder sits inside a number tag", () => {
+    const untaggedValuePlaceholders = Object.keys(messagesByLocale).flatMap(
+      (locale) =>
+        richTextMessages(locale).flatMap(([path, message]) => {
+          const messageOutsideNumberTags = message.replace(
+            /<number>[\s\S]*?<\/number>/g,
+            "",
+          );
+          return VALUE_PLACEHOLDER_NAMES.filter((placeholderName) =>
+            messageOutsideNumberTags.includes(`{${placeholderName}}`),
+          ).map((placeholderName) => `${locale}:${path}:${placeholderName}`);
+        }),
+    );
+
+    expect(untaggedValuePlaceholders).toEqual([]);
+  });
+
+  it("HT5: plain-text messages (floaters, ability names) carry no tags", () => {
+    const taggedPlainTextMessages = Object.keys(messagesByLocale).flatMap(
+      (locale) => {
+        const messages = messagesByLocale[locale];
+        return [
+          ...flattenMessages(messages.battle, "battle").filter(([path]) =>
+            PLAIN_TEXT_BATTLE_KEYS.some(
+              (plainTextKey) => path === `battle.${plainTextKey}`,
+            ),
+          ),
+          ...flattenMessages(messages.ability, "ability").filter(([path]) =>
+            path.endsWith(".name"),
+          ),
+        ]
+          .filter(([, message]) => tagNamesIn(message).length > 0)
+          .map(([path]) => `${locale}:${path}`);
+      },
+    );
+
+    expect(taggedPlainTextMessages).toEqual([]);
+  });
+});

@@ -44,6 +44,8 @@ describe("battleLogMessage", () => {
     expect(battleLogMessage(descriptor)).toEqual({
       key: "attack",
       params: { attacker: "Borin", target: "Grukk" },
+      // deliberate assertion rewrite: adds characterSides (Phase 14)
+      characterSides: { attacker: "player", target: "enemy" },
     });
   });
 
@@ -59,6 +61,8 @@ describe("battleLogMessage", () => {
     expect(battleLogMessage(descriptor)).toEqual({
       key: "damage",
       params: { target: "Grukk", amount: 4, resultingHp: 2 },
+      // deliberate assertion rewrite: adds characterSides (Phase 14)
+      characterSides: { target: "enemy" },
     });
   });
 
@@ -74,6 +78,8 @@ describe("battleLogMessage", () => {
     expect(battleLogMessage(descriptor)).toEqual({
       key: "armourDamage",
       params: { target: "Grukk", amount: 2 },
+      // deliberate assertion rewrite: adds characterSides (Phase 14)
+      characterSides: { target: "enemy" },
     });
   });
 
@@ -89,6 +95,8 @@ describe("battleLogMessage", () => {
     expect(battleLogMessage(descriptor)).toEqual({
       key: "armourBreak",
       params: { target: "Grukk" },
+      // deliberate assertion rewrite: adds characterSides (Phase 14)
+      characterSides: { target: "enemy" },
     });
   });
 
@@ -102,6 +110,8 @@ describe("battleLogMessage", () => {
     expect(battleLogMessage(descriptor)).toEqual({
       key: "drop",
       params: { character: "Borin" },
+      // deliberate assertion rewrite: adds characterSides (Phase 14)
+      characterSides: { character: "player" },
     });
   });
 
@@ -150,6 +160,8 @@ describe("battleLogMessage", () => {
       namespace: "ability",
       key: "tighten-those-straps-son.battleCry",
       params: { character: "Ogden" },
+      // deliberate assertion rewrite: adds characterSides (Phase 14)
+      characterSides: { character: "player" },
     });
   });
 
@@ -168,6 +180,8 @@ describe("battleLogMessage", () => {
       namespace: "ability",
       key: "tighten-those-straps-son.targetEffect",
       params: { target: "Borin", amount: 1 },
+      // deliberate assertion rewrite: adds characterSides (Phase 14)
+      characterSides: { target: "player" },
     });
   });
 
@@ -184,6 +198,8 @@ describe("battleLogMessage", () => {
       namespace: "ability",
       key: "yip-strike.targetEffect",
       params: { target: "Borin", amount: 1 },
+      // deliberate assertion rewrite: adds characterSides (Phase 14)
+      characterSides: { target: "player" },
     });
   });
 });

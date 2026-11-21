@@ -97,11 +97,11 @@
     "battleStart": "The {playerFaction} and the {enemyFaction} prepare for battle",
     "frontsEngage": "The parties clash!",
     "turnStart": "Turn {turn}",
-    "attack": "{attacker} attacks {target}",
-    "damage": "{target} takes {amount} damage ({resultingHp} HP)",
-    "drop": "{character} drops",
-    "armourDamage": "{target}'s armour absorbs {amount} damage",
-    "armourBreak": "{target}'s armour breaks!",
+    "attack": "<attackerName>{attacker}</attackerName> attacks <targetName>{target}</targetName>",
+    "damage": "<targetName>{target}</targetName> takes <number>{amount}</number> damage (<number>{resultingHp}</number> HP)",
+    "drop": "<characterName>{character}</characterName> drops",
+    "armourDamage": "<targetName>{target}</targetName>'s armour absorbs <number>{amount}</number> damage",
+    "armourBreak": "<targetName>{target}</targetName>'s armour breaks!",
     "armourGainFloater": "+{amount} armour",
     "armourBreakFloater": "BREAK!",
     "abilityHpLossFloater": "−{amount} HP",
@@ -114,33 +114,33 @@
     "growing-lad": {
       "name": "Growing Lad",
       "summary": "Gain more HP per promotion",
-      "levelText": "Gain an extra +{extraHp} HP on promotion"
+      "levelText": "Gain an extra <number>+{extraHp}</number> HP on promotion"
     },
     "tighten-those-straps-son": {
       "name": "Tighten Those Straps Son",
       "summary": "Grant armour to allies ahead at the start of battle",
-      "levelTextAlliesAhead": "Grant +{armour} armour {count, plural, =1 {to the ally 1 ahead} other {to allies up to {count} ahead}}",
-      "levelTextWholeParty": "Grant +{armour} armour to the entire party, including self",
-      "battleCry": "{character}: \"Tighten those straps!\"",
-      "targetEffect": "{target} gained {amount} armour!"
+      "levelTextAlliesAhead": "Grant <number>+{armour}</number> armour {count, plural, =1 {to the ally <number>1</number> ahead} other {to allies up to <number>{count}</number> ahead}}",
+      "levelTextWholeParty": "Grant <number>+{armour}</number> armour to the entire party, including self",
+      "battleCry": "<characterName>{character}</characterName>: \"Tighten those straps!\"",
+      "targetEffect": "<targetName>{target}</targetName> gained <number>{amount}</number> armour!"
     },
     "penny-pincher": {
       "name": "Penny Pincher",
       "summary": "Scrounge up a little extra gold every camp phase",
-      "levelText": "Gain +{gold} gold at the start of each camp"
+      "levelText": "Gain <number>+{gold}</number> gold at the start of each camp"
     },
     "yip": {
       "name": "Yip!",
       "summary": "Yip!",
       "levelText": "Yip!",
-      "battleCry": "{character} yips!"
+      "battleCry": "<characterName>{character}</characterName> yips!"
     },
     "yip-strike": {
       "name": "Yip Strike",
       "summary": "The silent blade yips best!",
-      "levelText": "Strike a random enemy for {damage} damage{count, plural, =1 {} other {, {count} times}}",
-      "battleCry": "{character} strikes from the shadows!",
-      "targetEffect": "{target} takes {amount} damage!"
+      "levelText": "Strike a random enemy for <number>{damage}</number> damage{count, plural, =1 {} other {, <number>{count}</number> times}}",
+      "battleCry": "<characterName>{character}</characterName> strikes from the shadows!",
+      "targetEffect": "<targetName>{target}</targetName> takes <number>{amount}</number> damage!"
     }
   }
 }
