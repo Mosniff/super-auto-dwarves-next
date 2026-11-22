@@ -3,7 +3,7 @@
 // Integration base for BattleScreen. As the screen grows new behaviours
 // (animations, discard pile, etc.), add tests here — always querying by
 // user-facing semantics (role/name/text), never by markup.
-import { describe, it, expect, afterEach, vi } from "vitest";
+import { describe, it, expect, afterEach, beforeEach, vi } from "vitest";
 import {
   renderWithMessages,
   screen,
@@ -68,7 +68,23 @@ const emptyCampRoster = createEmptyCampRoster();
 
 const emptyRosterResolvedBattle = resolveBattle([], [fixtureGrukk]);
 
+// Starts autoplay through the roster-side control (Phase 14). Asserts the
+// button exists first, so a missing control fails on value, not on a throw.
+function startAutoplayAtFast() {
+  const fastAutoplayButton = screen.queryByRole("button", { name: "Fast" });
+  expect(fastAutoplayButton).not.toBeNull();
+  if (fastAutoplayButton !== null) {
+    fireEvent.click(fastAutoplayButton);
+  }
+}
+
 describe("BattleScreen", () => {
+  // The autoplay speed is remembered in browser storage (Phase 14), so one
+  // test's choice can't be allowed to start autoplay in the next.
+  beforeEach(() => {
+    window.localStorage.clear();
+  });
+
   it("renders the battle screen with the advance and autoplay controls", () => {
     renderWithMessages(
       <BattleScreen
@@ -80,9 +96,10 @@ describe("BattleScreen", () => {
     expect(
       screen.getByRole("button", { name: /advance/i }),
     ).toBeInTheDocument();
+    // deliberate assertion rewrite: the autoplay toggle button became the labelled Battle Autoplay group (Phase 14)
     expect(
-      screen.getByRole("button", { name: /autoplay/i }),
-    ).toBeInTheDocument();
+      screen.queryByRole("group", { name: "Battle Autoplay" }),
+    ).not.toBeNull();
   });
 
   describe("clicking Advance", () => {
@@ -136,11 +153,8 @@ describe("BattleScreen", () => {
         />,
       );
 
-      const autoplayToggle = screen.getByRole("button", {
-        name: /autoplay/i,
-      });
-
-      fireEvent.click(autoplayToggle);
+      // deliberate assertion rewrite: start autoplay through the roster-side Fast button instead of the scroll's toggle (Phase 14)
+      startAutoplayAtFast();
 
       for (
         let tick = 0;
@@ -153,9 +167,11 @@ describe("BattleScreen", () => {
       }
 
       expect(screen.getByText("Victory!")).toBeInTheDocument();
-      expect(
-        screen.getByRole("button", { name: /autoplay/i }),
-      ).toHaveTextContent(/off/i);
+      // deliberate assertion rewrite: the toggle's "off" text became the Off speed button's pressed state (Phase 14)
+      expect(screen.getByRole("button", { name: "Off" })).toHaveAttribute(
+        "aria-pressed",
+        "true",
+      );
     });
   });
 
@@ -184,11 +200,8 @@ describe("BattleScreen", () => {
         />,
       );
 
-      const autoplayToggle = screen.getByRole("button", {
-        name: /autoplay/i,
-      });
-
-      fireEvent.click(autoplayToggle);
+      // deliberate assertion rewrite: start autoplay through the roster-side Fast button instead of the scroll's toggle (Phase 14)
+      startAutoplayAtFast();
 
       for (
         let tick = 0;
@@ -244,11 +257,8 @@ describe("BattleScreen", () => {
       });
       expect(headerAdvanceButton).toBeDisabled();
 
-      const autoplayToggle = screen.getByRole("button", {
-        name: /autoplay/i,
-      });
-
-      fireEvent.click(autoplayToggle);
+      // deliberate assertion rewrite: start autoplay through the roster-side Fast button instead of the scroll's toggle (Phase 14)
+      startAutoplayAtFast();
 
       for (
         let tick = 0;
@@ -278,11 +288,8 @@ describe("BattleScreen", () => {
         />,
       );
 
-      const autoplayToggle = screen.getByRole("button", {
-        name: /autoplay/i,
-      });
-
-      fireEvent.click(autoplayToggle);
+      // deliberate assertion rewrite: start autoplay through the roster-side Fast button instead of the scroll's toggle (Phase 14)
+      startAutoplayAtFast();
 
       for (
         let tick = 0;
@@ -431,8 +438,8 @@ describe("BattleScreen", () => {
       />,
     );
 
-    const autoplayToggle = screen.getByRole("button", { name: /autoplay/i });
-    fireEvent.click(autoplayToggle);
+    // deliberate assertion rewrite: start autoplay through the roster-side Fast button instead of the scroll's toggle (Phase 14)
+    startAutoplayAtFast();
 
     // Immediately, before any beat timer fires: Grukk is on the enemy
     // bench before the first beat.
@@ -447,12 +454,13 @@ describe("BattleScreen", () => {
 
     // A modal dialog is open, so the background (including the autoplay
     // control) is hidden from the accessibility tree; query past that.
-    // "Autoplay: Off" is the accessible name InfoScroll gives the control
-    // when isPlaying is false (translateCommon("autoplayOff")).
+    // Paused means the Off speed button is pressed.
+    // deliberate assertion rewrite: "Autoplay: Off" toggle name became the Off speed button's aria-pressed (Phase 14)
     expect(
-      screen.queryByRole("button", { name: "Autoplay: Off", hidden: true }) !==
-        null,
-    ).toBe(true);
+      screen
+        .queryByRole("button", { name: "Off", hidden: true })
+        ?.getAttribute("aria-pressed") ?? null,
+    ).toBe("true");
   });
 
   describe("battle beat animations", () => {

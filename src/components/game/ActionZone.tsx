@@ -14,16 +14,11 @@ interface ActionZoneProps {
   currentBeatType?: BeatType;
   // Phase 12 battle beat animations; display-only.
   currentBeat?: CurrentBeatEffects;
-  onAdvance: () => void;
-  canAdvance: boolean;
-  isFinished: boolean;
   onViewPreviousBeat: () => void;
   onViewNextBeat: () => void;
   canViewPrevious: boolean;
   canViewNext: boolean;
   isPlaying: boolean;
-  onPlay: () => void;
-  onPause: () => void;
   onInfoControlOpen?: () => void;
 }
 
@@ -35,16 +30,11 @@ export function ActionZone({
   currentBeatDescriptors,
   currentBeatType,
   currentBeat,
-  onAdvance,
-  canAdvance,
-  isFinished,
   onViewPreviousBeat,
   onViewNextBeat,
   canViewPrevious,
   canViewNext,
   isPlaying,
-  onPlay,
-  onPause,
   onInfoControlOpen,
 }: ActionZoneProps) {
   return (
@@ -64,16 +54,11 @@ export function ActionZone({
         <div className="h-(--info-scroll-height) w-(--info-scroll-width)">
           <InfoScroll
             currentBeatDescriptors={currentBeatDescriptors}
-            onAdvance={onAdvance}
-            canAdvance={canAdvance}
-            isFinished={isFinished}
             onViewPreviousBeat={onViewPreviousBeat}
             onViewNextBeat={onViewNextBeat}
             canViewPrevious={canViewPrevious}
             canViewNext={canViewNext}
             isPlaying={isPlaying}
-            onPlay={onPlay}
-            onPause={onPause}
           />
         </div>
         <ActiveCard

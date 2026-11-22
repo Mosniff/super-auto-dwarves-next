@@ -3,6 +3,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useBattlePlayback } from "./useBattlePlayback";
 import { resolveBattle } from "@/lib/battle/resolveBattle";
+import { QUIET_BEAT_DURATION_MS } from "@/lib/battle/beatDurationMs";
 import type { Character } from "@/lib/game/character";
 import { buildTestCharacter } from "@/test/characterFixtures";
 
@@ -176,6 +177,48 @@ describe("useBattlePlayback", () => {
       expect(result.current.currentBeatDescriptors).toEqual([
         { kind: "frontsEngage" },
       ]);
+    });
+
+    it("AS1: at Slow, autoplay waits twice each beat's duration before advancing", () => {
+      const { result } = renderHook(() => useBattlePlayback(resolvedBattle));
+
+      act(() => {
+        result.current.setAutoplaySpeed?.("slow");
+      });
+
+      const appliedBeatKinds: string[][] = [];
+      for (let step = 0; step < 2; step += 1) {
+        act(() => {
+          vi.advanceTimersByTime(QUIET_BEAT_DURATION_MS);
+        });
+        appliedBeatKinds.push(
+          result.current.currentBeatDescriptors.map(
+            (descriptor) => descriptor.kind,
+          ),
+        );
+      }
+
+      expect({
+        autoplaySpeed: result.current.autoplaySpeed,
+        appliedBeatKinds,
+      }).toEqual({ autoplaySpeed: "slow", appliedBeatKinds: [[], ["battleStart"]] });
+    });
+
+    it("AS2: play() selects Fast and pause() selects Off", () => {
+      const { result } = renderHook(() => useBattlePlayback(resolvedBattle));
+      const recordedAutoplaySpeeds: unknown[] = [];
+
+      act(() => {
+        result.current.play();
+      });
+      recordedAutoplaySpeeds.push(result.current.autoplaySpeed);
+
+      act(() => {
+        result.current.pause();
+      });
+      recordedAutoplaySpeeds.push(result.current.autoplaySpeed);
+
+      expect(recordedAutoplaySpeeds).toEqual(["fast", "off"]);
     });
 
     it("autoplay stops at the final beat", () => {

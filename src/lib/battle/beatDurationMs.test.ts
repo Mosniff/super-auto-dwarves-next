@@ -1,12 +1,14 @@
 import { describe, it, expect } from "vitest";
 import {
   abilityCasterPulseKind,
+  autoplayBeatDelayMs,
   beatDurationMs,
   DROP_BEAT_DURATION_MS,
   ENGAGE_BEAT_DURATION_MS,
   EVENTFUL_BEAT_DURATION_MS,
   PREPARE_BEAT_DURATION_MS,
   QUIET_BEAT_DURATION_MS,
+  SLOW_AUTOPLAY_BEAT_DURATION_MULTIPLIER,
   TURN_START_ABILITY_BEAT_DURATION_MS,
 } from "./beatDurationMs";
 
@@ -79,5 +81,34 @@ describe("beatDurationMs", () => {
       abilityCasterPulseKind("ABILITY"),
       abilityCasterPulseKind(undefined),
     ]).toEqual(["quick", "normal", "normal"]);
+  });
+});
+
+describe("autoplayBeatDelayMs", () => {
+  const BEAT_TYPES_FOR_DELAY = [
+    "BATTLE_START",
+    "ENGAGE",
+    "CLASH",
+    "ABILITY",
+    "DROP",
+    "TURN_START_ABILITY",
+    undefined,
+  ] as const;
+
+  it("AD-F: at Fast, autoplay waits each beat's own duration", () => {
+    expect(
+      BEAT_TYPES_FOR_DELAY.map((beatType) =>
+        autoplayBeatDelayMs(beatType, "fast"),
+      ),
+    ).toEqual(BEAT_TYPES_FOR_DELAY.map((beatType) => beatDurationMs(beatType)));
+  });
+
+  it("AD-S: at Slow, autoplay waits each beat's duration times the slow multiplier (2)", () => {
+    expect(SLOW_AUTOPLAY_BEAT_DURATION_MULTIPLIER).toBe(2);
+    expect(
+      BEAT_TYPES_FOR_DELAY.map((beatType) =>
+        autoplayBeatDelayMs(beatType, "slow"),
+      ),
+    ).toEqual([1600, 1800, 1600, 1600, 2200, 600, 800]);
   });
 });

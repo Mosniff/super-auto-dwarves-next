@@ -19,6 +19,21 @@ export const ENGAGE_BEAT_DURATION_MS = 900;
 // so it is kept short — the human's call, ~300 ms.
 export const TURN_START_ABILITY_BEAT_DURATION_MS = 300;
 
+// Autoplay's Slow speed (Phase 14): every beat's wait is multiplied by this
+// one constant. It stretches only the pause between beats; each beat's
+// animations keep their own timings and simply finish earlier. Tune freely.
+export const SLOW_AUTOPLAY_BEAT_DURATION_MULTIPLIER = 2;
+
+export function autoplayBeatDelayMs(
+  beatType: BeatType | undefined,
+  autoplaySpeed: "slow" | "fast",
+): number {
+  return (
+    beatDurationMs(beatType) *
+    (autoplaySpeed === "slow" ? SLOW_AUTOPLAY_BEAT_DURATION_MULTIPLIER : 1)
+  );
+}
+
 export function beatDurationMs(beatType: BeatType | undefined): number {
   if (beatType === "DROP") {
     return DROP_BEAT_DURATION_MS;

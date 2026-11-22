@@ -41,38 +41,24 @@ const ROD_SHADOW = "0 2px 4px rgba(0,0,0,0.35)";
 const NAVIGATION_BUTTON_CLASS_NAME =
   "self-center border-ink-700/40 bg-parchment-50 text-ink-700 hover:bg-parchment-200 hover:text-ink-900";
 
-const CONTROL_BUTTON_CLASS_NAME =
-  "border-ink-700/40 bg-parchment-50 text-ink-700 hover:bg-parchment-200 hover:text-ink-900";
-
 interface InfoScrollProps {
   currentBeatDescriptors: BattleEventDescriptor[];
-  onAdvance: () => void;
-  canAdvance: boolean;
-  isFinished: boolean;
   onViewPreviousBeat: () => void;
   onViewNextBeat: () => void;
   canViewPrevious: boolean;
   canViewNext: boolean;
   isPlaying: boolean;
-  onPlay: () => void;
-  onPause: () => void;
 }
 
 export function InfoScroll({
   currentBeatDescriptors,
-  onAdvance,
-  canAdvance,
-  isFinished,
   onViewPreviousBeat,
   onViewNextBeat,
   canViewPrevious,
   canViewNext,
   isPlaying,
-  onPlay,
-  onPause,
 }: InfoScrollProps) {
   const t = useTranslations("battle");
-  const translateCommon = useTranslations("common");
   const translateAbility = useTranslations("ability");
   const translateFaction = useTranslations("faction");
 
@@ -166,29 +152,6 @@ export function InfoScroll({
             className={NAVIGATION_BUTTON_CLASS_NAME}
           >
             <ChevronRight />
-          </Button>
-        </div>
-
-        <div className="flex gap-2 pt-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={isPlaying ? onPause : onPlay}
-            disabled={isFinished}
-            className={CONTROL_BUTTON_CLASS_NAME}
-          >
-            {isPlaying
-              ? translateCommon("autoplayOn")
-              : translateCommon("autoplayOff")}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={onAdvance}
-            disabled={!canAdvance}
-            className={CONTROL_BUTTON_CLASS_NAME}
-          >
-            {translateCommon("advance")}
           </Button>
         </div>
       </div>

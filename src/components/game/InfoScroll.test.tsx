@@ -8,16 +8,11 @@ function renderInfoScroll(currentBeatDescriptors: BattleEventDescriptor[]) {
   return renderWithMessages(
     <InfoScroll
       currentBeatDescriptors={currentBeatDescriptors}
-      onAdvance={() => {}}
-      canAdvance={false}
-      isFinished={false}
       onViewPreviousBeat={() => {}}
       onViewNextBeat={() => {}}
       canViewPrevious={false}
       canViewNext={false}
       isPlaying={false}
-      onPlay={() => {}}
-      onPause={() => {}}
     />,
   );
 }

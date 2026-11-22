@@ -2,8 +2,10 @@
   "common": {
     "appName": "スーパーオートドワーフ",
     "advance": "進む",
-    "autoplayOn": "オートプレイ：オン",
-    "autoplayOff": "オートプレイ：オフ",
+    "battleAutoplayLabel": "オートバトル",
+    "autoplaySpeedOff": "オフ",
+    "autoplaySpeedSlow": "ゆっくり",
+    "autoplaySpeedFast": "はやい",
     "tagline": "ファンタジーオートバトラー。ロスターを編成し、深淵へ挑め。",
     "play": "プレイ",
     "settings": "せってい",

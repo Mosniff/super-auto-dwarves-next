@@ -2,7 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import type { ResolvedBattle } from "@/lib/battle/types";
 import type { Character } from "@/lib/game/character";
 import { deriveBattlePlaybackState } from "@/lib/battle/deriveBattlePlaybackState";
-import { beatDurationMs } from "@/lib/battle/beatDurationMs";
+import {
+  autoplayBeatDelayMs,
+  beatDurationMs,
+} from "@/lib/battle/beatDurationMs";
+import type { AutoplaySpeed } from "@/lib/battle/autoplaySpeed";
 
 export function useBattlePlayback(
   resolvedBattle: ResolvedBattle,
@@ -11,7 +15,9 @@ export function useBattlePlayback(
 ) {
   const [playbackBeat, setPlaybackBeat] = useState(-1); // -1 = nothing applied yet
   const [viewingBeat, setViewingBeat] = useState(-1); // -1 = no beat displayed yet
-  const [isPlaying, setIsPlaying] = useState(false);
+  // Autoplay is on at Slow or Fast (Phase 14); Off is paused.
+  const [autoplaySpeed, setAutoplaySpeed] = useState<AutoplaySpeed>("off");
+  const isPlaying = autoplaySpeed !== "off";
   const [isAdvanceLocked, setIsAdvanceLocked] = useState(false);
   const advanceLockTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
@@ -78,19 +84,22 @@ export function useBattlePlayback(
     );
   };
 
-  const play = () => setIsPlaying(true);
-  const pause = () => setIsPlaying(false);
+  // play() is Fast, today's pace; pause() is Off (the "i" controls use it).
+  const play = () => setAutoplaySpeed("fast");
+  const pause = () => setAutoplaySpeed("off");
 
   // The effect depends on playbackBeat so it tears down and re-creates the
   // timeout on every tick, keeping the timeout's closure fresh rather than
   // reading a stale playbackBeat from a timer that outlives many renders.
+  // At Slow the wait between beats is stretched (autoplayBeatDelayMs); the
+  // battle's end switches autoplay off.
   useEffect(() => {
-    if (!isPlaying) {
+    if (autoplaySpeed === "off") {
       return;
     }
 
     if (view.isFinished) {
-      setIsPlaying(false);
+      setAutoplaySpeed("off");
       return;
     }
 
@@ -102,11 +111,11 @@ export function useBattlePlayback(
       const nextPlaybackBeat = Math.min(playbackBeat + 1, highestBeat);
       setPlaybackBeat(nextPlaybackBeat);
       setViewingBeat(nextPlaybackBeat);
-    }, beatDurationMs(currentBeatType));
+    }, autoplayBeatDelayMs(currentBeatType, autoplaySpeed));
 
     return () => clearTimeout(timeoutId);
   }, [
-    isPlaying,
+    autoplaySpeed,
     view.isFinished,
     playbackBeat,
     highestBeat,
@@ -131,5 +140,7 @@ export function useBattlePlayback(
     isPlaying,
     play,
     pause,
+    autoplaySpeed,
+    setAutoplaySpeed,
   };
 }

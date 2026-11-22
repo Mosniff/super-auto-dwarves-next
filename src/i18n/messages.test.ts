@@ -53,8 +53,11 @@ describe("locale message parity", () => {
   const expectedCommonKeys = [
     "appName",
     "advance",
-    "autoplayOn",
-    "autoplayOff",
+    // deliberate test-data update: the autoplay toggle became a labelled Off / Slow / Fast control (Phase 14)
+    "battleAutoplayLabel",
+    "autoplaySpeedOff",
+    "autoplaySpeedSlow",
+    "autoplaySpeedFast",
     "tagline",
     "play",
     "settings",

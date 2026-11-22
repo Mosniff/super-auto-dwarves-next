@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { ActionZone } from "@/components/game/ActionZone";
 import { GameScreenShell } from "@/components/game/GameScreenShell";
 import { useReportPhaseAdvanceAvailability } from "@/components/game/phaseAdvanceAvailability";
@@ -7,6 +8,12 @@ import { RosterSlab } from "@/components/game/RosterSlab";
 import type { ResolvedBattle } from "@/lib/battle/types";
 import type { CampRoster } from "@/lib/game/campRoster";
 import { useBattlePlayback } from "@/hooks/useBattlePlayback";
+import { BattleAutoplayControl } from "@/components/game/BattleAutoplayControl";
+import {
+  readAutoplaySpeedPreference,
+  writeAutoplaySpeedPreference,
+} from "@/components/game/autoplaySpeedPreference";
+import type { AutoplaySpeed } from "@/lib/battle/autoplaySpeed";
 import { useCharacterDisplayName } from "@/components/game/characterDisplayName";
 import {
   battleBoardStage,
@@ -42,8 +49,9 @@ export function BattleScreen({
     canViewPrevious,
     canViewNext,
     isPlaying,
-    play,
     pause,
+    autoplaySpeed,
+    setAutoplaySpeed,
   } = useBattlePlayback(resolvedBattle, displayCharacterName);
 
   const currentBeat = {
@@ -53,6 +61,24 @@ export function BattleScreen({
   };
 
   useReportPhaseAdvanceAvailability("battlePhase", isFinished);
+
+  // The remembered autoplay speed (Phase 14) is read after mount, not during
+  // render, so the server-rendered markup (always Off) hydrates cleanly; a
+  // remembered Slow or Fast then starts autoplay.
+  useEffect(() => {
+    const rememberedAutoplaySpeed = readAutoplaySpeedPreference();
+    if (rememberedAutoplaySpeed !== "off") {
+      setAutoplaySpeed(rememberedAutoplaySpeed);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on mount
+  }, []);
+
+  // Only the player's own choice is remembered; the "i" pause and the
+  // battle's end switch autoplay off without changing the preference.
+  const chooseAutoplaySpeed = (chosenAutoplaySpeed: AutoplaySpeed) => {
+    setAutoplaySpeed(chosenAutoplaySpeed);
+    writeAutoplaySpeedPreference(chosenAutoplaySpeed);
+  };
 
   const {
     playerBenchCharacters,
@@ -76,6 +102,15 @@ export function BattleScreen({
       showsPlayerInfoControls
       onPlayerInfoControlOpen={pause}
       playerCurrentBeat={currentBeat}
+      playerRosterTrailingControls={
+        <BattleAutoplayControl
+          autoplaySpeed={autoplaySpeed}
+          onAutoplaySpeedChange={chooseAutoplaySpeed}
+          onAdvance={advance}
+          canAdvance={canAdvance}
+          isFinished={isFinished}
+        />
+      }
     >
       <section className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 p-(--battle-centre-padding)">
         <ActionZone
@@ -86,16 +121,11 @@ export function BattleScreen({
           currentBeatDescriptors={currentBeatDescriptors}
           currentBeatType={currentBeatType}
           currentBeat={currentBeat}
-          onAdvance={advance}
-          canAdvance={canAdvance}
-          isFinished={isFinished}
           onViewPreviousBeat={viewPreviousBeat}
           onViewNextBeat={viewNextBeat}
           canViewPrevious={canViewPrevious}
           canViewNext={canViewNext}
           isPlaying={isPlaying}
-          onPlay={play}
-          onPause={pause}
           onInfoControlOpen={pause}
         />
       </section>
