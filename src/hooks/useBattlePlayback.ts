@@ -17,7 +17,6 @@ export function useBattlePlayback(
   const [viewingBeat, setViewingBeat] = useState(-1); // -1 = no beat displayed yet
   // Autoplay is on at Slow or Fast (Phase 14); Off is paused.
   const [autoplaySpeed, setAutoplaySpeed] = useState<AutoplaySpeed>("off");
-  const isPlaying = autoplaySpeed !== "off";
   const [isAdvanceLocked, setIsAdvanceLocked] = useState(false);
   const advanceLockTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
     null,
@@ -33,6 +32,9 @@ export function useBattlePlayback(
     viewingBeat,
     displayCharacterName,
   );
+
+  // Playing means a speed is chosen and beats remain (Phase 14).
+  const isPlaying = autoplaySpeed !== "off" && !view.isFinished;
 
   // Manual advancing is locked while a beat's animation is still playing, or
   // while autoplaying (autoplay is the "go faster" path), or once finished.
@@ -91,15 +93,11 @@ export function useBattlePlayback(
   // The effect depends on playbackBeat so it tears down and re-creates the
   // timeout on every tick, keeping the timeout's closure fresh rather than
   // reading a stale playbackBeat from a timer that outlives many renders.
-  // At Slow the wait between beats is stretched (autoplayBeatDelayMs); the
-  // battle's end switches autoplay off.
+  // At Slow the wait between beats is stretched (autoplayBeatDelayMs); at
+  // the battle's end playback stops, keeping the chosen speed (Phase 14).
   useEffect(() => {
-    if (autoplaySpeed === "off") {
-      return;
-    }
-
-    if (view.isFinished) {
-      setAutoplaySpeed("off");
+    // At the end playback simply stops; the chosen speed stays selected.
+    if (autoplaySpeed === "off" || view.isFinished) {
       return;
     }
 

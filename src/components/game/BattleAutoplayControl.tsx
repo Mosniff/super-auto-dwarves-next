@@ -3,7 +3,8 @@
 // Battle playback controls (Phase 14): the labelled Battle Autoplay group
 // (Off / Slow / Fast) with Advance below it. It lives in the player
 // roster's trailing area during battle, where camp's merge/sell toggle
-// sits. The human tunes its look.
+// sits. It shows the player's chosen speed; no speed is pressed until the
+// remembered speed is known. The human tunes its look.
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import type { AutoplaySpeed } from "@/lib/battle/autoplaySpeed";
@@ -19,7 +20,8 @@ interface BattleAutoplayControlProps {
   onAutoplaySpeedChange: (autoplaySpeed: AutoplaySpeed) => void;
   onAdvance: () => void;
   canAdvance: boolean;
-  isFinished: boolean;
+  // false until the remembered speed has been read (Phase 14)
+  isAutoplaySpeedKnown?: boolean;
 }
 
 export function BattleAutoplayControl({
@@ -27,7 +29,7 @@ export function BattleAutoplayControl({
   onAutoplaySpeedChange,
   onAdvance,
   canAdvance,
-  isFinished,
+  isAutoplaySpeedKnown = true,
 }: BattleAutoplayControlProps) {
   const t = useTranslations("common");
 
@@ -50,9 +52,10 @@ export function BattleAutoplayControl({
               key={option.autoplaySpeed}
               variant="outline"
               size="sm"
-              aria-pressed={option.autoplaySpeed === autoplaySpeed}
+              aria-pressed={
+                isAutoplaySpeedKnown && option.autoplaySpeed === autoplaySpeed
+              }
               data-autoplay-speed={option.autoplaySpeed}
-              disabled={isFinished}
               onClick={() => onAutoplaySpeedChange(option.autoplaySpeed)}
             >
               {t(option.translationKey)}

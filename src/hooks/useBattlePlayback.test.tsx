@@ -262,6 +262,26 @@ describe("useBattlePlayback", () => {
       expect(result.current.isPlaying).toBe(false);
     });
 
+    it("AS3: at the end, autoplay stops but the chosen speed stays selected", () => {
+      const { result } = renderHook(() => useBattlePlayback(resolvedBattle));
+
+      act(() => {
+        result.current.play();
+      });
+
+      for (let step = 0; step < highestBeat + 2; step += 1) {
+        act(() => {
+          vi.advanceTimersByTime(AUTOPLAY_INTERVAL_MS);
+        });
+      }
+
+      expect({
+        isFinished: result.current.isFinished,
+        isPlaying: result.current.isPlaying,
+        autoplaySpeed: result.current.autoplaySpeed,
+      }).toEqual({ isFinished: true, isPlaying: false, autoplaySpeed: "fast" });
+    });
+
     // deliberate assertion rewrite: { kind: "battleStart" } before; { kind: "battleStart", playerFactionId: "dwarf", enemyFactionId: "dwarf" } after — Phase 13
     it("pause() stops auto-advancing", () => {
       const { result } = renderHook(() => useBattlePlayback(resolvedBattle));

@@ -167,11 +167,11 @@ describe("BattleScreen", () => {
       }
 
       expect(screen.getByText("Victory!")).toBeInTheDocument();
-      // deliberate assertion rewrite: the toggle's "off" text became the Off speed button's pressed state (Phase 14)
-      expect(screen.getByRole("button", { name: "Off" })).toHaveAttribute(
-        "aria-pressed",
-        "true",
-      );
+      // deliberate assertion rewrite: Off pressed at the end became the chosen Fast still pressed and usable (Phase 14)
+      expect([
+        screen.getByRole("button", { name: "Fast" }).getAttribute("aria-pressed"),
+        screen.getByRole("button", { name: "Fast" }).hasAttribute("disabled"),
+      ]).toEqual(["true", false]);
     });
   });
 

@@ -11,7 +11,8 @@ interface BattleAutoplayControlTestProps {
   onAutoplaySpeedChange: (autoplaySpeed: AutoplaySpeed) => void;
   onAdvance: () => void;
   canAdvance: boolean;
-  isFinished: boolean;
+  // mechanical fixture update: isFinished → isAutoplaySpeedKnown (Phase 14)
+  isAutoplaySpeedKnown?: boolean;
 }
 
 function renderBattleAutoplayControl(
@@ -22,7 +23,6 @@ function renderBattleAutoplayControl(
     onAutoplaySpeedChange: () => {},
     onAdvance: () => {},
     canAdvance: true,
-    isFinished: false,
     ...overrides,
   };
 
@@ -85,8 +85,9 @@ describe("BattleAutoplayControl", () => {
     ]).toEqual([false, 1]);
   });
 
-  it("BC4: once the battle is finished, every button is disabled", () => {
-    renderBattleAutoplayControl({ isFinished: true, canAdvance: false });
+  // deliberate assertion rewrite: the speeds stay usable at the end; only Advance disables ([true, true, true, true] → [false, false, false, true]) (Phase 14)
+  it("BC4: once the battle is finished, only Advance is disabled", () => {
+    renderBattleAutoplayControl({ canAdvance: false });
 
     expect(
       [...SPEED_BUTTON_NAMES, "Advance"].map(
@@ -95,6 +96,22 @@ describe("BattleAutoplayControl", () => {
             .queryByRole("button", { name: buttonName })
             ?.hasAttribute("disabled") ?? null,
       ),
-    ).toEqual([true, true, true, true]);
+    ).toEqual([false, false, false, true]);
+  });
+
+  it("BC5: until the remembered speed is known, no speed shows as pressed", () => {
+    renderBattleAutoplayControl({
+      autoplaySpeed: "fast",
+      isAutoplaySpeedKnown: false,
+    });
+
+    expect(
+      SPEED_BUTTON_NAMES.map(
+        (buttonName) =>
+          screen
+            .queryByRole("button", { name: buttonName })
+            ?.getAttribute("aria-pressed") ?? null,
+      ),
+    ).toEqual(["false", "false", "false"]);
   });
 });

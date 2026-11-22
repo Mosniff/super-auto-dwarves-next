@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useLayoutEffect, useSyncExternalStore } from "react";
 import { ActionZone } from "@/components/game/ActionZone";
 import { GameScreenShell } from "@/components/game/GameScreenShell";
 import { useReportPhaseAdvanceAvailability } from "@/components/game/phaseAdvanceAvailability";
@@ -25,6 +25,12 @@ interface BattleScreenProps {
   // The saved camp roster the battle was resolved from, shown as-is before
   // the first beat.
   playerCampRoster: CampRoster;
+}
+
+// useSyncExternalStore's server/client snapshots give a hydration-safe
+// "has mounted" flag; there is nothing to subscribe to.
+function subscribeToNothing() {
+  return () => {};
 }
 
 // The battle is resolved on the server from the saved roster and only
@@ -64,10 +70,15 @@ export function BattleScreen({
 
   useReportPhaseAdvanceAvailability("battlePhase", isFinished);
 
-  // The remembered autoplay speed (Phase 14) is read after mount, not during
-  // render, so the server-rendered markup (always Off) hydrates cleanly; a
-  // remembered Slow or Fast then starts autoplay.
-  useEffect(() => {
+  // The remembered autoplay speed (Phase 14) can't be known on the server,
+  // so until the page has mounted no speed shows as pressed (no flash of
+  // Off). It is read in a layout effect, before the first client paint.
+  const hasMounted = useSyncExternalStore(
+    subscribeToNothing,
+    () => true,
+    () => false,
+  );
+  useLayoutEffect(() => {
     const rememberedAutoplaySpeed = readAutoplaySpeedPreference();
     if (rememberedAutoplaySpeed !== "off") {
       setAutoplaySpeed(rememberedAutoplaySpeed);
@@ -75,8 +86,9 @@ export function BattleScreen({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once, on mount
   }, []);
 
-  // Only the player's own choice is remembered; the "i" pause and the
-  // battle's end switch autoplay off without changing the preference.
+  // Only the player's own choice is remembered; the "i" pause switches
+  // autoplay off without changing the preference; at the battle's end the
+  // chosen speed simply stays selected.
   const chooseAutoplaySpeed = (chosenAutoplaySpeed: AutoplaySpeed) => {
     setAutoplaySpeed(chosenAutoplaySpeed);
     writeAutoplaySpeedPreference(chosenAutoplaySpeed);
@@ -110,7 +122,7 @@ export function BattleScreen({
           onAutoplaySpeedChange={chooseAutoplaySpeed}
           onAdvance={advance}
           canAdvance={canAdvance}
-          isFinished={isFinished}
+          isAutoplaySpeedKnown={hasMounted}
         />
       }
     >
