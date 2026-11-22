@@ -454,10 +454,11 @@ describe("CampScreen", () => {
     ).toEqual(["Camp"]);
   });
 
-  it("(k) the front roster card has no on-deck halo in camp", () => {
+  it("(k) the front roster card has no on-deck marker in camp", () => {
     renderCampScreen();
 
-    expect(document.querySelector("[data-roster-slot-on-deck-halo]")).toBeNull();
+    // deliberate assertion rewrite: the on-deck ring became a side marker (BR3)
+    expect(document.querySelector("[data-roster-slot-on-deck-marker]")).toBeNull();
   });
 
   it("(t) the header's advance button is enabled while the camp is idle", () => {

@@ -112,7 +112,7 @@ export function RosterSlot({
   abilityCasterPulse = "normal",
 }: RosterSlotProps) {
   const prefersReducedMotion = useReducedMotion();
-  const showNextHalo = isNext && Boolean(character);
+  const showsOnDeckMarker = isNext && Boolean(character);
   const t = useTranslations("common");
   // Only the front slot's exit is the grandiose wind-up + launch; every other
   // slot keeps the plain slide. Reduced motion overrides this to an instant
@@ -473,22 +473,14 @@ export function RosterSlot({
           </span>
         )}
       </div>
-      {showNextHalo && (
+      {showsOnDeckMarker && (
         <div
-          data-roster-slot-on-deck-halo
+          data-roster-slot-on-deck-marker
           data-on-deck-direction={facing}
-          className="pointer-events-none absolute -inset-2"
+          className="pointer-events-none"
         >
-          <span data-on-deck-outline aria-hidden="true" />
-          <span
-            className="absolute left-1/2 -bottom-1.75 -translate-x-1/2 rounded-full px-1.5 py-0 text-[8px] font-bold tracking-wide uppercase"
-            style={{
-              backgroundColor: "var(--color-slate-300)",
-              color: "var(--color-parchment-300)",
-            }}
-          >
-            {t("next")}
-          </span>
+          <span data-on-deck-chevron aria-hidden="true" />
+          <span data-on-deck-label>{t("next")}</span>
         </div>
       )}
       {/* Floaters render outside the recess so its overflow-hidden never

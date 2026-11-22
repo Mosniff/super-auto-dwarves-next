@@ -318,7 +318,7 @@ describe("BattleScreen", () => {
     ).not.toBeNull();
   });
 
-  it("(l) the front bench card shows the on-deck halo in battle", () => {
+  it("(l) the front bench card shows the on-deck marker in battle", () => {
     renderWithMessages(
       <BattleScreen
         resolvedBattle={playerWinResolvedBattle}
@@ -326,8 +326,9 @@ describe("BattleScreen", () => {
       />,
     );
 
+    // deliberate assertion rewrite: the on-deck ring became a side marker (BR3)
     expect(
-      document.querySelector("[data-roster-slot-on-deck-halo]"),
+      document.querySelector("[data-roster-slot-on-deck-marker]"),
     ).not.toBeNull();
   });
 

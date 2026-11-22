@@ -98,14 +98,17 @@ describe("RosterSlab", () => {
     });
   });
 
-  it("RA4: the NEXT arrow points right on the player's slab and left on the enemy's", () => {
-    function observeOnDeckHalo() {
-      const onDeckHalo = document.querySelector(
-        "[data-roster-slot-on-deck-halo]",
+  it("RA4: the NEXT marker points right on the player's slab and left on the enemy's", () => {
+    function observeOnDeckMarker() {
+      const onDeckMarker = document.querySelector(
+        "[data-roster-slot-on-deck-marker]",
       );
       return {
-        direction: onDeckHalo?.getAttribute("data-on-deck-direction") ?? null,
-        hasOutline: onDeckHalo?.querySelector("[data-on-deck-outline]") != null,
+        direction: onDeckMarker?.getAttribute("data-on-deck-direction") ?? null,
+        hasChevron: onDeckMarker?.querySelector("[data-on-deck-chevron]") != null,
+        text: onDeckMarker?.textContent ?? null,
+        hasHalo:
+          document.querySelector("[data-roster-slot-on-deck-halo]") !== null,
       };
     }
 
@@ -116,7 +119,7 @@ describe("RosterSlab", () => {
         presentsFrontSlotAsOnDeck
       />,
     );
-    const playerOnDeckHalo = observeOnDeckHalo();
+    const playerOnDeckMarker = observeOnDeckMarker();
     playerSlabRender.unmount();
 
     const enemySlabRender = renderWithMessages(
@@ -126,12 +129,23 @@ describe("RosterSlab", () => {
         presentsFrontSlotAsOnDeck
       />,
     );
-    const enemyOnDeckHalo = observeOnDeckHalo();
+    const enemyOnDeckMarker = observeOnDeckMarker();
     enemySlabRender.unmount();
 
-    expect({ playerOnDeckHalo, enemyOnDeckHalo }).toEqual({
-      playerOnDeckHalo: { direction: "right", hasOutline: true },
-      enemyOnDeckHalo: { direction: "left", hasOutline: true },
+    // deliberate assertion rewrite: the on-deck ring became a side marker (BR3)
+    expect({ playerOnDeckMarker, enemyOnDeckMarker }).toEqual({
+      playerOnDeckMarker: {
+        direction: "right",
+        hasChevron: true,
+        text: "next",
+        hasHalo: false,
+      },
+      enemyOnDeckMarker: {
+        direction: "left",
+        hasChevron: true,
+        text: "next",
+        hasHalo: false,
+      },
     });
   });
 });
