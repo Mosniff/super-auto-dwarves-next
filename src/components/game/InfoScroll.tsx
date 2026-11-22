@@ -72,7 +72,7 @@ export function InfoScroll({
         {header.kind !== "hidden" && (
           <div
             data-info-scroll-turn-header={header.kind}
-            className="mb-2 border-b border-ink-700/20 pb-2 text-center text-sm font-bold uppercase tracking-wide text-ink-700"
+            className="mb-2 border-b border-ink-700/20 pb-2 text-center text-(length:--info-scroll-text-size) font-bold uppercase tracking-wide text-ink-700"
           >
             {header.kind === "turn"
               ? t("turnHeader", { turn: header.turn })
@@ -83,7 +83,7 @@ export function InfoScroll({
           {currentBeatDescriptors.length > 0 ? (
             <ul
               key={viewedBeat}
-              className="min-h-0 flex-1 space-y-1 overflow-y-auto"
+              className="min-h-0 flex-1 space-y-(--info-scroll-line-gap) overflow-y-auto text-(length:--info-scroll-text-size)"
             >
               {currentBeatDescriptors.map((currentBeatDescriptor, index) => {
                 const message = battleLogMessage(currentBeatDescriptor);
@@ -126,7 +126,7 @@ export function InfoScroll({
                         ),
                       } as React.CSSProperties
                     }
-                    className="flex items-start gap-2 text-sm text-ink-700"
+                    className="flex items-start gap-2 text-ink-700"
                   >
                     {LineIcon !== null && (
                       <LineIcon
@@ -151,7 +151,7 @@ export function InfoScroll({
               })}
             </ul>
           ) : (
-            <div className="flex flex-1 items-center justify-center text-sm text-ink-700/30">
+            <div className="flex flex-1 items-center justify-center text-(length:--info-scroll-text-size) text-ink-700/30">
               —
             </div>
           )}

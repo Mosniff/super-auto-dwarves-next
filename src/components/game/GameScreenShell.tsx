@@ -66,10 +66,16 @@ export function GameScreenShell({
         inert={!isPresent}
         style={{ visibility: isPresent ? "visible" : "hidden" }}
       >
+        {/* The iron edge is designed to sit against the phase banner;
+            without the banner (battle) it reads as a stray line on the
+            dark centre. */}
         <div
+          data-slab-base-edge={showsPhaseBanner ? "shown" : "hidden"}
           style={{
             boxShadow: "var(--shadow-slab)",
-            borderBottom: "var(--slab-base-border)",
+            borderBottom: showsPhaseBanner
+              ? "var(--slab-base-border)"
+              : undefined,
           }}
         >
           <RosterSlab

@@ -159,4 +159,43 @@ describe("GameScreenShell", () => {
         }) !== null,
     }).toEqual({ hasPhaseBanner: false, hasBattleHeading: true });
   });
+
+  it("SE1: with the phase banner, the player slab has its iron bottom edge", () => {
+    render(
+      wrapWithMessages(
+        <GameScreenShell
+          gamePhase="campPhase"
+          playerBenchCharacters={sevenEmptySlots}
+        >
+          <p>Shell content</p>
+        </GameScreenShell>,
+      ),
+    );
+
+    expect(
+      document
+        .querySelector("[data-slab-base-edge]")
+        ?.getAttribute("data-slab-base-edge") ?? null,
+    ).toBe("shown");
+  });
+
+  it("SE2: with the phase banner switched off, the player slab has no iron bottom edge", () => {
+    render(
+      wrapWithMessages(
+        <GameScreenShell
+          gamePhase="battlePhase"
+          playerBenchCharacters={sevenEmptySlots}
+          showsPhaseBanner={false}
+        >
+          <p>Shell content</p>
+        </GameScreenShell>,
+      ),
+    );
+
+    expect(
+      document
+        .querySelector("[data-slab-base-edge]")
+        ?.getAttribute("data-slab-base-edge") ?? null,
+    ).toBe("hidden");
+  });
 });

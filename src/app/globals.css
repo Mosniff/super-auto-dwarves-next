@@ -396,9 +396,10 @@
     var(--roster-card-height) + 2 * var(--roster-slab-padding-y)
   );
 
-  /* Battle centre: the height left between the two slabs (0.25rem is
-     the player slab's iron bottom edge). Battle shows no phase banner, so
-     there is no banner term. */
+  /* Battle centre: the height left between the two slabs. Battle shows
+     no phase banner, so there is no banner term, and no iron bottom edge
+     on the player slab (that edge only shows with the banner), so no
+     0.25rem term either. */
   --battle-centre-padding: clamp(
     1rem,
     calc(var(--layout-window-height) * 0.05),
@@ -406,7 +407,7 @@
   );
   --battle-centre-height: calc(
     var(--layout-window-height) - var(--game-header-height) - 2 *
-      var(--roster-slab-height) - 0.25rem
+      var(--roster-slab-height)
   );
   --active-card-height: min(
     30rem,
@@ -420,6 +421,20 @@
   --info-scroll-width: min(
     calc(var(--info-scroll-height) * 1.75),
     calc(var(--layout-window-width) * 0.3)
+  );
+  /* The scroll's text and line gaps grow with its height but more
+     slowly, so a bigger scroll shows bigger text AND more lines. The
+     minimums are the pre-Phase-14 sizes (text-sm, space-y-1). The human
+     tunes these. */
+  --info-scroll-text-size: clamp(
+    0.875rem,
+    calc(var(--info-scroll-height) * 0.035),
+    1.25rem
+  );
+  --info-scroll-line-gap: clamp(
+    0.25rem,
+    calc(var(--info-scroll-height) * 0.015),
+    0.75rem
   );
   /* The gap between each front card and the info scroll. */
   --action-zone-gap: clamp(2rem, calc(var(--layout-window-width) * 0.03), 4rem);
@@ -924,9 +939,11 @@
   color: var(--highlight-enemy-colour);
 }
 /* The turn-start beat: the header hides and this line fills the scroll. */
+/* The big lines' sizes are em of the scroll's text size, so they match
+   the old sizes at the smallest scroll and grow with it. */
 [data-log-line-emphasis="turnBegins"] {
   align-items: center;
-  font-size: 1.5rem;
+  font-size: 1.7em;
   font-weight: 700;
   letter-spacing: 0.04em;
   padding-block: 0.75rem;
@@ -946,7 +963,7 @@ ul:has(> [data-log-line-emphasis="turnBegins"]) {
 /* The outcome beat: the header hides and the result fills the scroll. */
 [data-log-line-emphasis="outcome"] {
   justify-content: center;
-  font-size: 2rem;
+  font-size: 2.3em;
   font-weight: 700;
   letter-spacing: 0.04em;
   padding-block: 0.75rem;
