@@ -920,10 +920,18 @@ ul:has(> [data-log-line-emphasis="turnBegins"]) {
   flex-direction: column;
   justify-content: center;
 }
+/* The outcome beat: the header hides and the result fills the scroll. */
 [data-log-line-emphasis="outcome"] {
   justify-content: center;
-  font-size: 1.25rem;
+  font-size: 2rem;
   font-weight: 700;
+  letter-spacing: 0.04em;
+  padding-block: 0.75rem;
+}
+ul:has(> [data-log-line-emphasis="outcome"]) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 /* Each beat's lines slide in from the left, one after another
    (InfoScroll keys the list by the viewed beat, so every beat replays
@@ -948,4 +956,18 @@ ul:has(> [data-log-line-emphasis="turnBegins"]) {
     animation: log-line-enter var(--log-line-enter-duration) ease-out both;
     animation-delay: calc(var(--log-line-index, 0) * var(--log-line-stagger));
   }
+}
+
+/* ── Battle autoplay control (Phase 14) ─────────────
+   The pressed speed (aria-pressed="true") in copper, so the active mode
+   reads at a glance. Unlayered, so it wins over the button's utilities.
+   The human tunes these. */
+[data-autoplay-speed][aria-pressed="true"] {
+  background: linear-gradient(to bottom, var(--color-copper-500), var(--color-copper-700));
+  color: var(--color-parchment-50);
+  border-color: var(--color-copper-700);
+}
+[data-autoplay-speed][aria-pressed="true"]:hover {
+  background: linear-gradient(to bottom, var(--color-copper-300), var(--color-copper-500));
+  color: var(--color-parchment-50);
 }

@@ -269,6 +269,18 @@ describe("InfoScroll", () => {
     });
   });
 
+  it("TH4: on the outcome beat the header hides and only the result shows", () => {
+    renderInfoScroll([{ kind: "battleEnd", outcome: "playerWin" }], {
+      viewedTurn: 3,
+      viewedBeat: 10,
+    });
+
+    expect({ header: turnHeader(), lines: logLineTexts() }).toEqual({
+      header: null,
+      lines: ["Victory!"],
+    });
+  });
+
   it("SE1: each new viewed beat re-mounts the lines, so they slide in again", () => {
     const attackDescriptors: BattleEventDescriptor[] = [
       {

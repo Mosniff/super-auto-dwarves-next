@@ -22,7 +22,8 @@ describe("infoScrollHeader", () => {
   it("HD2: during a turn the header shows that turn", () => {
     expect([
       infoScrollHeader(2, [{ kind: "attack", attacker: borin, target: grukk }]),
-      infoScrollHeader(3, [{ kind: "battleEnd", outcome: "playerWin" }]),
+      // deliberate assertion rewrite: the outcome beat now hides the header, so this case uses a drop beat (battleEnd playerWin → drop grukk) (Phase 14)
+      infoScrollHeader(3, [{ kind: "drop", character: grukk }]),
     ]).toEqual([
       { kind: "turn", turn: 2 },
       { kind: "turn", turn: 3 },
@@ -33,5 +34,11 @@ describe("infoScrollHeader", () => {
     expect(infoScrollHeader(3, [{ kind: "turnStart", turn: 3 }])).toEqual({
       kind: "hidden",
     });
+  });
+
+  it("HD4: on the outcome beat the header hides, so the result fills the scroll", () => {
+    expect(
+      infoScrollHeader(3, [{ kind: "battleEnd", outcome: "enemyWin" }]),
+    ).toEqual({ kind: "hidden" });
   });
 });
