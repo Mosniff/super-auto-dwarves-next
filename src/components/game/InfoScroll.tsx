@@ -1,8 +1,6 @@
 "use client";
 
 import {
-  ChevronLeft,
-  ChevronRight,
   Flag,
   Swords,
   HeartCrack,
@@ -14,7 +12,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Button } from "@/components/ui/button";
 import { battleLogMessage } from "@/components/game/battleLogMessage";
 import {
   battleLogLinePresentation,
@@ -39,9 +36,6 @@ const ROD_GRADIENT =
   "linear-gradient(to bottom, var(--color-parchment-200), var(--color-parchment-50) 45%, var(--color-parchment-400))";
 const ROD_SHADOW = "0 2px 4px rgba(0,0,0,0.35)";
 
-const NAVIGATION_BUTTON_CLASS_NAME =
-  "border-ink-700/40 bg-parchment-50 text-ink-700 hover:bg-parchment-200 hover:text-ink-900";
-
 // Lines slide in one after another; the stagger stops growing here so a
 // long beat still finishes inside its beat. globals.css → "Battle log
 // lines" holds the timing.
@@ -49,11 +43,6 @@ const MAX_LOG_LINE_STAGGER_INDEX = 4;
 
 interface InfoScrollProps {
   currentBeatDescriptors: BattleEventDescriptor[];
-  onViewPreviousBeat: () => void;
-  onViewNextBeat: () => void;
-  canViewPrevious: boolean;
-  canViewNext: boolean;
-  isPlaying: boolean;
   // the turn in effect at the viewed beat, and the viewed beat (Phase 14)
   viewedTurn?: number;
   viewedBeat?: number;
@@ -61,11 +50,6 @@ interface InfoScrollProps {
 
 export function InfoScroll({
   currentBeatDescriptors,
-  onViewPreviousBeat,
-  onViewNextBeat,
-  canViewPrevious,
-  canViewNext,
-  isPlaying,
   viewedTurn = 0,
   viewedBeat = 0,
 }: InfoScrollProps) {
@@ -73,14 +57,6 @@ export function InfoScroll({
   const translateAbility = useTranslations("ability");
   const translateFaction = useTranslations("faction");
   const header = infoScrollHeader(viewedTurn, currentBeatDescriptors);
-  // Beat navigation (Phase 14): pinned to the scroll's bottom corners, out of
-  // the content's flow, so the header or a big centred line can't move them.
-  // Not rendered at all (not merely transparent) while autoplay runs, and
-  // each one only when there is a beat to step to in its direction.
-  const isPreviousBeatButtonShown = !isPlaying && canViewPrevious;
-  const isNextBeatButtonShown = !isPlaying && canViewNext;
-  const isAnyNavigationButtonShown =
-    isPreviousBeatButtonShown || isNextBeatButtonShown;
 
   return (
     <div className="flex h-full flex-col">
@@ -91,7 +67,6 @@ export function InfoScroll({
 
       <div
         className="relative flex min-h-0 flex-1 flex-col bg-parchment-100 p-4"
-        data-beat-navigation-shown={isAnyNavigationButtonShown}
         style={{ boxShadow: "inset 0 0 24px rgba(120,90,40,0.35)" }}
       >
         {header.kind !== "hidden" && (
@@ -181,31 +156,6 @@ export function InfoScroll({
             </div>
           )}
         </div>
-
-        {isPreviousBeatButtonShown && (
-          <Button
-            variant="outline"
-            size="icon-sm"
-            onClick={onViewPreviousBeat}
-            aria-label={t("viewPreviousBeat")}
-            data-beat-navigation="previous"
-            className={`absolute bottom-2 left-2 ${NAVIGATION_BUTTON_CLASS_NAME}`}
-          >
-            <ChevronLeft />
-          </Button>
-        )}
-        {isNextBeatButtonShown && (
-          <Button
-            variant="outline"
-            size="icon-sm"
-            onClick={onViewNextBeat}
-            aria-label={t("viewNextBeat")}
-            data-beat-navigation="next"
-            className={`absolute right-2 bottom-2 ${NAVIGATION_BUTTON_CLASS_NAME}`}
-          >
-            <ChevronRight />
-          </Button>
-        )}
       </div>
 
       <div

@@ -331,6 +331,72 @@ describe("BattleScreen", () => {
     ).not.toBeNull();
   });
 
+  it("BL1: both battle slabs align toward the front, and the autoplay control sits left of the player's slots", () => {
+    renderWithMessages(
+      <BattleScreen
+        resolvedBattle={playerWinResolvedBattle}
+        playerCampRoster={playerWinCampRoster}
+      />,
+    );
+
+    const advanceButton = screen.queryByRole("button", { name: "Advance" });
+
+    expect({
+      frontAlignedSlabCount: document.querySelectorAll(
+        '[data-roster-slot-alignment="front"]',
+      ).length,
+      isOffSpeedInLeadingArea:
+        document.querySelector(
+          '[data-roster-slab-leading-area] [data-autoplay-speed="off"]',
+        ) !== null,
+      isAdvanceInLeadingArea:
+        advanceButton?.closest("[data-roster-slab-leading-area]") != null,
+    }).toEqual({
+      frontAlignedSlabCount: 2,
+      isOffSpeedInLeadingArea: true,
+      isAdvanceInLeadingArea: true,
+    });
+  });
+
+  describe("beat navigation", () => {
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it("BL2: the battle screen has no beat-navigation buttons, even after stepping back is possible", () => {
+      vi.useFakeTimers();
+      renderWithMessages(
+        <BattleScreen
+          resolvedBattle={playerWinResolvedBattle}
+          playerCampRoster={playerWinCampRoster}
+        />,
+      );
+
+      const offAutoplayButton = screen.queryByRole("button", { name: "Off" });
+      expect(offAutoplayButton).not.toBeNull();
+      if (offAutoplayButton !== null) {
+        fireEvent.click(offAutoplayButton);
+      }
+
+      const advanceButton = screen.getByRole("button", { name: "Advance" });
+      fireEvent.click(advanceButton);
+      act(() => {
+        vi.advanceTimersByTime(AUTOPLAY_INTERVAL_MS);
+      });
+      fireEvent.click(advanceButton);
+      act(() => {
+        vi.advanceTimersByTime(AUTOPLAY_INTERVAL_MS);
+      });
+
+      expect({
+        previousBeatButton: screen.queryByRole("button", {
+          name: "Previous beat",
+        }),
+        nextBeatButton: screen.queryByRole("button", { name: "Next beat" }),
+      }).toEqual({ previousBeatButton: null, nextBeatButton: null });
+    });
+  });
+
   it("battle roster cards show no level pill or XP bar", () => {
     renderWithMessages(
       <BattleScreen

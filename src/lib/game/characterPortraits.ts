@@ -14,7 +14,7 @@ export const CHARACTER_PORTRAIT_FILE_NAMES: Readonly<Record<string, string>> = {
   // kobolds
   "kobold-runt": "kobold_runt.jpg",
   "kobold-thief": "kobold_thief.jpg",
-  "kobold-priest": "kobold_priest.jpg",
+  // "kobold-priest": "kobold_priest.jpg",
 };
 
 export function characterPortraitSrc(

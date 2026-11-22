@@ -361,7 +361,9 @@
 
   /* Roster slabs (both sides). The width term reserves the slab's side
      padding (2.5rem), room either side of the slot row for camp's
-     controls, and the gaps between slots; 7 is RosterSlab's slot count;
+     controls (battle uses only the side away from the front, but the
+     reservation is kept so cards are the same size in both phases), and
+     the gaps between slots; 7 is RosterSlab's slot count;
      4/3 turns a card's width into its height (cards are 3:4). */
   --roster-slab-padding-y: clamp(
     0.5rem,
@@ -972,9 +974,47 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
   color: var(--color-parchment-50);
 }
 
-/* ── Info scroll beat navigation (Phase 14) ──────────
-   The ‹ › buttons sit in the scroll's bottom corners. While either is shown,
-   the panel reserves room at the bottom so lines never sit under them. */
-[data-beat-navigation-shown="true"] {
-  padding-bottom: 3rem;
+/* ── Roster on-deck arrow (Phase 14) ──────────
+   The NEXT ring's outline is drawn as an even-odd clip-path polygon (an
+   outer pentagon minus an inner pentagon), so its leading side tapers into
+   a point. The outline box extends past the halo by the tip length on the
+   leading side; the enemy's is mirrored. The tip only has the slab's side
+   padding (1.25rem minus the halo's 0.5rem) to grow into. The human tunes
+   the variables. */
+[data-on-deck-outline] {
+  --on-deck-outline-width: 2px;
+  --on-deck-arrow-tip-length: 0.7rem;
+  --on-deck-arrow-tip-start: 35%;
+  --on-deck-arrow-tip-end: 65%;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: calc(-1 * var(--on-deck-arrow-tip-length));
+  background-color: var(--color-parchment-300);
+  clip-path: polygon(
+    evenodd,
+    0 0,
+    calc(100% - var(--on-deck-arrow-tip-length)) 0,
+    calc(100% - var(--on-deck-arrow-tip-length)) var(--on-deck-arrow-tip-start),
+    100% 50%,
+    calc(100% - var(--on-deck-arrow-tip-length)) var(--on-deck-arrow-tip-end),
+    calc(100% - var(--on-deck-arrow-tip-length)) 100%,
+    0 100%,
+    0 0,
+    var(--on-deck-outline-width) var(--on-deck-outline-width),
+    calc(100% - var(--on-deck-arrow-tip-length) - var(--on-deck-outline-width)) var(--on-deck-outline-width),
+    calc(100% - var(--on-deck-arrow-tip-length) - var(--on-deck-outline-width)) var(--on-deck-arrow-tip-start),
+    calc(100% - 2 * var(--on-deck-outline-width)) 50%,
+    calc(100% - var(--on-deck-arrow-tip-length) - var(--on-deck-outline-width)) var(--on-deck-arrow-tip-end),
+    calc(100% - var(--on-deck-arrow-tip-length) - var(--on-deck-outline-width)) calc(100% - var(--on-deck-outline-width)),
+    var(--on-deck-outline-width) calc(100% - var(--on-deck-outline-width)),
+    var(--on-deck-outline-width) var(--on-deck-outline-width)
+  );
+}
+
+[data-on-deck-direction="left"] [data-on-deck-outline] {
+  left: calc(-1 * var(--on-deck-arrow-tip-length));
+  right: 0;
+  transform: scaleX(-1);
 }

@@ -476,9 +476,10 @@ export function RosterSlot({
       {showNextHalo && (
         <div
           data-roster-slot-on-deck-halo
-          className="pointer-events-none absolute -inset-2 rounded-lg border-2"
-          style={{ borderColor: "var(--color-parchment-300)" }}
+          data-on-deck-direction={facing}
+          className="pointer-events-none absolute -inset-2"
         >
+          <span data-on-deck-outline aria-hidden="true" />
           <span
             className="absolute left-1/2 -bottom-1.75 -translate-x-1/2 rounded-full px-1.5 py-0 text-[8px] font-bold tracking-wide uppercase"
             style={{

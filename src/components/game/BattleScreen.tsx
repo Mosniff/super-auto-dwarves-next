@@ -50,11 +50,6 @@ export function BattleScreen({
     isFinished,
     advance,
     canAdvance,
-    viewPreviousBeat,
-    viewNextBeat,
-    canViewPrevious,
-    canViewNext,
-    isPlaying,
     pause,
     autoplaySpeed,
     setAutoplaySpeed,
@@ -116,7 +111,8 @@ export function BattleScreen({
       showsPlayerInfoControls
       onPlayerInfoControlOpen={pause}
       playerCurrentBeat={currentBeat}
-      playerRosterTrailingControls={
+      alignsPlayerRosterSlotsTowardFront
+      playerRosterLeadingControls={
         <BattleAutoplayControl
           autoplaySpeed={autoplaySpeed}
           onAutoplaySpeedChange={chooseAutoplaySpeed}
@@ -135,11 +131,6 @@ export function BattleScreen({
           currentBeatDescriptors={currentBeatDescriptors}
           currentBeatType={currentBeatType}
           currentBeat={currentBeat}
-          onViewPreviousBeat={viewPreviousBeat}
-          onViewNextBeat={viewNextBeat}
-          canViewPrevious={canViewPrevious}
-          canViewNext={canViewNext}
-          isPlaying={isPlaying}
           onInfoControlOpen={pause}
           viewedTurn={viewedTurn}
           viewedBeat={viewedBeat}
@@ -148,6 +139,7 @@ export function BattleScreen({
       <RosterSlab
         characters={enemyBenchCharacters}
         variant="enemy"
+        alignsSlotsTowardFront
         presentsFrontSlotAsOnDeck
         showsInfoControls
         onInfoControlOpen={pause}

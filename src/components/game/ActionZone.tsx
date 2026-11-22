@@ -14,11 +14,6 @@ interface ActionZoneProps {
   currentBeatType?: BeatType;
   // Phase 12 battle beat animations; display-only.
   currentBeat?: CurrentBeatEffects;
-  onViewPreviousBeat: () => void;
-  onViewNextBeat: () => void;
-  canViewPrevious: boolean;
-  canViewNext: boolean;
-  isPlaying: boolean;
   onInfoControlOpen?: () => void;
   // the info scroll's viewed position (Phase 14)
   viewedTurn?: number;
@@ -33,11 +28,6 @@ export function ActionZone({
   currentBeatDescriptors,
   currentBeatType,
   currentBeat,
-  onViewPreviousBeat,
-  onViewNextBeat,
-  canViewPrevious,
-  canViewNext,
-  isPlaying,
   onInfoControlOpen,
   viewedTurn,
   viewedBeat,
@@ -59,11 +49,6 @@ export function ActionZone({
         <div className="h-(--info-scroll-height) w-(--info-scroll-width)">
           <InfoScroll
             currentBeatDescriptors={currentBeatDescriptors}
-            onViewPreviousBeat={onViewPreviousBeat}
-            onViewNextBeat={onViewNextBeat}
-            canViewPrevious={canViewPrevious}
-            canViewNext={canViewNext}
-            isPlaying={isPlaying}
             viewedTurn={viewedTurn}
             viewedBeat={viewedBeat}
           />

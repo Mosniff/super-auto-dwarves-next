@@ -16,6 +16,10 @@ interface GameScreenShellProps {
   presentsPlayerFrontSlotAsOnDeck?: boolean;
   showsPlayerCharacterProgression?: boolean;
   playerRosterTrailingControls?: React.ReactNode;
+  // Battle's controls left of the player's slots, and its slot row aligned
+  // toward the front (see RosterSlab). The screen decides.
+  playerRosterLeadingControls?: React.ReactNode;
+  alignsPlayerRosterSlotsTowardFront?: boolean;
   // The screen decides; the slab never learns the phase. Battle turns
   // this on for the player's bench; camp's interactive slots render their
   // own info controls.
@@ -33,6 +37,8 @@ export function GameScreenShell({
   presentsPlayerFrontSlotAsOnDeck = false,
   showsPlayerCharacterProgression = false,
   playerRosterTrailingControls,
+  playerRosterLeadingControls,
+  alignsPlayerRosterSlotsTowardFront = false,
   showsPlayerInfoControls = false,
   onPlayerInfoControlOpen,
   playerCurrentBeat,
@@ -68,6 +74,8 @@ export function GameScreenShell({
             presentsFrontSlotAsOnDeck={presentsPlayerFrontSlotAsOnDeck}
             showsCharacterProgression={showsPlayerCharacterProgression}
             trailingControls={playerRosterTrailingControls}
+            leadingControls={playerRosterLeadingControls}
+            alignsSlotsTowardFront={alignsPlayerRosterSlotsTowardFront}
             showsInfoControls={showsPlayerInfoControls}
             onInfoControlOpen={onPlayerInfoControlOpen}
             currentBeat={playerCurrentBeat}

@@ -11,12 +11,11 @@ describe("characterPortraitSrc", () => {
   it("CP1: looks portraits up by template id, own properties only", () => {
     expect(
       ["borin", "ogden", "fixture-dwarf", "toString"].map(
-        (characterTemplateId) =>
-          characterPortraitSrc({ characterTemplateId }),
+        (characterTemplateId) => characterPortraitSrc({ characterTemplateId }),
       ),
     ).toEqual([
-      "/character_portraits/borin.png",
-      "/character_portraits/ogden.png",
+      "/character_portraits/borin.jpg",
+      "/character_portraits/ogden.jpg",
       null,
       null,
     ]);
@@ -36,7 +35,12 @@ describe("characterPortraitSrc", () => {
       Object.values(CHARACTER_PORTRAIT_FILE_NAMES).filter(
         (portraitFileName) =>
           !existsSync(
-            join(process.cwd(), "public", "character_portraits", portraitFileName),
+            join(
+              process.cwd(),
+              "public",
+              "character_portraits",
+              portraitFileName,
+            ),
           ),
       ),
     ).toEqual([]);

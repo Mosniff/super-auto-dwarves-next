@@ -76,6 +76,7 @@ export function useBattlePlayback(
     };
   }, []);
 
+  // No battle UI uses beat browsing since BR1 (Phase 14); kept for the planned full-screen info-scroll modal.
   const viewPreviousBeat = () => {
     setViewingBeat((currentViewingBeat) => Math.max(currentViewingBeat - 1, 0));
   };

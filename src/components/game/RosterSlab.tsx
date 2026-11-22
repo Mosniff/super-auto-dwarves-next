@@ -50,6 +50,17 @@ interface RosterSlabProps {
   // centred in the slab's trailing box. Battle provides none. The slab
   // never learns what the controls are or why.
   trailingControls?: React.ReactNode;
+  // The same for the slab's leading (left-hand) box (battle's autoplay
+  // control). The slab never learns what the controls are or why.
+  leadingControls?: React.ReactNode;
+  // When true, the slot row sits against the slab's edge on its front's
+  // side instead of centred (battle turns it on for both slabs). The screen
+  // decides; the slab never learns the phase. The front is derived from
+  // variant: the player's front is on the right, the enemy's on the left.
+  // The box on the front's side isn't rendered then, so controls belong in
+  // the box AWAY from the front (leadingControls for the player,
+  // trailingControls for the enemy).
+  alignsSlotsTowardFront?: boolean;
   // When true, every non-interactive slot's card gets an info control
   // ("i"). The screen decides; the slab never learns the phase. Battle
   // turns it on for both slabs; camp's interactive slots render their
@@ -68,6 +79,8 @@ export function RosterSlab({
   presentsFrontSlotAsOnDeck = false,
   showsCharacterProgression = false,
   trailingControls,
+  leadingControls,
+  alignsSlotsTowardFront = false,
   showsInfoControls = false,
   onInfoControlOpen,
   currentBeat,
@@ -88,16 +101,33 @@ export function RosterSlab({
     variant === "player"
       ? Array.from({ length: SLOT_COUNT }, (_, slotIndex) => slotIndex).reverse()
       : Array.from({ length: SLOT_COUNT }, (_, slotIndex) => slotIndex);
+  // Aligned toward the front, only the box away from the front renders.
+  const rendersLeadingArea = !alignsSlotsTowardFront || variant === "player";
+  const rendersTrailingArea = !alignsSlotsTowardFront || variant === "enemy";
 
   return (
-    // The leading and trailing boxes are flex-1 basis-0, so they start at
-    // zero and split the leftover width equally, which keeps the slot row
-    // dead centre. min-w-0 stops the trailing box's content width from
-    // growing it and shifting the slots; controls wider than the box
-    // overflow symmetrically rather than moving the roster. The screen
-    // decides whether to provide controls; the slab never learns the phase.
-    <div className="flex w-full h-(--roster-slab-height) bg-linear-to-b from-slate-100 via-slate-200 to-slate-300 px-5 py-(--roster-slab-padding-y)">
-      <div data-roster-slab-leading-area className="min-w-0 flex-1 basis-0" />
+    // Centred (the default): the leading and trailing boxes are flex-1
+    // basis-0, so they start at zero and split the leftover width equally,
+    // which keeps the slot row dead centre. min-w-0 stops a box's content
+    // width from growing it and shifting the slots; controls wider than the
+    // box overflow symmetrically rather than moving the roster.
+    // Aligned toward the front: the box on the front's side isn't rendered,
+    // so the remaining flex-1 box takes all the leftover width and pushes
+    // the slot row against the front's edge (right for the player, left for
+    // the enemy). The screen decides whether to provide controls and how to
+    // align; the slab never learns the phase.
+    <div
+      data-roster-slot-alignment={alignsSlotsTowardFront ? "front" : "centre"}
+      className="flex w-full h-(--roster-slab-height) bg-linear-to-b from-slate-100 via-slate-200 to-slate-300 px-5 py-(--roster-slab-padding-y)"
+    >
+      {rendersLeadingArea && (
+        <div
+          data-roster-slab-leading-area
+          className="flex min-w-0 flex-1 basis-0 flex-col items-center justify-center"
+        >
+          {leadingControls}
+        </div>
+      )}
       <div className="flex h-full shrink-0 flex-row justify-center gap-(--roster-slot-gap)">
         {slotIndexesInDisplayOrder.map((slotIndex) => {
           const character = characters[slotIndex];
@@ -196,12 +226,14 @@ export function RosterSlab({
           );
         })}
       </div>
-      <div
-        data-roster-slab-trailing-area
-        className="flex min-w-0 flex-1 basis-0 flex-col items-center justify-center"
-      >
-        {trailingControls}
-      </div>
+      {rendersTrailingArea && (
+        <div
+          data-roster-slab-trailing-area
+          className="flex min-w-0 flex-1 basis-0 flex-col items-center justify-center"
+        >
+          {trailingControls}
+        </div>
+      )}
     </div>
   );
 }
