@@ -124,6 +124,9 @@ describe("locale message parity", () => {
     // deliberate test-data update: the info-scroll turn header (Phase 14)
     "turnHeader",
     "preBattleHeader",
+    // deliberate test-data update: accessible names for the scroll's beat-navigation buttons (Phase 14)
+    "viewPreviousBeat",
+    "viewNextBeat",
     "attack",
     "damage",
     "drop",

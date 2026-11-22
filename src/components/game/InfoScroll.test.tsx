@@ -1,25 +1,35 @@
 // @vitest-environment jsdom
+import type { ComponentProps } from "react";
 import { describe, it, expect } from "vitest";
-import { renderWithMessages, screen } from "@/test/renderWithMessages";
+import { renderWithMessages, screen, fireEvent } from "@/test/renderWithMessages";
 import { InfoScroll } from "./InfoScroll";
 import type { BattleEventDescriptor } from "@/lib/battle/types";
 
-// mechanical fixture extension: optional viewed turn and beat (Phase 14)
+// mechanical fixture widening: any prop can be overridden, spread last
+// (the viewed turn and beat, and the navigation props) (Phase 14)
 function renderInfoScroll(
   currentBeatDescriptors: BattleEventDescriptor[],
-  viewedPosition: { viewedTurn?: number; viewedBeat?: number } = {},
+  propOverrides: Partial<ComponentProps<typeof InfoScroll>> = {},
 ) {
   return renderWithMessages(
     <InfoScroll
-      {...viewedPosition}
       currentBeatDescriptors={currentBeatDescriptors}
       onViewPreviousBeat={() => {}}
       onViewNextBeat={() => {}}
       canViewPrevious={false}
       canViewNext={false}
       isPlaying={false}
+      {...propOverrides}
     />,
   );
+}
+
+// Which beat-navigation buttons are on screen: [previous, next].
+function visibleNavigationButtons() {
+  return [
+    screen.queryByRole("button", { name: "Previous beat" }) !== null,
+    screen.queryByRole("button", { name: "Next beat" }) !== null,
+  ];
 }
 
 function logLineTexts() {
@@ -327,5 +337,81 @@ describe("InfoScroll", () => {
         logLine.getAttribute("data-log-line-index"),
       ),
     ).toEqual(["0", "1", "2", "3", "4", "4"]);
+  });
+
+  const attackBeat: BattleEventDescriptor[] = [
+    {
+      kind: "attack",
+      attacker: { name: "Borin", side: "player" },
+      target: { name: "Grukk", side: "enemy" },
+    },
+  ];
+
+  it("NV1: in manual play, between the first and latest beats, both buttons show", () => {
+    renderInfoScroll(attackBeat, {
+      canViewPrevious: true,
+      canViewNext: true,
+      isPlaying: false,
+    });
+
+    expect(visibleNavigationButtons()).toEqual([true, true]);
+  });
+
+  it("NV2: previous hides on the first beat, next hides on the latest", () => {
+    const firstBeatRender = renderInfoScroll(attackBeat, {
+      canViewPrevious: false,
+      canViewNext: true,
+    });
+    const visibleOnFirstBeat = visibleNavigationButtons();
+    firstBeatRender.unmount();
+
+    const latestBeatRender = renderInfoScroll(attackBeat, {
+      canViewPrevious: true,
+      canViewNext: false,
+    });
+    const visibleOnLatestBeat = visibleNavigationButtons();
+    latestBeatRender.unmount();
+
+    expect({ visibleOnFirstBeat, visibleOnLatestBeat }).toEqual({
+      visibleOnFirstBeat: [false, true],
+      visibleOnLatestBeat: [true, false],
+    });
+  });
+
+  it("NV3: during autoplay both buttons hide", () => {
+    renderInfoScroll(attackBeat, {
+      canViewPrevious: true,
+      canViewNext: true,
+      isPlaying: true,
+    });
+
+    expect(visibleNavigationButtons()).toEqual([false, false]);
+  });
+
+  it("NV4: the buttons step to the previous and next beats", () => {
+    const steppedDirections: string[] = [];
+    renderInfoScroll(attackBeat, {
+      canViewPrevious: true,
+      canViewNext: true,
+      onViewPreviousBeat: () => {
+        steppedDirections.push("previous");
+      },
+      onViewNextBeat: () => {
+        steppedDirections.push("next");
+      },
+    });
+
+    const previousBeatButton = screen.queryByRole("button", {
+      name: "Previous beat",
+    });
+    if (previousBeatButton !== null) {
+      fireEvent.click(previousBeatButton);
+    }
+    const nextBeatButton = screen.queryByRole("button", { name: "Next beat" });
+    if (nextBeatButton !== null) {
+      fireEvent.click(nextBeatButton);
+    }
+
+    expect(steppedDirections).toEqual(["previous", "next"]);
   });
 });

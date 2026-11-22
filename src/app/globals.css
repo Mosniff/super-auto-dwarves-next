@@ -971,3 +971,10 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
   background: linear-gradient(to bottom, var(--color-copper-300), var(--color-copper-500));
   color: var(--color-parchment-50);
 }
+
+/* ── Info scroll beat navigation (Phase 14) ──────────
+   The ‹ › buttons sit in the scroll's bottom corners. While either is shown,
+   the panel reserves room at the bottom so lines never sit under them. */
+[data-beat-navigation-shown="true"] {
+  padding-bottom: 3rem;
+}
