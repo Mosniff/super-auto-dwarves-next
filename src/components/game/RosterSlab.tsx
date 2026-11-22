@@ -118,7 +118,7 @@ export function RosterSlab({
     // align; the slab never learns the phase.
     <div
       data-roster-slot-alignment={alignsSlotsTowardFront ? "front" : "centre"}
-      className="flex w-full h-(--roster-slab-height) bg-linear-to-b from-slate-100 via-slate-200 to-slate-300 px-5 py-(--roster-slab-padding-y)"
+      className="flex w-full h-(--roster-slab-height) bg-linear-to-b from-slate-100 via-slate-200 to-slate-300 px-(--roster-slab-padding-x) py-(--roster-slab-padding-y)"
     >
       {rendersLeadingArea && (
         <div

@@ -34,11 +34,14 @@ export function BattleAutoplayControl({
   const t = useTranslations("common");
 
   return (
-    <div className="flex flex-col items-center gap-2">
+    <div
+      data-battle-autoplay-control
+      className="flex flex-col items-center gap-(--battle-autoplay-section-gap) [zoom:var(--battle-autoplay-control-zoom)]"
+    >
       <div
         role="group"
         aria-labelledby="battle-autoplay-label"
-        className="flex flex-col items-center gap-1"
+        className="flex flex-col items-center gap-(--battle-autoplay-label-gap)"
       >
         <span
           id="battle-autoplay-label"
@@ -46,7 +49,7 @@ export function BattleAutoplayControl({
         >
           {t("battleAutoplayLabel")}
         </span>
-        <div className="flex">
+        <div className="flex gap-(--battle-autoplay-button-gap)">
           {SPEED_OPTIONS.map((option) => (
             <Button
               key={option.autoplaySpeed}
