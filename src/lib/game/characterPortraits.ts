@@ -7,9 +7,14 @@ import type { Character } from "./character";
 // template id and every file exists. To give a dwarf art, add or edit one
 // line here.
 export const CHARACTER_PORTRAIT_FILE_NAMES: Readonly<Record<string, string>> = {
-  borin: "borin.png",
-  ogden: "ogden.png",
-  norbin: "norbin.png",
+  // dwarves
+  borin: "borin.jpg",
+  ogden: "ogden.jpg",
+  norbin: "norbin.jpg",
+  // kobolds
+  "kobold-runt": "kobold_runt.jpg",
+  "kobold-thief": "kobold_thief.jpg",
+  "kobold-priest": "kobold_priest.jpg",
 };
 
 export function characterPortraitSrc(

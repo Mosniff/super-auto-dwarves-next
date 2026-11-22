@@ -25,7 +25,9 @@ export function CharacterPortrait({
     return (
       <div
         className="absolute inset-0"
-        style={facing === "left" ? { transform: "scaleX(-1)" } : undefined}
+        // enemy images are now oriented facing left anyway; may need this in
+        // future for pvp battles
+        // style={facing === "left" ? { transform: "scaleX(-1)" } : undefined}
       >
         <Image
           src={portraitSrc}
