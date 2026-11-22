@@ -20,6 +20,9 @@ interface ActionZoneProps {
   canViewNext: boolean;
   isPlaying: boolean;
   onInfoControlOpen?: () => void;
+  // the info scroll's viewed position (Phase 14)
+  viewedTurn?: number;
+  viewedBeat?: number;
 }
 
 export function ActionZone({
@@ -36,6 +39,8 @@ export function ActionZone({
   canViewNext,
   isPlaying,
   onInfoControlOpen,
+  viewedTurn,
+  viewedBeat,
 }: ActionZoneProps) {
   return (
     <div className="flex w-full items-center justify-between">
@@ -59,6 +64,8 @@ export function ActionZone({
             canViewPrevious={canViewPrevious}
             canViewNext={canViewNext}
             isPlaying={isPlaying}
+            viewedTurn={viewedTurn}
+            viewedBeat={viewedBeat}
           />
         </div>
         <ActiveCard

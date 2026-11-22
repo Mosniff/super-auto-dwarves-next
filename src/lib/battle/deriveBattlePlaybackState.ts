@@ -22,6 +22,10 @@ interface BattlePlaybackView {
   // For the playback beat (what's animating now), not the viewing beat
   // (the log being read).
   currentBeatCharacterEffects: Record<string, BeatCharacterEffect>;
+  // The turn in effect at the viewing beat (0 before turn 1), for the info
+  // scroll's header (Phase 14). Taken from the viewing beat, unlike
+  // currentState, which follows the playback beat.
+  viewedTurn: number;
 }
 
 export function deriveBattlePlaybackState(
@@ -61,6 +65,15 @@ export function deriveBattlePlaybackState(
 
   const currentBeatDescriptors = allBeatDescriptors[viewingBeat] ?? [];
 
+  const viewedTurn = allBeatDescriptors
+    .slice(0, viewingBeat + 1)
+    .flat()
+    .reduce(
+      (turnSoFar, descriptor) =>
+        descriptor.kind === "turnStart" ? descriptor.turn : turnSoFar,
+      0,
+    );
+
   const isFinished = playbackBeat >= highestBeat;
 
   const currentBeatType = resolvedBattle.events.find(
@@ -78,5 +91,6 @@ export function deriveBattlePlaybackState(
     isFinished,
     currentBeatType,
     currentBeatCharacterEffects,
+    viewedTurn,
   };
 }

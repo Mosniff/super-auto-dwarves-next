@@ -4,7 +4,8 @@ import type { BattleCharacterSide, BattleEventDescriptor } from "@/lib/battle/ty
 
 export type BattleLogLineIcon =
   | "flag" | "swords" | "damage" | "armour" | "armourBreak" | "drop" | "timeout" | "ability";
-export type BattleLogLineEmphasis = "line" | "turnHeading" | "outcome";
+// turnBegins is the turn-start beat's big line.
+export type BattleLogLineEmphasis = "line" | "turnBegins" | "outcome";
 export interface BattleLogLinePresentation {
   icon: BattleLogLineIcon | null;
   emphasis: BattleLogLineEmphasis;
@@ -18,7 +19,7 @@ export function battleLogLinePresentation(descriptor: BattleEventDescriptor): Ba
     case "frontsEngage":
       return { icon: "swords", emphasis: "line", markerSide: null };
     case "turnStart":
-      return { icon: null, emphasis: "turnHeading", markerSide: null };
+      return { icon: null, emphasis: "turnBegins", markerSide: null };
     case "attack":
       return { icon: "swords", emphasis: "line", markerSide: descriptor.attacker.side };
     case "damage":

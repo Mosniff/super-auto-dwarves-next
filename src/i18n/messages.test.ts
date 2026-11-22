@@ -121,6 +121,9 @@ describe("locale message parity", () => {
     "battleStart",
     "frontsEngage",
     "turnStart",
+    // deliberate test-data update: the info-scroll turn header (Phase 14)
+    "turnHeader",
+    "preBattleHeader",
     "attack",
     "damage",
     "drop",

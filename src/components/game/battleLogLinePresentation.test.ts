@@ -18,7 +18,8 @@ describe("battleLogLinePresentation", () => {
     expect(descriptors.map(battleLogLinePresentation)).toEqual([
       { icon: "flag", emphasis: "line", markerSide: null },
       { icon: "swords", emphasis: "line", markerSide: null },
-      { icon: null, emphasis: "turnHeading", markerSide: null },
+      // deliberate assertion rewrite: emphasis "turnHeading" → "turnBegins" (the turn-start beat's big line, Phase 14)
+      { icon: null, emphasis: "turnBegins", markerSide: null },
       { icon: "timeout", emphasis: "line", markerSide: null },
       { icon: null, emphasis: "outcome", markerSide: null },
     ]);

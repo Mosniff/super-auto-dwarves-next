@@ -98,7 +98,9 @@
   "battle": {
     "battleStart": "{playerFaction}と{enemyFaction}が戦いに備える",
     "frontsEngage": "両軍がぶつかり合う！",
-    "turnStart": "ターン{turn}",
+    "turnStart": "ターン{turn}開始！",
+    "turnHeader": "ターン{turn}",
+    "preBattleHeader": "戦闘前",
     "attack": "<attackerName>{attacker}</attackerName>が<targetName>{target}</targetName>をこうげき！",
     "damage": "<targetName>{target}</targetName>に<number>{amount}</number>ダメージ！（残りHP <number>{resultingHp}</number>）",
     "drop": "<characterName>{character}</characterName>が倒れた",

@@ -4,9 +4,14 @@ import { renderWithMessages, screen } from "@/test/renderWithMessages";
 import { InfoScroll } from "./InfoScroll";
 import type { BattleEventDescriptor } from "@/lib/battle/types";
 
-function renderInfoScroll(currentBeatDescriptors: BattleEventDescriptor[]) {
+// mechanical fixture extension: optional viewed turn and beat (Phase 14)
+function renderInfoScroll(
+  currentBeatDescriptors: BattleEventDescriptor[],
+  viewedPosition: { viewedTurn?: number; viewedBeat?: number } = {},
+) {
   return renderWithMessages(
     <InfoScroll
+      {...viewedPosition}
       currentBeatDescriptors={currentBeatDescriptors}
       onViewPreviousBeat={() => {}}
       onViewNextBeat={() => {}}
@@ -39,6 +44,18 @@ function logLinePresentations() {
     emphasis: logLine.getAttribute("data-log-line-emphasis"),
     side: logLine.getAttribute("data-log-line-side"),
   }));
+}
+
+function turnHeader() {
+  const turnHeaderElement = document.querySelector(
+    "[data-info-scroll-turn-header]",
+  );
+  return turnHeaderElement === null
+    ? null
+    : {
+        kind: turnHeaderElement.getAttribute("data-info-scroll-turn-header"),
+        text: turnHeaderElement.textContent,
+      };
 }
 
 describe("InfoScroll", () => {
@@ -203,8 +220,100 @@ describe("InfoScroll", () => {
     ]);
 
     expect(logLinePresentations()).toEqual([
-      { icon: null, emphasis: "turnHeading", side: null },
+      // deliberate assertion rewrite: emphasis "turnHeading" → "turnBegins" (the turn-start beat's big line, Phase 14)
+      { icon: null, emphasis: "turnBegins", side: null },
       { icon: null, emphasis: "outcome", side: null },
     ]);
+  });
+
+  it("TH1: during a turn, the header at the top shows the viewed turn", () => {
+    renderInfoScroll(
+      [
+        {
+          kind: "attack",
+          attacker: { name: "Borin", side: "player" },
+          target: { name: "Grukk", side: "enemy" },
+        },
+      ],
+      { viewedTurn: 3, viewedBeat: 8 },
+    );
+
+    expect(turnHeader()).toEqual({ kind: "turn", text: "Turn 3" });
+  });
+
+  it("TH2: before turn 1, the header reads Pre-battle", () => {
+    renderInfoScroll([{ kind: "frontsEngage" }], {
+      viewedTurn: 0,
+      viewedBeat: 1,
+    });
+
+    expect(turnHeader()).toEqual({ kind: "preBattle", text: "Pre-battle" });
+  });
+
+  it("TH3: on a turn-start beat the header hides and the big turn-begins line fills the scroll", () => {
+    renderInfoScroll([{ kind: "turnStart", turn: 3 }], {
+      viewedTurn: 3,
+      viewedBeat: 7,
+    });
+
+    expect({
+      header: turnHeader(),
+      lines: logLineTexts(),
+      emphasis: logLinePresentations().map(
+        (presentation) => presentation.emphasis,
+      ),
+    }).toEqual({
+      header: null,
+      lines: ["Turn 3 begins!"],
+      emphasis: ["turnBegins"],
+    });
+  });
+
+  it("SE1: each new viewed beat re-mounts the lines, so they slide in again", () => {
+    const attackDescriptors: BattleEventDescriptor[] = [
+      {
+        kind: "attack",
+        attacker: { name: "Borin", side: "player" },
+        target: { name: "Grukk", side: "enemy" },
+      },
+    ];
+    const { rerender } = renderInfoScroll(attackDescriptors, {
+      viewedTurn: 1,
+      viewedBeat: 3,
+    });
+    const lineBefore = document.querySelector("li");
+
+    rerender(
+      <InfoScroll
+        currentBeatDescriptors={attackDescriptors}
+        onViewPreviousBeat={() => {}}
+        onViewNextBeat={() => {}}
+        canViewPrevious={false}
+        canViewNext={false}
+        isPlaying={false}
+        viewedTurn={2}
+        viewedBeat={5}
+      />,
+    );
+
+    expect(document.querySelector("li") === lineBefore).toBe(false);
+  });
+
+  it("SE2: lines carry their stagger index, capped at 4 so a long beat still finishes in time", () => {
+    renderInfoScroll(
+      [1, 2, 3, 4, 5, 6].map((amount) => ({
+        kind: "abilityDamage" as const,
+        abilityId: "yip-strike" as const,
+        target: { name: "Grukk", side: "enemy" as const },
+        amount,
+      })),
+      { viewedTurn: 1, viewedBeat: 3 },
+    );
+
+    expect(
+      [...document.querySelectorAll("li")].map((logLine) =>
+        logLine.getAttribute("data-log-line-index"),
+      ),
+    ).toEqual(["0", "1", "2", "3", "4", "4"]);
   });
 });

@@ -21,6 +21,7 @@ import {
   type BattleLogLineIcon,
 } from "@/components/game/battleLogLinePresentation";
 import { textHighlightTags } from "@/components/game/textHighlightTags";
+import { infoScrollHeader } from "@/components/game/infoScrollHeader";
 import type { BattleEventDescriptor } from "@/lib/battle/types";
 
 const BATTLE_LOG_LINE_ICONS: Record<BattleLogLineIcon, LucideIcon> = {
@@ -41,6 +42,11 @@ const ROD_SHADOW = "0 2px 4px rgba(0,0,0,0.35)";
 const NAVIGATION_BUTTON_CLASS_NAME =
   "self-center border-ink-700/40 bg-parchment-50 text-ink-700 hover:bg-parchment-200 hover:text-ink-900";
 
+// Lines slide in one after another; the stagger stops growing here so a
+// long beat still finishes inside its beat. globals.css → "Battle log
+// lines" holds the timing.
+const MAX_LOG_LINE_STAGGER_INDEX = 4;
+
 interface InfoScrollProps {
   currentBeatDescriptors: BattleEventDescriptor[];
   onViewPreviousBeat: () => void;
@@ -48,6 +54,9 @@ interface InfoScrollProps {
   canViewPrevious: boolean;
   canViewNext: boolean;
   isPlaying: boolean;
+  // the turn in effect at the viewed beat, and the viewed beat (Phase 14)
+  viewedTurn?: number;
+  viewedBeat?: number;
 }
 
 export function InfoScroll({
@@ -57,10 +66,13 @@ export function InfoScroll({
   canViewPrevious,
   canViewNext,
   isPlaying,
+  viewedTurn = 0,
+  viewedBeat = 0,
 }: InfoScrollProps) {
   const t = useTranslations("battle");
   const translateAbility = useTranslations("ability");
   const translateFaction = useTranslations("faction");
+  const header = infoScrollHeader(viewedTurn, currentBeatDescriptors);
 
   return (
     <div className="flex h-full flex-col">
@@ -73,6 +85,16 @@ export function InfoScroll({
         className="flex min-h-0 flex-1 flex-col bg-parchment-100 p-4"
         style={{ boxShadow: "inset 0 0 24px rgba(120,90,40,0.35)" }}
       >
+        {header.kind !== "hidden" && (
+          <div
+            data-info-scroll-turn-header={header.kind}
+            className="mb-2 border-b border-ink-700/20 pb-2 text-center text-sm font-bold uppercase tracking-wide text-ink-700"
+          >
+            {header.kind === "turn"
+              ? t("turnHeader", { turn: header.turn })
+              : t("preBattleHeader")}
+          </div>
+        )}
         <div className="flex min-h-0 flex-1 items-stretch gap-2">
           <Button
             variant="outline"
@@ -85,7 +107,10 @@ export function InfoScroll({
           </Button>
 
           {currentBeatDescriptors.length > 0 ? (
-            <ul className="min-h-0 flex-1 space-y-1 overflow-y-auto">
+            <ul
+              key={viewedBeat}
+              className="min-h-0 flex-1 space-y-1 overflow-y-auto"
+            >
               {currentBeatDescriptors.map((currentBeatDescriptor, index) => {
                 const message = battleLogMessage(currentBeatDescriptor);
                 // Faction words are translated here, at the leaf (Phase 13).
@@ -114,6 +139,18 @@ export function InfoScroll({
                     data-log-line-icon={presentation.icon ?? undefined}
                     data-log-line-emphasis={presentation.emphasis}
                     data-log-line-side={presentation.markerSide ?? undefined}
+                    data-log-line-index={Math.min(
+                      index,
+                      MAX_LOG_LINE_STAGGER_INDEX,
+                    )}
+                    style={
+                      {
+                        "--log-line-index": Math.min(
+                          index,
+                          MAX_LOG_LINE_STAGGER_INDEX,
+                        ),
+                      } as React.CSSProperties
+                    }
                     className="flex items-start gap-2 text-sm text-ink-700"
                   >
                     {LineIcon !== null && (

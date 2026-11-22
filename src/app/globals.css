@@ -900,22 +900,52 @@
 [data-log-line-side="enemy"] [data-log-line-icon-glyph] {
   color: var(--highlight-enemy-colour);
 }
-[data-log-line-emphasis="turnHeading"] {
+/* The turn-start beat: the header hides and this line fills the scroll. */
+[data-log-line-emphasis="turnBegins"] {
   align-items: center;
-  font-variant: small-caps;
-  letter-spacing: 0.08em;
-  font-weight: 600;
-  opacity: 0.75;
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding-block: 0.75rem;
 }
-[data-log-line-emphasis="turnHeading"]::before,
-[data-log-line-emphasis="turnHeading"]::after {
+[data-log-line-emphasis="turnBegins"]::before,
+[data-log-line-emphasis="turnBegins"]::after {
   content: "";
   flex: 1;
-  border-top: 1px solid currentColor;
+  border-top: 2px solid currentColor;
   opacity: 0.5;
+}
+ul:has(> [data-log-line-emphasis="turnBegins"]) {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 [data-log-line-emphasis="outcome"] {
   justify-content: center;
   font-size: 1.25rem;
   font-weight: 700;
+}
+/* Each beat's lines slide in from the left, one after another
+   (InfoScroll keys the list by the viewed beat, so every beat replays
+   it). Longest entry = 4 × stagger + duration = 520ms, inside every beat
+   long enough to hold five lines. None under reduced motion. */
+:root {
+  --log-line-enter-duration: 200ms;
+  --log-line-stagger: 80ms;
+}
+@keyframes log-line-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-1rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-log-line-emphasis] {
+    animation: log-line-enter var(--log-line-enter-duration) ease-out both;
+    animation-delay: calc(var(--log-line-index, 0) * var(--log-line-stagger));
+  }
 }

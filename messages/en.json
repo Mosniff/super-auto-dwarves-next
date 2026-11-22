@@ -98,7 +98,9 @@
   "battle": {
     "battleStart": "The {playerFaction} and the {enemyFaction} prepare for battle",
     "frontsEngage": "The parties clash!",
-    "turnStart": "Turn {turn}",
+    "turnStart": "Turn {turn} begins!",
+    "turnHeader": "Turn {turn}",
+    "preBattleHeader": "Pre-battle",
     "attack": "<attackerName>{attacker}</attackerName> attacks <targetName>{target}</targetName>",
     "damage": "<targetName>{target}</targetName> takes <number>{amount}</number> damage (<number>{resultingHp}</number> HP)",
     "drop": "<characterName>{character}</characterName> drops",

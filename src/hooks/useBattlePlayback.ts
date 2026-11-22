@@ -142,5 +142,8 @@ export function useBattlePlayback(
     pause,
     autoplaySpeed,
     setAutoplaySpeed,
+    // the beat the log shows, and the turn in effect at it (Phase 14)
+    viewedBeat: viewingBeat,
+    viewedTurn: view.viewedTurn,
   };
 }

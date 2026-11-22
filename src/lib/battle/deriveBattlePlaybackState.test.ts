@@ -204,4 +204,17 @@ describe("deriveBattlePlaybackState", () => {
       target: { name: "Grukk (shown)", side: "enemy" },
     });
   });
+
+  // The fixture battle's beats: 0 battleStart, 1 engage, 2 turnStart 1,
+  // 3 clash, 4 turnStart 2, 5 clash, 6 drop, 7 turnStart 3, 8 clash,
+  // 9 drop, 10 end.
+  it("DP-T: viewedTurn is the turn in effect at the viewed beat (0 before turn 1)", () => {
+    expect(
+      [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(
+        (viewingBeat) =>
+          deriveBattlePlaybackState(resolvedBattle, highestBeat, viewingBeat)
+            .viewedTurn,
+      ),
+    ).toEqual([0, 0, 0, 1, 1, 2, 2, 2, 3, 3, 3, 3]);
+  });
 });

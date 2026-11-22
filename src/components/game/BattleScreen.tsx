@@ -52,6 +52,8 @@ export function BattleScreen({
     pause,
     autoplaySpeed,
     setAutoplaySpeed,
+    viewedTurn,
+    viewedBeat,
   } = useBattlePlayback(resolvedBattle, displayCharacterName);
 
   const currentBeat = {
@@ -127,6 +129,8 @@ export function BattleScreen({
           canViewNext={canViewNext}
           isPlaying={isPlaying}
           onInfoControlOpen={pause}
+          viewedTurn={viewedTurn}
+          viewedBeat={viewedBeat}
         />
       </section>
       <RosterSlab

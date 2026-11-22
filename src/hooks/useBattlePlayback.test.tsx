@@ -142,6 +142,30 @@ describe("useBattlePlayback", () => {
     });
   });
 
+  it("VB1: exposes the viewed beat and the turn in effect at it", () => {
+    const { result } = renderHook(() => useBattlePlayback(resolvedBattle));
+    const viewedPositions: unknown[] = [];
+
+    viewedPositions.push({
+      viewedBeat: result.current.viewedBeat,
+      viewedTurn: result.current.viewedTurn,
+    });
+
+    act(() => {
+      result.current.advance();
+    });
+
+    viewedPositions.push({
+      viewedBeat: result.current.viewedBeat,
+      viewedTurn: result.current.viewedTurn,
+    });
+
+    expect(viewedPositions).toEqual([
+      { viewedBeat: -1, viewedTurn: 0 },
+      { viewedBeat: 0, viewedTurn: 0 },
+    ]);
+  });
+
   describe("autoplay", () => {
     beforeEach(() => {
       vi.useFakeTimers();
