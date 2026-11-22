@@ -33,7 +33,8 @@ describe("SaveSlab", () => {
     );
 
     expect(screen.getByText(/Day 3/)).toBeInTheDocument();
-    expect(screen.getByText(/Camp/)).toBeInTheDocument();
+    // deliberate assertion rewrite: the camp phase is labelled "Shop" (BR4)
+    expect(screen.getByText(/Shop/)).toBeInTheDocument();
     expect(screen.getByText(/Started/)).toBeInTheDocument();
 
     const resumeLink = screen.getByRole("link", { name: "Resume" });

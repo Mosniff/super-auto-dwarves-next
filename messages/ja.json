@@ -23,7 +23,7 @@
     "startedOn": "{date}開始",
     "dayLabel": "{day}日目",
     "depthLabel": "第{depth}階層",
-    "phaseCamp": "キャンプ",
+    "phaseCamp": "ショップ",
     "phaseBattle": "バトル",
     "deleteSaveTitle": "このセーブデータをさくじょしますか？",
     "deleteSaveDescription": "この操作は元に戻せません。",

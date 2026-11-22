@@ -20,7 +20,10 @@ export function DiscardPile({ downedCharacters }: DiscardPileProps) {
   const t = useTranslations("common");
 
   return (
-    <div className="relative aspect-3/4 h-(--discard-pile-height) shrink-0">
+    <div
+      data-discard-pile
+      className="relative aspect-3/4 h-(--discard-pile-height) shrink-0"
+    >
       {hasDowned && (
         // Blank card-back — no character info, no portrait, no stats. Stays
         // exactly like this as the pile grows; only the count badge changes.

@@ -108,8 +108,9 @@ describe("GameScreenShell", () => {
         .querySelector("[data-game-phase-banner]")
         ?.getAttribute("data-game-phase-banner") ?? null,
     ).toBe("campPhase");
+    // deliberate assertion rewrite: the camp phase banner reads "Shop" (BR4)
     expect(
-      screen.queryByRole("heading", { level: 1, name: "Camp" }),
+      screen.queryByRole("heading", { level: 1, name: "Shop" }),
     ).not.toBeNull();
   });
 
@@ -133,5 +134,29 @@ describe("GameScreenShell", () => {
     expect(
       screen.queryByRole("heading", { level: 1, name: englishPhaseBattleLabel }),
     ).not.toBeNull();
+  });
+
+  it("PB1: with the phase banner switched off, there is no banner but the phase is still the page heading", () => {
+    render(
+      wrapWithMessages(
+        <GameScreenShell
+          gamePhase="battlePhase"
+          playerBenchCharacters={sevenEmptySlots}
+          showsPhaseBanner={false}
+        >
+          <p>Shell content</p>
+        </GameScreenShell>,
+      ),
+    );
+
+    expect({
+      hasPhaseBanner:
+        document.querySelector("[data-game-phase-banner]") !== null,
+      hasBattleHeading:
+        screen.queryByRole("heading", {
+          level: 1,
+          name: englishPhaseBattleLabel,
+        }) !== null,
+    }).toEqual({ hasPhaseBanner: false, hasBattleHeading: true });
   });
 });

@@ -23,7 +23,7 @@
     "startedOn": "Started {date}",
     "dayLabel": "Day {day}",
     "depthLabel": "Depth {depth}",
-    "phaseCamp": "Camp",
+    "phaseCamp": "Shop",
     "phaseBattle": "Battle",
     "deleteSaveTitle": "Delete this save?",
     "deleteSaveDescription": "This can't be undone.",

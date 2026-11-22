@@ -106,6 +106,7 @@ export function BattleScreen({
   return (
     <GameScreenShell
       gamePhase="battlePhase"
+      showsPhaseBanner={false}
       playerBenchCharacters={playerBenchCharacters}
       presentsPlayerFrontSlotAsOnDeck
       showsPlayerInfoControls
@@ -126,8 +127,6 @@ export function BattleScreen({
         <ActionZone
           playerFrontCharacter={playerFrontCharacter}
           enemyFrontCharacter={enemyFrontCharacter}
-          playerDownedCharacters={currentState.player.downedCharacters}
-          enemyDownedCharacters={currentState.enemy.downedCharacters}
           currentBeatDescriptors={currentBeatDescriptors}
           currentBeatType={currentBeatType}
           currentBeat={currentBeat}

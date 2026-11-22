@@ -194,7 +194,8 @@ describe("CampScreen", () => {
   it("(a) shows the camp heading, and renders no To battle button itself (that's the header's job now)", () => {
     renderCampScreen();
 
-    expect(screen.getByText("Camp")).toBeInTheDocument();
+    // deliberate assertion rewrite: the camp phase banner reads "Shop" (BR4)
+    expect(screen.getByText("Shop")).toBeInTheDocument();
     expect(screen.queryByText(/Day 3/)).toBeNull();
     expect(screen.queryByText(/10 gold/)).toBeNull();
     expect(
@@ -449,9 +450,10 @@ describe("CampScreen", () => {
   it("(g) has exactly one page heading, the camp phase", () => {
     renderCampScreen();
 
+    // deliberate assertion rewrite: the camp phase banner reads "Shop" (BR4)
     expect(
       screen.getAllByRole("heading", { level: 1 }).map((headingElement) => headingElement.textContent),
-    ).toEqual(["Camp"]);
+    ).toEqual(["Shop"]);
   });
 
   it("(k) the front roster card has no on-deck marker in camp", () => {

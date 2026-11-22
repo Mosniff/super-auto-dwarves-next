@@ -305,6 +305,22 @@ describe("BattleScreen", () => {
     });
   });
 
+  it("BS1: the battle screen shows no phase banner and no downed piles", () => {
+    renderWithMessages(
+      <BattleScreen
+        resolvedBattle={playerWinResolvedBattle}
+        playerCampRoster={playerWinCampRoster}
+      />,
+    );
+
+    expect({
+      hasPhaseBanner:
+        document.querySelector("[data-game-phase-banner]") !== null,
+    }).toEqual({ hasPhaseBanner: false });
+    // deliberate assertion rewrite: check the pile element, not the word, since cards carry their own Downed overlay (BR4)
+    expect(document.querySelector("[data-discard-pile]")).toBeNull();
+  });
+
   it("(h) shows the battle phase as the page heading", () => {
     renderWithMessages(
       <BattleScreen

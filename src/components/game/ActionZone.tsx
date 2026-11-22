@@ -1,5 +1,4 @@
 import { ActiveCard } from "@/components/game/ActiveCard";
-import { DiscardPile } from "@/components/game/DiscardPile";
 import { InfoScroll } from "@/components/game/InfoScroll";
 import type { BattleEventDescriptor, BeatType } from "@/lib/battle/types";
 import type { CurrentBeatEffects } from "@/lib/battle/beatCharacterEffects";
@@ -8,8 +7,6 @@ import type { Character } from "@/lib/game/character";
 interface ActionZoneProps {
   playerFrontCharacter?: Character;
   enemyFrontCharacter?: Character;
-  playerDownedCharacters: Character[];
-  enemyDownedCharacters: Character[];
   currentBeatDescriptors: BattleEventDescriptor[];
   currentBeatType?: BeatType;
   // Phase 12 battle beat animations; display-only.
@@ -23,8 +20,6 @@ interface ActionZoneProps {
 export function ActionZone({
   playerFrontCharacter,
   enemyFrontCharacter,
-  playerDownedCharacters,
-  enemyDownedCharacters,
   currentBeatDescriptors,
   currentBeatType,
   currentBeat,
@@ -32,13 +27,12 @@ export function ActionZone({
   viewedTurn,
   viewedBeat,
 }: ActionZoneProps) {
+  // The downed piles are hidden for now (Phase 14) and will return:
+  // DiscardPile.tsx is kept, and the battle state still carries
+  // downedCharacters.
   return (
-    <div className="flex w-full items-center justify-between">
-      <DiscardPile
-        variant="player"
-        downedCharacters={playerDownedCharacters}
-      />
-      <div className="flex items-center justify-center gap-8">
+    <div className="flex w-full items-center justify-center">
+      <div className="flex items-center justify-center gap-(--action-zone-gap)">
         <ActiveCard
           character={playerFrontCharacter}
           facing="right"
@@ -61,7 +55,6 @@ export function ActionZone({
           onInfoControlOpen={onInfoControlOpen}
         />
       </div>
-      <DiscardPile variant="enemy" downedCharacters={enemyDownedCharacters} />
     </div>
   );
 }

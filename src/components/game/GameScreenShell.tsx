@@ -20,6 +20,10 @@ interface GameScreenShellProps {
   // toward the front (see RosterSlab). The screen decides.
   playerRosterLeadingControls?: React.ReactNode;
   alignsPlayerRosterSlotsTowardFront?: boolean;
+  // The screen decides whether the phase banner shows; battle turns it off
+  // to save space (Phase 14). The phase stays the page heading, visually
+  // hidden.
+  showsPhaseBanner?: boolean;
   // The screen decides; the slab never learns the phase. Battle turns
   // this on for the player's bench; camp's interactive slots render their
   // own info controls.
@@ -39,6 +43,7 @@ export function GameScreenShell({
   playerRosterTrailingControls,
   playerRosterLeadingControls,
   alignsPlayerRosterSlotsTowardFront = false,
+  showsPhaseBanner = true,
   showsPlayerInfoControls = false,
   onPlayerInfoControlOpen,
   playerCurrentBeat,
@@ -81,7 +86,10 @@ export function GameScreenShell({
             currentBeat={playerCurrentBeat}
           />
         </div>
-        <GamePhaseBanner gamePhase={gamePhase} />
+        <GamePhaseBanner
+          gamePhase={gamePhase}
+          isVisuallyHidden={!showsPhaseBanner}
+        />
       </div>
       {/* The phase swipe, always forward: the outgoing screen's content
           slides out to the left while the incoming screen's content slides

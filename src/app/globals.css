@@ -397,22 +397,32 @@
   );
 
   /* Battle centre: the height left between the two slabs (0.25rem is
-     the player slab's iron bottom edge). */
+     the player slab's iron bottom edge). Battle shows no phase banner, so
+     there is no banner term. */
   --battle-centre-padding: clamp(
-    0.5rem,
-    calc(var(--layout-window-height) * 0.02),
-    1.5rem
+    1rem,
+    calc(var(--layout-window-height) * 0.05),
+    3.5rem
   );
   --battle-centre-height: calc(
-    var(--layout-window-height) - var(--game-header-height) -
-      var(--phase-banner-height) - 2 * var(--roster-slab-height) - 0.25rem
+    var(--layout-window-height) - var(--game-header-height) - 2 *
+      var(--roster-slab-height) - 0.25rem
   );
   --active-card-height: min(
-    24rem,
+    30rem,
     calc(var(--battle-centre-height) - 2 * var(--battle-centre-padding))
   );
-  --info-scroll-height: min(16rem, calc(var(--active-card-height) * 0.85));
-  --info-scroll-width: min(28rem, calc(var(--layout-window-width) * 0.3));
+  /* The scroll fills the battle centre's height; its width follows its
+     height (1.75:1) but never more than 30% of the window. */
+  --info-scroll-height: calc(
+    var(--battle-centre-height) - 2 * var(--battle-centre-padding)
+  );
+  --info-scroll-width: min(
+    calc(var(--info-scroll-height) * 1.75),
+    calc(var(--layout-window-width) * 0.3)
+  );
+  /* The gap between each front card and the info scroll. */
+  --action-zone-gap: clamp(2rem, calc(var(--layout-window-width) * 0.03), 4rem);
   --discard-pile-height: var(--roster-card-height);
 
   /* Camp centre: the shop under the player slab. The shop is 9 tile
@@ -420,7 +430,13 @@
      5 tile gaps and 3 shelf gaps across; 1.75rem is a shelf heading and
      its gap; tiles are 3:4, so 3/8 turns the two rows' height into a
      tile width. The 2560×1440 cap matches the old 3xl size. */
-  --camp-centre-padding: var(--battle-centre-padding);
+  /* Camp keeps its own copy of the battle centre's old padding, so the
+     shop is unchanged by battle's tighter padding (Phase 14). */
+  --camp-centre-padding: clamp(
+    0.5rem,
+    calc(var(--layout-window-height) * 0.02),
+    1.5rem
+  );
   --camp-centre-height: calc(
     var(--layout-window-height) - var(--game-header-height) -
       var(--phase-banner-height) - var(--roster-slab-height) - 0.25rem
