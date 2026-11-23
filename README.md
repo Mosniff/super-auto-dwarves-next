@@ -1,8 +1,26 @@
 # Super Auto Dwarves - Next
 
+[![CI](https://github.com/Mosniff/super-auto-dwarves-next/actions/workflows/ci.yml/badge.svg)](https://github.com/Mosniff/super-auto-dwarves-next/actions/workflows/ci.yml)
+
+**Play it:** https://super-auto-dwarves-next.vercel.app/ — a personal project in active development, so saves may be wiped.
+
 A fantasy auto-battler inspired by Super Auto Pets, Choose Your Own Adventure games, and Dungeons & Dragons. The game features both PvE and asynchronous PvP battles.
 
-> **Status:** Architecture and tech stack decided; project scaffolded. The **fundamental battle system** is specified (see [Battle system](#battle-system)), the app is **internationalized** (English + Japanese, via next-intl), and the **save loop** is playable end to end: guest sessions, one save per user, buying and arranging dwarves, then battling with them. Characters are real game data: classes, tiers, factions and character templates are defined, and every character — your dwarves and the enemies — is spawned from a template. The character shop has 8 slots (3 open, 5 locked), rolled on the server at every camp start and stored with the game, and dwarves are bought from it slot by slot. Dwarves gain **experience and levels** by merging duplicates — buying a matching dwarf onto one, or merging two roster dwarves in a merge/sell mode (hold Shift or use the toggle) — and can be **sold** for gold. Each character type has an **ability** whose strength grows with its level (five so far: on gaining experience, at the start of battle, at the start of each turn and at the start of camp), and characters can have **armour**, which absorbs hits. An "i" on any card opens an expanded view with its ability's level texts. Each battle's enemies are **generated** from a faction's enemy list — the **kobolds** so far — growing stronger with the day and the run's **depth**, and **losing a battle ends the run**. Other game systems (cards, richer shopping, PvP opponents, rewards for winning, more abilities) remain to be defined — see the [Roadmap](#roadmap) and `CLAUDE.md` for contributor/architecture conventions.
+## Testing at a glance
+
+**766 tests across 91 files**, run on every push by GitHub Actions (a type check, then the tests with coverage). The game logic is written test-first: every rule starts as a failing test.
+
+| Scope                                                        | Lines     | Branches  | Functions |
+| ------------------------------------------------------------ | --------- | --------- | --------- |
+| **Game and battle rules** (`src/lib/game`, `src/lib/battle`) | **95.8%** | **96.0%** | **100%**  |
+| All logic and server code (`src/lib`)                        | 90.1%     | 92.7%     | 88.0%     |
+| Whole app (`src`, UI components included)                    | 84.2%     | 86.9%     | 82.3%     |
+
+The rules are the headline because they are the game. A battle is a deterministic function of two rosters, so the rules can be tested exhaustively as pure functions, with no browser and no database. UI components are tested for behaviour and state in jsdom; how they look is checked by eye. _Measured at the end of Phase 14; `npm run test:coverage` reproduces it._
+
+---
+
+> **Status:** Architecture and tech stack decided; project scaffolded. The **fundamental battle system** is specified (see [Battle system](#battle-system)), the app is **internationalized** (English + Japanese, via next-intl), and the **save loop** is playable end to end: guest sessions, one save per user, buying and arranging dwarves, then battling with them. Characters are real game data: classes, tiers, factions and character templates are defined, and every character — your dwarves and the enemies — is spawned from a template. The character shop has 8 slots (3 open, 5 locked), rolled on the server at every camp start and stored with the game, and dwarves are bought from it slot by slot. Dwarves gain **experience and levels** by merging duplicates — buying a matching dwarf onto one, or merging two roster dwarves in a merge/sell mode (hold Shift or use the toggle) — and can be **sold** for gold. Each character type has an **ability** whose strength grows with its level (five so far: on gaining experience, at the start of battle, at the start of each turn and at the start of camp), and characters can have **armour**, which absorbs hits. An "i" on any card opens an expanded view with its ability's level texts. Each battle's enemies are **generated** from a faction's enemy list — the **kobolds** so far — growing stronger with the day and the run's **depth**, and **losing a battle ends the run**. The game is **deployed** (Vercel), fits any desktop or laptop window down to 1200 × 600, and battles play out with a battle log that highlights names and numbers and autoplay at two speeds. Other game systems (cards, richer shopping, PvP opponents, rewards for winning, more abilities) remain to be defined — see the [Roadmap](#roadmap) and `CLAUDE.md` for contributor/architecture conventions.
 
 ---
 
@@ -34,8 +52,10 @@ PvP works without any live connection between players. Because a battle is fully
 | Auth                 | **Supabase Auth**                                   | Anonymous-first guest sessions — no sign-up screen. Permanent logins come later by linking an identity to the guest, keeping the same user id (and save). |
 | Data mutations       | **Server Actions** (preferred) / Route Handlers     | Idiomatic modern Next.js.                                                                                                                                 |
 | Internationalization | **next-intl**                                       | Route-segment locales (/en, /ja); English + Japanese.                                                                                                     |
-| Testing              | **Vitest**                                          | Pure-logic unit tests + lighter integration tests.                                                                                                        |
-| Hosting              | **Vercel**                                          | Next.js's native deployment target.                                                                                                                       |
+| Testing              | **Vitest** + **@vitest/coverage-v8**                | Pure-logic unit tests, handler tests against fake repositories, jsdom component tests; coverage reports.                                                  |
+| CI                   | **GitHub Actions**                                  | Type check and tests with coverage on every push to `main`.                                                                                               |
+| Hosting              | **Vercel**                                          | Production deploys from `main`; functions in Frankfurt (fra1), next to the database.                                                                      |
+| Bot protection       | **Cloudflare Turnstile**                            | CAPTCHA on guest sign-in, verified by Supabase Auth.                                                                                                      |
 
 ---
 
@@ -97,21 +117,33 @@ See `CLAUDE.md` for the full set of architectural rules and conventions.
 
 Tests use **Vitest**. The bulk are fast pure-logic unit tests over the framework-free game-logic modules (the battle system and camp rules especially), plus handler tests that run against fake repositories and jsdom component tests that check interaction states. The battle system being a deterministic function of two rosters makes it straightforward to test exhaustively.
 
+Pure logic is written test-first (red, then green), and every push runs the type check and the full suite with coverage in GitHub Actions — see [Testing at a glance](#testing-at-a-glance) for the numbers.
+
+```bash
+npm run test:run        # the whole suite once
+npm run test            # watch mode
+npm run test:coverage   # with a coverage report (summary in the terminal, HTML in coverage/)
+```
+
 ---
 
 ## Getting started
 
-> _Setup instructions to be completed._
+Requires Node 22 and a Supabase project. Copy `.env.example` to `.env.local` and fill in the values — real values never go in the repo.
 
 ```bash
-# install dependencies
-# (placeholder)
+# install dependencies (this also generates the Prisma client)
+npm install
+
+# apply the database migrations (uses DIRECT_URL)
+npx prisma migrate deploy
+# then apply the scripts in prisma/manual-sql/ by hand, in order (each file explains itself)
 
 # run the dev server
-# (placeholder)
+npm run dev
 
-# run tests
-# (placeholder)
+# run the tests
+npm run test:run
 ```
 
 ---
@@ -133,6 +165,8 @@ The **fundamental battle system** is specified (see above). Still to be specifie
 - [~] Enemy generation — PvE encounters from faction enemy lists by depth, stored with the game _(Phase 13)_; more lists and PvP roster snapshots to come
 - [~] Battle consequences — game over on loss _(Phase 13)_; rewards on win to come
 - [x] Factions, depth and the kobolds — a faction on every character and card, a depth counter, seeded battle randomness, translated character names, a game-over screen, and the first enemy list with two new ability triggers (battle-start damage, turn start) _(Phase 13; see `CLAUDE.md` → "Factions, enemies and game over (Phase 13)")_
+- [x] Deployment and hardening — Vercel, a security review, security headers, a Turnstile CAPTCHA on guest sign-in, coverage reporting and CI _(Phase 14; see `CLAUDE.md` → "Deployment and hosting (Phase 14)")_
+- [x] Fit-the-window layout and battle-screen polish — every screen fits the window down to 1200 × 600; highlighted names and numbers; a redesigned battle log and autoplay (Off / Slow / Fast); a battle layout with front-aligned rosters, a side NEXT marker and a log that fills the centre _(Phase 14; see `CLAUDE.md` → "Window-fitting layout and the battle screen (Phase 14)")_
 - [ ] Card model and card types
 - [x] Abilities, armour and the expanded card — armour as a stat that absorbs hits; one ability per character type with five level strengths and three triggers (gaining experience, battle start, camp start); a battle opening of prepare → abilities → engage; an "i" control and expanded card view; a clearer held selection; character portraits; a start-of-camp sequence _(Phase 12; see `CLAUDE.md` → "Abilities and armour (Phase 12)")_
 - [~] Character stats and progression / leveling rules — experience and levels defined _(Phase 11)_; levels set ability strength and armour joins attack and hp _(Phase 12)_
