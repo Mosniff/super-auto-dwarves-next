@@ -20,5 +20,13 @@ export default defineConfig({
         inline: ["next-intl"],
       },
     },
+    coverage: {
+      provider: "v8",
+      // Count all source files, tested or not; tests, test helpers and the
+      // Prisma-generated client are not source.
+      include: ["src/**/*.{ts,tsx}"],
+      exclude: ["src/**/*.test.{ts,tsx}", "src/test/**", "src/generated/**"],
+      reporter: ["text-summary", "json-summary", "html"],
+    },
   },
 });
