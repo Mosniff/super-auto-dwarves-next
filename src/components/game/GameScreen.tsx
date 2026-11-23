@@ -52,7 +52,11 @@ export function GameScreen({
           <HeaderGoldDisplayProvider>
             <div className="flex min-h-0 flex-1 flex-col">
               {header}
-              <div className="grid flex-1 grid-cols-1 grid-rows-1 overflow-hidden">
+              {/* The phase swipe needs a horizontal clip only; vertical
+                  stays visible so the roster cards' "i" controls can
+                  overhang the header. clip rather than hidden, because
+                  overflow-x hidden would force overflow-y to auto. */}
+              <div className="grid flex-1 grid-cols-1 grid-rows-1 overflow-x-clip">
                 <AnimatePresence initial={false}>
                   <div
                     key={displayedScreenKey}
