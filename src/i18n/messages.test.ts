@@ -63,6 +63,13 @@ describe("locale message parity", () => {
     // deliberate test-data update: the menu's Settings button became How to Play, with a "Coming soon" dialog (Phase 15)
     "howToPlay",
     "howToPlayComingSoon",
+    // deliberate test-data update: the error and not-found pages (Phase 15)
+    "errorPageTitle",
+    "errorPageDescription",
+    "errorPageTryAgain",
+    "notFoundPageTitle",
+    "notFoundPageDescription",
+    "statusPageBackToMenu",
     "menu",
     "language",
     "downed",
