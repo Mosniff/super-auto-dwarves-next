@@ -60,7 +60,9 @@ describe("locale message parity", () => {
     "autoplaySpeedFast",
     "tagline",
     "play",
-    "settings",
+    // deliberate test-data update: the menu's Settings button became How to Play, with a "Coming soon" dialog (Phase 15)
+    "howToPlay",
+    "howToPlayComingSoon",
     "menu",
     "language",
     "downed",

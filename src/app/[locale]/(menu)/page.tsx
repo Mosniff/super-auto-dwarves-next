@@ -1,6 +1,5 @@
-import { getTranslations } from "next-intl/server";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { HowToPlayDialog } from "@/components/menu/HowToPlayDialog";
 import { MenuCardTransition } from "@/components/menu/MenuCardTransition";
 import { PlayForm } from "@/components/menu/PlayForm";
 import { requiresHumanCheck } from "@/lib/session/requiresHumanCheck";
@@ -10,7 +9,6 @@ import { startPlayingAction } from "../startPlayingAction";
 // Only reads the session, to decide whether the Play form needs a CAPTCHA;
 // it never signs anyone in (CLAUDE.md, "Persistence & save model").
 export default async function HomePage() {
-  const t = await getTranslations("common");
   const visitorRequiresHumanCheck = await requiresHumanCheck(readCurrentUserId);
 
   return (
@@ -22,9 +20,7 @@ export default async function HomePage() {
             turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
             playAction={startPlayingAction}
           />
-          <Button className="w-full" size="lg" variant="outline">
-            {t("settings")}
-          </Button>
+          <HowToPlayDialog />
         </CardContent>
       </Card>
     </MenuCardTransition>
