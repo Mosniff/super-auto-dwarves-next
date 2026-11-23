@@ -95,6 +95,7 @@ function DraggableCharacterShopSlotTile({
     // it's rendered here, beside it.
     <div
       data-info-control-host
+      data-card-badge-basis="shop"
       data-info-control-revealed={String(isSelected)}
       className="relative"
     >

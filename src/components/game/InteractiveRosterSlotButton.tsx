@@ -120,6 +120,7 @@ export function InteractiveRosterSlotButton({
     // or on keyboard focus within the host.
     <div
       data-info-control-host
+      data-card-badge-basis="roster"
       data-info-control-revealed={String(isSelected)}
       className="relative h-full w-full"
     >
@@ -160,9 +161,9 @@ export function InteractiveRosterSlotButton({
           <span
             data-camp-merge-marker
             aria-hidden="true"
-            className="pointer-events-none absolute -top-2 -left-2 z-10 flex size-7 items-center justify-center rounded-full bg-emerald-500 text-white shadow ring-2 ring-white"
+            className="pointer-events-none absolute top-(--card-badge-offset) left-(--card-badge-offset) z-10 flex size-(--card-badge-size) items-center justify-center rounded-full bg-emerald-500 text-white shadow ring-2 ring-white"
           >
-            <ChevronsUp aria-hidden="true" className="size-5" />
+            <ChevronsUp aria-hidden="true" className="size-(--card-badge-icon-size)" />
           </span>
         )}
         {presentation === "swapTarget" && (
@@ -173,9 +174,9 @@ export function InteractiveRosterSlotButton({
           <span
             data-camp-swap-marker
             aria-hidden="true"
-            className="pointer-events-none absolute -top-2 -left-2 z-10 flex size-7 items-center justify-center rounded-full bg-sky-500 text-white shadow ring-2 ring-white"
+            className="pointer-events-none absolute top-(--card-badge-offset) left-(--card-badge-offset) z-10 flex size-(--card-badge-size) items-center justify-center rounded-full bg-sky-500 text-white shadow ring-2 ring-white"
           >
-            <ArrowRightLeft aria-hidden="true" className="size-5" />
+            <ArrowRightLeft aria-hidden="true" className="size-(--card-badge-icon-size)" />
           </span>
         )}
       </button>

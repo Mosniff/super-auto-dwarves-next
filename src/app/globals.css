@@ -595,6 +595,45 @@
   }
 }
 
+/* Card badges (the "i", and camp's merge and swap markers) scale with the
+   card they belong to. They render outside CharacterCard, so the card's
+   cqw sizes can't reach them; instead each host names its card's height
+   (data-card-badge-basis) and the badge takes a clamped fraction of it.
+   At the largest roster card (16rem) the badge is the original 28px.
+   The human tunes the ratios and limits. */
+:root {
+  --card-badge-height-ratio: 0.11;
+  --card-badge-min-size: 1.125rem;
+  --card-badge-max-size: 1.75rem;
+  --card-badge-offset-ratio: -0.29; /* the overhang: was -0.5rem at 28px */
+  --card-badge-icon-ratio: 0.71; /* merge/swap icons: were 20px at 28px */
+  --card-badge-glyph-ratio: 0.57; /* the "i" letter: was 16px at 28px */
+}
+[data-card-badge-basis="roster"] {
+  --card-badge-card-height: var(--roster-card-height);
+}
+[data-card-badge-basis="active"] {
+  --card-badge-card-height: var(--active-card-height);
+}
+[data-card-badge-basis="shop"] {
+  --card-badge-card-height: calc(var(--shop-tile-width) * 4 / 3);
+}
+/* Computed on the badge itself, not on :root: a custom property containing
+   var() is resolved where it is declared, so declaring these on :root
+   would freeze them at :root's values instead of each host's card. */
+[data-character-info-control],
+[data-camp-merge-marker],
+[data-camp-swap-marker] {
+  --card-badge-size: clamp(
+    var(--card-badge-min-size),
+    calc(var(--card-badge-card-height, 16rem) * var(--card-badge-height-ratio)),
+    var(--card-badge-max-size)
+  );
+  --card-badge-offset: calc(var(--card-badge-size) * var(--card-badge-offset-ratio));
+  --card-badge-icon-size: calc(var(--card-badge-size) * var(--card-badge-icon-ratio));
+  --card-badge-glyph-size: calc(var(--card-badge-size) * var(--card-badge-glyph-ratio));
+}
+
 /* Phase 12 info control reveal. The control (a sibling of the slot button,
    inside a data-info-control-host wrapper) is hidden and ignores the
    pointer until its host is hovered, holds keyboard focus (the slot's or

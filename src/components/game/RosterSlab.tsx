@@ -167,6 +167,7 @@ export function RosterSlab({
               ) : showsInfoControls ? (
                 <div
                   data-info-control-host
+                  data-card-badge-basis="roster"
                   data-info-control-revealed="false"
                   className="relative h-full w-full"
                 >

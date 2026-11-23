@@ -205,6 +205,7 @@ export function ActiveCard({
             <div
               data-info-control-host
               data-active-card-host
+              data-card-badge-basis="active"
               data-info-control-revealed="false"
               data-ability-acting={beatEffect?.isActing ? "true" : "false"}
               data-ability-caster-pulse={abilityCasterPulseKind(
