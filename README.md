@@ -2,21 +2,21 @@
 
 [![CI](https://github.com/Mosniff/super-auto-dwarves-next/actions/workflows/ci.yml/badge.svg)](https://github.com/Mosniff/super-auto-dwarves-next/actions/workflows/ci.yml)
 
-**Play it:** https://super-auto-dwarves-next.vercel.app/ — a personal project in active development, so saves may be wiped.
+**Play it:** https://super-auto-dwarves-next.vercel.app/ — a personal project in active development, so saves may be wiped. To run it yourself, see [Getting started](#getting-started).
 
 A fantasy auto-battler inspired by Super Auto Pets, Choose Your Own Adventure games, and Dungeons & Dragons. The game features both PvE and asynchronous PvP battles.
 
 ## Testing at a glance
 
-**766 tests across 91 files**, run on every push by GitHub Actions (a type check, then the tests with coverage). The game logic is written test-first: every rule starts as a failing test.
+**784 tests across 95 files**, run on every push by GitHub Actions (a type check, lint, then the tests with coverage). The game logic is written test-first: every rule starts as a failing test.
 
 | Scope                                                        | Lines     | Branches  | Functions |
 | ------------------------------------------------------------ | --------- | --------- | --------- |
 | **Game and battle rules** (`src/lib/game`, `src/lib/battle`) | **95.8%** | **96.0%** | **100%**  |
-| All logic and server code (`src/lib`)                        | 90.1%     | 92.7%     | 88.0%     |
-| Whole app (`src`, UI components included)                    | 84.2%     | 86.9%     | 82.3%     |
+| All logic and server code (`src/lib`)                        | 90.1%     | 92.7%     | 87.9%     |
+| Whole app (`src`, UI components included)                    | 84.7%     | 87.1%     | 83.4%     |
 
-The rules are the headline because they are the game. A battle is a deterministic function of two rosters, so the rules can be tested exhaustively as pure functions, with no browser and no database. UI components are tested for behaviour and state in jsdom; how they look is checked by eye. _Measured at the end of Phase 14; `npm run test:coverage` reproduces it._
+The rules are the headline because they are the game. A battle is a deterministic function of two rosters, so the rules can be tested exhaustively as pure functions, with no browser and no database. UI components are tested for behaviour and state in jsdom; how they look is checked by eye. _Measured during Phase 15; `npm run test:coverage` reproduces it._
 
 ---
 
@@ -117,19 +117,31 @@ See `CLAUDE.md` for the full set of architectural rules and conventions.
 
 Tests use **Vitest**. The bulk are fast pure-logic unit tests over the framework-free game-logic modules (the battle system and camp rules especially), plus handler tests that run against fake repositories and jsdom component tests that check interaction states. The battle system being a deterministic function of two rosters makes it straightforward to test exhaustively.
 
-Pure logic is written test-first (red, then green), and every push runs the type check and the full suite with coverage in GitHub Actions — see [Testing at a glance](#testing-at-a-glance) for the numbers.
+Pure logic is written test-first (red, then green), and every push runs the type check, lint (any warning fails the build) and the full suite with coverage in GitHub Actions — see [Testing at a glance](#testing-at-a-glance) for the numbers.
 
 ```bash
 npm run test:run        # the whole suite once
 npm run test            # watch mode
 npm run test:coverage   # with a coverage report (summary in the terminal, HTML in coverage/)
+npm run lint            # ESLint; fails on any warning, as in CI
+npx tsc --noEmit        # the type check
 ```
 
 ---
 
 ## Getting started
 
-Requires Node 22 and a Supabase project. Copy `.env.example` to `.env.local` and fill in the values — real values never go in the repo.
+You don't need to set anything up to try the game — it's live at the address at the top. To run it yourself you need **Node 22** and your own **Supabase project** (the free tier is enough).
+
+**1. Set up Supabase.**
+
+- In Authentication settings, allow **anonymous sign-ins**: every player starts as a guest.
+- Either leave **CAPTCHA protection** off, or turn it on with Cloudflare Turnstile and put the Turnstile _site_ key in `NEXT_PUBLIC_TURNSTILE_SITE_KEY` (step 2). The secret key only ever goes into Supabase, never into this app.
+- Optional, as on the live site: disable the Data API. The app reaches the database only through Prisma.
+
+**2. Configure the app.** Copy `.env.example` to `.env.local` and fill in the values from your Supabase project. Each one is explained in the file; real values never go in the repo.
+
+**3. Install, migrate and run.**
 
 ```bash
 # install dependencies (this also generates the Prisma client)
@@ -137,14 +149,15 @@ npm install
 
 # apply the database migrations (uses DIRECT_URL)
 npx prisma migrate deploy
-# then apply the scripts in prisma/manual-sql/ by hand, in order (each file explains itself)
 
-# run the dev server
+# then run each file in prisma/manual-sql/ in the Supabase SQL editor, in order
+# (nothing there runs automatically; each file explains itself and is safe to re-run)
+
+# run the dev server, then open http://localhost:3000
 npm run dev
-
-# run the tests
-npm run test:run
 ```
+
+The checks CI runs are listed under [Testing](#testing).
 
 ---
 
