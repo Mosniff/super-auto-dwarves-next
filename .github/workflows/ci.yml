@@ -21,4 +21,6 @@ jobs:
       # npm ci runs postinstall (prisma generate), which needs no database.
       - run: npm ci
       - run: npx tsc --noEmit
+      # Lint fails on any warning (--max-warnings 0 in the script).
+      - run: npm run lint
       - run: npm run test:coverage

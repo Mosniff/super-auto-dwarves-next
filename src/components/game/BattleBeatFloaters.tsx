@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useTranslations } from "next-intl";
 import type { BeatCharacterEffect } from "@/lib/battle/beatCharacterEffects";
 import type { ArmourBeat } from "./CharacterCard";
+import { floatersForBeat, type BattleBeatFloaterKind } from "./floatersForBeat";
 
 // The receivers react just after the caster (the human's call); keep in
 // step with --ability-receive-delay.
@@ -15,6 +15,9 @@ export const ARMOUR_BREAK_DELAY_S = 0.28;
 
 const FLOATER_RISE_Y = -40;
 const FLOATER_DURATION_S = 1.2;
+// Outgoing floaters fade over this when the beat changes (they are derived
+// from the current beat, so a new beat removes them). The human tunes it.
+const FLOATER_EXIT_DURATION_S = 0.15;
 
 // Pure: derives a CharacterCard armourBeat from this beat's character
 // effect, so RosterSlot and ActiveCard share one mapping.
@@ -41,18 +44,12 @@ export function armourBeatFromEffect(
   return undefined;
 }
 
-interface ActiveFloater {
-  floaterKey: string;
-  floaterKind: "armourGain" | "armourBreak" | "abilityHpLoss";
-  amount: number;
-}
-
 interface BattleBeatFloatersProps {
   beatEffect: BeatCharacterEffect | undefined;
   beatKey: number | undefined;
 }
 
-const FLOATER_COLOR_CLASS_NAME: Record<ActiveFloater["floaterKind"], string> = {
+const FLOATER_COLOR_CLASS_NAME: Record<BattleBeatFloaterKind, string> = {
   armourGain: "text-(--color-parchment-50)",
   armourBreak: "text-(--color-copper-300)",
   abilityHpLoss: "text-(--color-heart-red-400)",
@@ -64,61 +61,16 @@ export function BattleBeatFloaters({
 }: BattleBeatFloatersProps) {
   const prefersReducedMotion = useReducedMotion();
   const t = useTranslations("battle");
-  const [activeFloaters, setActiveFloaters] = useState<ActiveFloater[]>([]);
-
-  useEffect(() => {
-    if (prefersReducedMotion) {
-      return;
-    }
-
-    if (beatEffect !== undefined && beatEffect.armourGained > 0) {
-      setActiveFloaters((floaters) => [
-        ...floaters,
-        {
-          floaterKey: `armour-gain-${beatKey}`,
-          floaterKind: "armourGain",
-          amount: beatEffect.armourGained,
-        },
-      ]);
-    }
-
-    if (
-      beatEffect !== undefined &&
-      beatEffect.brokenFromArmour !== null &&
-      beatEffect.brokenFromArmour !== undefined
-    ) {
-      setActiveFloaters((floaters) => [
-        ...floaters,
-        {
-          floaterKey: `armour-break-${beatKey}`,
-          floaterKind: "armourBreak",
-          amount: 0,
-        },
-      ]);
-    }
-
-    // Ability hits only (the human's call, Phase 13); clash hits show none.
-    if (beatEffect !== undefined && beatEffect.abilityHpLost > 0) {
-      setActiveFloaters((floaters) => [
-        ...floaters,
-        {
-          floaterKey: `ability-hp-loss-${beatKey}`,
-          floaterKind: "abilityHpLoss",
-          amount: beatEffect.abilityHpLost,
-        },
-      ]);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- fires once per
-    // beat; mirrors RosterSlot's experience-beat effect, keyed on beatKey
-  }, [beatKey]);
 
   if (prefersReducedMotion) {
     return null;
   }
 
+  const floaters = floatersForBeat(beatEffect, beatKey);
+
   return (
-    <>
-      {activeFloaters.map((floater) => (
+    <AnimatePresence>
+      {floaters.map((floater) => (
         <motion.span
           key={floater.floaterKey}
           data-battle-beat-floater={floater.floaterKind}
@@ -133,14 +85,10 @@ export function BattleBeatFloaters({
                 ? ARMOUR_BREAK_DELAY_S
                 : ABILITY_RECEIVE_DELAY_S,
           }}
-          onAnimationComplete={() =>
-            setActiveFloaters((floaters) =>
-              floaters.filter(
-                (activeFloater) =>
-                  activeFloater.floaterKey !== floater.floaterKey,
-              ),
-            )
-          }
+          exit={{
+            opacity: 0,
+            transition: { duration: FLOATER_EXIT_DURATION_S },
+          }}
         >
           {floater.floaterKind === "armourGain"
             ? t("armourGainFloater", { amount: floater.amount })
@@ -149,6 +97,6 @@ export function BattleBeatFloaters({
               : t("armourBreakFloater")}
         </motion.span>
       ))}
-    </>
+    </AnimatePresence>
   );
 }
