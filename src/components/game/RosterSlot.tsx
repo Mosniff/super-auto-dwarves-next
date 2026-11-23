@@ -218,6 +218,7 @@ export function RosterSlot({
       experience: character.experience,
       maxHp: character.maxHp,
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- deliberately narrow: the XP beat fires only when this card's id, experience or maxHp change, reading the latest character and settings at that moment; adding them would re-run it on every refresh.
   }, [character?.id, character?.experience, character?.maxHp]);
 
   // The XP beat's lifetime is owned by this timer, not by the floater's
@@ -447,7 +448,6 @@ export function RosterSlot({
               >
                 <CharacterCard
                   character={character}
-                  facing={facing}
                   showLevel={showsCharacterProgression}
                   showExperienceBar={showsCharacterProgression}
                   armourBeat={armourBeatFromEffect(beatEffect, beatKey)}

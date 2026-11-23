@@ -22,12 +22,14 @@ export function CharacterPortrait({
   const displayCharacterName = useCharacterDisplayName();
 
   if (portraitSrc !== null) {
+    // The mirror is kept for a likely future need (e.g. PvP, where player
+    // portraits appear on the enemy side); nothing passes facing today,
+    // because enemy portraits have their own left-facing images.
     return (
       <div
         className="absolute inset-0"
-        // enemy images are now oriented facing left anyway; may need this in
-        // future for pvp battles
-        // style={facing === "left" ? { transform: "scaleX(-1)" } : undefined}
+        data-character-portrait-mirrored={String(facing === "left")}
+        style={facing === "left" ? { transform: "scaleX(-1)" } : undefined}
       >
         <Image
           src={portraitSrc}

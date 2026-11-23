@@ -30,7 +30,6 @@ export type ArmourBeat =
 
 interface CharacterCardProps {
   character: Character;
-  facing?: "left" | "right";
   animateHpDrop?: boolean;
   showHpBar?: boolean;
   showLevel?: boolean;
@@ -97,7 +96,6 @@ function ExperienceSegments({ experience }: { experience: number }) {
 
 export function CharacterCard({
   character,
-  facing = "right",
   animateHpDrop = false,
   showHpBar = false,
   showLevel = false,
@@ -160,7 +158,6 @@ export function CharacterCard({
         >
           <CharacterPortrait
             character={character}
-            facing={facing}
             sizes={ACTIVE_CARD_RENDERED_WIDTH_PX}
             imageClassName={`transition-[filter,opacity] duration-200 ease-out ${
               isDowned ? "grayscale brightness-75" : ""

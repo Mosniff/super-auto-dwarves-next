@@ -225,7 +225,6 @@ export function ActiveCard({
               >
                 <CharacterCard
                   character={character}
-                  facing={facing}
                   showHpBar
                   animateHpDrop={shouldAnimateClash}
                   armourBeat={armourBeatFromEffect(
