@@ -18,6 +18,7 @@ import { CharacterCard } from "./CharacterCard";
 import { CharacterInfoControl } from "./CharacterInfoControl";
 import { armourBeatFromEffect, BattleBeatFloaters } from "./BattleBeatFloaters";
 import { clashKeyframes } from "./activeCardClash";
+import { downedRevealDelaySeconds } from "./floatersForBeat";
 import { rosterSlotEffectFlashKind } from "./rosterSlotAnimation";
 
 interface ActiveCardProps {
@@ -205,6 +206,10 @@ export function ActiveCard({
                   character={character}
                   showHpBar
                   animateHpDrop={shouldAnimateClash}
+                  downedRevealDelaySeconds={downedRevealDelaySeconds(
+                    beatEffect,
+                    abilityCasterPulseKind(currentBeatType),
+                  )}
                   armourBeat={armourBeatFromEffect(
                     beatEffect,
                     currentBeat?.beatKey,

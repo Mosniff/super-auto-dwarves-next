@@ -7,6 +7,7 @@ import {
 } from "@/lib/battle/beatDurationMs";
 import {
   battleFloaterTiming,
+  downedRevealDelaySeconds,
   floatersForBeat,
   type BattleBeatFloaterKind,
 } from "./floatersForBeat";
@@ -117,5 +118,24 @@ describe("battleFloaterTiming", () => {
       })(),
     ]);
     expect(finishesInsideItsBeat.every(Boolean)).toBe(true);
+  });
+});
+
+describe("downedRevealDelaySeconds", () => {
+  it("DR1: a card that lost no hp this beat reveals downed at once", () => {
+    expect([
+      downedRevealDelaySeconds(undefined, "normal"),
+      downedRevealDelaySeconds(buildBeatEffect({ armourLost: 2 }), "normal"),
+    ]).toEqual([0, 0]);
+  });
+
+  it("DR2: a card that lost hp this beat reveals downed with its \u2212N HP floater, at the hit", () => {
+    expect([
+      downedRevealDelaySeconds(buildBeatEffect({ hpLost: 3 }), "normal"),
+      downedRevealDelaySeconds(buildBeatEffect({ hpLost: 3 }), "quick"),
+    ]).toEqual([
+      battleFloaterTiming("hpLoss", "normal").delaySeconds,
+      battleFloaterTiming("hpLoss", "quick").delaySeconds,
+    ]);
   });
 });

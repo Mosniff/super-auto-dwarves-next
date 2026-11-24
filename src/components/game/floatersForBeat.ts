@@ -89,3 +89,14 @@ export function battleFloaterTiming(
     durationSeconds: animationTempoSeconds(NORMAL_FLOATER_DURATION_S),
   };
 }
+
+// The downed overlay and greyed portrait wait for the hit (Phase 15, the
+// human's call): on the beat a card loses hp they reveal with its "−N HP"
+// floater, so a card never looks downed before it's struck.
+export function downedRevealDelaySeconds(
+  beatEffect: BeatCharacterEffect | undefined,
+  beatPace: AbilityCasterPulseKind,
+): number {
+  if (beatEffect === undefined || beatEffect.hpLost === 0) return 0;
+  return battleFloaterTiming("hpLoss", beatPace).delaySeconds;
+}

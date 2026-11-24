@@ -35,6 +35,9 @@ export type ArmourBeat =
 interface CharacterCardProps {
   character: Character;
   animateHpDrop?: boolean;
+  // Display-only: delays the downed overlay and greyed portrait (see
+  // downedRevealDelaySeconds in floatersForBeat.ts).
+  downedRevealDelaySeconds?: number;
   showHpBar?: boolean;
   showLevel?: boolean;
   showExperienceBar?: boolean;
@@ -101,6 +104,7 @@ function ExperienceSegments({ experience }: { experience: number }) {
 export function CharacterCard({
   character,
   animateHpDrop = false,
+  downedRevealDelaySeconds = 0,
   showHpBar = false,
   showLevel = false,
   showExperienceBar = false,
@@ -133,7 +137,14 @@ export function CharacterCard({
     // sizes (the card-* theme tokens). rounded-md still matches
     // RosterSlot's card wrapper, so the wrapper's clip and the card's
     // corners coincide.
-    <div className="@container h-full w-full overflow-hidden rounded-md">
+    <div
+      className="@container h-full w-full overflow-hidden rounded-md"
+      style={
+        {
+          "--downed-reveal-delay": `${downedRevealDelaySeconds}s`,
+        } as React.CSSProperties
+      }
+    >
       <div
         className={`relative flex h-full w-full flex-col gap-card-frame-gap rounded-md border-card-frame p-card-frame-padding ${CARD_FRAME_BORDER_CLASS_NAME}`}
         style={{ background: "var(--texture-card-frame)" }}
@@ -163,7 +174,7 @@ export function CharacterCard({
           <CharacterPortrait
             character={character}
             sizes={ACTIVE_CARD_RENDERED_WIDTH_PX}
-            imageClassName={`transition-[filter,opacity] duration-200 ease-out ${
+            imageClassName={`transition-[filter,opacity] duration-200 ease-out delay-(--downed-reveal-delay) ${
               isDowned ? "grayscale brightness-75" : ""
             }`}
             fallbackTextClassName="text-card-portrait-fallback"
@@ -263,7 +274,7 @@ export function CharacterCard({
             </div>
           )}
           <div
-            className={`absolute inset-0 flex items-center justify-center bg-black/50 text-card-overlay font-bold tracking-wide text-white uppercase transition-opacity duration-200 ease-out ${
+            className={`absolute inset-0 flex items-center justify-center bg-black/50 text-card-overlay font-bold tracking-wide text-white uppercase transition-opacity duration-200 ease-out delay-(--downed-reveal-delay) ${
               isDowned ? "opacity-100" : "opacity-0"
             }`}
           >

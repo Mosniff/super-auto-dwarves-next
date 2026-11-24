@@ -27,6 +27,7 @@ import {
 import type { CampStartSlotBeat } from "./campStartSequence";
 import { CharacterCard } from "./CharacterCard";
 import { armourBeatFromEffect, BattleBeatFloaters } from "./BattleBeatFloaters";
+import { downedRevealDelaySeconds } from "./floatersForBeat";
 
 interface RosterSlotProps {
   character?: Character;
@@ -484,6 +485,10 @@ export function RosterSlot({
                 >
                   <CharacterCard
                     character={character}
+                    downedRevealDelaySeconds={downedRevealDelaySeconds(
+                      beatEffect,
+                      abilityCasterPulse,
+                    )}
                     showLevel={showsCharacterProgression}
                     showExperienceBar={showsCharacterProgression}
                     armourBeat={
