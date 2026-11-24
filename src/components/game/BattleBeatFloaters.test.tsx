@@ -12,6 +12,7 @@ function buildBeatEffect(
     armourGained: 0,
     brokenFromArmour: null,
     abilityHpLost: 0,
+    armourLost: 0,
     isDropped: false,
     ...overrides,
   };

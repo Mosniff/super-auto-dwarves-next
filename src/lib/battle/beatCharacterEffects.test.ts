@@ -4,6 +4,7 @@ import type { BattleEvent } from "./types";
 
 describe("beatCharacterEffects", () => {
   // deliberate assertion rewrite: every effect gains abilityHpLost: 0 and isDropped: false (before: { isActing, armourGained, brokenFromArmour }; after: + abilityHpLost: 0, isDropped: false) — Phase 13
+  // deliberate assertion rewrite: every effect gains armourLost (before: no armourLost; after: armourLost: 0 — no armour was hit in this beat) — Phase 15
   it("BE1: an ability beat: the caster is acting, the target gained armour", () => {
     const beatEvents: BattleEvent[] = [
       {
@@ -27,12 +28,13 @@ describe("beatCharacterEffects", () => {
     ];
 
     expect(beatCharacterEffects(beatEvents)).toEqual({
-      p2: { isActing: true, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, isDropped: false },
-      p1: { isActing: false, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, isDropped: false },
+      p2: { isActing: true, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, isDropped: false },
+      p1: { isActing: false, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, isDropped: false },
     });
   });
 
-  // deliberate assertion rewrite: every effect gains abilityHpLost: 0 and isDropped: false (before: { isActing, armourGained, brokenFromArmour }; after: + abilityHpLost: 0, isDropped: false) — Phase 13
+  // deliberate assertion rewrite: every effect gains abilityHpLost: 0 and isDropped: false (before: { isActing, armourGained, brokenFromArmour }; after: + abilityHpLost: 0, armourLost: 0, isDropped: false) — Phase 13
+  // deliberate assertion rewrite: every effect gains armourLost (before: no armourLost; after: armourLost: 0 — no armour was hit in this beat) — Phase 15
   it("BE2: a level-5 Ogden is both acting and receiving", () => {
     const beatEvents: BattleEvent[] = [
       {
@@ -78,14 +80,15 @@ describe("beatCharacterEffects", () => {
     ];
 
     expect(beatCharacterEffects(beatEvents)).toEqual({
-      p2: { isActing: true, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, isDropped: false },
-      p1: { isActing: false, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, isDropped: false },
-      p3: { isActing: false, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, isDropped: false },
+      p2: { isActing: true, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, isDropped: false },
+      p1: { isActing: false, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, isDropped: false },
+      p3: { isActing: false, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, isDropped: false },
     });
   });
 
-  // deliberate assertion rewrite: every effect gains abilityHpLost: 0 and isDropped: false (before: { isActing, armourGained, brokenFromArmour }; after: + abilityHpLost: 0, isDropped: false) — Phase 13
-  it("BE3: a clash beat: only a break counts; a partial absorb and hp damage don't", () => {
+  // deliberate assertion rewrite: every effect gains abilityHpLost: 0 and isDropped: false (before: { isActing, armourGained, brokenFromArmour }; after: + abilityHpLost: 0, armourLost: 0, isDropped: false) — Phase 13
+  // deliberate assertion rewrite: a partial absorb now counts (before: only e1's break appeared and p1's partial absorb was ignored; after: both appear, with armourLost 2 and 1) — Phase 15
+  it("BE3: a clash beat: a break and a partial absorb both count as armourLost; only the break sets brokenFromArmour", () => {
     const beatEvents: BattleEvent[] = [
       {
         type: "ATTACK",
@@ -124,11 +127,13 @@ describe("beatCharacterEffects", () => {
     ];
 
     expect(beatCharacterEffects(beatEvents)).toEqual({
-      e1: { isActing: false, armourGained: 0, brokenFromArmour: 2, abilityHpLost: 0, isDropped: false },
+      e1: { isActing: false, armourGained: 0, brokenFromArmour: 2, abilityHpLost: 0, armourLost: 2, isDropped: false },
+      p1: { isActing: false, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, armourLost: 1, isDropped: false },
     });
   });
 
   // deliberate assertion rewrite: every effect gains abilityHpLost: 0 and isDropped: false (before: { isActing, armourGained, brokenFromArmour }; after: + abilityHpLost: 0, isDropped: false) — Phase 13
+  // deliberate assertion rewrite: every effect gains armourLost (before: no armourLost; after: armourLost: 0 — no armour was hit in this beat) — Phase 15
   it("BE4: two armour gains in one beat add up", () => {
     const beatEvents: BattleEvent[] = [
       {
@@ -163,8 +168,8 @@ describe("beatCharacterEffects", () => {
     ];
 
     expect(beatCharacterEffects(beatEvents)).toEqual({
-      p3: { isActing: true, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, isDropped: false },
-      p1: { isActing: false, armourGained: 2, brokenFromArmour: null, abilityHpLost: 0, isDropped: false },
+      p3: { isActing: true, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, isDropped: false },
+      p1: { isActing: false, armourGained: 2, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, isDropped: false },
     });
   });
 
@@ -172,6 +177,7 @@ describe("beatCharacterEffects", () => {
     expect(beatCharacterEffects([])).toEqual({});
   });
 
+  // deliberate assertion rewrite: every effect gains armourLost (before: no armourLost; after: armourLost: 0 — no armour was hit in this beat) — Phase 15
   it("BE6: ability hits add up as abilityHpLost, a clash hit doesn't count, and a drop marks isDropped", () => {
     const beatEvents: BattleEvent[] = [
       {
@@ -207,8 +213,35 @@ describe("beatCharacterEffects", () => {
     ];
 
     expect(beatCharacterEffects(beatEvents)).toEqual({
-      p1: { isActing: false, armourGained: 0, brokenFromArmour: null, abilityHpLost: 2, isDropped: false },
-      p2: { isActing: false, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, isDropped: true },
+      p1: { isActing: false, armourGained: 0, brokenFromArmour: null, abilityHpLost: 2, armourLost: 0, isDropped: false },
+      p2: { isActing: false, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, isDropped: true },
+    });
+  });
+
+  it("BE7: ability hits on armour add up as armourLost, including the hit that breaks it", () => {
+    const beatEvents: BattleEvent[] = [
+      {
+        type: "ARMOUR_DAMAGE",
+        targetId: "p3",
+        amount: 1,
+        resultingArmour: 2,
+        source: "thief",
+        beatIndex: 1,
+        beatType: "ABILITY",
+      },
+      {
+        type: "ARMOUR_DAMAGE",
+        targetId: "p3",
+        amount: 2,
+        resultingArmour: 0,
+        source: "thief",
+        beatIndex: 1,
+        beatType: "ABILITY",
+      },
+    ];
+
+    expect(beatCharacterEffects(beatEvents)).toEqual({
+      p3: { isActing: false, armourGained: 0, brokenFromArmour: 2, abilityHpLost: 0, armourLost: 3, isDropped: false },
     });
   });
 });
