@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useTranslations } from "next-intl";
 import type { BeatCharacterEffect } from "@/lib/battle/beatCharacterEffects";
 import type { ArmourBeat } from "./CharacterCard";
-import { floatersForBeat, type BattleBeatFloaterKind } from "./floatersForBeat";
+import { floatersForBeat } from "./floatersForBeat";
 
 // The receivers react just after the caster (the human's call); keep in
 // step with --ability-receive-delay.
@@ -49,12 +49,6 @@ interface BattleBeatFloatersProps {
   beatKey: number | undefined;
 }
 
-const FLOATER_COLOR_CLASS_NAME: Record<BattleBeatFloaterKind, string> = {
-  armourGain: "text-(--color-parchment-50)",
-  armourBreak: "text-(--color-copper-300)",
-  abilityHpLoss: "text-(--color-heart-red-400)",
-};
-
 export function BattleBeatFloaters({
   beatEffect,
   beatKey,
@@ -71,11 +65,13 @@ export function BattleBeatFloaters({
   return (
     <AnimatePresence>
       {floaters.map((floater) => (
+        // Size, outline, shadow and fill come from globals.css → "Battle
+        // floaters (Phase 15)", keyed on data-battle-beat-floater.
         <motion.span
           key={floater.floaterKey}
           data-battle-beat-floater={floater.floaterKind}
           aria-hidden="true"
-          className={`pointer-events-none absolute inset-x-0 top-1/3 z-20 text-center text-lg font-bold [text-shadow:0_1px_2px_rgba(0,0,0,0.8)] ${FLOATER_COLOR_CLASS_NAME[floater.floaterKind]}`}
+          className="pointer-events-none absolute inset-x-0 top-1/3 z-20 text-center font-bold"
           initial={{ y: 0, opacity: 0 }}
           animate={{ y: [0, FLOATER_RISE_Y], opacity: [0, 1, 1, 0] }}
           transition={{
