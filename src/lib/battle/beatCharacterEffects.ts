@@ -16,6 +16,10 @@ export interface BeatCharacterEffect {
   // including a breaking hit (Phase 15). Bench cards never clash, so for
   // them it is always ability damage; it drives their steel hit flash.
   armourLost: number;
+  // it acted this beat and its ability hit someone (Phase 15): an
+  // attacking caster, which hops toward the enemy; a supporting caster
+  // (buffs only) and a clash attacker are false
+  dealsAbilityHit: boolean;
   // it dropped this beat (Phase 13): a bench card leaving because of a
   // drop plays the drop, not the slide or the front's launch
   isDropped: boolean;
@@ -47,11 +51,14 @@ export function beatCharacterEffects(
       brokenFromArmour: null,
       abilityHpLost: 0,
       armourLost: 0,
+      dealsAbilityHit: false,
       isDropped: false,
     };
     effectsByCharacterId[characterId] = createdEffect;
     return createdEffect;
   }
+
+  const hitCountsBySourceId: Record<string, number> = {};
 
   for (const event of beatEvents) {
     switch (event.type) {
@@ -73,6 +80,8 @@ export function beatCharacterEffects(
         break;
       }
       case "DAMAGE":
+        hitCountsBySourceId[event.source] =
+          (hitCountsBySourceId[event.source] ?? 0) + 1;
         if (event.sourceAbilityId !== undefined) {
           effectFor(event.targetId).abilityHpLost += event.amount;
         }
@@ -81,6 +90,8 @@ export function beatCharacterEffects(
         effectFor(event.characterId).isDropped = true;
         break;
       case "ARMOUR_DAMAGE":
+        hitCountsBySourceId[event.source] =
+          (hitCountsBySourceId[event.source] ?? 0) + 1;
         // Every hit on armour counts as armour lost, partial absorbs and
         // breaks alike (Phase 15).
         effectFor(event.targetId).armourLost += event.amount;
@@ -94,6 +105,14 @@ export function beatCharacterEffects(
         // never-guard, unlike the stat switch above).
         break;
     }
+  }
+
+  // Decided after every event is read (order-independent); only
+  // characters already in the summary are marked, so being a hit's source
+  // alone adds no entry.
+  for (const [characterId, effect] of Object.entries(effectsByCharacterId)) {
+    effect.dealsAbilityHit =
+      effect.isActing && (hitCountsBySourceId[characterId] ?? 0) > 0;
   }
 
   return effectsByCharacterId;

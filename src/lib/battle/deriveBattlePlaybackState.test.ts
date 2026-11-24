@@ -133,6 +133,7 @@ describe("deriveBattlePlaybackState", () => {
 
   // deliberate assertion rewrite: every effect gains abilityHpLost: 0 and isDropped: false (before: { isActing, armourGained, brokenFromArmour }; after: + abilityHpLost: 0, isDropped: false) — Phase 13
   // deliberate assertion rewrite: every effect gains armourLost: 0 (no armour was hit in this beat) — Phase 15
+  // deliberate assertion rewrite: every effect gains dealsAbilityHit: false — Phase 15
   it("DP-E1: exposes the playback beat's character effects", () => {
     const abilityPlayerCharacters: Character[] = [
       buildTestCharacter({ id: "p1", name: "Borin", attack: 2, hp: 3, maxHp: 3, armour: 0 }),
@@ -179,8 +180,8 @@ describe("deriveBattlePlaybackState", () => {
     ).toEqual([
       {},
       {
-        p2: { isActing: true, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, isDropped: false },
-        p1: { isActing: false, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, isDropped: false },
+        p2: { isActing: true, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
+        p1: { isActing: false, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
       },
     ]);
   });

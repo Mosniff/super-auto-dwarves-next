@@ -141,6 +141,7 @@ function buildBeatEffect(
     brokenFromArmour: null,
     abilityHpLost: 0,
     armourLost: 0,
+    dealsAbilityHit: false,
     isDropped: false,
     ...overrides,
   };
