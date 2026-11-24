@@ -103,6 +103,8 @@
   --color-iron-500: #5c636b; /* primary iron */
   --color-iron-700: #3a4046; /* dark iron */
   --color-iron-900: #15181b; /* near-black iron, deepest */
+  /* ── Rune blue (accent, Phase 15) ─────────────────── */
+  --color-rune-blue-200: #a9d8f2; /* light rune glow — the buff flash */
 
   /* ── Parchment (warm, for the info scroll) ───────── */
   --color-parchment-50: #f4e8cf; /* lightest sheet highlight */
@@ -260,7 +262,7 @@
   --armour-break-duration: 0.5s;
   /* ── Bench hit flashes (Phase 15) ────────────────────
      A tint over a bench card when an ability hits it: red when HP is lost,
-     steel when armour takes the hit. They start with the floaters
+     steel when armour takes the hit, light blue for a buff. They start with the floaters
      (--ability-receive-delay) and must end inside an ability beat
      (EVENTFUL_BEAT_DURATION_MS, 800 ms). On a turn-start ability beat
      (300 ms) the quick values apply. The human tunes these. */
@@ -274,6 +276,11 @@
   --effect-flash-quick-delay: 0.05s;
   --hp-hit-flash-quick-duration: 0.22s;
   --armour-hit-flash-quick-duration: 0.2s;
+  /* a beneficial effect (today: armour gained), softer and a touch longer */
+  --buff-flash-color: var(--color-rune-blue-200);
+  --buff-flash-peak-opacity: 0.45;
+  --buff-flash-duration: 0.4s;
+  --buff-flash-quick-duration: 0.22s;
   /* the shield badge's knock when armour is chipped (not broken) */
   --shield-knock-distance: 2px;
   --shield-knock-duration: 0.25s;
@@ -959,13 +966,15 @@
   }
 }
 /* Phase 15 bench hit flashes. RosterSlot renders the flash element only
-   on a hit, keyed by the beat (so consecutive hits each flash); its kind
-   comes from rosterSlotEffectFlashKind. Reduced motion gets none. */
+   on a hit or a buff, keyed by the beat (so consecutive ones each flash);
+   its kind (hpHit, armourHit or buff) comes from rosterSlotEffectFlashKind.
+   Reduced motion gets none. */
 @media (prefers-reduced-motion: no-preference) {
   [data-ability-caster-pulse="quick"] {
     --effect-flash-delay: var(--effect-flash-quick-delay);
     --hp-hit-flash-duration: var(--hp-hit-flash-quick-duration);
     --armour-hit-flash-duration: var(--armour-hit-flash-quick-duration);
+    --buff-flash-duration: var(--buff-flash-quick-duration);
   }
   @keyframes hp-hit-flash {
     0%,
@@ -985,6 +994,15 @@
       opacity: var(--armour-hit-flash-peak-opacity);
     }
   }
+  @keyframes buff-flash {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    40% {
+      opacity: var(--buff-flash-peak-opacity);
+    }
+  }
   [data-roster-slot-effect-flash="hpHit"] {
     background-color: var(--hp-hit-flash-color);
     animation: hp-hit-flash var(--hp-hit-flash-duration) ease-out
@@ -993,6 +1011,11 @@
   [data-roster-slot-effect-flash="armourHit"] {
     background-color: var(--armour-hit-flash-color);
     animation: armour-hit-flash var(--armour-hit-flash-duration) ease-out
+      var(--effect-flash-delay) both;
+  }
+  [data-roster-slot-effect-flash="buff"] {
+    background-color: var(--buff-flash-color);
+    animation: buff-flash var(--buff-flash-duration) ease-in-out
       var(--effect-flash-delay) both;
   }
   @keyframes shield-knock {

@@ -168,10 +168,22 @@ describe("rosterSlotEffectFlashKind", () => {
     ).toBe("hpHit");
   });
 
-  it("RF5: acting, gaining armour or dropping alone gives no flash", () => {
+  // deliberate assertion rewrite: gaining armour now flashes buff (before: "acting, gaining armour or dropping alone gives no flash" with armourGained: 1; after: armourGained removed from this case, see RF6) — Phase 15
+  it("RF5: acting or dropping alone gives no flash", () => {
     expect(
-      rosterSlotEffectFlashKind(buildBeatEffect({ isActing: true, armourGained: 1, isDropped: true })),
+      rosterSlotEffectFlashKind(buildBeatEffect({ isActing: true, isDropped: true })),
     ).toBe("none");
+  });
+
+  it("RF6: gaining armour flashes buff", () => {
+    expect(rosterSlotEffectFlashKind(buildBeatEffect({ armourGained: 1 }))).toBe("buff");
+  });
+
+  it("RF7: a hit in the same beat as a buff wins (hpHit, then armourHit)", () => {
+    expect([
+      rosterSlotEffectFlashKind(buildBeatEffect({ armourGained: 1, abilityHpLost: 1 })),
+      rosterSlotEffectFlashKind(buildBeatEffect({ armourGained: 1, armourLost: 1 })),
+    ]).toEqual(["hpHit", "armourHit"]);
   });
 });
 

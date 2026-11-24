@@ -139,10 +139,11 @@ export function abilityHpGainFromRefresh(
   return Math.max(abilityHpGained, 0);
 }
 
-export type RosterSlotEffectFlashKind = "hpHit" | "armourHit" | "none";
+export type RosterSlotEffectFlashKind = "hpHit" | "armourHit" | "buff" | "none";
 
-// A bench card's hit flash for this beat (Phase 15): red wins when one beat
-// does both. New flash kinds (heals, buffs) go here.
+// A bench card's flash for this beat (Phase 15): hits win over buffs, and
+// red wins when one beat does both hits. buff is any beneficial effect
+// (today only armour gained; heals and stat buffs join it later).
 export function rosterSlotEffectFlashKind(
   beatEffect: BeatCharacterEffect | undefined,
 ): RosterSlotEffectFlashKind {
@@ -154,6 +155,9 @@ export function rosterSlotEffectFlashKind(
   }
   if (beatEffect.armourLost > 0) {
     return "armourHit";
+  }
+  if (beatEffect.armourGained > 0) {
+    return "buff";
   }
   return "none";
 }

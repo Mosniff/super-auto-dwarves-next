@@ -89,4 +89,16 @@ describe("RosterSlot hit flashes", () => {
       firstFlash === secondFlash,
     ]).toEqual([true, true, false]);
   });
+
+  it("RS5: a bench card that gains armour shows a buff flash", () => {
+    renderWithMessages(
+      <RosterSlot
+        character={buildTestCharacter({ id: "rs5", armour: 1 })}
+        beatEffect={buildBeatEffect({ armourGained: 1 })}
+        beatKey={4}
+      />,
+    );
+
+    expect(effectFlashes()).toEqual(["buff"]);
+  });
 });
