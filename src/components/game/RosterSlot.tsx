@@ -1,6 +1,12 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
 import {
   AnimatePresence,
   motion,
@@ -545,68 +551,42 @@ export function RosterSlot({
           battle floaters" (shared with the camp floaters), keyed on
           data-roster-slot-floater. */}
       {goldFloaterSequence > 0 && (
-        <motion.span
+        <CampFloater
           key={`gold-${goldFloaterSequence}`}
-          data-roster-slot-floater="gold"
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-1/3 z-20 text-center font-bold"
-          initial={{ y: 0, opacity: 0 }}
-          animate={{ y: [0, FLOATER_RISE_Y], opacity: [0, 1, 1, 0] }}
-          transition={{ duration: FLOATER_DURATION_S }}
-          onAnimationComplete={() => setGoldFloaterSequence(0)}
+          floaterKind="gold"
+          onFloaterEnd={() => setGoldFloaterSequence(0)}
         >
           {t("sellGoldFloater", { gold: CHARACTER_SELL_PRICE })}
-        </motion.span>
+        </CampFloater>
       )}
       {activeExperienceBeat && activeExperienceBeat.beatKind !== "none" && (
-        <motion.span
+        <CampFloater
           key={`experience-${experienceBeatSequence}`}
-          data-roster-slot-floater="experience"
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-1/3 z-20 text-center font-bold"
-          initial={{ y: 0, opacity: 0 }}
-          animate={{ y: [0, FLOATER_RISE_Y], opacity: [0, 1, 1, 0] }}
-          transition={{
-            duration: FLOATER_DURATION_S,
-            delay: EXPERIENCE_BEAT_DELAY_S,
-          }}
+          floaterKind="experience"
+          delaySeconds={EXPERIENCE_BEAT_DELAY_S}
         >
           {activeExperienceBeat.beatKind === "levelledUp"
             ? t("levelUpFloater")
             : t("experienceGainFloater", {
                 experienceGained: activeExperienceBeat.experienceGained,
               })}
-        </motion.span>
+        </CampFloater>
       )}
       {abilityHpFloater && (
-        <motion.span
+        <CampFloater
           key={`ability-hp-${abilityHpFloater.sequence}`}
-          data-roster-slot-floater="abilityHp"
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-1/2 z-20 text-center font-bold"
-          initial={{ y: 0, opacity: 0 }}
-          animate={{ y: [0, FLOATER_RISE_Y], opacity: [0, 1, 1, 0] }}
-          transition={{
-            duration: FLOATER_DURATION_S,
-            delay: ABILITY_HP_FLOATER_DELAY_S,
-          }}
-          onAnimationComplete={() => setAbilityHpFloater(null)}
+          floaterKind="abilityHp"
+          delaySeconds={ABILITY_HP_FLOATER_DELAY_S}
+          isLowered
+          onFloaterEnd={() => setAbilityHpFloater(null)}
         >
           {t("abilityHpFloater", { hp: abilityHpFloater.hpGained })}
-        </motion.span>
+        </CampFloater>
       )}
       {campStartBeat && campStartBeat.landedGold !== null && (
-        <motion.span
-          key="camp-start-gold"
-          data-roster-slot-floater="abilityGold"
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-1/3 z-20 text-center font-bold"
-          initial={{ y: 0, opacity: 0 }}
-          animate={{ y: [0, FLOATER_RISE_Y], opacity: [0, 1, 1, 0] }}
-          transition={{ duration: FLOATER_DURATION_S }}
-        >
+        <CampFloater key="camp-start-gold" floaterKind="abilityGold">
           {t("abilityGoldFloater", { gold: campStartBeat.landedGold })}
-        </motion.span>
+        </CampFloater>
       )}
       <BattleBeatFloaters
         beatEffect={beatEffect}
@@ -614,5 +594,46 @@ export function RosterSlot({
         abilityCasterPulse={abilityCasterPulse}
       />
     </div>
+  );
+}
+
+// A camp floater animated by CSS (globals.css → "Phase 15 camp floater
+// motion"), not motion, so React re-renders while the pointer rests on the
+// card can't stall it (the invisible-XP-floater bug, Phase 15; see Phase 13
+// step 0). Its timing comes from the TS constants via CSS variables. The
+// caller keys it by its sequence, so each event remounts and replays it.
+interface CampFloaterProps {
+  floaterKind: "gold" | "experience" | "abilityHp" | "abilityGold";
+  delaySeconds?: number;
+  isLowered?: boolean;
+  onFloaterEnd?: () => void;
+  children: ReactNode;
+}
+
+function CampFloater({
+  floaterKind,
+  delaySeconds = 0,
+  isLowered = false,
+  onFloaterEnd,
+  children,
+}: CampFloaterProps) {
+  return (
+    <span
+      data-roster-slot-floater={floaterKind}
+      aria-hidden="true"
+      className={`pointer-events-none absolute inset-x-0 ${
+        isLowered ? "top-1/2" : "top-1/3"
+      } z-20 text-center font-bold`}
+      style={
+        {
+          "--camp-floater-delay": `${delaySeconds}s`,
+          "--camp-floater-duration": `${FLOATER_DURATION_S}s`,
+          "--camp-floater-rise": `${FLOATER_RISE_Y}px`,
+        } as CSSProperties
+      }
+      onAnimationEnd={onFloaterEnd}
+    >
+      {children}
+    </span>
   );
 }

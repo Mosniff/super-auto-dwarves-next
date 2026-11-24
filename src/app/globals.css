@@ -1249,6 +1249,34 @@
   --floater-fill: var(--floater-ability-gold-fill);
   --floater-outline-color: var(--floater-ability-gold-outline);
 }
+
+/* Phase 15 camp floater motion: the camp floaters (RosterSlot's
+   CampFloater) rise and fade with CSS, not motion, so re-renders can't
+   stall them. Delay, duration and rise come from the element's inline
+   CSS variables (set from RosterSlot's TS constants). Same shape as
+   before: fade in over the first third, hold, fade out, rising
+   throughout. */
+@keyframes camp-floater-rise {
+  0% {
+    transform: translateY(0);
+    opacity: 0;
+  }
+  33.333% {
+    opacity: 1;
+  }
+  66.667% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(var(--camp-floater-rise));
+    opacity: 0;
+  }
+}
+[data-roster-slot-floater] {
+  opacity: 0;
+  animation: camp-floater-rise var(--camp-floater-duration) ease-out
+    var(--camp-floater-delay) both;
+}
 @media (prefers-reduced-motion: reduce) {
   [data-armour-beat="broken"] {
     display: none;
