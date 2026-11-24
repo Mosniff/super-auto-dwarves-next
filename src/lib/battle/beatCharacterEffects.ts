@@ -117,3 +117,14 @@ export function beatCharacterEffects(
 
   return effectsByCharacterId;
 }
+
+// Display-only (Phase 15): an attacking caster hops toward the enemy, a
+// supporting one pulses upward (globals.css → "Phase 15 caster motion").
+export type AbilityCasterMotionKind = "attack" | "support" | "none";
+
+export function abilityCasterMotionKind(
+  beatEffect: BeatCharacterEffect | undefined,
+): AbilityCasterMotionKind {
+  if (beatEffect === undefined || !beatEffect.isActing) return "none";
+  return beatEffect.dealsAbilityHit ? "attack" : "support";
+}

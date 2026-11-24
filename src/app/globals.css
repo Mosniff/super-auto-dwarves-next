@@ -258,6 +258,14 @@
   /* a turn-start ability's pulse (Phase 13): must not exceed
      TURN_START_ABILITY_BEAT_DURATION_MS in beatDurationMs.ts */
   --ability-caster-quick-duration: calc(0.3s * var(--animation-tempo, 1));
+  /* Phase 15 caster motion: every caster swells; an attacking caster
+     hops toward the enemy by a fraction of its card's height (bench:
+     down for the player, up for the enemy; front: sideways toward the
+     opposing card). The human tunes these. */
+  --ability-caster-swell: 1.08;
+  --ability-attack-swell: 1.1;
+  --ability-attack-hop-bench-ratio: 0.12;
+  --ability-attack-hop-front-ratio: 0.08;
   --ability-receive-delay: calc(0.3s * var(--animation-tempo, 1));
   --armour-pop-duration: calc(0.4s * var(--animation-tempo, 1));
   --armour-pop-scale: 1.52;
@@ -926,11 +934,12 @@
   @keyframes ability-caster-pulse {
     0%,
     100% {
-      transform: translateY(0);
+      transform: translateY(0) scale(1);
       filter: drop-shadow(0 0 0 transparent);
     }
     40% {
-      transform: translateY(var(--ability-caster-lift));
+      transform: translateY(var(--ability-caster-lift))
+        scale(var(--ability-caster-swell));
       filter: drop-shadow(0 0 14px var(--ability-caster-glow));
     }
   }
@@ -940,6 +949,46 @@
   }
   [data-ability-caster-pulse="quick"] {
     --ability-caster-duration: var(--ability-caster-quick-duration);
+  }
+  /* Phase 15 caster motion: an attacking caster hops toward the enemy
+     instead of the upward pulse. The hop's x/y come from the side
+     (data-facing) and the card's height. */
+  [data-ability-caster-motion="attack"][data-facing="right"]
+    [data-roster-slot-beat-target] {
+    --attack-hop-x: 0px;
+    --attack-hop-y: calc(var(--roster-card-height) * var(--ability-attack-hop-bench-ratio));
+  }
+  [data-ability-caster-motion="attack"][data-facing="left"]
+    [data-roster-slot-beat-target] {
+    --attack-hop-x: 0px;
+    --attack-hop-y: calc(var(--roster-card-height) * var(--ability-attack-hop-bench-ratio) * -1);
+  }
+  [data-ability-caster-motion="attack"][data-facing="right"]
+    [data-active-card-frame] {
+    --attack-hop-x: calc(var(--active-card-height) * var(--ability-attack-hop-front-ratio));
+    --attack-hop-y: 0px;
+  }
+  [data-ability-caster-motion="attack"][data-facing="left"]
+    [data-active-card-frame] {
+    --attack-hop-x: calc(var(--active-card-height) * var(--ability-attack-hop-front-ratio) * -1);
+    --attack-hop-y: 0px;
+  }
+  @keyframes ability-attack-hop {
+    0%,
+    100% {
+      transform: translate(0, 0) scale(1);
+      filter: drop-shadow(0 0 0 transparent);
+    }
+    40%,
+    55% {
+      transform: translate(var(--attack-hop-x), var(--attack-hop-y))
+        scale(var(--ability-attack-swell));
+      filter: drop-shadow(0 0 14px var(--ability-caster-glow));
+    }
+  }
+  [data-ability-caster-motion="attack"] [data-roster-slot-beat-target],
+  [data-ability-caster-motion="attack"] [data-active-card-frame] {
+    animation: ability-attack-hop var(--ability-caster-duration) ease-in-out;
   }
   @keyframes armour-pop {
     0% {

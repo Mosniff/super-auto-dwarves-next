@@ -169,4 +169,34 @@ describe("RosterSlot hit flashes", () => {
       beatAnimatingAttribute(undefined),
     ]).toEqual(["true", "true", "true", "false", "false"]);
   });
+
+  it("RS9: the slot names its caster motion (attack, support or none) and its facing", () => {
+    function casterAttributes(beatEffect: BeatCharacterEffect | undefined, facing: "left" | "right") {
+      const { unmount } = renderWithMessages(
+        <RosterSlot
+          character={buildTestCharacter({ id: "rs9" })}
+          beatEffect={beatEffect}
+          beatKey={4}
+          facing={facing}
+        />,
+      );
+      const slot = document.querySelector("[data-roster-slot]");
+      const attributes = [
+        slot?.getAttribute("data-ability-caster-motion") ?? null,
+        slot?.getAttribute("data-facing") ?? null,
+      ];
+      unmount();
+      return attributes;
+    }
+
+    expect([
+      casterAttributes(buildBeatEffect({ isActing: true, dealsAbilityHit: true }), "right"),
+      casterAttributes(buildBeatEffect({ isActing: true }), "left"),
+      casterAttributes(undefined, "right"),
+    ]).toEqual([
+      ["attack", "right"],
+      ["support", "left"],
+      ["none", "right"],
+    ]);
+  });
 });

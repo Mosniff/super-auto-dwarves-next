@@ -11,7 +11,10 @@ import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/game/character";
 import { CHARACTER_SELL_PRICE } from "@/lib/game/shop";
 import { animationTempoSeconds } from "@/lib/animationTempo";
-import type { BeatCharacterEffect } from "@/lib/battle/beatCharacterEffects";
+import {
+  abilityCasterMotionKind,
+  type BeatCharacterEffect,
+} from "@/lib/battle/beatCharacterEffects";
 import type { AbilityCasterPulseKind } from "@/lib/battle/beatDurationMs";
 import {
   abilityHpGainFromRefresh,
@@ -376,6 +379,13 @@ export function RosterSlot({
   const effectFlashKind = rosterSlotEffectFlashKind(beatEffect);
   const isActing = Boolean(beatEffect?.isActing || campStartBeat?.isActing);
   const isPlayingBeatAnimation = isActing || effectFlashKind !== "none";
+  // Camp-start casters support.
+  const casterMotionKind =
+    beatEffect !== undefined
+      ? abilityCasterMotionKind(beatEffect)
+      : campStartBeat?.isActing
+        ? "support"
+        : "none";
   // The parity alternates each beat, so the receive animation's name
   // changes and CSS restarts it (globals.css → "Phase 15 bench receive
   // motion").
@@ -405,6 +415,8 @@ export function RosterSlot({
       data-ability-acting={String(isActing)}
       data-roster-slot-beat-animating={String(isPlayingBeatAnimation)}
       data-ability-caster-pulse={abilityCasterPulse}
+      data-ability-caster-motion={casterMotionKind}
+      data-facing={facing}
       {...rosterSlotIndexAttributes}
     >
       <div

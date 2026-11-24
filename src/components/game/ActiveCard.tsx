@@ -9,7 +9,10 @@ import {
 import { animationTempoSeconds } from "@/lib/animationTempo";
 import type { BeatType } from "@/lib/battle/types";
 import { abilityCasterPulseKind } from "@/lib/battle/beatDurationMs";
-import type { CurrentBeatEffects } from "@/lib/battle/beatCharacterEffects";
+import {
+  abilityCasterMotionKind,
+  type CurrentBeatEffects,
+} from "@/lib/battle/beatCharacterEffects";
 import type { Character } from "@/lib/game/character";
 import { CharacterCard } from "./CharacterCard";
 import { CharacterInfoControl } from "./CharacterInfoControl";
@@ -209,6 +212,8 @@ export function ActiveCard({
               data-card-badge-basis="active"
               data-info-control-revealed="false"
               data-ability-acting={beatEffect?.isActing ? "true" : "false"}
+              data-ability-caster-motion={abilityCasterMotionKind(beatEffect)}
+              data-facing={facing}
               data-ability-caster-pulse={abilityCasterPulseKind(
                 currentBeatType,
               )}

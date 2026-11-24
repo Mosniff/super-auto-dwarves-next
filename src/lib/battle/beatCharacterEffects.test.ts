@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest";
-import { beatCharacterEffects } from "./beatCharacterEffects";
+import {
+  abilityCasterMotionKind,
+  beatCharacterEffects,
+  type BeatCharacterEffect,
+} from "./beatCharacterEffects";
 import type { BattleEvent } from "./types";
 
 describe("beatCharacterEffects", () => {
@@ -311,5 +315,39 @@ describe("beatCharacterEffects", () => {
     ];
 
     expect(beatCharacterEffects(beatEvents).p2?.dealsAbilityHit).toBe(false);
+  });
+});
+
+describe("abilityCasterMotionKind", () => {
+  function buildBeatEffect(
+    overrides: Partial<BeatCharacterEffect>,
+  ): BeatCharacterEffect {
+    return {
+      isActing: false,
+      armourGained: 0,
+      brokenFromArmour: null,
+      abilityHpLost: 0,
+      armourLost: 0,
+      dealsAbilityHit: false,
+      isDropped: false,
+      ...overrides,
+    };
+  }
+
+  it("CM1: no effect, or not acting, gives no caster motion", () => {
+    expect([
+      abilityCasterMotionKind(undefined),
+      abilityCasterMotionKind(buildBeatEffect({ abilityHpLost: 2 })),
+    ]).toEqual(["none", "none"]);
+  });
+
+  it("CM2: an acting caster whose ability hit someone attacks", () => {
+    expect(
+      abilityCasterMotionKind(buildBeatEffect({ isActing: true, dealsAbilityHit: true })),
+    ).toBe("attack");
+  });
+
+  it("CM3: an acting caster whose ability hit no one supports", () => {
+    expect(abilityCasterMotionKind(buildBeatEffect({ isActing: true }))).toBe("support");
   });
 });
