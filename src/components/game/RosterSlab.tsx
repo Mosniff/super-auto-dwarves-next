@@ -152,8 +152,11 @@ export function RosterSlab({
       {rendersLeadingArea && (
         <div
           data-roster-slab-leading-area
-          className="relative flex min-w-0 flex-1 basis-0 flex-col items-center justify-center"
+          className="relative flex min-w-0 flex-1 basis-0 flex-col items-start justify-start"
         >
+          {/* Top-aligned (Phase 15): battle's one-row autoplay control sits
+              at the top, leaving the bottom-left corner for the player's
+              faction tab. */}
           {leadingControls}
         </div>
       )}

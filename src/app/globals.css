@@ -1729,9 +1729,26 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
    tunes these. */
 :root {
   --battle-autoplay-section-gap: 0.875rem;
-  --battle-autoplay-label-gap: 0.5rem;
   --battle-autoplay-button-gap: 0.375rem;
+  --battle-autoplay-divider-inset: 0.25rem;
+  --battle-autoplay-divider-light: var(--header-divider-light);
+  --battle-autoplay-divider-dark: var(--header-divider-dark);
   --battle-autoplay-control-zoom: 1;
+}
+
+/* The divider between the speed buttons and Advance: a light line with a
+   dark shadow beside it, fading at both ends, like the header's divider.
+   It stretches to the buttons' height, less the inset at each end. */
+[data-battle-autoplay-divider] {
+  margin-block: var(--battle-autoplay-divider-inset);
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    var(--battle-autoplay-divider-light) 25%,
+    var(--battle-autoplay-divider-light) 75%,
+    transparent
+  );
+  box-shadow: 1px 0 0 var(--battle-autoplay-divider-dark);
 }
 
 @media (min-width: 1700px) and (min-height: 800px) {
@@ -1778,6 +1795,21 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
   align-items: center;
   gap: var(--on-deck-label-gap);
   color: var(--color-parchment-300);
+}
+
+/* Battle (slots aligned toward the front): only the front side needs the
+   wide padding for the NEXT marker; the back side, where the controls
+   sit, gets a slim edge. Camp's centred slabs keep both sides. */
+:root {
+  --roster-slab-padding-back: 1rem;
+}
+
+[data-roster-slot-alignment="front"][data-roster-slab-variant="player"] {
+  padding-left: var(--roster-slab-padding-back);
+}
+
+[data-roster-slot-alignment="front"][data-roster-slab-variant="enemy"] {
+  padding-right: var(--roster-slab-padding-back);
 }
 
 [data-on-deck-direction="left"][data-roster-slot-on-deck-marker] {

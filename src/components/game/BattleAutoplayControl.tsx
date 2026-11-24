@@ -1,9 +1,9 @@
 "use client";
 
-// Battle playback controls (Phase 14): the labelled Battle Autoplay group
-// (Off / Slow / Fast) with Advance below it. It lives in the player
-// roster's trailing area during battle, where camp's merge/sell toggle
-// sits. It shows the player's chosen speed; no speed is pressed until the
+// Battle playback controls (Phase 14; one row since Phase 15): the
+// "Autoplay" label, then the labelled Off / Slow / Fast group, a divider and
+// Advance. It lives in the player roster's leading area during battle.
+// It shows the player's chosen speed; no speed is pressed until the
 // remembered speed is known. The human tunes its look.
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
@@ -34,22 +34,25 @@ export function BattleAutoplayControl({
   const t = useTranslations("common");
 
   return (
+    // One row (Phase 15): the label on the left, and on the right the speed
+    // group, a small divider, then Advance. justify-between spreads the two
+    // across the leading area's full width.
     <div
       data-battle-autoplay-control
-      className="flex flex-col items-center gap-(--battle-autoplay-section-gap) [zoom:var(--battle-autoplay-control-zoom)]"
+      className="flex items-center gap-(--battle-autoplay-section-gap) [zoom:var(--battle-autoplay-control-zoom)]"
     >
-      <div
-        role="group"
-        aria-labelledby="battle-autoplay-label"
-        className="flex flex-col items-center gap-(--battle-autoplay-label-gap)"
+      <span
+        id="battle-autoplay-label"
+        className="whitespace-nowrap text-sm font-bold uppercase tracking-wide text-(--color-parchment-100) [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]"
       >
-        <span
-          id="battle-autoplay-label"
-          className="whitespace-nowrap text-sm font-bold uppercase tracking-wide text-(--color-parchment-100) [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]"
+        {t("battleAutoplayLabel")}
+      </span>
+      <div className="flex items-center gap-(--battle-autoplay-section-gap)">
+        <div
+          role="group"
+          aria-labelledby="battle-autoplay-label"
+          className="flex gap-(--battle-autoplay-button-gap)"
         >
-          {t("battleAutoplayLabel")}
-        </span>
-        <div className="flex gap-(--battle-autoplay-button-gap)">
           {SPEED_OPTIONS.map((option) => (
             <Button
               key={option.autoplaySpeed}
@@ -65,15 +68,23 @@ export function BattleAutoplayControl({
             </Button>
           ))}
         </div>
+        {/* Decorative groove like the header's divider, with its own
+            variables (globals.css → battle autoplay) so the human can tune
+            it for the stone slab. */}
+        <span
+          aria-hidden="true"
+          data-battle-autoplay-divider
+          className="inline-block w-px shrink-0 self-stretch rounded-full"
+        />
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onAdvance}
+          disabled={!canAdvance}
+        >
+          {t("advance")}
+        </Button>
       </div>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onAdvance}
-        disabled={!canAdvance}
-      >
-        {t("advance")}
-      </Button>
     </div>
   );
 }

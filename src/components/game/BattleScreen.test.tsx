@@ -100,7 +100,7 @@ describe("BattleScreen", () => {
     ).toBeInTheDocument();
     // deliberate assertion rewrite: the autoplay toggle button became the labelled Battle Autoplay group (Phase 14)
     expect(
-      screen.queryByRole("group", { name: "Battle Autoplay" }),
+      screen.queryByRole("group", { name: "Autoplay" }),
     ).not.toBeNull();
   });
 

@@ -30,12 +30,13 @@ function renderBattleAutoplayControl(
 }
 
 describe("BattleAutoplayControl", () => {
+  // deliberate assertion rewrite: the group's name follows its shorter visible label (before: "Battle Autoplay"; after: "Autoplay") — Phase 15, the human's call
   it("BC1: a labelled group of Off / Slow / Fast, with the current speed pressed", () => {
     renderBattleAutoplayControl({ autoplaySpeed: "slow" });
 
     expect({
       hasLabelledGroup:
-        screen.queryByRole("group", { name: "Battle Autoplay" }) !== null,
+        screen.queryByRole("group", { name: "Autoplay" }) !== null,
       pressedStates: SPEED_BUTTON_NAMES.map(
         (buttonName) =>
           screen

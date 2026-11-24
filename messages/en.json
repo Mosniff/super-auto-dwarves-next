@@ -2,7 +2,7 @@
   "common": {
     "appName": "Super Auto Dwarves",
     "advance": "Advance",
-    "battleAutoplayLabel": "Battle Autoplay",
+    "battleAutoplayLabel": "Autoplay",
     "autoplaySpeedOff": "Off",
     "autoplaySpeedSlow": "Slow",
     "autoplaySpeedFast": "Fast",

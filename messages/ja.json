@@ -2,7 +2,7 @@
   "common": {
     "appName": "スーパーオートドワーフ",
     "advance": "進む",
-    "battleAutoplayLabel": "オートバトル",
+    "battleAutoplayLabel": "オート",
     "autoplaySpeedOff": "オフ",
     "autoplaySpeedSlow": "ゆっくり",
     "autoplaySpeedFast": "はやい",
