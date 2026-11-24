@@ -88,26 +88,45 @@ export function InfoScroll({
             // design; colours and sizes in globals.css).
             <div
               data-info-scroll-battle-title
-              className="flex flex-1 items-center justify-center text-center font-bold uppercase text-ink-700"
+              className="flex flex-1 items-center justify-center text-center uppercase text-ink-700"
             >
               {t("battleTitle")}
             </div>
           ) : battleStartDescriptor !== undefined ? (
             // The battle-start beat: the faction matchup (Phase 15, the
-            // human's design; colours and sizes in globals.css).
+            // human's design; colours and sizes in globals.css). Keyed by
+            // the viewed beat so the entrance replays when the beat is
+            // revisited.
             <div
+              key={viewedBeat}
               data-info-scroll-matchup
-              className="flex flex-1 flex-col justify-center font-bold uppercase"
+              className="grid flex-1 grid-rows-3 overflow-hidden uppercase"
             >
-              <span data-matchup-line="player" className="text-left">
+              <span
+                data-matchup-line="player"
+                className="self-start justify-self-start"
+              >
                 {translateFaction(
                   `${battleStartDescriptor.playerFactionId}.pluralName`,
                 )}
               </span>
-              <span data-matchup-line="versus" className="text-center">
-                {t("matchupVersus")}
+              <span
+                data-matchup-line="versus"
+                className="grid place-items-center self-center justify-self-center"
+              >
+                <Shield
+                  aria-hidden="true"
+                  data-matchup-emblem
+                  className="col-start-1 row-start-1"
+                />
+                <span className="col-start-1 row-start-1">
+                  {t("matchupVersus")}
+                </span>
               </span>
-              <span data-matchup-line="enemy" className="text-right">
+              <span
+                data-matchup-line="enemy"
+                className="self-end justify-self-end"
+              >
                 {translateFaction(
                   `${battleStartDescriptor.enemyFactionId}.pluralName`,
                 )}

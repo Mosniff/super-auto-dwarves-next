@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Cinzel, Geist, Geist_Mono } from "next/font/google";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { notFound } from "next/navigation";
@@ -14,6 +14,13 @@ const geistSans = Geist({
 
 const geistMono = Geist_Mono({
   variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
+
+// The battle opening's display face (Phase 15): the info scroll's "Battle!"
+// and faction matchup. Latin only, so Japanese falls back to a system serif.
+const cinzel = Cinzel({
+  variable: "--font-cinzel",
   subsets: ["latin"],
 });
 
@@ -48,7 +55,7 @@ export default async function LocaleLayout({
     // CSS so CSS and TS durations can't drift apart.
     <html
       lang={locale}
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${cinzel.variable} h-full antialiased`}
       style={{ "--animation-tempo": ANIMATION_TEMPO } as React.CSSProperties}
     >
       <body className="min-h-full flex flex-col">

@@ -323,9 +323,13 @@
   --floater-sell-gold-outline: var(--color-iron-700);
   --floater-experience-fill: var(--color-parchment-50);
   --floater-experience-outline: var(--color-iron-700);
-  --floater-ability-hp-gain-fill: oklch(84.5% 0.143 164.978); /* Tailwind emerald-300 */
+  --floater-ability-hp-gain-fill: oklch(
+    84.5% 0.143 164.978
+  ); /* Tailwind emerald-300 */
   --floater-ability-hp-gain-outline: var(--color-iron-700);
-  --floater-ability-gold-fill: oklch(87.9% 0.169 91.605); /* Tailwind amber-300 */
+  --floater-ability-gold-fill: oklch(
+    87.9% 0.169 91.605
+  ); /* Tailwind amber-300 */
   --floater-ability-gold-outline: var(--color-iron-700);
   /* ── Bench receive motion (Phase 15) ─────────────────
      A hit card pops and settles while trembling; a buffed card swells on
@@ -717,9 +721,15 @@
     calc(var(--card-badge-card-height, 16rem) * var(--card-badge-height-ratio)),
     var(--card-badge-max-size)
   );
-  --card-badge-offset: calc(var(--card-badge-size) * var(--card-badge-offset-ratio));
-  --card-badge-icon-size: calc(var(--card-badge-size) * var(--card-badge-icon-ratio));
-  --card-badge-glyph-size: calc(var(--card-badge-size) * var(--card-badge-glyph-ratio));
+  --card-badge-offset: calc(
+    var(--card-badge-size) * var(--card-badge-offset-ratio)
+  );
+  --card-badge-icon-size: calc(
+    var(--card-badge-size) * var(--card-badge-icon-ratio)
+  );
+  --card-badge-glyph-size: calc(
+    var(--card-badge-size) * var(--card-badge-glyph-ratio)
+  );
 }
 
 /* Phase 12 info control reveal. The control (a sibling of the slot button,
@@ -971,21 +981,29 @@
   [data-ability-caster-motion="attack"][data-facing="right"]
     [data-roster-slot-beat-target] {
     --attack-hop-x: 0px;
-    --attack-hop-y: calc(var(--roster-card-height) * var(--ability-attack-hop-bench-ratio));
+    --attack-hop-y: calc(
+      var(--roster-card-height) * var(--ability-attack-hop-bench-ratio)
+    );
   }
   [data-ability-caster-motion="attack"][data-facing="left"]
     [data-roster-slot-beat-target] {
     --attack-hop-x: 0px;
-    --attack-hop-y: calc(var(--roster-card-height) * var(--ability-attack-hop-bench-ratio) * -1);
+    --attack-hop-y: calc(
+      var(--roster-card-height) * var(--ability-attack-hop-bench-ratio) * -1
+    );
   }
   [data-ability-caster-motion="attack"][data-facing="right"]
     [data-active-card-frame] {
-    --attack-hop-x: calc(var(--active-card-height) * var(--ability-attack-hop-front-ratio));
+    --attack-hop-x: calc(
+      var(--active-card-height) * var(--ability-attack-hop-front-ratio)
+    );
     --attack-hop-y: 0px;
   }
   [data-ability-caster-motion="attack"][data-facing="left"]
     [data-active-card-frame] {
-    --attack-hop-x: calc(var(--active-card-height) * var(--ability-attack-hop-front-ratio) * -1);
+    --attack-hop-x: calc(
+      var(--active-card-height) * var(--ability-attack-hop-front-ratio) * -1
+    );
     --attack-hop-y: 0px;
   }
   @keyframes ability-attack-hop {
@@ -1139,42 +1157,122 @@
 }
 @media (prefers-reduced-motion: no-preference) {
   @keyframes hit-receive-even {
-    0% { transform: scale(1) rotate(0deg); }
-    12% { transform: scale(var(--receive-pop-scale)) rotate(calc(var(--receive-tremble) * -1)); }
-    30% { transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.75)) rotate(calc(var(--receive-tremble) * 0.8)); }
-    48% { transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.5)) rotate(calc(var(--receive-tremble) * -0.6)); }
-    66% { transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.3)) rotate(calc(var(--receive-tremble) * 0.4)); }
-    84% { transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.1)) rotate(calc(var(--receive-tremble) * -0.2)); }
-    100% { transform: scale(1) rotate(0deg); }
+    0% {
+      transform: scale(1) rotate(0deg);
+    }
+    12% {
+      transform: scale(var(--receive-pop-scale))
+        rotate(calc(var(--receive-tremble) * -1));
+    }
+    30% {
+      transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.75))
+        rotate(calc(var(--receive-tremble) * 0.8));
+    }
+    48% {
+      transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.5))
+        rotate(calc(var(--receive-tremble) * -0.6));
+    }
+    66% {
+      transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.3))
+        rotate(calc(var(--receive-tremble) * 0.4));
+    }
+    84% {
+      transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.1))
+        rotate(calc(var(--receive-tremble) * -0.2));
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+    }
   }
   @keyframes hit-receive-odd {
     /* identical to hit-receive-even (see the section comment) */
-    0% { transform: scale(1) rotate(0deg); }
-    12% { transform: scale(var(--receive-pop-scale)) rotate(calc(var(--receive-tremble) * -1)); }
-    30% { transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.75)) rotate(calc(var(--receive-tremble) * 0.8)); }
-    48% { transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.5)) rotate(calc(var(--receive-tremble) * -0.6)); }
-    66% { transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.3)) rotate(calc(var(--receive-tremble) * 0.4)); }
-    84% { transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.1)) rotate(calc(var(--receive-tremble) * -0.2)); }
-    100% { transform: scale(1) rotate(0deg); }
+    0% {
+      transform: scale(1) rotate(0deg);
+    }
+    12% {
+      transform: scale(var(--receive-pop-scale))
+        rotate(calc(var(--receive-tremble) * -1));
+    }
+    30% {
+      transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.75))
+        rotate(calc(var(--receive-tremble) * 0.8));
+    }
+    48% {
+      transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.5))
+        rotate(calc(var(--receive-tremble) * -0.6));
+    }
+    66% {
+      transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.3))
+        rotate(calc(var(--receive-tremble) * 0.4));
+    }
+    84% {
+      transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.1))
+        rotate(calc(var(--receive-tremble) * -0.2));
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+    }
   }
   @keyframes buff-receive-even {
-    0% { transform: scale(1) rotate(0deg); animation-timing-function: cubic-bezier(0.1, 0.8, 0.3, 1); }
-    60% { transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.9)) rotate(0deg); animation-timing-function: linear; }
-    65% { transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.93)) rotate(var(--buff-strain-tremble)); }
-    70% { transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.96)) rotate(calc(var(--buff-strain-tremble) * -1)); }
-    75% { transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.98)) rotate(var(--buff-strain-tremble)); }
-    80% { transform: scale(var(--buff-receive-scale)) rotate(0deg); animation-timing-function: ease-in; }
-    100% { transform: scale(1) rotate(0deg); }
+    0% {
+      transform: scale(1) rotate(0deg);
+      animation-timing-function: cubic-bezier(0.1, 0.8, 0.3, 1);
+    }
+    60% {
+      transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.9))
+        rotate(0deg);
+      animation-timing-function: linear;
+    }
+    65% {
+      transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.93))
+        rotate(var(--buff-strain-tremble));
+    }
+    70% {
+      transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.96))
+        rotate(calc(var(--buff-strain-tremble) * -1));
+    }
+    75% {
+      transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.98))
+        rotate(var(--buff-strain-tremble));
+    }
+    80% {
+      transform: scale(var(--buff-receive-scale)) rotate(0deg);
+      animation-timing-function: ease-in;
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+    }
   }
   @keyframes buff-receive-odd {
     /* identical to buff-receive-even (see the section comment) */
-    0% { transform: scale(1) rotate(0deg); animation-timing-function: cubic-bezier(0.1, 0.8, 0.3, 1); }
-    60% { transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.9)) rotate(0deg); animation-timing-function: linear; }
-    65% { transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.93)) rotate(var(--buff-strain-tremble)); }
-    70% { transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.96)) rotate(calc(var(--buff-strain-tremble) * -1)); }
-    75% { transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.98)) rotate(var(--buff-strain-tremble)); }
-    80% { transform: scale(var(--buff-receive-scale)) rotate(0deg); animation-timing-function: ease-in; }
-    100% { transform: scale(1) rotate(0deg); }
+    0% {
+      transform: scale(1) rotate(0deg);
+      animation-timing-function: cubic-bezier(0.1, 0.8, 0.3, 1);
+    }
+    60% {
+      transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.9))
+        rotate(0deg);
+      animation-timing-function: linear;
+    }
+    65% {
+      transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.93))
+        rotate(var(--buff-strain-tremble));
+    }
+    70% {
+      transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.96))
+        rotate(calc(var(--buff-strain-tremble) * -1));
+    }
+    75% {
+      transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.98))
+        rotate(var(--buff-strain-tremble));
+    }
+    80% {
+      transform: scale(var(--buff-receive-scale)) rotate(0deg);
+      animation-timing-function: ease-in;
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+    }
   }
   [data-roster-slot-receive="hpHit"] {
     --receive-pop-scale: var(--hit-receive-scale);
@@ -1361,33 +1459,160 @@ ul:has(> [data-log-line-emphasis="turnBegins"]) {
   justify-content: center;
 }
 /* Phase 15: before the first beat the scroll reads "Battle!"; the
-   battle-start beat shows the faction matchup (player left, "vs" centred,
-   enemy right). Both fill the scroll with no header. Sizes are multiples
-   of the scroll's text size; the human tunes these. */
+   battle-start beat shows the faction matchup: the player's faction
+   top-left, a crossed-swords "vs" emblem centred, the enemy's faction
+   bottom-right. Both fill the scroll with no header, in the Cinzel display
+   face. Sizes are ratios of the scroll's text size; durations are base
+   values times the animation tempo, and the matchup's entrance must end
+   inside the battle-start beat (PREPARE_BEAT_DURATION_MS, 800 ms base).
+   The human tunes these. */
 :root {
-  --battle-title-size-ratio: 2.3;
-  --matchup-size-ratio: 1.9;
-  --matchup-letter-spacing: 0.12em;
+  --matchup-emblem-size-ratio: 1.5;
+  --matchup-versus-size-ratio: 0.55;
+  --matchup-font-weight: 900;
+  --matchup-letter-spacing: 0.08em;
+  --matchup-ink-shadow: 0 2px 0 rgba(46, 32, 18, 0.25);
+  --matchup-emblem-fill: var(--color-iron-700);
+  --matchup-emblem-rim: var(--color-copper-400);
+  --matchup-versus-colour: var(--color-parchment-50);
+  --matchup-slide-duration: calc(0.32s * var(--animation-tempo, 1));
+  --matchup-enemy-delay: calc(0.08s * var(--animation-tempo, 1));
+  --matchup-emblem-delay: calc(0.36s * var(--animation-tempo, 1));
+  --matchup-emblem-duration: calc(0.24s * var(--animation-tempo, 1));
+  --matchup-emblem-size-ratio: 2; /* was 1.5: a bigger shield */
+  --matchup-versus-size-ratio: 0.45; /* was 0.55: smaller VS inside it */
+  --matchup-versus-outline: var(--color-iron-900);
+  --battle-title-stamp-duration: calc(0.35s * var(--animation-tempo, 1));
+  /* Sizes follow the scroll itself (not the capped scroll text size), so
+     they keep growing on big screens; the floors are the small-screen
+     sizes the human approved. Width matters too: the scroll is capped at
+     30% of the window, and a long faction name mustn't overflow it. */
+  --matchup-font-size: clamp(
+    2.45rem,
+    min(
+      calc(var(--info-scroll-height) * 0.12),
+      calc(var(--info-scroll-width) * 0.13)
+    ),
+    6rem
+  );
+  --battle-title-font-size: clamp(
+    2.8rem,
+    min(
+      calc(var(--info-scroll-height) * 0.14),
+      calc(var(--info-scroll-width) * 0.16)
+    ),
+    7rem
+  );
+  --matchup-padding-x: clamp(
+    0.5rem,
+    calc(var(--info-scroll-width) * 0.03),
+    2rem
+  );
+  --matchup-padding-y: clamp(
+    0.25rem,
+    calc(var(--info-scroll-height) * 0.02),
+    1.25rem
+  );
+}
+[data-info-scroll-battle-title],
+[data-info-scroll-matchup] {
+  font-family: var(--font-cinzel), serif;
+  font-weight: var(--matchup-font-weight);
+  letter-spacing: var(--matchup-letter-spacing);
+  text-shadow: var(--matchup-ink-shadow);
+  line-height: 1;
 }
 [data-info-scroll-battle-title] {
-  font-size: calc(var(--info-scroll-text-size) * var(--battle-title-size-ratio));
-  letter-spacing: var(--matchup-letter-spacing);
+  font-size: var(--battle-title-font-size);
 }
 [data-info-scroll-matchup] {
-  font-size: calc(var(--info-scroll-text-size) * var(--matchup-size-ratio));
-  letter-spacing: var(--matchup-letter-spacing);
-  gap: 0.25em;
+  font-size: var(--matchup-font-size);
+  padding: var(--matchup-padding-y) var(--matchup-padding-x);
 }
 [data-matchup-line="player"] {
   color: var(--color-player-side);
 }
-[data-matchup-line="versus"] {
-  color: var(--color-ink-700);
-  opacity: 0.6;
-  font-size: 0.7em;
-}
 [data-matchup-line="enemy"] {
   color: var(--color-enemy-side);
+}
+[data-matchup-line="versus"] {
+  color: var(--matchup-versus-colour);
+  font-size: calc(var(--matchup-font-size) * var(--matchup-versus-size-ratio));
+  text-shadow: none;
+  -webkit-text-stroke: 0.14em var(--matchup-versus-outline);
+  paint-order: stroke fill;
+}
+[data-matchup-emblem] {
+  width: calc(var(--matchup-font-size) * var(--matchup-emblem-size-ratio));
+  height: calc(var(--matchup-font-size) * var(--matchup-emblem-size-ratio));
+  fill: var(--matchup-emblem-fill);
+  color: var(--matchup-emblem-rim);
+}
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes matchup-slide-in-from-left {
+    from {
+      transform: translateX(-120%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  @keyframes matchup-slide-in-from-right {
+    from {
+      transform: translateX(120%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  @keyframes matchup-emblem-pop {
+    0% {
+      transform: scale(0.2);
+      opacity: 0;
+    }
+    70% {
+      transform: scale(1.15);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  @keyframes battle-title-stamp {
+    0% {
+      transform: scale(1.8);
+      opacity: 0;
+    }
+    60% {
+      transform: scale(0.94);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+  [data-matchup-line="player"] {
+    animation: matchup-slide-in-from-left var(--matchup-slide-duration)
+      cubic-bezier(0.2, 0.9, 0.3, 1) both;
+  }
+  [data-matchup-line="enemy"] {
+    animation: matchup-slide-in-from-right var(--matchup-slide-duration)
+      cubic-bezier(0.2, 0.9, 0.3, 1) var(--matchup-enemy-delay) both;
+  }
+  [data-matchup-line="versus"] {
+    animation: matchup-emblem-pop var(--matchup-emblem-duration) ease-out
+      var(--matchup-emblem-delay) both;
+  }
+  [data-info-scroll-battle-title] {
+    animation: battle-title-stamp var(--battle-title-stamp-duration) ease-out
+      both;
+  }
 }
 
 /* The outcome beat: the header hides and the result fills the scroll. */
