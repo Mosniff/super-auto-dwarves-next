@@ -148,6 +148,9 @@ describe("locale message parity", () => {
     "armourGainFloater",
     "armourBreakFloater",
     "abilityHpLossFloater",
+    // deliberate test-data update: the info scroll's "Battle!" opening and the matchup's "vs" (Phase 15)
+    "battleTitle",
+    "matchupVersus",
   ];
 
   it("english has exactly the expected common keys", () => {

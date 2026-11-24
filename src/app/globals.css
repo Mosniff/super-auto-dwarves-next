@@ -105,6 +105,12 @@
   --color-iron-900: #15181b; /* near-black iron, deepest */
   /* ── Rune blue (accent, Phase 15) ─────────────────── */
   --color-rune-blue-200: #a9d8f2; /* light rune glow — the buff flash */
+  /* ── Sides (Phase 15) ─────────────────────────────── */
+  /* The player's and the enemy's colour, wherever the game marks a side:
+     the info scroll's names and line markers, the faction matchup, the
+     enemy slab's faction label. */
+  --color-player-side: #1f5f8b;
+  --color-enemy-side: #a3321f;
 
   /* ── Parchment (warm, for the info scroll) ───────── */
   --color-parchment-50: #f4e8cf; /* lightest sheet highlight */
@@ -1290,8 +1296,8 @@
    human tunes these. */
 :root {
   --highlight-font-weight: 600;
-  --highlight-player-colour: #1f5f8b;
-  --highlight-enemy-colour: #a3321f;
+  --highlight-player-colour: var(--color-player-side);
+  --highlight-enemy-colour: var(--color-enemy-side);
   --highlight-number-colour: #8a5a12;
   --highlight-ability-number-colour: var(--color-copper-400);
 }
@@ -1354,6 +1360,36 @@ ul:has(> [data-log-line-emphasis="turnBegins"]) {
   flex-direction: column;
   justify-content: center;
 }
+/* Phase 15: before the first beat the scroll reads "Battle!"; the
+   battle-start beat shows the faction matchup (player left, "vs" centred,
+   enemy right). Both fill the scroll with no header. Sizes are multiples
+   of the scroll's text size; the human tunes these. */
+:root {
+  --battle-title-size-ratio: 2.3;
+  --matchup-size-ratio: 1.9;
+  --matchup-letter-spacing: 0.12em;
+}
+[data-info-scroll-battle-title] {
+  font-size: calc(var(--info-scroll-text-size) * var(--battle-title-size-ratio));
+  letter-spacing: var(--matchup-letter-spacing);
+}
+[data-info-scroll-matchup] {
+  font-size: calc(var(--info-scroll-text-size) * var(--matchup-size-ratio));
+  letter-spacing: var(--matchup-letter-spacing);
+  gap: 0.25em;
+}
+[data-matchup-line="player"] {
+  color: var(--color-player-side);
+}
+[data-matchup-line="versus"] {
+  color: var(--color-ink-700);
+  opacity: 0.6;
+  font-size: 0.7em;
+}
+[data-matchup-line="enemy"] {
+  color: var(--color-enemy-side);
+}
+
 /* The outcome beat: the header hides and the result fills the scroll. */
 [data-log-line-emphasis="outcome"] {
   justify-content: center;

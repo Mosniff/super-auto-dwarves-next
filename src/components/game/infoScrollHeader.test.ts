@@ -5,7 +5,8 @@ const borin = { name: "Borin", side: "player" } as const;
 const grukk = { name: "Grukk", side: "enemy" } as const;
 
 describe("infoScrollHeader", () => {
-  it("HD1: before turn 1 the header reads pre-battle", () => {
+  // deliberate assertion rewrite: before the first beat and on the battle-start beat the header hides (before: both read pre-battle; after: hidden, so "Battle!" and the faction matchup fill the scroll); a later pre-battle beat still reads pre-battle — Phase 15, the human's call
+  it("HD1: before turn 1 the header reads pre-battle, except before the first beat and on the battle-start beat, where it hides", () => {
     expect([
       infoScrollHeader(0, []),
       infoScrollHeader(0, [
@@ -13,8 +14,8 @@ describe("infoScrollHeader", () => {
       ]),
       infoScrollHeader(0, [{ kind: "frontsEngage" }]),
     ]).toEqual([
-      { kind: "preBattle" },
-      { kind: "preBattle" },
+      { kind: "hidden" },
+      { kind: "hidden" },
       { kind: "preBattle" },
     ]);
   });

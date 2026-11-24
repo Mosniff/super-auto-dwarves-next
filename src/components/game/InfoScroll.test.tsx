@@ -92,10 +92,14 @@ describe("InfoScroll", () => {
     expect(screen.getByText("Victory!")).toBeInTheDocument();
   });
 
-  it("shows the empty-state dash when there are no descriptors", () => {
+  // deliberate assertion rewrite: before the first beat the scroll says "Battle!" with no header (before: a faint "—" under the Pre-battle header) — Phase 15, the human's call
+  it("before the first beat (no descriptors) the scroll says Battle! with no header", () => {
     renderInfoScroll([]);
 
-    expect(screen.getByText("—")).toBeInTheDocument();
+    expect([
+      document.querySelector("[data-info-scroll-battle-title]")?.textContent ?? null,
+      turnHeader(),
+    ]).toEqual(["Battle!", null]);
   });
 
   it("renders an ability beat's battle cry and target line from the ability namespace", () => {
@@ -124,14 +128,26 @@ describe("InfoScroll", () => {
     ]);
   });
 
-  it("IS1: renders the battle-start line with both factions' plural names", () => {
+  // deliberate assertion rewrite: the battle-start beat shows the faction matchup on three lines with no header (before: the line "The dwarves and the kobolds prepare for battle" under the Pre-battle header) — Phase 15, the human's call
+  it("IS1: the battle-start beat shows the matchup: the player's faction, vs, the enemy's faction, with no header", () => {
     renderInfoScroll([
       { kind: "battleStart", playerFactionId: "dwarf", enemyFactionId: "kobold" },
     ]);
 
-    expect(
-      screen.getByText("The dwarves and the kobolds prepare for battle"),
-    ).toBeInTheDocument();
+    expect([
+      Array.from(document.querySelectorAll("[data-matchup-line]")).map((matchupLine) => [
+        matchupLine.getAttribute("data-matchup-line"),
+        matchupLine.textContent,
+      ]),
+      turnHeader(),
+    ]).toEqual([
+      [
+        ["player", "dwarves"],
+        ["versus", "vs"],
+        ["enemy", "kobolds"],
+      ],
+      null,
+    ]);
   });
 
   it("IH1: an attack line highlights both names, coloured by side", () => {

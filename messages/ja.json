@@ -118,6 +118,8 @@
     "armourGainFloater": "アーマー+{amount}",
     "armourBreakFloater": "ブレイク！",
     "abilityHpLossFloater": "HP−{amount}",
+    "battleTitle": "バトル！",
+    "matchupVersus": "VS",
     "timeout": "ターン上限に到達 — 引き分け",
     "victory": "勝利！",
     "defeat": "敗北",

@@ -110,6 +110,7 @@ describe("BattleScreen", () => {
     });
 
     // deliberate assertion rewrite: "The dwarves and the monsters prepare for battle" before; "The dwarves and the dwarves prepare for battle" after (the resolver's dwarf/dwarf default) — Phase 13
+    // deliberate assertion rewrite: the first beat now shows the faction matchup instead of the "prepare for battle" line (before: that line appeared, then was gone; after: the matchup's enemy line "dwarves" appears, then the matchup is gone) — Phase 15
     it("progresses the battle log", () => {
       // fireEvent (not userEvent) so we don't need to configure userEvent
       // for fake timers; the post-advance lock still needs releasing
@@ -126,8 +127,9 @@ describe("BattleScreen", () => {
 
       fireEvent.click(advanceButton);
       expect(
-        screen.getByText("The dwarves and the dwarves prepare for battle"),
-      ).toBeInTheDocument();
+        document.querySelector('[data-matchup-line="enemy"]')?.textContent ??
+          null,
+      ).toBe("dwarves");
 
       act(() => {
         vi.advanceTimersByTime(AUTOPLAY_INTERVAL_MS);
@@ -135,9 +137,7 @@ describe("BattleScreen", () => {
 
       fireEvent.click(advanceButton);
       expect(screen.getByText("The parties clash!")).toBeInTheDocument();
-      expect(
-        screen.queryByText("The dwarves and the dwarves prepare for battle"),
-      ).not.toBeInTheDocument();
+      expect(document.querySelector("[data-info-scroll-matchup]")).toBeNull();
     });
   });
 

@@ -57,6 +57,9 @@ export function InfoScroll({
   const translateAbility = useTranslations("ability");
   const translateFaction = useTranslations("faction");
   const header = infoScrollHeader(viewedTurn, currentBeatDescriptors);
+  const battleStartDescriptor = currentBeatDescriptors.find(
+    (descriptor) => descriptor.kind === "battleStart",
+  );
 
   return (
     <div className="flex h-full flex-col">
@@ -80,7 +83,37 @@ export function InfoScroll({
           </div>
         )}
         <div className="flex min-h-0 flex-1 items-stretch">
-          {currentBeatDescriptors.length > 0 ? (
+          {currentBeatDescriptors.length === 0 ? (
+            // Before the first beat: "Battle!" (Phase 15, the human's
+            // design; colours and sizes in globals.css).
+            <div
+              data-info-scroll-battle-title
+              className="flex flex-1 items-center justify-center text-center font-bold uppercase text-ink-700"
+            >
+              {t("battleTitle")}
+            </div>
+          ) : battleStartDescriptor !== undefined ? (
+            // The battle-start beat: the faction matchup (Phase 15, the
+            // human's design; colours and sizes in globals.css).
+            <div
+              data-info-scroll-matchup
+              className="flex flex-1 flex-col justify-center font-bold uppercase"
+            >
+              <span data-matchup-line="player" className="text-left">
+                {translateFaction(
+                  `${battleStartDescriptor.playerFactionId}.pluralName`,
+                )}
+              </span>
+              <span data-matchup-line="versus" className="text-center">
+                {t("matchupVersus")}
+              </span>
+              <span data-matchup-line="enemy" className="text-right">
+                {translateFaction(
+                  `${battleStartDescriptor.enemyFactionId}.pluralName`,
+                )}
+              </span>
+            </div>
+          ) : (
             <ul
               key={viewedBeat}
               className="min-h-0 flex-1 space-y-(--info-scroll-line-gap) overflow-y-auto text-(length:--info-scroll-text-size)"
@@ -150,10 +183,6 @@ export function InfoScroll({
                 );
               })}
             </ul>
-          ) : (
-            <div className="flex flex-1 items-center justify-center text-(length:--info-scroll-text-size) text-ink-700/30">
-              —
-            </div>
           )}
         </div>
       </div>

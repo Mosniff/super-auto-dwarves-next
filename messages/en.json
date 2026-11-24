@@ -118,6 +118,8 @@
     "armourGainFloater": "+{amount} armour",
     "armourBreakFloater": "BREAK!",
     "abilityHpLossFloater": "−{amount} HP",
+    "battleTitle": "Battle!",
+    "matchupVersus": "vs",
     "timeout": "Turn limit reached — stalemate",
     "victory": "Victory!",
     "defeat": "Defeat",
