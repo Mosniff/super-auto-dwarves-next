@@ -1039,7 +1039,8 @@
 /* Phase 15 bench hit flashes. RosterSlot renders the flash element only
    on a hit or a buff, keyed by the beat (so consecutive ones each flash);
    its kind (hpHit, armourHit or buff) comes from rosterSlotEffectFlashKind.
-   Reduced motion gets none. */
+   Front cards (ActiveCard) use the same rules through
+   data-active-card-effect-flash. Reduced motion gets none. */
 @media (prefers-reduced-motion: no-preference) {
   [data-ability-caster-pulse="quick"] {
     --effect-flash-delay: var(--effect-flash-quick-delay);
@@ -1077,17 +1078,20 @@
       opacity: var(--buff-flash-peak-opacity);
     }
   }
-  [data-roster-slot-effect-flash="hpHit"] {
+  [data-roster-slot-effect-flash="hpHit"],
+  [data-active-card-effect-flash="hpHit"] {
     background-color: var(--hp-hit-flash-color);
     animation: hp-hit-flash var(--hp-hit-flash-duration) ease-out
       var(--effect-flash-delay) both;
   }
-  [data-roster-slot-effect-flash="armourHit"] {
+  [data-roster-slot-effect-flash="armourHit"],
+  [data-active-card-effect-flash="armourHit"] {
     background-color: var(--armour-hit-flash-color);
     animation: armour-hit-flash var(--armour-hit-flash-duration) ease-out
       var(--effect-flash-delay) both;
   }
-  [data-roster-slot-effect-flash="buff"] {
+  [data-roster-slot-effect-flash="buff"],
+  [data-active-card-effect-flash="buff"] {
     background-color: var(--buff-flash-color);
     animation: buff-flash var(--buff-flash-duration) ease-in-out
       var(--effect-flash-delay) both;

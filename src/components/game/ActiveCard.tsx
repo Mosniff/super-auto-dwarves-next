@@ -18,6 +18,7 @@ import { CharacterCard } from "./CharacterCard";
 import { CharacterInfoControl } from "./CharacterInfoControl";
 import { armourBeatFromEffect, BattleBeatFloaters } from "./BattleBeatFloaters";
 import { clashKeyframes } from "./activeCardClash";
+import { rosterSlotEffectFlashKind } from "./rosterSlotAnimation";
 
 interface ActiveCardProps {
   character?: Character;
@@ -62,6 +63,9 @@ export function ActiveCard({
   // Reduced motion disables the clash animation entirely — cards sit fully
   // static rather than playing a scaled-down version.
   const shouldAnimateClash = isClashing && !prefersReducedMotion;
+  // The same flash kinds as the bench cards (Phase 15); the helper's name
+  // predates its use here.
+  const effectFlashKind = rosterSlotEffectFlashKind(beatEffect);
 
   const {
     xOffsets: clashKeyframeOffsets,
@@ -206,6 +210,19 @@ export function ActiveCard({
                     currentBeat?.beatKey,
                   )}
                 />
+                {/* The front card's hit/buff flash (Phase 15): flashes only —
+                    no receive motion or knock, which would fight the clash;
+                    keyed by the beat so consecutive hits replay; colour and
+                    motion in globals.css → "Phase 15 bench hit flashes". */}
+                {effectFlashKind !== "none" &&
+                  currentBeat?.beatKey !== undefined && (
+                    <span
+                      key={`${effectFlashKind}-${currentBeat.beatKey}`}
+                      data-active-card-effect-flash={effectFlashKind}
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 rounded-xl opacity-0"
+                    />
+                  )}
               </div>
               <CharacterInfoControl
                 key={character.id}
