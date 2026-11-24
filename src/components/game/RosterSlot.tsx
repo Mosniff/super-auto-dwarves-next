@@ -541,12 +541,15 @@ export function RosterSlot({
       )}
       {/* Floaters render outside the recess so its overflow-hidden never
           clips them. */}
+      {/* Size, outline, shadow and fill come from globals.css → "Phase 15
+          battle floaters" (shared with the camp floaters), keyed on
+          data-roster-slot-floater. */}
       {goldFloaterSequence > 0 && (
         <motion.span
           key={`gold-${goldFloaterSequence}`}
           data-roster-slot-floater="gold"
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-1/3 z-20 text-center text-lg font-bold text-(--color-parchment-50) [text-shadow:0_1px_2px_rgba(0,0,0,0.8)]"
+          className="pointer-events-none absolute inset-x-0 top-1/3 z-20 text-center font-bold"
           initial={{ y: 0, opacity: 0 }}
           animate={{ y: [0, FLOATER_RISE_Y], opacity: [0, 1, 1, 0] }}
           transition={{ duration: FLOATER_DURATION_S }}
@@ -560,7 +563,7 @@ export function RosterSlot({
           key={`experience-${experienceBeatSequence}`}
           data-roster-slot-floater="experience"
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-1/3 z-20 text-center text-lg font-bold text-(--color-parchment-50) [text-shadow:0_1px_2px_rgba(0,0,0,0.8)]"
+          className="pointer-events-none absolute inset-x-0 top-1/3 z-20 text-center font-bold"
           initial={{ y: 0, opacity: 0 }}
           animate={{ y: [0, FLOATER_RISE_Y], opacity: [0, 1, 1, 0] }}
           transition={{
@@ -580,7 +583,7 @@ export function RosterSlot({
           key={`ability-hp-${abilityHpFloater.sequence}`}
           data-roster-slot-floater="abilityHp"
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-1/2 z-20 text-center text-lg font-bold text-emerald-300 [text-shadow:0_1px_2px_rgba(0,0,0,0.8)]"
+          className="pointer-events-none absolute inset-x-0 top-1/2 z-20 text-center font-bold"
           initial={{ y: 0, opacity: 0 }}
           animate={{ y: [0, FLOATER_RISE_Y], opacity: [0, 1, 1, 0] }}
           transition={{
@@ -597,7 +600,7 @@ export function RosterSlot({
           key="camp-start-gold"
           data-roster-slot-floater="abilityGold"
           aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-1/3 z-20 text-center text-lg font-bold text-amber-300 [text-shadow:0_1px_2px_rgba(0,0,0,0.8)]"
+          className="pointer-events-none absolute inset-x-0 top-1/3 z-20 text-center font-bold"
           initial={{ y: 0, opacity: 0 }}
           animate={{ y: [0, FLOATER_RISE_Y], opacity: [0, 1, 1, 0] }}
           transition={{ duration: FLOATER_DURATION_S }}

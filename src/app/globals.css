@@ -312,6 +312,15 @@
   --floater-armour-break-outline: #ffffff;
   --floater-armour-gain-fill: var(--color-parchment-50);
   --floater-armour-gain-outline: var(--color-iron-700);
+  /* camp floaters (RosterSlot): light fills, so a dark iron outline */
+  --floater-sell-gold-fill: var(--color-parchment-50);
+  --floater-sell-gold-outline: var(--color-iron-700);
+  --floater-experience-fill: var(--color-parchment-50);
+  --floater-experience-outline: var(--color-iron-700);
+  --floater-ability-hp-gain-fill: oklch(84.5% 0.143 164.978); /* Tailwind emerald-300 */
+  --floater-ability-hp-gain-outline: var(--color-iron-700);
+  --floater-ability-gold-fill: oklch(87.9% 0.169 91.605); /* Tailwind amber-300 */
+  --floater-ability-gold-outline: var(--color-iron-700);
   /* ── Bench receive motion (Phase 15) ─────────────────
      A hit card pops and settles while trembling; a buffed card swells on
      a decelerating curve, strains (a tiny tremble) and releases. They
@@ -1187,15 +1196,20 @@
 }
 
 /* Phase 15 battle floaters: one shared style, keyed on the
-   data-battle-beat-floater attribute BattleBeatFloaters sets. The card
+   data-battle-beat-floater attribute BattleBeatFloaters sets. The camp
+   floaters (data-roster-slot-floater, RosterSlot) share it. The card
    height comes from whichever card hosts the floater. */
 [data-roster-slot] [data-battle-beat-floater] {
+  --floater-card-height: var(--roster-card-height);
+}
+[data-roster-slot] [data-roster-slot-floater] {
   --floater-card-height: var(--roster-card-height);
 }
 [data-active-card-host] [data-battle-beat-floater] {
   --floater-card-height: var(--active-card-height);
 }
-[data-battle-beat-floater] {
+[data-battle-beat-floater],
+[data-roster-slot-floater] {
   font-size: clamp(
     var(--floater-min-font-size),
     calc(var(--floater-card-height, 16rem) * var(--floater-height-ratio)),
@@ -1218,6 +1232,22 @@
 [data-battle-beat-floater="armourGain"] {
   --floater-fill: var(--floater-armour-gain-fill);
   --floater-outline-color: var(--floater-armour-gain-outline);
+}
+[data-roster-slot-floater="gold"] {
+  --floater-fill: var(--floater-sell-gold-fill);
+  --floater-outline-color: var(--floater-sell-gold-outline);
+}
+[data-roster-slot-floater="experience"] {
+  --floater-fill: var(--floater-experience-fill);
+  --floater-outline-color: var(--floater-experience-outline);
+}
+[data-roster-slot-floater="abilityHp"] {
+  --floater-fill: var(--floater-ability-hp-gain-fill);
+  --floater-outline-color: var(--floater-ability-hp-gain-outline);
+}
+[data-roster-slot-floater="abilityGold"] {
+  --floater-fill: var(--floater-ability-gold-fill);
+  --floater-outline-color: var(--floater-ability-gold-outline);
 }
 @media (prefers-reduced-motion: reduce) {
   [data-armour-beat="broken"] {
