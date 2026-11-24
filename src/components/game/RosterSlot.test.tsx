@@ -200,3 +200,14 @@ describe("RosterSlot hit flashes", () => {
     ]);
   });
 });
+
+describe("RosterSlot level pill", () => {
+  it("RL1: a card shows its level pill even without character progression (battle), but no XP bar", () => {
+    renderWithMessages(<RosterSlot character={buildTestCharacter({ id: "rl1" })} />);
+
+    expect([
+      document.querySelectorAll("[data-character-level]").length,
+      document.querySelectorAll("[data-character-experience-bar]").length,
+    ]).toEqual([1, 0]);
+  });
+});

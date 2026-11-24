@@ -495,7 +495,9 @@ export function RosterSlot({
                       beatEffect,
                       abilityCasterPulse,
                     )}
-                    showLevel={showsCharacterProgression}
+                    // The level shows in camp and battle (Phase 15); the XP
+                    // bar only in camp.
+                    showLevel
                     showExperienceBar={showsCharacterProgression}
                     armourBeat={
                       armourBeatFromEffect(beatEffect, beatKey) ??

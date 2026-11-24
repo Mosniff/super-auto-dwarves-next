@@ -416,7 +416,8 @@ describe("BattleScreen", () => {
     });
   });
 
-  it("battle roster cards show no level pill or XP bar", () => {
+  // deliberate assertion rewrite: battle cards now show their level pill (before: "battle roster cards show no level pill or XP bar", 0 level pills; after: one level pill per rendered card, both sides, bench and front; still no XP bar) — Phase 15, the human's call
+  it("battle cards show their level pill on every card, both sides, bench and front, but no XP bar", () => {
     renderWithMessages(
       <BattleScreen
         resolvedBattle={playerWinResolvedBattle}
@@ -424,9 +425,13 @@ describe("BattleScreen", () => {
       />,
     );
 
-    expect(document.querySelectorAll("[data-character-level]")).toHaveLength(
-      0,
-    );
+    const renderedCardCount = document.querySelectorAll(
+      "[data-character-portrait]",
+    ).length;
+    expect([
+      renderedCardCount > 0,
+      document.querySelectorAll("[data-character-level]").length,
+    ]).toEqual([true, renderedCardCount]);
     expect(
       document.querySelectorAll("[data-character-experience-bar]"),
     ).toHaveLength(0);

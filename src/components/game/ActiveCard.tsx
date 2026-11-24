@@ -205,6 +205,7 @@ export function ActiveCard({
                 <CharacterCard
                   character={character}
                   showHpBar
+                  showLevel
                   animateHpDrop={shouldAnimateClash}
                   downedRevealDelaySeconds={downedRevealDelaySeconds(
                     beatEffect,
