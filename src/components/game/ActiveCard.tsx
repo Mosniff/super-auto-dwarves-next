@@ -17,6 +17,7 @@ import type { Character } from "@/lib/game/character";
 import { CharacterCard } from "./CharacterCard";
 import { CharacterInfoControl } from "./CharacterInfoControl";
 import { armourBeatFromEffect, BattleBeatFloaters } from "./BattleBeatFloaters";
+import { clashKeyframes } from "./activeCardClash";
 
 interface ActiveCardProps {
   character?: Character;
@@ -27,14 +28,6 @@ interface ActiveCardProps {
   currentBeat?: CurrentBeatEffects;
 }
 
-// Starting values — the human tunes these by eye.
-// Fixed pixels tuned for the old 288 × 384 card; they don't scale with the
-// window-fitted card (Phase 14). Revisit in the beat-flare work.
-const WIND_UP_OFFSET_PX = 180;
-const LUNGE_OFFSET_PX = 60;
-const OVERSHOOT_OFFSET_PX = 8;
-const LEAN_DEGREES = 15; // deep lean-back during wind-up
-const FOLLOW_THROUGH_DEGREES = 5; // smaller swing past neutral on the lunge
 const TOTAL_DURATION_S = animationTempoSeconds(0.5);
 const CLASH_KEYFRAME_TIMES = [0, 0.35, 0.55, 0.8, 1];
 const CLASH_KEYFRAME_EASES: Easing[] = [
@@ -70,36 +63,11 @@ export function ActiveCard({
   // static rather than playing a scaled-down version.
   const shouldAnimateClash = isClashing && !prefersReducedMotion;
 
-  // Player faces right and lunges toward +x; enemy faces left and lunges
-  // toward -x — opposite signs make the two cards converge on each other.
-  const lungeDirection = facing === "right" ? 1 : -1;
-  // Cards lean BACK (away from their lunge) during wind-up. In CSS, positive rotate is
-  // clockwise. Player (facing right) leans anti-clockwise (negative); enemy (facing left)
-  // leans clockwise (positive). Note this is the OPPOSITE sign to lungeDirection.
-  const leanDirection = facing === "right" ? -1 : 1;
-
-  const windUpOffsetPx = WIND_UP_OFFSET_PX;
-  const lungeOffsetPx = LUNGE_OFFSET_PX;
-  const overshootOffsetPx = OVERSHOOT_OFFSET_PX;
+  const {
+    xOffsets: clashKeyframeOffsets,
+    rotationDegrees: clashKeyframeRotationDegrees,
+  } = clashKeyframes(facing);
   const totalDurationSeconds = TOTAL_DURATION_S;
-  const leanDegrees = LEAN_DEGREES;
-  const followThroughDegrees = FOLLOW_THROUGH_DEGREES;
-
-  const clashKeyframeOffsetsPx = [
-    0,
-    -lungeDirection * windUpOffsetPx,
-    lungeDirection * lungeOffsetPx,
-    -lungeDirection * overshootOffsetPx,
-    0,
-  ];
-
-  const clashKeyframeRotationDegrees = [
-    0, // start: neutral
-    leanDirection * leanDegrees, // 0.35 wind-up: deep lean back
-    -leanDirection * followThroughDegrees, // 0.55 lunge: swung THROUGH neutral to a smaller opposite angle
-    0, // 0.8 overshoot: already returned to neutral
-    0, // 1 settle: neutral
-  ];
 
   // Wraparound convention: player (facing right) enters from OFF THE LEFT (negative x);
   // enemy (facing left) enters from OFF THE RIGHT (positive x). Opposite sign to facing.
@@ -115,8 +83,8 @@ export function ActiveCard({
   // The card leans BACK against its travel direction (trailing edge up), a
   // "braking into the spot" feel. Player travels rightward, so leaning back
   // tips the top left (negative rotation); enemy travels leftward, so
-  // leaning back tips the top right (positive) — same sign pattern as the
-  // clash leanDirection and the entrance x-direction.
+  // leaning back tips the top right (positive) — same sign pattern as
+  // clashKeyframes' lean (activeCardClash.ts) and the entrance x-direction.
   const entranceTiltDirection = facing === "right" ? -1 : 1;
   const entranceInitialRotate = prefersReducedMotion
     ? 0
@@ -190,10 +158,10 @@ export function ActiveCard({
           animate={
             shouldAnimateClash
               ? {
-                  x: clashKeyframeOffsetsPx,
+                  x: clashKeyframeOffsets,
                   rotate: clashKeyframeRotationDegrees,
                 }
-              : { x: 0, rotate: 0 }
+              : { x: "0%", rotate: 0 }
           }
           transition={
             shouldAnimateClash
