@@ -6,6 +6,9 @@ import type { GamePhase } from "@/lib/game/types";
 import type { CurrentBeatEffects } from "@/lib/battle/beatCharacterEffects";
 import { GamePhaseBanner } from "./GamePhaseBanner";
 import { RosterSlab, type RosterSlotInteraction } from "./RosterSlab";
+import { animationTempoSeconds } from "@/lib/animationTempo";
+
+const PHASE_SWIPE_DURATION_S = animationTempoSeconds(0.35);
 
 export type { RosterSlotInteraction };
 
@@ -111,7 +114,7 @@ export function GameScreenShell({
             ? { x: "0%", transition: { duration: 0 } }
             : { x: "-100%" }
         }
-        transition={{ duration: 0.35, ease: "easeInOut" }}
+        transition={{ duration: PHASE_SWIPE_DURATION_S, ease: "easeInOut" }}
       >
         {children}
       </motion.div>

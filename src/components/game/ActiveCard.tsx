@@ -6,6 +6,7 @@ import {
   useReducedMotion,
   type Easing,
 } from "motion/react";
+import { animationTempoSeconds } from "@/lib/animationTempo";
 import type { BeatType } from "@/lib/battle/types";
 import { abilityCasterPulseKind } from "@/lib/battle/beatDurationMs";
 import type { CurrentBeatEffects } from "@/lib/battle/beatCharacterEffects";
@@ -31,7 +32,7 @@ const LUNGE_OFFSET_PX = 60;
 const OVERSHOOT_OFFSET_PX = 8;
 const LEAN_DEGREES = 15; // deep lean-back during wind-up
 const FOLLOW_THROUGH_DEGREES = 5; // smaller swing past neutral on the lunge
-const TOTAL_DURATION_S = 0.5;
+const TOTAL_DURATION_S = animationTempoSeconds(0.5);
 const CLASH_KEYFRAME_TIMES = [0, 0.35, 0.55, 0.8, 1];
 const CLASH_KEYFRAME_EASES: Easing[] = [
   "easeOut",
@@ -40,14 +41,14 @@ const CLASH_KEYFRAME_EASES: Easing[] = [
   "easeInOut",
 ];
 
-const ENTRANCE_DURATION_S = 0.35;
+const ENTRANCE_DURATION_S = animationTempoSeconds(0.35);
 const ENTRANCE_TILT_DEGREES = 45; // tuned by eye by the human
 // Waits for the roster's front card to finish its launch off the bench
 // before the active card flies on, so the handoff reads as "left the bench,
 // then arrived" rather than both happening at once.
-const ENTRANCE_DELAY_S = 0.5;
+const ENTRANCE_DELAY_S = animationTempoSeconds(0.5);
 
-const EXIT_DISSOLVE_DURATION_S = 0.4; // tuned by eye by the human
+const EXIT_DISSOLVE_DURATION_S = animationTempoSeconds(0.4); // tuned by eye by the human
 const EXIT_SCALE_UP = 1.1;
 
 export function ActiveCard({

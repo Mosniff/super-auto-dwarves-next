@@ -5,19 +5,21 @@ import { useTranslations } from "next-intl";
 import type { BeatCharacterEffect } from "@/lib/battle/beatCharacterEffects";
 import type { ArmourBeat } from "./CharacterCard";
 import { floatersForBeat } from "./floatersForBeat";
+import { animationTempoSeconds } from "@/lib/animationTempo";
 
 // The receivers react just after the caster (the human's call); keep in
 // step with --ability-receive-delay.
-export const ABILITY_RECEIVE_DELAY_S = 0.3;
-// The clash lunge lands at 55% of ActiveCard's 0.5s clash; keep in step
+export const ABILITY_RECEIVE_DELAY_S = animationTempoSeconds(0.3);
+// The clash lunge lands at 55% of ActiveCard's 0.5s clash (base; times the
+// animation tempo); keep in step
 // with --armour-break-delay.
-export const ARMOUR_BREAK_DELAY_S = 0.28;
+export const ARMOUR_BREAK_DELAY_S = animationTempoSeconds(0.28);
 
-const FLOATER_RISE_Y = -40;
-const FLOATER_DURATION_S = 1.2;
+const FLOATER_RISE_Y = -52;
+const FLOATER_DURATION_S = animationTempoSeconds(1.2);
 // Outgoing floaters fade over this when the beat changes (they are derived
 // from the current beat, so a new beat removes them). The human tunes it.
-const FLOATER_EXIT_DURATION_S = 0.15;
+const FLOATER_EXIT_DURATION_S = animationTempoSeconds(0.15);
 
 // Pure: derives a CharacterCard armourBeat from this beat's character
 // effect, so RosterSlot and ActiveCard share one mapping.

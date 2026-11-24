@@ -2,6 +2,7 @@ import { Fragment } from "react";
 import { Shield } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/game/character";
+import { animationTempoMs } from "@/lib/animationTempo";
 import { hpBarFillRatio } from "@/lib/battle/hpBarFillRatio";
 import { levelFromExperience } from "@/lib/game/characterExperience";
 import {
@@ -43,11 +44,11 @@ interface CharacterCardProps {
 }
 
 // Tuned by eye later by the human.
-const HP_DRAIN_DELAY_MS = 250; // bar holds full, then drains ~at clash impact
-const HP_DRAIN_TRANSITION_MS = 300; // existing bar drain duration
+const HP_DRAIN_DELAY_MS = animationTempoMs(250); // bar holds full, then drains ~at clash impact
+const HP_DRAIN_TRANSITION_MS = animationTempoMs(300); // existing bar drain duration
 // Total number fade envelope; comfortably exceeds delay+drain so the number
 // is hidden across the whole drain (containment, not precise alignment).
-const HP_NUMBER_FADE_MS = 700;
+const HP_NUMBER_FADE_MS = animationTempoMs(700);
 
 // The active card renders at w-72 (288px) — see ActiveCard.tsx. Keep this in
 // sync with that width so the portrait's srcset hint matches the rendered

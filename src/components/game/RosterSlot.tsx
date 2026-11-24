@@ -10,6 +10,7 @@ import {
 import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/game/character";
 import { CHARACTER_SELL_PRICE } from "@/lib/game/shop";
+import { animationTempoSeconds } from "@/lib/animationTempo";
 import type { BeatCharacterEffect } from "@/lib/battle/beatCharacterEffects";
 import type { AbilityCasterPulseKind } from "@/lib/battle/beatDurationMs";
 import {
@@ -59,46 +60,47 @@ const NO_DROPPED_CHARACTER_IDS: ReadonlySet<string> = new Set();
 
 // The in-place poof of a dropped card (Phase 13), matching ActiveCard's
 // front-card dissolve.
-const DROPPED_EXIT_SCALE = 1.1;
-const DROPPED_EXIT_DURATION_S = 0.4;
+const DROPPED_EXIT_SCALE = 1.13;
+const DROPPED_EXIT_DURATION_S = animationTempoSeconds(0.4);
 
-const SHUFFLE_EXIT_DURATION_S = 0.3;
-const SHUFFLE_ENTER_DELAY_S = 0.15;
-const SHUFFLE_ENTER_DURATION_S = 0.3;
+const SHUFFLE_EXIT_DURATION_S = animationTempoSeconds(0.3);
+const SHUFFLE_ENTER_DELAY_S = animationTempoSeconds(0.15);
+const SHUFFLE_ENTER_DURATION_S = animationTempoSeconds(0.3);
 
 // Grandiose promotion-exit — only the FRONT (on-deck) slot's outgoing card
 // uses these, when it's promoted into the active zone.
-const LAUNCH_TOTAL_DURATION_S = 0.5;
-const LAUNCH_WINDUP_SCALE = 1.2;
+const LAUNCH_TOTAL_DURATION_S = animationTempoSeconds(0.5);
+const LAUNCH_WINDUP_SCALE = 1.26;
 const LAUNCH_SHAKE_DEGREES = 3;
 const LAUNCH_BRIGHTNESS = 1.35; // brightness pulse peak during wind-up
 const LAUNCH_EXIT_X = "400%"; // well past the slot's clip boundary
 
 // "Absorbed in place" — a merged-away card brightens, shrinks and fades.
 const MERGED_AWAY_EXIT_SCALE = 0.6;
-const MERGED_AWAY_EXIT_DURATION_S = 0.35;
+const MERGED_AWAY_EXIT_DURATION_S = animationTempoSeconds(0.35);
 const MERGED_AWAY_EXIT_BRIGHTNESS = 1.6;
 
 // A sold card sinks and fades.
 const SOLD_EXIT_DROP_Y = "30%";
-const SOLD_EXIT_DURATION_S = 0.35;
+const SOLD_EXIT_DURATION_S = animationTempoSeconds(0.35);
 
 // The XP beat's motion (pulse + brightness, amber-ring glow, level-pill
 // pop) lives in globals.css, driven by the data-experience-beat attribute
 // below — not here. Only the floater's delay is still needed in JS; it
 // must match --experience-beat-delay in globals.css.
-const EXPERIENCE_BEAT_DELAY_S = 0.35;
+const EXPERIENCE_BEAT_DELAY_S = animationTempoSeconds(0.35);
 
 // Rise-and-fade floaters ("+N gold", "+N XP", "Level up!").
-const FLOATER_RISE_Y = -40;
-const FLOATER_DURATION_S = 1.2;
+const FLOATER_RISE_Y = -52;
+const FLOATER_DURATION_S = animationTempoSeconds(1.2);
 
 // The XP beat ends when its floater would: delay + rise-and-fade.
 const EXPERIENCE_BEAT_LIFETIME_MS =
   (EXPERIENCE_BEAT_DELAY_S + FLOATER_DURATION_S) * 1000;
 
 // Shortly after the XP floater (the ruling); the human tunes it.
-const ABILITY_HP_FLOATER_DELAY_S = EXPERIENCE_BEAT_DELAY_S + 0.5;
+const ABILITY_HP_FLOATER_DELAY_S =
+  EXPERIENCE_BEAT_DELAY_S + animationTempoSeconds(0.5);
 
 export function RosterSlot({
   character,

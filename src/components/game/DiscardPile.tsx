@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from "motion/react";
 import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/game/character";
+import { animationTempoSeconds } from "@/lib/animationTempo";
 
 interface DiscardPileProps {
   downedCharacters: Character[];
@@ -10,7 +11,7 @@ interface DiscardPileProps {
 
 const RING_INSET_PX = 12; // breathing room around the card-back
 
-const BADGE_SWELL_DURATION_S = 0.45;
+const BADGE_SWELL_DURATION_S = animationTempoSeconds(0.45);
 const BADGE_SWELL_SCALE = 1.45;
 
 export function DiscardPile({ downedCharacters }: DiscardPileProps) {

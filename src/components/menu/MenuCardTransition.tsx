@@ -1,6 +1,9 @@
 "use client";
 
 import { motion, useReducedMotion } from "motion/react";
+import { animationTempoSeconds } from "@/lib/animationTempo";
+
+const MENU_CARD_TRANSITION_DURATION_S = animationTempoSeconds(0.25);
 
 // Enter-only: Next.js replaces pages instantly on navigation, so there is no
 // opportunity for an exit animation — only the entering page's card animates.
@@ -21,7 +24,7 @@ export function MenuCardTransition({
       className="w-full max-w-sm"
       initial={prefersReducedMotion ? false : { x: offsetX, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
+      transition={{ duration: MENU_CARD_TRANSITION_DURATION_S, ease: "easeOut" }}
     >
       {children}
     </motion.div>

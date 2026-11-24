@@ -3,6 +3,9 @@
 import { useTranslations } from "next-intl";
 import type { GamePhase } from "@/lib/game/types";
 import { motion } from "motion/react";
+import { animationTempoSeconds } from "@/lib/animationTempo";
+
+const PHASE_BANNER_DURATION_S = animationTempoSeconds(0.35);
 
 interface GamePhaseBannerProps {
   gamePhase: GamePhase;
@@ -48,7 +51,7 @@ export function GamePhaseBanner({
           className="block"
           initial={{ x: "100%" }}
           animate={{ x: "0%" }}
-          transition={{ duration: 0.35, ease: "easeInOut" }}
+          transition={{ duration: PHASE_BANNER_DURATION_S, ease: "easeInOut" }}
         >
           {t(GAME_PHASE_TRANSLATION_KEYS[gamePhase])}
         </motion.span>

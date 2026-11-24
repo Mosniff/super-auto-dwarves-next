@@ -3,6 +3,9 @@
 import { motion, useReducedMotion } from "motion/react";
 import { useTranslations } from "next-intl";
 import { PendingSubmitButton } from "@/components/game/PendingSubmitButton";
+import { animationTempoSeconds } from "@/lib/animationTempo";
+
+const GAME_OVER_ENTER_DURATION_S = animationTempoSeconds(0.35);
 
 interface GameOverScreenProps {
   day: number;
@@ -24,7 +27,7 @@ export function GameOverScreen({ day, depth, endRunAction }: GameOverScreenProps
       className="flex flex-1 flex-col items-center justify-center gap-6"
       initial={prefersReducedMotion ? false : { x: "100%" }}
       animate={{ x: "0%" }}
-      transition={{ duration: 0.35, ease: "easeInOut" }}
+      transition={{ duration: GAME_OVER_ENTER_DURATION_S, ease: "easeInOut" }}
     >
       <h1 className="text-4xl font-semibold tracking-wide text-parchment-50">
         {t("gameOverTitle")}

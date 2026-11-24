@@ -235,31 +235,34 @@
   /* The XP bar pip border colour; tuned by the human. */
   --experience-segment-border: var(--color-parchment-100);
 
+  /* Animation durations and delays below are base values times
+     --animation-tempo (set on <html> from ANIMATION_TEMPO); change the
+     tempo there, not here. */
   /* ── Roster XP beat (Phase 11) ───────────────────────
      The human tunes these. --experience-beat-delay must match
      EXPERIENCE_BEAT_DELAY_S in RosterSlot.tsx, since the floater's own
      delay is still set there in JS. */
-  --experience-beat-delay: 0.35s;
-  --experience-beat-duration: 0.5s;
-  --experience-beat-scale: 1.06;
-  --level-up-beat-scale: 1.12;
-  --level-pill-pop-scale: 1.4;
+  --experience-beat-delay: calc(0.35s * var(--animation-tempo, 1));
+  --experience-beat-duration: calc(0.5s * var(--animation-tempo, 1));
+  --experience-beat-scale: 1.08;
+  --level-up-beat-scale: 1.16;
+  --level-pill-pop-scale: 1.52;
 
   /* ── Battle beat animations (Phase 12) ───────────────
      The human tunes these. --ability-receive-delay and --armour-break-delay
      must match BattleBeatFloaters.tsx's ABILITY_RECEIVE_DELAY_S and
      ARMOUR_BREAK_DELAY_S. */
   --ability-caster-glow: var(--color-copper-300);
-  --ability-caster-lift: -6px;
-  --ability-caster-duration: 0.6s;
+  --ability-caster-lift: -8px;
+  --ability-caster-duration: calc(0.6s * var(--animation-tempo, 1));
   /* a turn-start ability's pulse (Phase 13): must not exceed
      TURN_START_ABILITY_BEAT_DURATION_MS in beatDurationMs.ts */
-  --ability-caster-quick-duration: 0.3s;
-  --ability-receive-delay: 0.3s;
-  --armour-pop-duration: 0.4s;
-  --armour-pop-scale: 1.4;
-  --armour-break-delay: 0.28s;
-  --armour-break-duration: 0.5s;
+  --ability-caster-quick-duration: calc(0.3s * var(--animation-tempo, 1));
+  --ability-receive-delay: calc(0.3s * var(--animation-tempo, 1));
+  --armour-pop-duration: calc(0.4s * var(--animation-tempo, 1));
+  --armour-pop-scale: 1.52;
+  --armour-break-delay: calc(0.28s * var(--animation-tempo, 1));
+  --armour-break-duration: calc(0.5s * var(--animation-tempo, 1));
   /* ── Bench hit flashes (Phase 15) ────────────────────
      A tint over a bench card when an ability hits it: red when HP is lost,
      steel when armour takes the hit, light blue for a buff. They start with the floaters
@@ -268,22 +271,22 @@
      (300 ms) the quick values apply. The human tunes these. */
   --hp-hit-flash-color: #dc2626;
   --hp-hit-flash-peak-opacity: 0.45;
-  --hp-hit-flash-duration: 0.35s;
+  --hp-hit-flash-duration: calc(0.35s * var(--animation-tempo, 1));
   --armour-hit-flash-color: var(--color-iron-300);
   --armour-hit-flash-peak-opacity: 0.55;
-  --armour-hit-flash-duration: 0.25s;
+  --armour-hit-flash-duration: calc(0.25s * var(--animation-tempo, 1));
   --effect-flash-delay: var(--ability-receive-delay);
-  --effect-flash-quick-delay: 0.05s;
-  --hp-hit-flash-quick-duration: 0.22s;
-  --armour-hit-flash-quick-duration: 0.2s;
+  --effect-flash-quick-delay: calc(0.05s * var(--animation-tempo, 1));
+  --hp-hit-flash-quick-duration: calc(0.22s * var(--animation-tempo, 1));
+  --armour-hit-flash-quick-duration: calc(0.2s * var(--animation-tempo, 1));
   /* a beneficial effect (today: armour gained), softer and a touch longer */
   --buff-flash-color: var(--color-rune-blue-200);
   --buff-flash-peak-opacity: 0.45;
-  --buff-flash-duration: 0.4s;
-  --buff-flash-quick-duration: 0.22s;
+  --buff-flash-duration: calc(0.4s * var(--animation-tempo, 1));
+  --buff-flash-quick-duration: calc(0.22s * var(--animation-tempo, 1));
   /* the shield badge's knock when armour is chipped (not broken) */
-  --shield-knock-distance: 2px;
-  --shield-knock-duration: 0.25s;
+  --shield-knock-distance: 3px;
+  --shield-knock-duration: calc(0.25s * var(--animation-tempo, 1));
   /* ── Battle floaters (Phase 15) ──────────────────────
      "+N armour", "BREAK!" and "−N HP" on bench and front cards. The text
      size is a clamped fraction of the card's height (never below the old
@@ -308,18 +311,18 @@
      beat: at most 0.5s on an ability beat (800 ms, starting 0.3s in) and
      0.25s on a turn-start beat (300 ms, starting 0.05s in). The human
      tunes these. */
-  --hit-receive-scale: 1.06;
-  --hit-receive-tremble: 3deg;
-  --hit-receive-duration: 0.35s;
-  --hit-receive-quick-duration: 0.22s;
-  --armour-hit-receive-scale: 1.04;
-  --armour-hit-receive-tremble: 2deg;
-  --armour-hit-receive-duration: 0.3s;
-  --armour-hit-receive-quick-duration: 0.2s;
-  --buff-receive-scale: 1.1;
-  --buff-strain-tremble: 0.75deg;
-  --buff-receive-duration: 0.45s;
-  --buff-receive-quick-duration: 0.25s;
+  --hit-receive-scale: 1.08;
+  --hit-receive-tremble: 4deg;
+  --hit-receive-duration: calc(0.35s * var(--animation-tempo, 1));
+  --hit-receive-quick-duration: calc(0.22s * var(--animation-tempo, 1));
+  --armour-hit-receive-scale: 1.05;
+  --armour-hit-receive-tremble: 2.6deg;
+  --armour-hit-receive-duration: calc(0.3s * var(--animation-tempo, 1));
+  --armour-hit-receive-quick-duration: calc(0.2s * var(--animation-tempo, 1));
+  --buff-receive-scale: 1.13;
+  --buff-strain-tremble: 1deg;
+  --buff-receive-duration: calc(0.45s * var(--animation-tempo, 1));
+  --buff-receive-quick-duration: calc(0.25s * var(--animation-tempo, 1));
 
   /* ── Header divider ──────────────────────────────────
      An engraved groove between header sections; tune here. */
@@ -1258,8 +1261,8 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
    it). Longest entry = 4 × stagger + duration = 520ms, inside every beat
    long enough to hold five lines. None under reduced motion. */
 :root {
-  --log-line-enter-duration: 200ms;
-  --log-line-stagger: 80ms;
+  --log-line-enter-duration: calc(200ms * var(--animation-tempo, 1));
+  --log-line-stagger: calc(80ms * var(--animation-tempo, 1));
 }
 @keyframes log-line-enter {
   from {
