@@ -61,8 +61,8 @@ describe("locale message parity", () => {
     "tagline",
     "play",
     // deliberate test-data update: the menu's Settings button became How to Play, with a "Coming soon" dialog (Phase 15)
+    // deliberate test-data update: the dialog's "Coming soon" became the guide, in its own howToPlay namespace (before: howToPlay, howToPlayComingSoon; after: howToPlay) — Phase 15
     "howToPlay",
-    "howToPlayComingSoon",
     // deliberate test-data update: the error and not-found pages (Phase 15)
     "errorPageTitle",
     "errorPageDescription",
@@ -186,6 +186,12 @@ describe("locale message parity", () => {
   it("english and japanese have identical common keys", () => {
     expect(Object.keys(englishMessages.common).sort()).toEqual(
       Object.keys(japaneseMessages.common).sort(),
+    );
+  });
+
+  it("HP1: english and japanese have identical howToPlay keys", () => {
+    expect(Object.keys(englishMessages.howToPlay).sort()).toEqual(
+      Object.keys(japaneseMessages.howToPlay).sort(),
     );
   });
 
@@ -458,8 +464,15 @@ describe("rich-text highlight tags", () => {
     "characterName",
     "number",
   ];
-  // characterTypeLabel's slot tags (Phase 13), the only other tags in use.
-  const KNOWN_TAG_NAMES = [...HIGHLIGHT_TAG_NAMES, "faction", "classes"];
+  // characterTypeLabel's slot tags (Phase 13), and strong for the How to
+  // Play guide's bold lead-ins (Phase 15), the only other tags in use.
+  // deliberate test-data update: strong joins the known tags for the How to Play guide (before: highlight tags, faction, classes; after: those plus strong) — Phase 15
+  const KNOWN_TAG_NAMES = [
+    ...HIGHLIGHT_TAG_NAMES,
+    "faction",
+    "classes",
+    "strong",
+  ];
   const CHARACTER_NAME_PLACEHOLDER_NAMES = ["attacker", "target", "character"];
   const VALUE_PLACEHOLDER_NAMES = [
     "amount",

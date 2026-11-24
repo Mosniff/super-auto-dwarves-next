@@ -9,7 +9,6 @@
     "tagline": "A fantasy auto-battler. Build your roster. Delve deep.",
     "play": "Play",
     "howToPlay": "How to Play",
-    "howToPlayComingSoon": "Coming soon",
     "errorPageTitle": "Something went wrong",
     "errorPageDescription": "The game hit an unexpected problem. You can try again, or go back to the menu.",
     "errorPageTryAgain": "Try again",
@@ -157,5 +156,27 @@
       "battleCry": "<characterName>{character}</characterName> strikes from the shadows!",
       "targetEffect": "<targetName>{target}</targetName> takes <number>{amount}</number> damage!"
     }
+  },
+  "howToPlay": {
+    "intro": "Super Auto Dwarves is a game about recruiting sturdy dwarves and fighting nasty monsters. Each day begins at camp, where you spend your gold recruiting dwarves. Each night your dwarves battle foul monsters, a little deeper and a little tougher each time. How long can you survive?",
+    "campHeading": "Camp",
+    "recruitingHeading": "Recruiting",
+    "recruitingGold": "You start every day with 10 gold. Gold you don't spend doesn't carry over, so use it!",
+    "recruitingCost": "Each dwarf costs 3 gold. To recruit one, drag it from the Characters section of the shop into one of the 7 slots in your roster, or click it and then click a slot.",
+    "recruitingInfo": "Dwarves have different stats, classes and abilities. To learn more about one, hover over it or select it, then click its \"i\" button.",
+    "promotingHeading": "Promoting",
+    "promotingBody": "Drop a dwarf from the shop onto an identical dwarf in your roster to promote it: it gains 1 experience point, +1 attack and +1 HP. When it has enough experience to level up, its ability gets stronger.",
+    "mergingSellingHeading": "Merging and selling",
+    "mergingSellingToggle": "Switch the roster's toggle from Reposition to Merge / Sell (or hold Shift). Then:",
+    "mergeItem": "<strong>Merge:</strong> drag a dwarf onto an identical one. The target gains all of the other dwarf's experience, plus one, and frees up a slot.",
+    "sellItem": "<strong>Sell:</strong> drag a dwarf onto the Sell box for 1 gold.",
+    "lineUpHeading": "Your line-up",
+    "lineUpBody": "Order matters: your dwarves fight one at a time, starting from the front of your roster (the dwarf marked NEXT). When you're ready, click To battle.",
+    "battleHeading": "Battle",
+    "fightHeading": "How a fight works",
+    "fightBody": "The battle plays out on its own. The two front fighters strike each other at the same time; anyone brought to 0 HP drops, and the next in line steps up. Some abilities fire before the fighting starts, or at the start of each turn.",
+    "fightEnding": "The battle ends when one side has no one left. If your dwarves are wiped out, it's game over. If both sides fall together, it's a draw, and you live to fight another day.",
+    "watchingHeading": "Watching",
+    "watchingBody": "Use the Autoplay buttons (Slow or Fast) to let the battle run, or set it to Off and click Advance to step through it at your own pace."
   }
 }
