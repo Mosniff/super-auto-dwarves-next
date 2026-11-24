@@ -3,20 +3,14 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useTranslations } from "next-intl";
 import type { BeatCharacterEffect } from "@/lib/battle/beatCharacterEffects";
+import type { AbilityCasterPulseKind } from "@/lib/battle/beatDurationMs";
 import type { ArmourBeat } from "./CharacterCard";
-import { floatersForBeat } from "./floatersForBeat";
+import { battleFloaterTiming, floatersForBeat } from "./floatersForBeat";
 import { animationTempoSeconds } from "@/lib/animationTempo";
 
-// The receivers react just after the caster (the human's call); keep in
-// step with --ability-receive-delay.
-export const ABILITY_RECEIVE_DELAY_S = animationTempoSeconds(0.3);
-// The clash lunge lands at 55% of ActiveCard's 0.5s clash (base; times the
-// animation tempo); keep in step
-// with --armour-break-delay.
-export const ARMOUR_BREAK_DELAY_S = animationTempoSeconds(0.28);
-
 const FLOATER_RISE_Y = -52;
-const FLOATER_DURATION_S = animationTempoSeconds(1.2);
+// Quick fade-in, a long readable hold, fade-out.
+const FLOATER_OPACITY_TIMES = [0, 0.15, 0.75, 1];
 // Outgoing floaters fade over this when the beat changes (they are derived
 // from the current beat, so a new beat removes them). The human tunes it.
 const FLOATER_EXIT_DURATION_S = animationTempoSeconds(0.15);
@@ -49,11 +43,15 @@ export function armourBeatFromEffect(
 interface BattleBeatFloatersProps {
   beatEffect: BeatCharacterEffect | undefined;
   beatKey: number | undefined;
+  // the beat's pace (Phase 15): turn-start beats are quick, so their
+  // floaters start and finish sooner
+  abilityCasterPulse?: AbilityCasterPulseKind;
 }
 
 export function BattleBeatFloaters({
   beatEffect,
   beatKey,
+  abilityCasterPulse = "normal",
 }: BattleBeatFloatersProps) {
   const prefersReducedMotion = useReducedMotion();
   const t = useTranslations("battle");
@@ -66,35 +64,43 @@ export function BattleBeatFloaters({
 
   return (
     <AnimatePresence>
-      {floaters.map((floater) => (
-        // Size, outline, shadow and fill come from globals.css → "Battle
-        // floaters (Phase 15)", keyed on data-battle-beat-floater.
-        <motion.span
-          key={floater.floaterKey}
-          data-battle-beat-floater={floater.floaterKind}
-          aria-hidden="true"
-          className="pointer-events-none absolute inset-x-0 top-1/3 z-20 text-center font-bold"
-          initial={{ y: 0, opacity: 0 }}
-          animate={{ y: [0, FLOATER_RISE_Y], opacity: [0, 1, 1, 0] }}
-          transition={{
-            duration: FLOATER_DURATION_S,
-            delay:
-              floater.floaterKind === "armourBreak"
-                ? ARMOUR_BREAK_DELAY_S
-                : ABILITY_RECEIVE_DELAY_S,
-          }}
-          exit={{
-            opacity: 0,
-            transition: { duration: FLOATER_EXIT_DURATION_S },
-          }}
-        >
-          {floater.floaterKind === "armourGain"
-            ? t("armourGainFloater", { amount: floater.amount })
-            : floater.floaterKind === "abilityHpLoss"
-              ? t("abilityHpLossFloater", { amount: floater.amount })
-              : t("armourBreakFloater")}
-        </motion.span>
-      ))}
+      {floaters.map((floater) => {
+        const floaterTiming = battleFloaterTiming(
+          floater.floaterKind,
+          abilityCasterPulse,
+        );
+        return (
+          // Size, outline, shadow and fill come from globals.css → "Battle
+          // floaters (Phase 15)", keyed on data-battle-beat-floater.
+          <motion.span
+            key={floater.floaterKey}
+            data-battle-beat-floater={floater.floaterKind}
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-x-0 top-1/3 z-20 text-center font-bold"
+            initial={{ y: 0, opacity: 0 }}
+            animate={{ y: [0, FLOATER_RISE_Y], opacity: [0, 1, 1, 0] }}
+            transition={{
+              duration: floaterTiming.durationSeconds,
+              delay: floaterTiming.delaySeconds,
+              opacity: {
+                duration: floaterTiming.durationSeconds,
+                delay: floaterTiming.delaySeconds,
+                times: FLOATER_OPACITY_TIMES,
+              },
+            }}
+            exit={{
+              opacity: 0,
+              transition: { duration: FLOATER_EXIT_DURATION_S },
+            }}
+          >
+            {floater.floaterKind === "armourGain"
+              ? t("armourGainFloater", { amount: floater.amount })
+              : floater.floaterKind === "abilityHpLoss"
+                ? t("abilityHpLossFloater", { amount: floater.amount })
+                : t("armourBreakFloater")}
+          </motion.span>
+        );
+      })}
     </AnimatePresence>
   );
 }

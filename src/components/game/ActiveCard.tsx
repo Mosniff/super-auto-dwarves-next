@@ -247,6 +247,7 @@ export function ActiveCard({
               <BattleBeatFloaters
                 beatEffect={beatEffect}
                 beatKey={currentBeat?.beatKey}
+                abilityCasterPulse={abilityCasterPulseKind(currentBeatType)}
               />
             </div>
           ) : (

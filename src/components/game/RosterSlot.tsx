@@ -600,7 +600,11 @@ export function RosterSlot({
           {t("abilityGoldFloater", { gold: campStartBeat.landedGold })}
         </motion.span>
       )}
-      <BattleBeatFloaters beatEffect={beatEffect} beatKey={beatKey} />
+      <BattleBeatFloaters
+        beatEffect={beatEffect}
+        beatKey={beatKey}
+        abilityCasterPulse={abilityCasterPulse}
+      />
     </div>
   );
 }
