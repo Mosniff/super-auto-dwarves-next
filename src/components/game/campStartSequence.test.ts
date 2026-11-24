@@ -1,7 +1,12 @@
 import { describe, it, expect } from "vitest";
 import type { CampRoster } from "@/lib/game/campRoster";
 import { buildTestCharacter } from "@/test/characterFixtures";
+import { animationTempoMs } from "@/lib/animationTempo";
 import {
+  CAMP_START_FLOATER_DURATION_MS,
+  CAMP_START_LAND_DELAY_MS,
+  CAMP_START_SEQUENCE_START_DELAY_MS,
+  CAMP_START_STEP_MS,
   CAMP_START_SEQUENCE_NOT_STARTED,
   advanceCampStartSequenceProgress,
   campStartActivationsToPlay,
@@ -15,13 +20,33 @@ describe("campStartSequenceTimeline", () => {
     expect(campStartSequenceTimeline(0)).toEqual([]);
   });
 
+  // deliberate assertion rewrite: the timeline is stated in its constants (before: literal 550 / 850 / 1450 / 1750 / 2950 ms; after: the same sums of CAMP_START_* constants), so the animation tempo can be tuned without editing tests; TL-T pins the base values — Phase 15
   it("TL2: two activations: each activates, then lands; finish after the last floater", () => {
+    const firstActivateAtMs = CAMP_START_SEQUENCE_START_DELAY_MS;
+    const secondActivateAtMs = firstActivateAtMs + CAMP_START_STEP_MS;
     expect(campStartSequenceTimeline(2)).toEqual([
-      { atMs: 550, timelineEventKind: "activate", activationIndex: 0 },
-      { atMs: 850, timelineEventKind: "land", activationIndex: 0 },
-      { atMs: 1450, timelineEventKind: "activate", activationIndex: 1 },
-      { atMs: 1750, timelineEventKind: "land", activationIndex: 1 },
-      { atMs: 2950, timelineEventKind: "finish" },
+      { atMs: firstActivateAtMs, timelineEventKind: "activate", activationIndex: 0 },
+      { atMs: firstActivateAtMs + CAMP_START_LAND_DELAY_MS, timelineEventKind: "land", activationIndex: 0 },
+      { atMs: secondActivateAtMs, timelineEventKind: "activate", activationIndex: 1 },
+      { atMs: secondActivateAtMs + CAMP_START_LAND_DELAY_MS, timelineEventKind: "land", activationIndex: 1 },
+      {
+        atMs: secondActivateAtMs + CAMP_START_LAND_DELAY_MS + CAMP_START_FLOATER_DURATION_MS,
+        timelineEventKind: "finish",
+      },
+    ]);
+  });
+
+  it("TL-T: the camp-start timings are their base values scaled by the animation tempo", () => {
+    expect([
+      CAMP_START_SEQUENCE_START_DELAY_MS,
+      CAMP_START_STEP_MS,
+      CAMP_START_LAND_DELAY_MS,
+      CAMP_START_FLOATER_DURATION_MS,
+    ]).toEqual([
+      animationTempoMs(550),
+      animationTempoMs(900),
+      animationTempoMs(300),
+      animationTempoMs(1200),
     ]);
   });
 });

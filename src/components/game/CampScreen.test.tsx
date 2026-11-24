@@ -28,6 +28,11 @@ import {
   buildTestCharacterTemplate,
 } from "@/test/characterFixtures";
 import { CampScreen } from "./CampScreen";
+import {
+  CAMP_START_FLOATER_DURATION_MS,
+  CAMP_START_LAND_DELAY_MS,
+  CAMP_START_SEQUENCE_START_DELAY_MS,
+} from "./campStartSequence";
 
 // mechanical refactor: replaced with buildTestCharacter
 const fixtureBorin: Character = buildTestCharacter({
@@ -1589,6 +1594,7 @@ describe("camp-start sequence", () => {
     vi.useRealTimers();
   });
 
+  // deliberate test-data update: fake time advances by the camp-start constants (before: literal 550 / 300 / 1200 ms), so the animation tempo can be tuned without editing tests — Phase 15
   it("LK1: arriving from battle: the camp locks, Norbin pulses, '+1 gold' lands and the header counts up, then the camp unlocks", () => {
     vi.useFakeTimers();
     renderCampArrival({ arrivesFromBattle: true });
@@ -1596,17 +1602,17 @@ describe("camp-start sequence", () => {
     const observations = [observeCampStart()];
 
     act(() => {
-      vi.advanceTimersByTime(550);
+      vi.advanceTimersByTime(CAMP_START_SEQUENCE_START_DELAY_MS);
     });
     observations.push(observeCampStart());
 
     act(() => {
-      vi.advanceTimersByTime(300);
+      vi.advanceTimersByTime(CAMP_START_LAND_DELAY_MS);
     });
     observations.push(observeCampStart());
 
     act(() => {
-      vi.advanceTimersByTime(1200);
+      vi.advanceTimersByTime(CAMP_START_FLOATER_DURATION_MS);
     });
     observations.push(observeCampStart());
 
@@ -1636,18 +1642,23 @@ describe("camp-start sequence", () => {
     ]);
   });
 
+  // deliberate test-data update: fake time advances by the camp-start constants (before: literal 2050 and 550 ms), so the animation tempo can be tuned without editing tests — Phase 15
   it("LK2: a camp re-render after the sequence never replays it", () => {
     vi.useFakeTimers();
     const { rerenderCamp } = renderCampArrival({ arrivesFromBattle: true });
 
     act(() => {
-      vi.advanceTimersByTime(2050);
+      vi.advanceTimersByTime(
+        CAMP_START_SEQUENCE_START_DELAY_MS +
+          CAMP_START_LAND_DELAY_MS +
+          CAMP_START_FLOATER_DURATION_MS,
+      );
     });
 
     rerenderCamp(6);
 
     act(() => {
-      vi.advanceTimersByTime(550);
+      vi.advanceTimersByTime(CAMP_START_SEQUENCE_START_DELAY_MS);
     });
 
     expect(observeCampStart()).toEqual(idleObservation);

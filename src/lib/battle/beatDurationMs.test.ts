@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { animationTempoMs } from "@/lib/animationTempo";
 import {
   abilityCasterPulseKind,
   autoplayBeatDelayMs,
@@ -103,12 +104,37 @@ describe("autoplayBeatDelayMs", () => {
     ).toEqual(BEAT_TYPES_FOR_DELAY.map((beatType) => beatDurationMs(beatType)));
   });
 
+  // deliberate assertion rewrite: Slow is stated relative to each beat's duration (before: the literal [1600, 1800, 1600, 1600, 2200, 600, 800]; after: beatDurationMs × the multiplier), so the animation tempo can be tuned without editing tests; BD-T pins the base values — Phase 15
   it("AD-S: at Slow, autoplay waits each beat's duration times the slow multiplier (2)", () => {
     expect(SLOW_AUTOPLAY_BEAT_DURATION_MULTIPLIER).toBe(2);
     expect(
       BEAT_TYPES_FOR_DELAY.map((beatType) =>
         autoplayBeatDelayMs(beatType, "slow"),
       ),
-    ).toEqual([1600, 1800, 1600, 1600, 2200, 600, 800]);
+    ).toEqual(
+      BEAT_TYPES_FOR_DELAY.map(
+        (beatType) => beatDurationMs(beatType) * SLOW_AUTOPLAY_BEAT_DURATION_MULTIPLIER,
+      ),
+    );
+  });
+});
+
+describe("beat durations at the animation tempo", () => {
+  it("BD-T: every beat is its base duration scaled by the animation tempo", () => {
+    expect([
+      EVENTFUL_BEAT_DURATION_MS,
+      QUIET_BEAT_DURATION_MS,
+      DROP_BEAT_DURATION_MS,
+      PREPARE_BEAT_DURATION_MS,
+      ENGAGE_BEAT_DURATION_MS,
+      TURN_START_ABILITY_BEAT_DURATION_MS,
+    ]).toEqual([
+      animationTempoMs(800),
+      animationTempoMs(400),
+      animationTempoMs(1100),
+      animationTempoMs(800),
+      animationTempoMs(900),
+      animationTempoMs(300),
+    ]);
   });
 });

@@ -1,3 +1,4 @@
+import { animationTempoMs } from "@/lib/animationTempo";
 import type { GamePhase } from "@/lib/game/types";
 import type { Character } from "@/lib/game/character";
 import type { CampRoster } from "@/lib/game/campRoster";
@@ -10,10 +11,10 @@ import {
 
 // Display-only timing for the start-of-camp ability sequence (Phase 12).
 // The human tunes these.
-export const CAMP_START_SEQUENCE_START_DELAY_MS = 550; // after the 0.35s phase swipe
-export const CAMP_START_STEP_MS = 900; // one activation's beat
-export const CAMP_START_LAND_DELAY_MS = 300; // gold lands after the card activates (as battle's receive delay)
-export const CAMP_START_FLOATER_DURATION_MS = 1200; // the last floater's rise; the lock lasts until it ends
+export const CAMP_START_SEQUENCE_START_DELAY_MS = animationTempoMs(550); // after the 0.35s phase swipe
+export const CAMP_START_STEP_MS = animationTempoMs(900); // one activation's beat
+export const CAMP_START_LAND_DELAY_MS = animationTempoMs(300); // gold lands after the card activates (as battle's receive delay)
+export const CAMP_START_FLOATER_DURATION_MS = animationTempoMs(1200); // the last floater's rise; the lock lasts until it ends
 
 export type CampStartTimelineEvent =
   | { atMs: number; timelineEventKind: "activate" | "land"; activationIndex: number }

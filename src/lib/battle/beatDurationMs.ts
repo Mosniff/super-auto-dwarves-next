@@ -1,23 +1,25 @@
+import { animationTempoMs } from "@/lib/animationTempo";
 import type { BeatType } from "./types";
 
 // Placeholder pacing — the human tunes these by eye later. Nothing may
 // exceed DROP_BEAT_DURATION_MS: the fixed-step autoplay integration tests
 // step their fake timer by that ceiling so a single tick still clears one
 // beat, whichever beat type it is.
-export const EVENTFUL_BEAT_DURATION_MS = 800;
-export const QUIET_BEAT_DURATION_MS = 400;
+export const EVENTFUL_BEAT_DURATION_MS = animationTempoMs(800);
+export const QUIET_BEAT_DURATION_MS = animationTempoMs(400);
 // DROP beats carry the most choreography (roster launch, delayed active
 // entrance, dying card's poof, pile arrival), so they get the longest dwell.
-export const DROP_BEAT_DURATION_MS = 1100;
+export const DROP_BEAT_DURATION_MS = animationTempoMs(1100);
 // The opening "prepare" beat (BATTLE_START): the gaps close. The fronts
 // launch on the engage beat instead; the human tunes both.
-export const PREPARE_BEAT_DURATION_MS = 800;
+export const PREPARE_BEAT_DURATION_MS = animationTempoMs(800);
 // The engage beat (ENGAGE): the fronts launch into the action zone
 // (presentation in step 11b).
-export const ENGAGE_BEAT_DURATION_MS = 900;
+export const ENGAGE_BEAT_DURATION_MS = animationTempoMs(900);
 // A turn-start ability's beat (Phase 13, Yip!): one per actor every turn,
-// so it is kept short — the human's call, ~300 ms.
-export const TURN_START_ABILITY_BEAT_DURATION_MS = 300;
+// so it is kept short — the human's call, ~300 ms (base; times the
+// animation tempo).
+export const TURN_START_ABILITY_BEAT_DURATION_MS = animationTempoMs(300);
 
 // Autoplay's Slow speed (Phase 14): every beat's wait is multiplied by this
 // one constant. It stretches only the pause between beats; each beat's

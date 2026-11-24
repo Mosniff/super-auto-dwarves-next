@@ -11,6 +11,7 @@ import {
   act,
 } from "@/test/renderWithMessages";
 import { resolveBattle } from "@/lib/battle/resolveBattle";
+import { DROP_BEAT_DURATION_MS } from "@/lib/battle/beatDurationMs";
 import type { ResolvedBattle } from "@/lib/battle/types";
 import type { Character } from "@/lib/game/character";
 import { createEmptyCampRoster, type CampRoster } from "@/lib/game/campRoster";
@@ -22,7 +23,8 @@ import { PhaseAdvanceButton } from "./PhaseAdvanceButton";
 
 const englishPhaseBattleLabel = englishMessages.common.phaseBattle;
 
-const AUTOPLAY_INTERVAL_MS = 1100;
+// deliberate test-data update: the autoplay step is the longest beat (DROP) itself (before: the literal 1100), so the animation tempo can be tuned without editing tests — Phase 15
+const AUTOPLAY_INTERVAL_MS = DROP_BEAT_DURATION_MS;
 // Comfortably more ticks than the fixture battle has beats.
 const AUTOPLAY_TICKS_TO_RUN_OUT_THE_BATTLE = 40;
 

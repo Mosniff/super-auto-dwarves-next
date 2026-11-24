@@ -3,11 +3,15 @@ import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import { useBattlePlayback } from "./useBattlePlayback";
 import { resolveBattle } from "@/lib/battle/resolveBattle";
-import { QUIET_BEAT_DURATION_MS } from "@/lib/battle/beatDurationMs";
+import {
+  DROP_BEAT_DURATION_MS,
+  QUIET_BEAT_DURATION_MS,
+} from "@/lib/battle/beatDurationMs";
 import type { Character } from "@/lib/game/character";
 import { buildTestCharacter } from "@/test/characterFixtures";
 
-const AUTOPLAY_INTERVAL_MS = 1100;
+// deliberate test-data update: the autoplay step is the longest beat (DROP) itself (before: the literal 1100), so the animation tempo can be tuned without editing tests — Phase 15
+const AUTOPLAY_INTERVAL_MS = DROP_BEAT_DURATION_MS;
 
 function buildResolvedBattle() {
   // mechanical refactor: replaced with buildTestCharacter
