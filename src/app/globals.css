@@ -258,6 +258,25 @@
   --armour-pop-scale: 1.4;
   --armour-break-delay: 0.28s;
   --armour-break-duration: 0.5s;
+  /* ── Bench hit flashes (Phase 15) ────────────────────
+     A tint over a bench card when an ability hits it: red when HP is lost,
+     steel when armour takes the hit. They start with the floaters
+     (--ability-receive-delay) and must end inside an ability beat
+     (EVENTFUL_BEAT_DURATION_MS, 800 ms). On a turn-start ability beat
+     (300 ms) the quick values apply. The human tunes these. */
+  --hp-hit-flash-color: #dc2626;
+  --hp-hit-flash-peak-opacity: 0.45;
+  --hp-hit-flash-duration: 0.35s;
+  --armour-hit-flash-color: var(--color-iron-300);
+  --armour-hit-flash-peak-opacity: 0.55;
+  --armour-hit-flash-duration: 0.25s;
+  --effect-flash-delay: var(--ability-receive-delay);
+  --effect-flash-quick-delay: 0.05s;
+  --hp-hit-flash-quick-duration: 0.22s;
+  --armour-hit-flash-quick-duration: 0.2s;
+  /* the shield badge's knock when armour is chipped (not broken) */
+  --shield-knock-distance: 2px;
+  --shield-knock-duration: 0.25s;
 
   /* ── Header divider ──────────────────────────────────
      An engraved groove between header sections; tune here. */
@@ -920,6 +939,60 @@
   [data-armour-beat="broken"] {
     animation: armour-break var(--armour-break-duration) ease-in
       var(--armour-break-delay) both;
+  }
+}
+/* Phase 15 bench hit flashes. RosterSlot renders the flash element only
+   on a hit, keyed by the beat (so consecutive hits each flash); its kind
+   comes from rosterSlotEffectFlashKind. Reduced motion gets none. */
+@media (prefers-reduced-motion: no-preference) {
+  [data-ability-caster-pulse="quick"] {
+    --effect-flash-delay: var(--effect-flash-quick-delay);
+    --hp-hit-flash-duration: var(--hp-hit-flash-quick-duration);
+    --armour-hit-flash-duration: var(--armour-hit-flash-quick-duration);
+  }
+  @keyframes hp-hit-flash {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    30% {
+      opacity: var(--hp-hit-flash-peak-opacity);
+    }
+  }
+  @keyframes armour-hit-flash {
+    0%,
+    100% {
+      opacity: 0;
+    }
+    15% {
+      opacity: var(--armour-hit-flash-peak-opacity);
+    }
+  }
+  [data-roster-slot-effect-flash="hpHit"] {
+    background-color: var(--hp-hit-flash-color);
+    animation: hp-hit-flash var(--hp-hit-flash-duration) ease-out
+      var(--effect-flash-delay) both;
+  }
+  [data-roster-slot-effect-flash="armourHit"] {
+    background-color: var(--armour-hit-flash-color);
+    animation: armour-hit-flash var(--armour-hit-flash-duration) ease-out
+      var(--effect-flash-delay) both;
+  }
+  @keyframes shield-knock {
+    0%,
+    100% {
+      transform: translateX(0);
+    }
+    30% {
+      transform: translateX(calc(var(--shield-knock-distance) * -1));
+    }
+    65% {
+      transform: translateX(var(--shield-knock-distance));
+    }
+  }
+  [data-armour-beat="struck"] {
+    animation: shield-knock var(--shield-knock-duration) ease-out
+      var(--effect-flash-delay) both;
   }
 }
 @media (prefers-reduced-motion: reduce) {

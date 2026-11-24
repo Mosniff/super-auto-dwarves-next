@@ -4,6 +4,8 @@ import {
   type CharacterLevel,
 } from "@/lib/game/characterExperience";
 import type { CampIntent } from "./campSelection";
+import type { BeatCharacterEffect } from "@/lib/battle/beatCharacterEffects";
+import type { ArmourBeat } from "./CharacterCard";
 
 export type RosterSlotExitKind = "shuffle" | "mergedAway" | "sold";
 
@@ -135,4 +137,42 @@ export function abilityHpGainFromRefresh(
     experienceGained * BASE_STAT_GAIN_PER_EXPERIENCE_POINT;
 
   return Math.max(abilityHpGained, 0);
+}
+
+export type RosterSlotEffectFlashKind = "hpHit" | "armourHit" | "none";
+
+// A bench card's hit flash for this beat (Phase 15): red wins when one beat
+// does both. New flash kinds (heals, buffs) go here.
+export function rosterSlotEffectFlashKind(
+  beatEffect: BeatCharacterEffect | undefined,
+): RosterSlotEffectFlashKind {
+  if (beatEffect === undefined) {
+    return "none";
+  }
+  if (beatEffect.abilityHpLost > 0) {
+    return "hpHit";
+  }
+  if (beatEffect.armourLost > 0) {
+    return "armourHit";
+  }
+  return "none";
+}
+
+// The shield's knock when armour is chipped but not broken (Phase 15).
+// Bench-only (the human's call); front cards never get it. A break or a
+// gain in the same beat takes precedence.
+export function armourStruckBeat(
+  beatEffect: BeatCharacterEffect | undefined,
+  beatKey: number | undefined,
+): ArmourBeat | undefined {
+  if (beatEffect === undefined || beatKey === undefined) {
+    return undefined;
+  }
+  if (beatEffect.armourLost === 0) {
+    return undefined;
+  }
+  if (beatEffect.brokenFromArmour !== null || beatEffect.armourGained > 0) {
+    return undefined;
+  }
+  return { armourBeatKind: "struck", beatKey };
 }

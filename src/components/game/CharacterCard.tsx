@@ -26,6 +26,9 @@ import { useCharacterDisplayName } from "./characterDisplayName";
 
 export type ArmourBeat =
   | { armourBeatKind: "gained"; beatKey: number }
+  // armour chipped by a hit that didn't break it (Phase 15, bench cards
+  // only); the badge knocks
+  | { armourBeatKind: "struck"; beatKey: number }
   | { armourBeatKind: "broken"; beatKey: number; brokenFromArmour: number };
 
 interface CharacterCardProps {

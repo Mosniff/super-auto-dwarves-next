@@ -14,7 +14,9 @@ import type { BeatCharacterEffect } from "@/lib/battle/beatCharacterEffects";
 import type { AbilityCasterPulseKind } from "@/lib/battle/beatDurationMs";
 import {
   abilityHpGainFromRefresh,
+  armourStruckBeat,
   experienceGainBeat,
+  rosterSlotEffectFlashKind,
   rosterSlotExitAnimation,
   type RosterSlotExitKind,
 } from "./rosterSlotAnimation";
@@ -369,6 +371,7 @@ export function RosterSlot({
     },
   };
 
+  const effectFlashKind = rosterSlotEffectFlashKind(beatEffect);
   const rosterSlotIndexAttributes =
     slotIndex === undefined ? {} : { "data-roster-slot-index": slotIndex };
 
@@ -450,7 +453,10 @@ export function RosterSlot({
                   character={character}
                   showLevel={showsCharacterProgression}
                   showExperienceBar={showsCharacterProgression}
-                  armourBeat={armourBeatFromEffect(beatEffect, beatKey)}
+                  armourBeat={
+                    armourBeatFromEffect(beatEffect, beatKey) ??
+                    armourStruckBeat(beatEffect, beatKey)
+                  }
                 />
                 {/* The recess clips outer glows, so the glow is inset. At
                     opacity 0 except during the CSS-driven XP-beat
@@ -463,6 +469,17 @@ export function RosterSlot({
                     boxShadow: "inset 0 0 0 3px rgba(251,191,36,0.9)",
                   }}
                 />
+                {/* The hit flash (Phase 15): keyed by the beat so
+                    consecutive hits each remount and replay it; colour and
+                    motion in globals.css → "Phase 15 bench hit flashes". */}
+                {effectFlashKind !== "none" && beatKey !== undefined && (
+                  <span
+                    key={`${effectFlashKind}-${beatKey}`}
+                    data-roster-slot-effect-flash={effectFlashKind}
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 rounded-md opacity-0"
+                  />
+                )}
               </div>
             </motion.div>
           )}

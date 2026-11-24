@@ -5,7 +5,10 @@ import {
   rosterSlotExitKind,
   type SubmittedCampIntent,
   rosterSlotExitAnimation,
+  rosterSlotEffectFlashKind,
+  armourStruckBeat,
 } from "./rosterSlotAnimation";
+import type { BeatCharacterEffect } from "@/lib/battle/beatCharacterEffects";
 
 const mergeFromThreeIntoZeroAtFive: SubmittedCampIntent = {
   campIntent: {
@@ -126,5 +129,72 @@ describe("rosterSlotAnimation", () => {
         hasDepartingCharacterDropped: false,
       }),
     ]).toEqual(["dropped", "dropped", "launch", "mergedAway", "shuffle"]);
+  });
+});
+
+function buildBeatEffect(
+  overrides: Partial<BeatCharacterEffect>,
+): BeatCharacterEffect {
+  return {
+    isActing: false,
+    armourGained: 0,
+    brokenFromArmour: null,
+    abilityHpLost: 0,
+    armourLost: 0,
+    isDropped: false,
+    ...overrides,
+  };
+}
+
+describe("rosterSlotEffectFlashKind", () => {
+  it("RF1: no beat effect gives no flash", () => {
+    expect(rosterSlotEffectFlashKind(undefined)).toBe("none");
+  });
+
+  it("RF2: hp lost to an ability flashes hpHit", () => {
+    expect(rosterSlotEffectFlashKind(buildBeatEffect({ abilityHpLost: 2 }))).toBe("hpHit");
+  });
+
+  it("RF3: armour lost (including a break) flashes armourHit", () => {
+    expect([
+      rosterSlotEffectFlashKind(buildBeatEffect({ armourLost: 1 })),
+      rosterSlotEffectFlashKind(buildBeatEffect({ armourLost: 2, brokenFromArmour: 2 })),
+    ]).toEqual(["armourHit", "armourHit"]);
+  });
+
+  it("RF4: hp and armour lost in the same beat flashes hpHit", () => {
+    expect(
+      rosterSlotEffectFlashKind(buildBeatEffect({ armourLost: 2, brokenFromArmour: 2, abilityHpLost: 1 })),
+    ).toBe("hpHit");
+  });
+
+  it("RF5: acting, gaining armour or dropping alone gives no flash", () => {
+    expect(
+      rosterSlotEffectFlashKind(buildBeatEffect({ isActing: true, armourGained: 1, isDropped: true })),
+    ).toBe("none");
+  });
+});
+
+describe("armourStruckBeat", () => {
+  it("AS1: armour chipped without breaking gives a struck beat for this beat", () => {
+    expect(armourStruckBeat(buildBeatEffect({ armourLost: 1 }), 6)).toEqual({
+      armourBeatKind: "struck",
+      beatKey: 6,
+    });
+  });
+
+  it("AS2: a break or an armour gain in the same beat takes precedence (no struck beat)", () => {
+    expect([
+      armourStruckBeat(buildBeatEffect({ armourLost: 2, brokenFromArmour: 2 }), 6),
+      armourStruckBeat(buildBeatEffect({ armourLost: 1, armourGained: 1 }), 6),
+    ]).toEqual([undefined, undefined]);
+  });
+
+  it("AS3: no armour lost, no effect, or no beat key gives no struck beat", () => {
+    expect([
+      armourStruckBeat(buildBeatEffect({ abilityHpLost: 2 }), 6),
+      armourStruckBeat(undefined, 6),
+      armourStruckBeat(buildBeatEffect({ armourLost: 1 }), undefined),
+    ]).toEqual([undefined, undefined, undefined]);
   });
 });
