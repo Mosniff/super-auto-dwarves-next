@@ -139,7 +139,7 @@ function buildBeatEffect(
     isActing: false,
     armourGained: 0,
     brokenFromArmour: null,
-    abilityHpLost: 0,
+    hpLost: 0,
     armourLost: 0,
     dealsAbilityHit: false,
     isDropped: false,
@@ -153,7 +153,7 @@ describe("rosterSlotEffectFlashKind", () => {
   });
 
   it("RF2: hp lost to an ability flashes hpHit", () => {
-    expect(rosterSlotEffectFlashKind(buildBeatEffect({ abilityHpLost: 2 }))).toBe("hpHit");
+    expect(rosterSlotEffectFlashKind(buildBeatEffect({ hpLost: 2 }))).toBe("hpHit");
   });
 
   it("RF3: armour lost (including a break) flashes armourHit", () => {
@@ -165,7 +165,7 @@ describe("rosterSlotEffectFlashKind", () => {
 
   it("RF4: hp and armour lost in the same beat flashes hpHit", () => {
     expect(
-      rosterSlotEffectFlashKind(buildBeatEffect({ armourLost: 2, brokenFromArmour: 2, abilityHpLost: 1 })),
+      rosterSlotEffectFlashKind(buildBeatEffect({ armourLost: 2, brokenFromArmour: 2, hpLost: 1 })),
     ).toBe("hpHit");
   });
 
@@ -182,7 +182,7 @@ describe("rosterSlotEffectFlashKind", () => {
 
   it("RF7: a hit in the same beat as a buff wins (hpHit, then armourHit)", () => {
     expect([
-      rosterSlotEffectFlashKind(buildBeatEffect({ armourGained: 1, abilityHpLost: 1 })),
+      rosterSlotEffectFlashKind(buildBeatEffect({ armourGained: 1, hpLost: 1 })),
       rosterSlotEffectFlashKind(buildBeatEffect({ armourGained: 1, armourLost: 1 })),
     ]).toEqual(["hpHit", "armourHit"]);
   });
@@ -205,7 +205,7 @@ describe("armourStruckBeat", () => {
 
   it("AS3: no armour lost, no effect, or no beat key gives no struck beat", () => {
     expect([
-      armourStruckBeat(buildBeatEffect({ abilityHpLost: 2 }), 6),
+      armourStruckBeat(buildBeatEffect({ hpLost: 2 }), 6),
       armourStruckBeat(undefined, 6),
       armourStruckBeat(buildBeatEffect({ armourLost: 1 }), undefined),
     ]).toEqual([undefined, undefined, undefined]);

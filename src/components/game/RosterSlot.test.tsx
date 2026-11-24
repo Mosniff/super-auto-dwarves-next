@@ -12,7 +12,7 @@ function buildBeatEffect(
     isActing: false,
     armourGained: 0,
     brokenFromArmour: null,
-    abilityHpLost: 0,
+    hpLost: 0,
     armourLost: 0,
     dealsAbilityHit: false,
     isDropped: false,
@@ -31,7 +31,7 @@ describe("RosterSlot hit flashes", () => {
     renderWithMessages(
       <RosterSlot
         character={buildTestCharacter({ id: "rs1" })}
-        beatEffect={buildBeatEffect({ abilityHpLost: 2 })}
+        beatEffect={buildBeatEffect({ hpLost: 2 })}
         beatKey={4}
       />,
     );
@@ -69,7 +69,7 @@ describe("RosterSlot hit flashes", () => {
     const { rerender } = renderWithMessages(
       <RosterSlot
         character={character}
-        beatEffect={buildBeatEffect({ abilityHpLost: 1 })}
+        beatEffect={buildBeatEffect({ hpLost: 1 })}
         beatKey={4}
       />,
     );
@@ -78,7 +78,7 @@ describe("RosterSlot hit flashes", () => {
     rerender(
       <RosterSlot
         character={character}
-        beatEffect={buildBeatEffect({ abilityHpLost: 1 })}
+        beatEffect={buildBeatEffect({ hpLost: 1 })}
         beatKey={5}
       />,
     );
@@ -107,7 +107,7 @@ describe("RosterSlot hit flashes", () => {
     renderWithMessages(
       <RosterSlot
         character={buildTestCharacter({ id: "rs6" })}
-        beatEffect={buildBeatEffect({ abilityHpLost: 1 })}
+        beatEffect={buildBeatEffect({ hpLost: 1 })}
         beatKey={4}
       />,
     );
@@ -162,7 +162,7 @@ describe("RosterSlot hit flashes", () => {
     }
 
     expect([
-      beatAnimatingAttribute(buildBeatEffect({ abilityHpLost: 1 })),
+      beatAnimatingAttribute(buildBeatEffect({ hpLost: 1 })),
       beatAnimatingAttribute(buildBeatEffect({ armourGained: 1 })),
       beatAnimatingAttribute(buildBeatEffect({ isActing: true })),
       beatAnimatingAttribute(buildBeatEffect({ isDropped: true })),

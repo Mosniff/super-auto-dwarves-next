@@ -11,7 +11,7 @@ function buildBeatEffect(
     isActing: false,
     armourGained: 0,
     brokenFromArmour: null,
-    abilityHpLost: 0,
+    hpLost: 0,
     armourLost: 0,
     dealsAbilityHit: false,
     isDropped: false,
@@ -32,12 +32,12 @@ describe("BattleBeatFloaters", () => {
   it("HF1: an ability hit shows a \u2212N HP floater", () => {
     renderWithMessages(
       <BattleBeatFloaters
-        beatEffect={buildBeatEffect({ abilityHpLost: 2 })}
+        beatEffect={buildBeatEffect({ hpLost: 2 })}
         beatKey={3}
       />,
     );
 
-    expect(renderedFloaters()).toEqual([["abilityHpLoss", "\u22122 HP"]]);
+    expect(renderedFloaters()).toEqual([["hpLoss", "\u22122 HP"]]);
   });
 
   it("HF2: a beat with no ability hp loss shows no hp floater", () => {

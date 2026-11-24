@@ -1203,7 +1203,7 @@
   paint-order: stroke fill;
   text-shadow: var(--floater-shadow);
 }
-[data-battle-beat-floater="abilityHpLoss"] {
+[data-battle-beat-floater="hpLoss"] {
   --floater-fill: var(--floater-hp-loss-fill);
   --floater-outline-color: var(--floater-hp-loss-outline);
 }

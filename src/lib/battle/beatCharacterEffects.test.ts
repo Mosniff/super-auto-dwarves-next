@@ -33,12 +33,12 @@ describe("beatCharacterEffects", () => {
     ];
 
     expect(beatCharacterEffects(beatEvents)).toEqual({
-      p2: { isActing: true, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
-      p1: { isActing: false, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
+      p2: { isActing: true, armourGained: 0, brokenFromArmour: null, hpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
+      p1: { isActing: false, armourGained: 1, brokenFromArmour: null, hpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
     });
   });
 
-  // deliberate assertion rewrite: every effect gains abilityHpLost: 0 and isDropped: false (before: { isActing, armourGained, brokenFromArmour }; after: + abilityHpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false) — Phase 13
+  // deliberate assertion rewrite: every effect gains abilityHpLost: 0 and isDropped: false (before: { isActing, armourGained, brokenFromArmour }; after: + abilityHpLost: 0, isDropped: false) — Phase 13
   // deliberate assertion rewrite: every effect gains armourLost (before: no armourLost; after: armourLost: 0 — no armour was hit in this beat) — Phase 15
   // deliberate assertion rewrite: every effect gains dealsAbilityHit (before: no dealsAbilityHit; after: dealsAbilityHit: false — no acting caster's ability hit anyone in this beat) — Phase 15
   it("BE2: a level-5 Ogden is both acting and receiving", () => {
@@ -86,13 +86,13 @@ describe("beatCharacterEffects", () => {
     ];
 
     expect(beatCharacterEffects(beatEvents)).toEqual({
-      p2: { isActing: true, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
-      p1: { isActing: false, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
-      p3: { isActing: false, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
+      p2: { isActing: true, armourGained: 1, brokenFromArmour: null, hpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
+      p1: { isActing: false, armourGained: 1, brokenFromArmour: null, hpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
+      p3: { isActing: false, armourGained: 1, brokenFromArmour: null, hpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
     });
   });
 
-  // deliberate assertion rewrite: every effect gains abilityHpLost: 0 and isDropped: false (before: { isActing, armourGained, brokenFromArmour }; after: + abilityHpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false) — Phase 13
+  // deliberate assertion rewrite: every effect gains abilityHpLost: 0 and isDropped: false (before: { isActing, armourGained, brokenFromArmour }; after: + abilityHpLost: 0, isDropped: false) — Phase 13
   // deliberate assertion rewrite: a partial absorb now counts (before: only e1's break appeared and p1's partial absorb was ignored; after: both appear, with armourLost 2 and 1) — Phase 15
   // deliberate assertion rewrite: every effect gains dealsAbilityHit (before: no dealsAbilityHit; after: dealsAbilityHit: false — no acting caster's ability hit anyone in this beat) — Phase 15
   it("BE3: a clash beat: a break and a partial absorb both count as armourLost; only the break sets brokenFromArmour", () => {
@@ -134,8 +134,8 @@ describe("beatCharacterEffects", () => {
     ];
 
     expect(beatCharacterEffects(beatEvents)).toEqual({
-      e1: { isActing: false, armourGained: 0, brokenFromArmour: 2, abilityHpLost: 0, armourLost: 2, dealsAbilityHit: false, isDropped: false },
-      p1: { isActing: false, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, armourLost: 1, dealsAbilityHit: false, isDropped: false },
+      e1: { isActing: false, armourGained: 0, brokenFromArmour: 2, hpLost: 0, armourLost: 2, dealsAbilityHit: false, isDropped: false },
+      p1: { isActing: false, armourGained: 0, brokenFromArmour: null, hpLost: 0, armourLost: 1, dealsAbilityHit: false, isDropped: false },
     });
   });
 
@@ -176,8 +176,8 @@ describe("beatCharacterEffects", () => {
     ];
 
     expect(beatCharacterEffects(beatEvents)).toEqual({
-      p3: { isActing: true, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
-      p1: { isActing: false, armourGained: 2, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
+      p3: { isActing: true, armourGained: 0, brokenFromArmour: null, hpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
+      p1: { isActing: false, armourGained: 2, brokenFromArmour: null, hpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
     });
   });
 
@@ -187,7 +187,8 @@ describe("beatCharacterEffects", () => {
 
   // deliberate assertion rewrite: every effect gains armourLost (before: no armourLost; after: armourLost: 0 — no armour was hit in this beat) — Phase 15
   // deliberate assertion rewrite: every effect gains dealsAbilityHit (before: no dealsAbilityHit; after: dealsAbilityHit: false — no acting caster's ability hit anyone in this beat) — Phase 15
-  it("BE6: ability hits add up as abilityHpLost, a clash hit doesn't count, and a drop marks isDropped", () => {
+  // deliberate assertion rewrite: a clash hit now counts toward hpLost (before: "a clash hit doesn't count" and p2 had abilityHpLost 0, the human's Phase 13 ruling; after: p2 has hpLost 4 — clash damage gets a flash and a "−N HP" floater on the front cards, the human's Phase 15 ruling) — Phase 15
+  it("BE6: hits add up as hpLost, from abilities and clashes alike, and a drop marks isDropped", () => {
     const beatEvents: BattleEvent[] = [
       {
         type: "DAMAGE",
@@ -222,8 +223,8 @@ describe("beatCharacterEffects", () => {
     ];
 
     expect(beatCharacterEffects(beatEvents)).toEqual({
-      p1: { isActing: false, armourGained: 0, brokenFromArmour: null, abilityHpLost: 2, armourLost: 0, dealsAbilityHit: false, isDropped: false },
-      p2: { isActing: false, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: true },
+      p1: { isActing: false, armourGained: 0, brokenFromArmour: null, hpLost: 2, armourLost: 0, dealsAbilityHit: false, isDropped: false },
+      p2: { isActing: false, armourGained: 0, brokenFromArmour: null, hpLost: 4, armourLost: 0, dealsAbilityHit: false, isDropped: true },
     });
   });
 
@@ -251,7 +252,7 @@ describe("beatCharacterEffects", () => {
     ];
 
     expect(beatCharacterEffects(beatEvents)).toEqual({
-      p3: { isActing: false, armourGained: 0, brokenFromArmour: 2, abilityHpLost: 0, armourLost: 3, dealsAbilityHit: false, isDropped: false },
+      p3: { isActing: false, armourGained: 0, brokenFromArmour: 2, hpLost: 0, armourLost: 3, dealsAbilityHit: false, isDropped: false },
     });
   });
 
@@ -286,9 +287,9 @@ describe("beatCharacterEffects", () => {
     ];
 
     expect(beatCharacterEffects(beatEvents)).toEqual({
-      thief: { isActing: true, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, dealsAbilityHit: true, isDropped: false },
-      p1: { isActing: false, armourGained: 0, brokenFromArmour: null, abilityHpLost: 1, armourLost: 0, dealsAbilityHit: false, isDropped: false },
-      e1: { isActing: false, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, armourLost: 1, dealsAbilityHit: false, isDropped: false },
+      thief: { isActing: true, armourGained: 0, brokenFromArmour: null, hpLost: 0, armourLost: 0, dealsAbilityHit: true, isDropped: false },
+      p1: { isActing: false, armourGained: 0, brokenFromArmour: null, hpLost: 1, armourLost: 0, dealsAbilityHit: false, isDropped: false },
+      e1: { isActing: false, armourGained: 0, brokenFromArmour: null, hpLost: 0, armourLost: 1, dealsAbilityHit: false, isDropped: false },
     });
   });
 
@@ -326,7 +327,7 @@ describe("abilityCasterMotionKind", () => {
       isActing: false,
       armourGained: 0,
       brokenFromArmour: null,
-      abilityHpLost: 0,
+      hpLost: 0,
       armourLost: 0,
       dealsAbilityHit: false,
       isDropped: false,
@@ -337,7 +338,7 @@ describe("abilityCasterMotionKind", () => {
   it("CM1: no effect, or not acting, gives no caster motion", () => {
     expect([
       abilityCasterMotionKind(undefined),
-      abilityCasterMotionKind(buildBeatEffect({ abilityHpLost: 2 })),
+      abilityCasterMotionKind(buildBeatEffect({ hpLost: 2 })),
     ]).toEqual(["none", "none"]);
   });
 

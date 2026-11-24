@@ -180,8 +180,8 @@ describe("deriveBattlePlaybackState", () => {
     ).toEqual([
       {},
       {
-        p2: { isActing: true, armourGained: 0, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
-        p1: { isActing: false, armourGained: 1, brokenFromArmour: null, abilityHpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
+        p2: { isActing: true, armourGained: 0, brokenFromArmour: null, hpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
+        p1: { isActing: false, armourGained: 1, brokenFromArmour: null, hpLost: 0, armourLost: 0, dealsAbilityHit: false, isDropped: false },
       },
     ]);
   });

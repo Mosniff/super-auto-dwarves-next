@@ -150,7 +150,7 @@ export function rosterSlotEffectFlashKind(
   if (beatEffect === undefined) {
     return "none";
   }
-  if (beatEffect.abilityHpLost > 0) {
+  if (beatEffect.hpLost > 0) {
     return "hpHit";
   }
   if (beatEffect.armourLost > 0) {

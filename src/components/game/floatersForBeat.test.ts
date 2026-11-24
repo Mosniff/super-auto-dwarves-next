@@ -18,7 +18,7 @@ function buildBeatEffect(
     isActing: false,
     armourGained: 0,
     brokenFromArmour: null,
-    abilityHpLost: 0,
+    hpLost: 0,
     armourLost: 0,
     dealsAbilityHit: false,
     isDropped: false,
@@ -33,7 +33,7 @@ describe("floatersForBeat", () => {
 
   it("BF2: no beat key gives no floaters, even with an effect", () => {
     expect(
-      floatersForBeat(buildBeatEffect({ abilityHpLost: 2 }), undefined),
+      floatersForBeat(buildBeatEffect({ hpLost: 2 }), undefined),
     ).toEqual([]);
   });
 
@@ -51,11 +51,11 @@ describe("floatersForBeat", () => {
     ]);
   });
 
-  it("BF5: hp lost to an ability gives an abilityHpLoss floater carrying the amount", () => {
-    expect(floatersForBeat(buildBeatEffect({ abilityHpLost: 2 }), 5)).toEqual([
+  it("BF5: hp lost to an ability gives an hpLoss floater carrying the amount", () => {
+    expect(floatersForBeat(buildBeatEffect({ hpLost: 2 }), 5)).toEqual([
       {
-        floaterKey: "ability-hp-loss-5",
-        floaterKind: "abilityHpLoss",
+        floaterKey: "hp-loss-5",
+        floaterKind: "hpLoss",
         amount: 2,
       },
     ]);
@@ -67,11 +67,11 @@ describe("floatersForBeat", () => {
         buildBeatEffect({
           armourGained: 1,
           brokenFromArmour: 1,
-          abilityHpLost: 4,
+          hpLost: 4,
         }),
         7,
       ).map((floater) => floater.floaterKind),
-    ).toEqual(["armourGain", "armourBreak", "abilityHpLoss"]);
+    ).toEqual(["armourGain", "armourBreak", "hpLoss"]);
   });
 
   it("BF7: acting or dropping alone gives no floaters", () => {
@@ -82,11 +82,11 @@ describe("floatersForBeat", () => {
 });
 
 describe("battleFloaterTiming", () => {
-  const FLOATER_KINDS: BattleBeatFloaterKind[] = ["armourGain", "armourBreak", "abilityHpLoss"];
+  const FLOATER_KINDS: BattleBeatFloaterKind[] = ["armourGain", "armourBreak", "hpLoss"];
 
   it("FT1: on a normal beat, a floater starts with the flash (BREAK! with the clash's impact) and rises for 0.45s, at the tempo", () => {
     expect([
-      battleFloaterTiming("abilityHpLoss", "normal"),
+      battleFloaterTiming("hpLoss", "normal"),
       battleFloaterTiming("armourGain", "normal"),
       battleFloaterTiming("armourBreak", "normal"),
     ]).toEqual([

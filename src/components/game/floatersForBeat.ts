@@ -4,7 +4,7 @@ import { animationTempoSeconds } from "@/lib/animationTempo";
 import type { BeatCharacterEffect } from "@/lib/battle/beatCharacterEffects";
 import type { AbilityCasterPulseKind } from "@/lib/battle/beatDurationMs";
 
-export type BattleBeatFloaterKind = "armourGain" | "armourBreak" | "abilityHpLoss";
+export type BattleBeatFloaterKind = "armourGain" | "armourBreak" | "hpLoss";
 
 export interface BattleBeatFloater {
   floaterKey: string;
@@ -38,12 +38,13 @@ export function floatersForBeat(
     });
   }
 
-  // Ability hits only (the human's call, Phase 13); clash hits show none.
-  if (beatEffect.abilityHpLost > 0) {
+  // Every hit that takes hp, ability or clash (Phase 15; Phase 13 floated
+  // ability hits only).
+  if (beatEffect.hpLost > 0) {
     floaters.push({
-      floaterKey: `ability-hp-loss-${beatKey}`,
-      floaterKind: "abilityHpLoss",
-      amount: beatEffect.abilityHpLost,
+      floaterKey: `hp-loss-${beatKey}`,
+      floaterKind: "hpLoss",
+      amount: beatEffect.hpLost,
     });
   }
 

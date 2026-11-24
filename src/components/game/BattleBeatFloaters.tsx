@@ -95,7 +95,7 @@ export function BattleBeatFloaters({
           >
             {floater.floaterKind === "armourGain"
               ? t("armourGainFloater", { amount: floater.amount })
-              : floater.floaterKind === "abilityHpLoss"
+              : floater.floaterKind === "hpLoss"
                 ? t("abilityHpLossFloater", { amount: floater.amount })
                 : t("armourBreakFloater")}
           </motion.span>
