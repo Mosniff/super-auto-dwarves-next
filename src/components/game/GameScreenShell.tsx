@@ -23,6 +23,9 @@ interface GameScreenShellProps {
   // toward the front (see RosterSlab). The screen decides.
   playerRosterLeadingControls?: React.ReactNode;
   alignsPlayerRosterSlotsTowardFront?: boolean;
+  // Battle's player faction tab in the slab's bottom-left (Phase 15). The
+  // screen decides; camp passes none.
+  playerRosterFactionLabel?: string;
   // The screen decides whether the phase banner shows; battle turns it off
   // to save space (Phase 14). The phase stays the page heading, visually
   // hidden.
@@ -46,6 +49,7 @@ export function GameScreenShell({
   playerRosterTrailingControls,
   playerRosterLeadingControls,
   alignsPlayerRosterSlotsTowardFront = false,
+  playerRosterFactionLabel,
   showsPhaseBanner = true,
   showsPlayerInfoControls = false,
   onPlayerInfoControlOpen,
@@ -91,6 +95,7 @@ export function GameScreenShell({
             trailingControls={playerRosterTrailingControls}
             leadingControls={playerRosterLeadingControls}
             alignsSlotsTowardFront={alignsPlayerRosterSlotsTowardFront}
+            factionLabel={playerRosterFactionLabel}
             showsInfoControls={showsPlayerInfoControls}
             onInfoControlOpen={onPlayerInfoControlOpen}
             currentBeat={playerCurrentBeat}

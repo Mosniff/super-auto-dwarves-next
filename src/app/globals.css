@@ -1382,12 +1382,15 @@
     var(--camp-floater-delay) both;
 }
 
-/* Phase 15 slab faction tab: the faction's name on a tab of the side's
-   colour set into the slab's top-right; its left edge slants down to the
-   right. The tab is its own shape (clip-path on the label only), so
-   nothing else is clipped and its width follows the text. The left
-   padding is the slant plus the normal padding, so the text clears the
-   diagonal at its narrowest point. The human tunes these. */
+/* Phase 15 slab faction tabs: the faction's name on a tab of the side's
+   colour. The enemy's sits in its slab's top-right, its left edge slanting
+   down to the right; the player's (battle only) is the mirror image in its
+   slab's bottom-left, its right edge slanting up to the left. Each tab is
+   its own shape (clip-path on the label only), so nothing else is clipped
+   and its width follows the text. The padding on the slanted side is the
+   slant plus the normal padding, so the text clears the diagonal at its
+   narrowest point. letter-spacing adds space after the last letter too, so
+   it is taken back out of the right padding. The human tunes these. */
 :root {
   --slab-notch-depth: 2.25rem;
   --slab-notch-slant: var(--slab-notch-depth); /* 45° */
@@ -1397,16 +1400,12 @@
   --slab-faction-label-weight: 900;
   --slab-faction-label-colour: var(--color-parchment-50);
   --slab-roof-thickness: 3px;
+  --slab-faction-tab-scale: 1;
+  --slab-notch-depth: calc(2.25rem * var(--slab-faction-tab-scale));
+  --slab-notch-padding-x: calc(1.25rem * var(--slab-faction-tab-scale));
 }
 [data-roster-slab-faction-label] {
   height: var(--slab-notch-depth);
-  padding-left: calc(var(--slab-notch-slant) + var(--slab-notch-padding-x));
-  /* letter-spacing adds space after the last letter too; take it back
-     out of the right padding so the gap looks even */
-  padding-right: calc(
-    var(--slab-notch-padding-x) - var(--slab-faction-label-letter-spacing)
-  );
-  clip-path: polygon(0 0, 100% 0, 100% 100%, var(--slab-notch-slant) 100%);
   font-family: var(--font-cinzel), serif;
   font-weight: var(--slab-faction-label-weight);
   font-size: var(--slab-faction-label-size);
@@ -1414,13 +1413,33 @@
   color: var(--slab-faction-label-colour);
 }
 [data-roster-slab-variant="enemy"] [data-roster-slab-faction-label] {
+  top: 0;
+  right: 0;
+  padding-left: calc(var(--slab-notch-slant) + var(--slab-notch-padding-x));
+  padding-right: calc(
+    var(--slab-notch-padding-x) - var(--slab-faction-label-letter-spacing)
+  );
+  clip-path: polygon(0 0, 100% 0, 100% 100%, var(--slab-notch-slant) 100%);
   background-color: var(--color-enemy-side);
+}
+[data-roster-slab-variant="player"] [data-roster-slab-faction-label] {
+  bottom: 0;
+  left: 0;
+  padding-left: var(--slab-notch-padding-x);
+  padding-right: calc(
+    var(--slab-notch-slant) + var(--slab-notch-padding-x) -
+      var(--slab-faction-label-letter-spacing)
+  );
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--slab-notch-slant)) 0,
+    100% 100%,
+    0 100%
+  );
+  background-color: var(--color-player-side);
 }
 [data-roster-slab-variant="enemy"] [data-roster-slab-surface] {
   box-shadow: inset 0 var(--slab-roof-thickness) 0 var(--color-enemy-side);
-}
-[data-roster-slab-variant="player"] [data-roster-slab-faction-label] {
-  background-color: var(--color-player-side);
 }
 [data-game-phase="battlePhase"]
   [data-roster-slab-variant="player"]
@@ -1432,6 +1451,27 @@
 @media (prefers-reduced-motion: reduce) {
   [data-armour-beat="broken"] {
     display: none;
+  }
+}
+
+@media (min-width: 1700px) and (min-height: 800px) {
+  :root {
+    --battle-autoplay-control-zoom: 1.15;
+    --slab-faction-tab-scale: 1.15;
+  }
+}
+
+@media (min-width: 2000px) and (min-height: 950px) {
+  :root {
+    --battle-autoplay-control-zoom: 1.3;
+    --slab-faction-tab-scale: 1.3;
+  }
+}
+
+@media (min-width: 2400px) and (min-height: 1100px) {
+  :root {
+    --battle-autoplay-control-zoom: 1.6; /* was 1.45 */
+    --slab-faction-tab-scale: 1.5;
   }
 }
 

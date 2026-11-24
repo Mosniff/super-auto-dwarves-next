@@ -144,7 +144,7 @@ export function RosterSlab({
       {factionLabel !== undefined && (
         <span
           data-roster-slab-faction-label
-          className="pointer-events-none absolute top-0 right-0 flex items-center uppercase"
+          className="pointer-events-none absolute flex items-center uppercase"
         >
           {factionLabel}
         </span>

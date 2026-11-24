@@ -377,6 +377,38 @@ describe("BattleScreen", () => {
     });
   });
 
+  it("BF1: each battle slab shows its own side's faction label", () => {
+    const dwarfVersusKoboldResolvedBattle: ResolvedBattle = {
+      ...playerWinResolvedBattle,
+      events: playerWinResolvedBattle.events.map((battleEvent) =>
+        battleEvent.type === "BATTLE_START"
+          ? { ...battleEvent, playerFactionId: "dwarf", enemyFactionId: "kobold" }
+          : battleEvent,
+      ),
+    };
+
+    renderWithMessages(
+      <BattleScreen
+        resolvedBattle={dwarfVersusKoboldResolvedBattle}
+        playerCampRoster={playerWinCampRoster}
+      />,
+    );
+
+    expect({
+      playerFactionLabel:
+        document.querySelector(
+          '[data-roster-slab-variant="player"] [data-roster-slab-faction-label]',
+        )?.textContent ?? null,
+      enemyFactionLabel:
+        document.querySelector(
+          '[data-roster-slab-variant="enemy"] [data-roster-slab-faction-label]',
+        )?.textContent ?? null,
+    }).toEqual({
+      playerFactionLabel: "dwarves",
+      enemyFactionLabel: "kobolds",
+    });
+  });
+
   describe("beat navigation", () => {
     afterEach(() => {
       vi.useRealTimers();

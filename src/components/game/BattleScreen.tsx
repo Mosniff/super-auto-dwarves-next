@@ -117,6 +117,11 @@ export function BattleScreen({
       onPlayerInfoControlOpen={pause}
       playerCurrentBeat={currentBeat}
       alignsPlayerRosterSlotsTowardFront
+      playerRosterFactionLabel={
+        battleFactionIds === undefined
+          ? undefined
+          : translateFaction(`${battleFactionIds.playerFactionId}.pluralName`)
+      }
       playerRosterLeadingControls={
         <BattleAutoplayControl
           autoplaySpeed={autoplaySpeed}
