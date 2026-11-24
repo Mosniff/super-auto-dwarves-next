@@ -101,4 +101,71 @@ describe("RosterSlot hit flashes", () => {
 
     expect(effectFlashes()).toEqual(["buff"]);
   });
+
+  it("RS6: the receive layer names this beat's flash kind and the beat's parity", () => {
+    renderWithMessages(
+      <RosterSlot
+        character={buildTestCharacter({ id: "rs6" })}
+        beatEffect={buildBeatEffect({ abilityHpLost: 1 })}
+        beatKey={4}
+      />,
+    );
+    const receiveLayer = document.querySelector("[data-roster-slot-receive]");
+
+    expect([
+      receiveLayer?.getAttribute("data-roster-slot-receive") ?? null,
+      receiveLayer?.getAttribute("data-roster-slot-receive-parity") ?? null,
+    ]).toEqual(["hpHit", "even"]);
+  });
+
+  it("RS7: the same hit on the next beat flips the parity, so its animation restarts", () => {
+    const character = buildTestCharacter({ id: "rs7" });
+    const { rerender } = renderWithMessages(
+      <RosterSlot
+        character={character}
+        beatEffect={buildBeatEffect({ armourGained: 1 })}
+        beatKey={4}
+      />,
+    );
+
+    rerender(
+      <RosterSlot
+        character={character}
+        beatEffect={buildBeatEffect({ armourGained: 1 })}
+        beatKey={5}
+      />,
+    );
+    const receiveLayer = document.querySelector("[data-roster-slot-receive]");
+
+    expect([
+      receiveLayer?.getAttribute("data-roster-slot-receive") ?? null,
+      receiveLayer?.getAttribute("data-roster-slot-receive-parity") ?? null,
+    ]).toEqual(["buff", "odd"]);
+  });
+
+  it("RS8: a slot plays a beat animation (and so lifts its clip) only while its card is hit, buffed or acting", () => {
+    function beatAnimatingAttribute(beatEffect: BeatCharacterEffect | undefined): string | null {
+      const { unmount } = renderWithMessages(
+        <RosterSlot
+          character={buildTestCharacter({ id: "rs8" })}
+          beatEffect={beatEffect}
+          beatKey={4}
+        />,
+      );
+      const attribute =
+        document
+          .querySelector("[data-roster-slot]")
+          ?.getAttribute("data-roster-slot-beat-animating") ?? null;
+      unmount();
+      return attribute;
+    }
+
+    expect([
+      beatAnimatingAttribute(buildBeatEffect({ abilityHpLost: 1 })),
+      beatAnimatingAttribute(buildBeatEffect({ armourGained: 1 })),
+      beatAnimatingAttribute(buildBeatEffect({ isActing: true })),
+      beatAnimatingAttribute(buildBeatEffect({ isDropped: true })),
+      beatAnimatingAttribute(undefined),
+    ]).toEqual(["true", "true", "true", "false", "false"]);
+  });
 });

@@ -372,6 +372,13 @@ export function RosterSlot({
   };
 
   const effectFlashKind = rosterSlotEffectFlashKind(beatEffect);
+  const isActing = Boolean(beatEffect?.isActing || campStartBeat?.isActing);
+  const isPlayingBeatAnimation = isActing || effectFlashKind !== "none";
+  // The parity alternates each beat, so the receive animation's name
+  // changes and CSS restarts it (globals.css → "Phase 15 bench receive
+  // motion").
+  const receiveParity =
+    beatKey !== undefined && beatKey % 2 === 1 ? "odd" : "even";
   const rosterSlotIndexAttributes =
     slotIndex === undefined ? {} : { "data-roster-slot-index": slotIndex };
 
@@ -393,15 +400,16 @@ export function RosterSlot({
       data-roster-slot-exit-kind={exitKind}
       data-experience-beat-active={String(isExperienceBeatActive)}
       data-experience-beat={experienceBeatAttribute}
-      data-ability-acting={
-        beatEffect?.isActing || campStartBeat?.isActing ? "true" : "false"
-      }
+      data-ability-acting={String(isActing)}
+      data-roster-slot-beat-animating={String(isPlayingBeatAnimation)}
       data-ability-caster-pulse={abilityCasterPulse}
       {...rosterSlotIndexAttributes}
     >
       <div
         className={`relative flex aspect-3/4 flex-col items-center justify-center gap-1 rounded-md bg-slate-200 p-1.5 ${
-          isLaunchingCardOut ? "overflow-visible" : "overflow-hidden"
+          isLaunchingCardOut || isPlayingBeatAnimation
+            ? "overflow-visible"
+            : "overflow-hidden"
         }`}
         style={{ boxShadow: "var(--shadow-recess)" }}
       >
@@ -414,10 +422,12 @@ export function RosterSlot({
             shaded recess entirely when occupied; overflow-hidden +
             rounded-md on the recess clips it to the same rounded corners —
             except during the front slot's launch (isLaunchingCardOut), when
-            overflow is briefly lifted so the card can fly clear. The card
-            wrapper itself also carries its own overflow-hidden rounded-md
-            (matching the recess's), so it already looks rounded on its own
-            terms when the recess's clip lifts — no corner "pop". */}
+            overflow is briefly lifted so the card can fly clear, and while
+            the card plays a beat animation (isPlayingBeatAnimation), so it
+            can swell, tremble and hop out of the slot (Phase 15). The card
+            wrapper no longer clips at all: CharacterCard's own root clips to
+            its rounded corners, so the card looks rounded on its own terms
+            when the recess's clip lifts — no corner "pop". */}
         {/* initial={false}: a card already present when the slot mounts
             appears in place, with no slide-in; only a card added later
             animates its entrance. */}
@@ -429,7 +439,7 @@ export function RosterSlot({
           {character && (
             <motion.div
               key={character.id}
-              className="absolute inset-0 overflow-hidden rounded-md"
+              className="absolute inset-0 rounded-md"
               custom={exitCustom}
               variants={cardExitVariants}
               initial={prefersReducedMotion ? false : { x: cardEnterInitialX }}
@@ -449,37 +459,47 @@ export function RosterSlot({
                 data-roster-slot-beat-target
                 className="relative h-full w-full"
               >
-                <CharacterCard
-                  character={character}
-                  showLevel={showsCharacterProgression}
-                  showExperienceBar={showsCharacterProgression}
-                  armourBeat={
-                    armourBeatFromEffect(beatEffect, beatKey) ??
-                    armourStruckBeat(beatEffect, beatKey)
-                  }
-                />
-                {/* The recess clips outer glows, so the glow is inset. At
-                    opacity 0 except during the CSS-driven XP-beat
-                    animation (globals.css, keyed on data-experience-beat). */}
-                <span
-                  data-roster-slot-xp-ring
-                  aria-hidden="true"
-                  className="pointer-events-none absolute inset-0 rounded-md opacity-0"
-                  style={{
-                    boxShadow: "inset 0 0 0 3px rgba(251,191,36,0.9)",
-                  }}
-                />
-                {/* The hit flash (Phase 15): keyed by the beat so
-                    consecutive hits each remount and replay it; colour and
-                    motion in globals.css → "Phase 15 bench hit flashes". */}
-                {effectFlashKind !== "none" && beatKey !== undefined && (
+                {/* The receive layer (Phase 15) carries the hit and buff
+                    motion; it is separate from the beat target, which
+                    carries the caster pulse, so one card can do both in
+                    one beat. */}
+                <div
+                  data-roster-slot-receive={effectFlashKind}
+                  data-roster-slot-receive-parity={receiveParity}
+                  className="relative h-full w-full"
+                >
+                  <CharacterCard
+                    character={character}
+                    showLevel={showsCharacterProgression}
+                    showExperienceBar={showsCharacterProgression}
+                    armourBeat={
+                      armourBeatFromEffect(beatEffect, beatKey) ??
+                      armourStruckBeat(beatEffect, beatKey)
+                    }
+                  />
+                  {/* The recess clips outer glows, so the glow is inset. At
+                      opacity 0 except during the CSS-driven XP-beat
+                      animation (globals.css, keyed on data-experience-beat). */}
                   <span
-                    key={`${effectFlashKind}-${beatKey}`}
-                    data-roster-slot-effect-flash={effectFlashKind}
+                    data-roster-slot-xp-ring
                     aria-hidden="true"
                     className="pointer-events-none absolute inset-0 rounded-md opacity-0"
+                    style={{
+                      boxShadow: "inset 0 0 0 3px rgba(251,191,36,0.9)",
+                    }}
                   />
-                )}
+                  {/* The hit flash (Phase 15): keyed by the beat so
+                      consecutive hits each remount and replay it; colour and
+                      motion in globals.css → "Phase 15 bench hit flashes". */}
+                  {effectFlashKind !== "none" && beatKey !== undefined && (
+                    <span
+                      key={`${effectFlashKind}-${beatKey}`}
+                      data-roster-slot-effect-flash={effectFlashKind}
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-0 rounded-md opacity-0"
+                    />
+                  )}
+                </div>
               </div>
             </motion.div>
           )}

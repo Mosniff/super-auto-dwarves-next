@@ -301,6 +301,25 @@
   --floater-armour-break-outline: #ffffff;
   --floater-armour-gain-fill: var(--color-parchment-50);
   --floater-armour-gain-outline: var(--color-iron-700);
+  /* ── Bench receive motion (Phase 15) ─────────────────
+     A hit card pops and settles while trembling; a buffed card swells on
+     a decelerating curve, strains (a tiny tremble) and releases. They
+     start with the flash (--effect-flash-delay) and must end inside the
+     beat: at most 0.5s on an ability beat (800 ms, starting 0.3s in) and
+     0.25s on a turn-start beat (300 ms, starting 0.05s in). The human
+     tunes these. */
+  --hit-receive-scale: 1.06;
+  --hit-receive-tremble: 3deg;
+  --hit-receive-duration: 0.35s;
+  --hit-receive-quick-duration: 0.22s;
+  --armour-hit-receive-scale: 1.04;
+  --armour-hit-receive-tremble: 2deg;
+  --armour-hit-receive-duration: 0.3s;
+  --armour-hit-receive-quick-duration: 0.2s;
+  --buff-receive-scale: 1.1;
+  --buff-strain-tremble: 0.75deg;
+  --buff-receive-duration: 0.45s;
+  --buff-receive-quick-duration: 0.25s;
 
   /* ── Header divider ──────────────────────────────────
      An engraved groove between header sections; tune here. */
@@ -975,6 +994,9 @@
     --hp-hit-flash-duration: var(--hp-hit-flash-quick-duration);
     --armour-hit-flash-duration: var(--armour-hit-flash-quick-duration);
     --buff-flash-duration: var(--buff-flash-quick-duration);
+    --hit-receive-duration: var(--hit-receive-quick-duration);
+    --armour-hit-receive-duration: var(--armour-hit-receive-quick-duration);
+    --buff-receive-duration: var(--buff-receive-quick-duration);
   }
   @keyframes hp-hit-flash {
     0%,
@@ -1033,6 +1055,78 @@
   [data-armour-beat="struck"] {
     animation: shield-knock var(--shield-knock-duration) ease-out
       var(--effect-flash-delay) both;
+  }
+}
+
+/* Phase 15 bench receive motion, on RosterSlot's receive layer. Each
+   motion has two identical keyframes (-even/-odd) chosen by the beat's
+   parity, so a card hit on consecutive beats restarts (CSS restarts an
+   animation only when its name changes). The layer's pop scale and
+   tremble come from the kind. Reduced motion gets none. */
+[data-roster-slot-beat-animating="true"] {
+  z-index: 10;
+}
+@media (prefers-reduced-motion: no-preference) {
+  @keyframes hit-receive-even {
+    0% { transform: scale(1) rotate(0deg); }
+    12% { transform: scale(var(--receive-pop-scale)) rotate(calc(var(--receive-tremble) * -1)); }
+    30% { transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.75)) rotate(calc(var(--receive-tremble) * 0.8)); }
+    48% { transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.5)) rotate(calc(var(--receive-tremble) * -0.6)); }
+    66% { transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.3)) rotate(calc(var(--receive-tremble) * 0.4)); }
+    84% { transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.1)) rotate(calc(var(--receive-tremble) * -0.2)); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  @keyframes hit-receive-odd {
+    /* identical to hit-receive-even (see the section comment) */
+    0% { transform: scale(1) rotate(0deg); }
+    12% { transform: scale(var(--receive-pop-scale)) rotate(calc(var(--receive-tremble) * -1)); }
+    30% { transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.75)) rotate(calc(var(--receive-tremble) * 0.8)); }
+    48% { transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.5)) rotate(calc(var(--receive-tremble) * -0.6)); }
+    66% { transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.3)) rotate(calc(var(--receive-tremble) * 0.4)); }
+    84% { transform: scale(calc(1 + (var(--receive-pop-scale) - 1) * 0.1)) rotate(calc(var(--receive-tremble) * -0.2)); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  @keyframes buff-receive-even {
+    0% { transform: scale(1) rotate(0deg); animation-timing-function: cubic-bezier(0.1, 0.8, 0.3, 1); }
+    60% { transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.9)) rotate(0deg); animation-timing-function: linear; }
+    65% { transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.93)) rotate(var(--buff-strain-tremble)); }
+    70% { transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.96)) rotate(calc(var(--buff-strain-tremble) * -1)); }
+    75% { transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.98)) rotate(var(--buff-strain-tremble)); }
+    80% { transform: scale(var(--buff-receive-scale)) rotate(0deg); animation-timing-function: ease-in; }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  @keyframes buff-receive-odd {
+    /* identical to buff-receive-even (see the section comment) */
+    0% { transform: scale(1) rotate(0deg); animation-timing-function: cubic-bezier(0.1, 0.8, 0.3, 1); }
+    60% { transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.9)) rotate(0deg); animation-timing-function: linear; }
+    65% { transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.93)) rotate(var(--buff-strain-tremble)); }
+    70% { transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.96)) rotate(calc(var(--buff-strain-tremble) * -1)); }
+    75% { transform: scale(calc(1 + (var(--buff-receive-scale) - 1) * 0.98)) rotate(var(--buff-strain-tremble)); }
+    80% { transform: scale(var(--buff-receive-scale)) rotate(0deg); animation-timing-function: ease-in; }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+  [data-roster-slot-receive="hpHit"] {
+    --receive-pop-scale: var(--hit-receive-scale);
+    --receive-tremble: var(--hit-receive-tremble);
+    animation: hit-receive-even var(--hit-receive-duration) ease-out
+      var(--effect-flash-delay) both;
+  }
+  [data-roster-slot-receive="armourHit"] {
+    --receive-pop-scale: var(--armour-hit-receive-scale);
+    --receive-tremble: var(--armour-hit-receive-tremble);
+    animation: hit-receive-even var(--armour-hit-receive-duration) ease-out
+      var(--effect-flash-delay) both;
+  }
+  [data-roster-slot-receive="hpHit"][data-roster-slot-receive-parity="odd"],
+  [data-roster-slot-receive="armourHit"][data-roster-slot-receive-parity="odd"] {
+    animation-name: hit-receive-odd;
+  }
+  [data-roster-slot-receive="buff"] {
+    animation: buff-receive-even var(--buff-receive-duration) linear
+      var(--effect-flash-delay) both;
+  }
+  [data-roster-slot-receive="buff"][data-roster-slot-receive-parity="odd"] {
+    animation-name: buff-receive-odd;
   }
 }
 
