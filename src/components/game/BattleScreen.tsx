@@ -1,11 +1,13 @@
 "use client";
 
 import { useLayoutEffect, useSyncExternalStore } from "react";
+import { useTranslations } from "next-intl";
 import { ActionZone } from "@/components/game/ActionZone";
 import { GameScreenShell } from "@/components/game/GameScreenShell";
 import { useReportPhaseAdvanceAvailability } from "@/components/game/phaseAdvanceAvailability";
 import { RosterSlab } from "@/components/game/RosterSlab";
 import type { ResolvedBattle } from "@/lib/battle/types";
+import { resolvedBattleFactionIds } from "@/lib/battle/resolvedBattleFactionIds";
 import type { CampRoster } from "@/lib/game/campRoster";
 import { useBattlePlayback } from "@/hooks/useBattlePlayback";
 import { BattleAutoplayControl } from "@/components/game/BattleAutoplayControl";
@@ -41,6 +43,8 @@ export function BattleScreen({
   playerCampRoster,
 }: BattleScreenProps) {
   const displayCharacterName = useCharacterDisplayName();
+  const translateFaction = useTranslations("faction");
+  const battleFactionIds = resolvedBattleFactionIds(resolvedBattle);
   const {
     currentState,
     currentBeatDescriptors,
@@ -138,6 +142,11 @@ export function BattleScreen({
       <RosterSlab
         characters={enemyBenchCharacters}
         variant="enemy"
+        factionLabel={
+          battleFactionIds === undefined
+            ? undefined
+            : translateFaction(`${battleFactionIds.enemyFactionId}.pluralName`)
+        }
         alignsSlotsTowardFront
         presentsFrontSlotAsOnDeck
         showsInfoControls

@@ -149,3 +149,29 @@ describe("RosterSlab", () => {
     });
   });
 });
+
+describe("RosterSlab faction label", () => {
+  it("RN1: a slab given a faction label shows it in the slab's notch", () => {
+    renderWithMessages(
+      <RosterSlab
+        characters={emptySlabCharacters}
+        variant="enemy"
+        alignsSlotsTowardFront
+        factionLabel="kobolds"
+      />,
+    );
+
+    expect([
+      document.querySelector("[data-roster-slab-faction-label]")?.textContent ?? null,
+      document.querySelector("[data-roster-slab]")?.getAttribute("data-roster-slab-variant") ?? null,
+    ]).toEqual(["kobolds", "enemy"]);
+  });
+
+  it("RN2: a slab without a faction label shows none", () => {
+    renderWithMessages(
+      <RosterSlab characters={emptySlabCharacters} variant="enemy" alignsSlotsTowardFront />,
+    );
+
+    expect(document.querySelector("[data-roster-slab-faction-label]")).toBeNull();
+  });
+});

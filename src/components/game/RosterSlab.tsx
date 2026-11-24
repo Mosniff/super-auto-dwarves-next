@@ -35,6 +35,9 @@ export interface RosterSlotInteraction {
 interface RosterSlabProps {
   characters: (Character | null)[];
   variant?: "player" | "enemy";
+  // Phase 15: the side's faction name, shown in a notch cut into the slab's
+  // top-right — the enemy slab only, for now; already translated.
+  factionLabel?: string;
   slotInteraction?: RosterSlotInteraction;
   // When true, slot 0's card is "on deck" (the NEXT halo, and the launch
   // exit when it leaves for the action zone); battle turns this on; camp
@@ -75,6 +78,7 @@ interface RosterSlabProps {
 export function RosterSlab({
   characters,
   variant = "player",
+  factionLabel,
   slotInteraction,
   presentsFrontSlotAsOnDeck = false,
   showsCharacterProgression = false,
@@ -99,7 +103,10 @@ export function RosterSlab({
   // left. Keys stay the slot index so each slot's RosterSlot persists.
   const slotIndexesInDisplayOrder =
     variant === "player"
-      ? Array.from({ length: SLOT_COUNT }, (_, slotIndex) => slotIndex).reverse()
+      ? Array.from(
+          { length: SLOT_COUNT },
+          (_, slotIndex) => slotIndex,
+        ).reverse()
       : Array.from({ length: SLOT_COUNT }, (_, slotIndex) => slotIndex);
   // Aligned toward the front, only the box away from the front renders.
   const rendersLeadingArea = !alignsSlotsTowardFront || variant === "player";
@@ -117,18 +124,40 @@ export function RosterSlab({
     // the enemy). The screen decides whether to provide controls and how to
     // align; the slab never learns the phase.
     <div
+      data-roster-slab
+      data-roster-slab-variant={variant}
       data-roster-slot-alignment={alignsSlotsTowardFront ? "front" : "centre"}
-      className="flex w-full h-(--roster-slab-height) bg-linear-to-b from-slate-100 via-slate-200 to-slate-300 px-(--roster-slab-padding-x) py-(--roster-slab-padding-y)"
+      className="relative flex w-full h-(--roster-slab-height) px-(--roster-slab-padding-x) py-(--roster-slab-padding-y)"
     >
+      {/* The slab's stone surface lives on its own layer behind the cards,
+          so the enemy slab's faction notch (globals.css → "Phase 15 slab
+          faction notch") can be cut out of the surface with clip-path
+          without clipping the cards, whose beat animations leave the slab.
+          The content areas below are `relative`, so they stack above the
+          surface by page order (no isolate / negative z-index, which would
+          trap the cards' z-10 inside the slab). */}
+      <div
+        data-roster-slab-surface
+        aria-hidden="true"
+        className="absolute inset-0 bg-linear-to-b from-slate-100 via-slate-200 to-slate-300"
+      />
+      {factionLabel !== undefined && (
+        <span
+          data-roster-slab-faction-label
+          className="pointer-events-none absolute top-0 right-0 flex items-center uppercase"
+        >
+          {factionLabel}
+        </span>
+      )}
       {rendersLeadingArea && (
         <div
           data-roster-slab-leading-area
-          className="flex min-w-0 flex-1 basis-0 flex-col items-center justify-center"
+          className="relative flex min-w-0 flex-1 basis-0 flex-col items-center justify-center"
         >
           {leadingControls}
         </div>
       )}
-      <div className="flex h-full shrink-0 flex-row justify-center gap-(--roster-slot-gap)">
+      <div className="relative flex h-full shrink-0 flex-row justify-center gap-(--roster-slot-gap)">
         {slotIndexesInDisplayOrder.map((slotIndex) => {
           const character = characters[slotIndex];
 
@@ -230,7 +259,7 @@ export function RosterSlab({
       {rendersTrailingArea && (
         <div
           data-roster-slab-trailing-area
-          className="flex min-w-0 flex-1 basis-0 flex-col items-center justify-center"
+          className="relative flex min-w-0 flex-1 basis-0 flex-col items-center justify-center"
         >
           {trailingControls}
         </div>
