@@ -2029,3 +2029,68 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
     scale: 1;
   }
 }
+
+/* Phase 16 money pile (MoneyPile): camp's selling place, in the roster
+   slab's left-hand area. The image is a placeholder block until the sack
+   of gold exists. Its width is capped by the side area (max-width: 100%,
+   in the component) and by the slab's height: the image (3:4 of its
+   width) plus the gold count below must fit inside one roster card's
+   height. While a dwarf is held it highlights and "SELL?" shows over it.
+   Every value is the human's to tune. */
+:root {
+  --money-pile-max-width: 8rem;
+  --money-pile-gold-room: 1.75rem; /* the gold count and the gap above it */
+  --money-pile-gap: 0.375rem;
+  --money-pile-radius: 0.5rem;
+  --money-pile-placeholder: linear-gradient(
+    160deg,
+    rgb(240 200 96),
+    rgb(176 128 40)
+  );
+  --money-pile-eligible-ring:
+    0 0 0 3px rgb(52 211 153), 0 0 0.75rem rgb(52 211 153 / 0.6);
+  --money-pile-eligible-ring-active:
+    0 0 0 4px rgb(52 211 153), 0 0 1.25rem rgb(52 211 153 / 0.9);
+  --money-pile-sell-wash: rgb(15 15 15 / 0.45);
+  --money-pile-prompt-size: 1.25rem;
+  --money-pile-prompt-colour: rgb(255 255 255 / 0.95);
+  --money-pile-prompt-glow:
+    0 0 0.4rem rgb(255 255 255 / 0.75), 0 1px 1px rgb(0 0 0 / 0.7);
+  --money-pile-gold-size: 1rem;
+  --money-pile-gold-colour: var(--color-parchment-100);
+}
+/* Computed on the button itself: a custom property containing var() is
+   resolved where it is declared. */
+[data-money-pile-sell] {
+  width: min(
+    var(--money-pile-max-width),
+    calc((var(--roster-card-height) - var(--money-pile-gold-room)) * 4 / 3)
+  );
+}
+[data-money-pile-image] {
+  background: var(--money-pile-placeholder);
+}
+[data-money-pile-sell][data-camp-target-presentation="eligible"] {
+  box-shadow: var(--money-pile-eligible-ring);
+}
+[data-money-pile-sell][data-camp-target-presentation="eligible"]:hover,
+[data-money-pile-sell][data-camp-target-presentation="eligible"]:focus-visible,
+[data-money-pile-sell][data-camp-target-presentation="eligible"][data-money-pile-drop-target="true"] {
+  box-shadow: var(--money-pile-eligible-ring-active);
+}
+[data-money-pile-sell-prompt] {
+  background: var(--money-pile-sell-wash);
+  font-size: var(--money-pile-prompt-size);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--money-pile-prompt-colour);
+  text-shadow: var(--money-pile-prompt-glow);
+}
+[data-money-pile-gold] {
+  font-size: var(--money-pile-gold-size);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--money-pile-gold-colour);
+  text-shadow: 0 1px 1px rgb(0 0 0 / 0.6);
+}

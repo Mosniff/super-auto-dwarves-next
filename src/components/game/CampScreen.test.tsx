@@ -4,7 +4,6 @@ import { describe, it, expect, afterEach, vi } from "vitest";
 import userEvent from "@testing-library/user-event";
 import {
   act,
-  fireEvent,
   renderWithMessages,
   screen,
   waitFor,
@@ -202,7 +201,10 @@ describe("CampScreen", () => {
     // deliberate assertion rewrite: the camp phase banner reads "Shop" (BR4)
     expect(screen.getByText("Shop")).toBeInTheDocument();
     expect(screen.queryByText(/Day 3/)).toBeNull();
-    expect(screen.queryByText(/10 gold/)).toBeNull();
+    // deliberate assertion rewrite: the camp shows the gold on its money pile since Phase 16 (before: no gold in camp; the header shows it too)
+    expect(
+      document.querySelector("[data-money-pile-gold]")?.textContent ?? null,
+    ).toBe("10 gold");
     expect(
       screen.queryByRole("button", { name: "To battle" }),
     ).toBeNull();
@@ -659,202 +661,6 @@ describe("CampScreen", () => {
     ).toHaveLength(1);
   });
 
-  it("(cc) shows an unpressed Merge / Sell toggle", () => {
-    renderCampScreen();
-
-    expect(
-      screen.getByRole("button", { name: "Merge / Sell" }),
-    ).toHaveAttribute("aria-pressed", "false");
-  });
-
-  // deliberate assertion rewrite: the merge is now a click on the matching dwarf's merge zone; the whole-slot button is disabled while zones show (Phase 16)
-  it("(dd) clicking the toggle latches merge/sell mode, and a dwarf clicked onto a matching dwarf's merge zone submits a merge", async () => {
-    const recordedMergeFormValues: Record<string, FormDataEntryValue>[] = [];
-    const mergeCharacterAction = async (formData: FormData) => {
-      recordedMergeFormValues.push(Object.fromEntries(formData));
-    };
-    const user = userEvent.setup();
-    renderCampScreen({
-      playerCampRoster: fixtureTwoBorinCampRoster,
-      mergeCharacterAction,
-    });
-
-    const mergeSellToggle = screen.getByRole("button", {
-      name: "Merge / Sell",
-    });
-    await user.click(mergeSellToggle);
-
-    expect(mergeSellToggle).toHaveAttribute("aria-pressed", "true");
-    expect(
-      mergeSellToggle.querySelectorAll("[data-merge-sell-lock]"),
-    ).toHaveLength(1);
-
-    await user.click(
-      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
-    );
-    await user.click(
-      screen.getByRole("button", { name: "Slot 2: merge into Borin" }),
-    );
-
-    expect(recordedMergeFormValues).toEqual([
-      { fromSlotIndex: "0", intoSlotIndex: "1", expectedRevision: "5" },
-    ]);
-  });
-
-  it("(ee) holding Shift moves the toggle into merge/sell mode without latching it; releasing Shift moves it back", async () => {
-    const user = userEvent.setup();
-    renderCampScreen();
-
-    const mergeSellToggle = screen.getByRole("button", {
-      name: "Merge / Sell",
-    });
-
-    await user.keyboard("{Shift>}");
-    const whileHeld = {
-      active: mergeSellToggle.getAttribute("data-merge-sell-mode-active"),
-      pressed: mergeSellToggle.getAttribute("aria-pressed"),
-    };
-
-    await user.keyboard("{/Shift}");
-    const afterRelease = {
-      active: mergeSellToggle.getAttribute("data-merge-sell-mode-active"),
-      pressed: mergeSellToggle.getAttribute("aria-pressed"),
-    };
-
-    expect({ whileHeld, afterRelease }).toEqual({
-      whileHeld: { active: "true", pressed: "false" },
-      afterRelease: { active: "false", pressed: "false" },
-    });
-  });
-
-  it("(ff) Shift+Tab does not leave merge/sell mode on", async () => {
-    const user = userEvent.setup();
-    renderCampScreen();
-
-    await user.keyboard("{Shift>}{Tab}");
-
-    expect(
-      screen.getByRole("button", { name: "Merge / Sell" }),
-    ).toHaveAttribute("data-merge-sell-mode-active", "false");
-  });
-
-  it("(gg) losing window focus clears a held Shift", async () => {
-    const user = userEvent.setup();
-    renderCampScreen();
-
-    await user.keyboard("{Shift>}");
-    act(() => {
-      fireEvent.blur(window);
-    });
-
-    expect(
-      screen.getByRole("button", { name: "Merge / Sell" }),
-    ).toHaveAttribute("data-merge-sell-mode-active", "false");
-  });
-
-  function readSellArea() {
-    const sellArea = document.querySelector("[data-sell-area]");
-    return {
-      shown: sellArea?.getAttribute("data-sell-area-shown"),
-      presentation: sellArea?.getAttribute("data-camp-target-presentation"),
-    };
-  }
-
-  it("(sa1) the sell box reserves its space but is hidden and unreachable with nothing held", () => {
-    renderCampScreen();
-
-    expect({
-      ...readSellArea(),
-      sellButtonFound:
-        screen.queryByRole("button", { name: "Sell" }) !== null,
-    }).toEqual({
-      shown: "false",
-      presentation: "ineligible",
-      sellButtonFound: false,
-    });
-  });
-
-  it("(sa2) holding a roster dwarf in merge/sell mode shows an eligible sell box", async () => {
-    const user = userEvent.setup();
-    renderCampScreen();
-
-    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
-    await user.click(
-      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
-    );
-
-    expect({
-      ...readSellArea(),
-      sellButtonFound:
-        screen.queryByRole("button", { name: "Sell" }) !== null,
-    }).toEqual({
-      shown: "true",
-      presentation: "eligible",
-      sellButtonFound: true,
-    });
-  });
-
-  it("(sa3) clicking the sell box sells the held dwarf", async () => {
-    const recordedSellFormValues: Record<string, FormDataEntryValue>[] = [];
-    const sellCharacterAction = async (formData: FormData) => {
-      recordedSellFormValues.push(Object.fromEntries(formData));
-    };
-    const user = userEvent.setup();
-    renderCampScreen({ sellCharacterAction });
-
-    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
-    await user.click(
-      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
-    );
-    await user.click(screen.getByRole("button", { name: "Sell" }));
-
-    expect(recordedSellFormValues).toEqual([
-      { slotIndex: "0", expectedRevision: "5" },
-    ]);
-  });
-
-  it("(sa4) in reposition mode, holding a roster dwarf keeps the sell box hidden", async () => {
-    const user = userEvent.setup();
-    renderCampScreen();
-
-    await user.click(
-      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
-    );
-
-    expect(readSellArea().shown).toBe("false");
-  });
-
-  it("(sh1) holding a shop card disables the toggle and Shift does nothing", async () => {
-    const user = userEvent.setup();
-    renderCampScreen();
-
-    await user.click(screen.getByRole("button", { name: "Shop: Thrudi" }));
-    await user.keyboard("{Shift>}");
-
-    const toggle = screen.getByRole("button", { name: "Merge / Sell" });
-
-    expect({
-      disabled: toggle.hasAttribute("disabled"),
-      active: toggle.getAttribute("data-merge-sell-mode-active"),
-    }).toEqual({ disabled: true, active: "false" });
-  });
-
-  it("(sh2) a latched toggle stays latched, but disabled, while a shop card is held", async () => {
-    const user = userEvent.setup();
-    renderCampScreen();
-
-    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
-    await user.click(screen.getByRole("button", { name: "Shop: Thrudi" }));
-
-    const toggle = screen.getByRole("button", { name: "Merge / Sell" });
-
-    expect({
-      disabled: toggle.hasAttribute("disabled"),
-      pressed: toggle.getAttribute("aria-pressed"),
-      active: toggle.getAttribute("data-merge-sell-mode-active"),
-    }).toEqual({ disabled: true, pressed: "true", active: "true" });
-  });
-
   // deliberate test-helper fix: select slots by their index attribute, not
   // document position (Phase 12 tab-order change)
   //
@@ -954,11 +760,11 @@ describe("CampScreen", () => {
     const user = userEvent.setup();
     const { rerenderCampScreen } = renderCampScreen({ revision: 5 });
 
-    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    // deliberate assertion rewrite: a sell is a click on the money pile, with no merge/sell mode (Phase 16)
     await user.click(
       screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
     );
-    await user.click(screen.getByRole("button", { name: "Sell" }));
+    await user.click(screen.getByRole("button", { name: "Sell Borin" }));
 
     rerenderCampScreen({
       playerCampRoster: [null, null, null, null, null, null, null],
@@ -1239,31 +1045,6 @@ describe("CampScreen", () => {
     expect(
       await within(targetSlotButton).findByText("+1 XP"),
     ).toBeInTheDocument();
-  });
-
-  it("(ii) a settled mode change is announced politely", async () => {
-    const user = userEvent.setup();
-    renderCampScreen();
-
-    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
-
-    const announcementText = await screen.findByText("Merge / sell mode on");
-
-    expect(
-      announcementText.closest("[data-merge-sell-announcement]"),
-    ).toHaveAttribute("aria-live", "polite");
-  });
-
-  it("(kk) a quick Shift+Tab announces nothing", async () => {
-    const user = userEvent.setup();
-    renderCampScreen();
-
-    await user.keyboard("{Shift>}{Tab}{/Shift}");
-    await new Promise((resolve) => setTimeout(resolve, 400));
-
-    expect(
-      document.querySelector("[data-merge-sell-announcement]")?.textContent,
-    ).toBe("");
   });
 
   it("CS1: every occupied roster slot and every shop offering has an info control beside, never inside, its button", () => {
@@ -1929,5 +1710,103 @@ describe("split drop zones (Phase 16)", () => {
         slotHost(slotButtonLabel)?.getAttribute("data-roster-slot-zones-shown"),
       ),
     ).toEqual(["false", "false", "false", "false", "false"]);
+  });
+});
+
+// Phase 16: the merge/sell toggle, its Shift shortcut, its announcements
+// and its sell box are gone. Selling is a drop (or a click) on the money
+// pile in the roster slab's left-hand area, which also shows the gold.
+describe("money pile (Phase 16)", () => {
+  function moneyPileSellButton(): HTMLButtonElement {
+    return document.querySelector(
+      "[data-money-pile-sell]",
+    ) as HTMLButtonElement;
+  }
+
+  it("MP1: the money pile shows the gold; with nothing in hand its sell button is hidden and unreachable", () => {
+    renderCampScreen({ gold: 10 });
+
+    expect({
+      goldText:
+        document.querySelector("[data-money-pile-gold]")?.textContent ?? null,
+      isSellShown: moneyPileSellButton().getAttribute(
+        "data-money-pile-sell-shown",
+      ),
+      isAriaHidden: moneyPileSellButton().getAttribute("aria-hidden"),
+      isInert: moneyPileSellButton().hasAttribute("inert"),
+      reachableSellButtonCount: screen.queryAllByRole("button", {
+        name: /^Sell /,
+      }).length,
+    }).toEqual({
+      goldText: "10 gold",
+      isSellShown: "false",
+      isAriaHidden: "true",
+      isInert: true,
+      reachableSellButtonCount: 0,
+    });
+  });
+
+  it("MP2: holding a roster dwarf shows 'Sell?' and an eligible sell button named for that dwarf", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+
+    const sellButton = screen.getByRole("button", { name: "Sell Borin" });
+
+    expect(sellButton).toHaveAttribute(
+      "data-camp-target-presentation",
+      "eligible",
+    );
+    expect(sellButton).toBeEnabled();
+    expect(within(sellButton).getByText("Sell?")).toBeInTheDocument();
+  });
+
+  it("MP3: clicking the money pile with a dwarf in hand sells it", async () => {
+    const recordedSellFormValues: Record<string, FormDataEntryValue>[] = [];
+    const sellCharacterAction = async (formData: FormData) => {
+      recordedSellFormValues.push(Object.fromEntries(formData));
+    };
+    const user = userEvent.setup();
+    renderCampScreen({ sellCharacterAction });
+
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Sell Borin" }));
+
+    expect(recordedSellFormValues).toEqual([
+      { slotIndex: "0", expectedRevision: "5" },
+    ]);
+  });
+
+  it("MP4: with a shop character in hand, the money pile's sell button stays hidden", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    await user.click(screen.getByRole("button", { name: "Shop: Thrudi" }));
+
+    expect(
+      moneyPileSellButton().getAttribute("data-money-pile-sell-shown"),
+    ).toBe("false");
+  });
+
+  it("MP5: there is no merge/sell toggle, and holding Shift changes nothing", async () => {
+    const user = userEvent.setup();
+    renderCampScreen();
+
+    await user.keyboard("{Shift>}");
+
+    expect({
+      toggleCount: screen.queryAllByRole("button", { name: "Merge / Sell" })
+        .length,
+      isSellShown: moneyPileSellButton().getAttribute(
+        "data-money-pile-sell-shown",
+      ),
+    }).toEqual({ toggleCount: 0, isSellShown: "false" });
+
+    await user.keyboard("{/Shift}");
   });
 });

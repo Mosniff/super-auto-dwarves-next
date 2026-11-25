@@ -65,12 +65,13 @@ interface RosterSlabProps {
   // screen decides, and the slab never learns the game phase. Camp turns
   // it on for the player's roster.
   showsCharacterProgression?: boolean;
-  // An optional screen-provided control (e.g. camp's merge/sell toggle),
-  // centred in the slab's trailing box. Battle provides none. The slab
-  // never learns what the controls are or why.
+  // An optional screen-provided control, centred in the slab's trailing
+  // box. No screen provides one today (camp's merge/sell toggle lived here
+  // until Phase 16). The slab never learns what the controls are or why.
   trailingControls?: React.ReactNode;
   // The same for the slab's leading (left-hand) box (battle's autoplay
-  // control). The slab never learns what the controls are or why.
+  // control, camp's money pile). The slab never learns what the controls
+  // are or why.
   leadingControls?: React.ReactNode;
   // When true, the slot row sits against the slab's edge on its front's
   // side instead of centred (battle turns it on for both slabs). The screen

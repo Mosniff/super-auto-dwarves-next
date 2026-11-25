@@ -18,8 +18,8 @@ import type {
 //
 // The zones stay mounted on every occupied slot and are only hidden
 // (invisible, aria-hidden, inert, droppables disabled) when nothing is
-// held, the same pattern SellArea uses: a drop target that appears
-// mid-drag is enabled, not mounted. The buttons fill their halves exactly,
+// held, the same pattern MoneyPile's sell button uses: a drop target that
+// appears mid-drag is enabled, not mounted. The buttons fill their halves exactly,
 // with no gap between them, so a pointer over the card is always over one
 // zone; the visible boxes are inset inside them ([data-roster-slot-zone-box]).
 // An ineligible merge zone stays a droppable (its drop does nothing), so a

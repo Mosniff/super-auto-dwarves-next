@@ -2,7 +2,7 @@
 
 import { useCallback } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/react";
-import { ArrowRightLeft, ChevronsUp } from "lucide-react";
+import { ChevronsUp } from "lucide-react";
 import type { Character } from "@/lib/game/character";
 import type {
   CampClickTarget,
@@ -61,12 +61,6 @@ function presentationClassName(
     // Uses the eligible ring; the level-up marker is rendered separately
     // (see the merge marker below), so it isn't part of this className.
     case "mergeTarget":
-      return isDropTarget
-        ? "ring-4 ring-emerald-500"
-        : "ring-2 ring-dashed ring-emerald-400";
-    // Uses the eligible ring; the swap marker is rendered separately (see
-    // the swap marker below), so it isn't part of this className.
-    case "swapTarget":
       return isDropTarget
         ? "ring-4 ring-emerald-500"
         : "ring-2 ring-dashed ring-emerald-400";
@@ -187,19 +181,6 @@ export function InteractiveRosterSlotButton({
             className="pointer-events-none absolute top-(--card-badge-offset) left-(--card-badge-offset) z-10 flex size-(--card-badge-size) items-center justify-center rounded-full bg-emerald-500 text-white shadow ring-2 ring-white"
           >
             <ChevronsUp aria-hidden="true" className="size-(--card-badge-icon-size)" />
-          </span>
-        )}
-        {!zonesShown && presentation === "swapTarget" && (
-          // Shares the merge marker's top-left spot — the two states never
-          // coexist on the same tile — but a different colour (sky, not
-          // emerald) so "swap" and "level up" read differently at a glance.
-          // The human tunes both.
-          <span
-            data-camp-swap-marker
-            aria-hidden="true"
-            className="pointer-events-none absolute top-(--card-badge-offset) left-(--card-badge-offset) z-10 flex size-(--card-badge-size) items-center justify-center rounded-full bg-sky-500 text-white shadow ring-2 ring-white"
-          >
-            <ArrowRightLeft aria-hidden="true" className="size-(--card-badge-icon-size)" />
           </span>
         )}
       </button>

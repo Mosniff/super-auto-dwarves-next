@@ -20,10 +20,7 @@ import {
 import { ShopPanel } from "@/components/game/ShopPanel";
 import { CharacterCard } from "@/components/game/CharacterCard";
 import { useCharacterDisplayName } from "@/components/game/characterDisplayName";
-import { MergeSellToggle } from "@/components/game/MergeSellToggle";
-import { MergeSellModeAnnouncer } from "@/components/game/MergeSellModeAnnouncer";
-import { SellArea } from "@/components/game/SellArea";
-import { useCampInteractionMode } from "@/components/game/useCampInteractionMode";
+import { MoneyPile } from "@/components/game/MoneyPile";
 import {
   rosterSlotExitKind,
   type SubmittedCampIntent,
@@ -79,10 +76,10 @@ function campSelectionFromClickTarget(
       // A roster slot's zones are only ever drop and click targets (Phase
       // 16) — the dwarf is dragged by its whole-slot tile.
       throw new Error("A roster slot zone cannot be a drag source.");
-    case "sellArea":
-      // The sell area is never a draggable source — only shop and roster
+    case "moneyPile":
+      // The money pile is never a draggable source — only shop and roster
       // slot tiles are.
-      throw new Error("The sell area cannot be a drag source.");
+      throw new Error("The money pile cannot be a drag source.");
   }
 }
 
@@ -188,19 +185,11 @@ export function CampScreen({
   // so click-select and drag always present identically.
   const heldCampItem = campDragSourceSelection ?? campSelection;
 
-  // Client UI state only — the server never receives or learns it, only
-  // the explicit intent (reposition vs. mergeCharacters) it caused the
-  // player to submit. The interaction mode never affects a shop hold, so
-  // this is told whenever one is held, purely so the toggle can tell the
-  // truth about being inert (campInteractionMode.ts's own comment).
-  const {
-    campInteractionMode,
-    isMergeSellToggleLatched,
-    isMergeSellToggleDisabled,
-    onMergeSellToggleClick,
-  } = useCampInteractionMode(
-    heldCampItem.selectionKind === "characterShopSlot",
-  );
+  // The roster dwarf in hand, if any: the money pile's sell button names it.
+  const heldRosterCharacter =
+    heldCampItem.selectionKind === "rosterSlot"
+      ? playerCampRoster[heldCampItem.slotIndex]
+      : null;
 
   function submitCampIntent(campIntent: CampIntent): void {
     setLastSubmittedCampIntent({ campIntent, submittedAtRevision: revision });
@@ -255,7 +244,6 @@ export function CampScreen({
       campClickTarget,
       campState,
       characterTemplates,
-      campInteractionMode,
     );
 
     setCampSelection(resolution.nextCampSelection);
@@ -273,7 +261,6 @@ export function CampScreen({
         campClickTarget,
         campState,
         characterTemplates,
-        campInteractionMode,
       )
     );
   }
@@ -297,7 +284,6 @@ export function CampScreen({
       campClickTarget,
       campState,
       characterTemplates,
-      campInteractionMode,
     );
   }
 
@@ -348,7 +334,6 @@ export function CampScreen({
           dropTargetClickTarget,
           campState,
           characterTemplates,
-          campInteractionMode,
         );
 
         if (campIntent !== null) {
@@ -380,40 +365,29 @@ export function CampScreen({
           setCampSelection({ selectionKind: "none" });
         }}
         // Must stay a flex column so the shell below can fill the height
-        // and the camp content can centre vertically. select-none because
-        // Shift-click (holding Shift to enter merge/sell mode, then
-        // clicking a tile) would otherwise extend a text selection.
+        // and the camp content can centre vertically. select-none so a
+        // drag or a quick double click never selects text.
         className={`flex flex-1 flex-col select-none ${isSubmittingCampIntent ? "cursor-wait" : ""}`}
       >
         <GameScreenShell
           gamePhase="campPhase"
           playerBenchCharacters={playerCampRoster}
           showsPlayerCharacterProgression
-          playerRosterTrailingControls={
-            <div className="flex w-full flex-1 flex-col gap-3 px-2">
-              <MergeSellToggle
-                isMergeOrSellModeActive={campInteractionMode === "mergeOrSell"}
-                isLatched={isMergeSellToggleLatched}
-                onClick={onMergeSellToggleClick}
-                isDisabled={
-                  isMergeSellToggleDisabled || isCampStartSequencePlaying
-                }
-              />
-              <SellArea
-                isShown={
-                  campInteractionMode === "mergeOrSell" &&
-                  heldCampItem.selectionKind === "rosterSlot"
-                }
-                presentation={campTargetPresentation({
-                  targetKind: "sellArea",
-                })}
-                isEnabled={isClickEnabled({ targetKind: "sellArea" })}
-                onClick={() => handleCampClick({ targetKind: "sellArea" })}
-              />
-              <MergeSellModeAnnouncer
-                campInteractionMode={campInteractionMode}
-              />
-            </div>
+          playerRosterLeadingControls={
+            <MoneyPile
+              gold={gold}
+              isSellShown={heldRosterCharacter !== null}
+              sellButtonLabel={
+                heldRosterCharacter
+                  ? t("moneyPileSellLabel", {
+                      characterName: displayCharacterName(heldRosterCharacter),
+                    })
+                  : t("moneyPileSellPrompt")
+              }
+              presentation={campTargetPresentation({ targetKind: "moneyPile" })}
+              isEnabled={isClickEnabled({ targetKind: "moneyPile" })}
+              onClick={() => handleCampClick({ targetKind: "moneyPile" })}
+            />
           }
           playerSlotInteraction={{
             selectedSlotIndex:
@@ -436,30 +410,21 @@ export function CampScreen({
             },
             isSlotDraggable: (slotIndex) =>
               !isCampInteractionLocked &&
-              isRosterSlotSelectable(
-                playerCampRoster,
-                slotIndex,
-                campInteractionMode,
-              ),
+              isRosterSlotSelectable(playerCampRoster, slotIndex),
             slotPresentation: (slotIndex) =>
               campTargetPresentation({ targetKind: "rosterSlot", slotIndex }),
             slotExitKind: (slotIndex) =>
               rosterSlotExitKind(lastSubmittedCampIntent, revision, slotIndex),
-            // While a card shows its split zones (Phase 16), its own XP bar
-            // stays hidden: a mergeable dwarf's merge zone draws the bar
-            // itself (RosterSlotZones).
-            isSlotMatchingHeldItem: (slotIndex) => {
-              if (rosterSlotZonesPresentation(slotIndex).zonesShown) {
-                return false;
-              }
-              return isRosterSlotMatchingHeldItem(
+            // Only a shop hold matches here: with a roster dwarf in hand, a
+            // mergeable dwarf's merge zone draws its XP bar instead
+            // (RosterSlotZones), and the card's own bar stays hidden.
+            isSlotMatchingHeldItem: (slotIndex) =>
+              isRosterSlotMatchingHeldItem(
                 heldCampItem,
                 slotIndex,
                 campState,
                 characterTemplates,
-                campInteractionMode,
-              );
-            },
+              ),
             slotCampStartBeat: (slotIndex) =>
               campStartSlotBeat(
                 campStartActivationsPlaying,

@@ -19,8 +19,9 @@ interface GameScreenShellProps {
   presentsPlayerFrontSlotAsOnDeck?: boolean;
   showsPlayerCharacterProgression?: boolean;
   playerRosterTrailingControls?: React.ReactNode;
-  // Battle's controls left of the player's slots, and its slot row aligned
-  // toward the front (see RosterSlab). The screen decides.
+  // The controls left of the player's slots (battle's autoplay control,
+  // camp's money pile since Phase 16), and battle's slot row aligned toward
+  // the front (see RosterSlab). The screen decides.
   playerRosterLeadingControls?: React.ReactNode;
   alignsPlayerRosterSlotsTowardFront?: boolean;
   // Battle's player faction tab in the slab's bottom-left (Phase 15). The

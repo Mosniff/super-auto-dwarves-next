@@ -18,16 +18,11 @@ export type CampSelection =
   | { selectionKind: "characterShopSlot"; shopSlotIndex: number }
   | { selectionKind: "rosterSlot"; slotIndex: number };
 
-// Client UI state only (Part 2 wires this up): default mode leaves a held
-// roster dwarf repositioning; "mergeOrSell" turns matches into merge
-// targets instead. The server never receives or learns this — it only ever
-// sees the explicit intent (reposition vs. mergeCharacters) that the mode
-// caused the player to submit.
-export type CampInteractionMode = "reposition" | "mergeOrSell";
-
 // Phase 16: while a roster dwarf is held, every other dwarf shows two
 // zones — the top half swaps, the bottom half merges — each its own click
-// and drop target, so swapping and merging no longer need a mode.
+// and drop target, so swapping and merging need no mode (Phase 11's
+// merge/sell mode was removed in Phase 16). Selling is a drop on the money
+// pile.
 export type RosterSlotZoneKind = "swap" | "merge";
 
 export type CampClickTarget =
@@ -38,7 +33,7 @@ export type CampClickTarget =
       slotIndex: number;
       zoneKind: RosterSlotZoneKind;
     }
-  | { targetKind: "sellArea" };
+  | { targetKind: "moneyPile" };
 
 export type CampIntent =
   | {
@@ -145,26 +140,15 @@ export function isSellableRosterSlot(
   return sellCharacterRejectionReason(campRoster, slotIndex) === null;
 }
 
-// In "reposition" (the default), a slot is selectable when some other slot
-// is a reposition target for it. In "mergeOrSell", every occupied slot is
-// selectable, because every dwarf can at least be sold; a slot that's also
-// a merge target for some other slot is selectable for that reason too,
-// but sellability alone is enough — repositioning is off in this mode.
+// A slot is selectable when its dwarf can be sold (the money pile), or
+// when some other slot is a reposition target for it. Merge targets need
+// no check of their own: a dwarf that can merge can also be sold.
 export function isRosterSlotSelectable(
   campRoster: CampRoster,
   slotIndex: number,
-  campInteractionMode: CampInteractionMode = "reposition",
 ): boolean {
-  if (campInteractionMode === "mergeOrSell") {
-    if (isSellableRosterSlot(campRoster, slotIndex)) {
-      return true;
-    }
-
-    return allCampRosterSlotIndices.some(
-      (otherSlotIndex) =>
-        otherSlotIndex !== slotIndex &&
-        isMergeTargetSlot(campRoster, slotIndex, otherSlotIndex),
-    );
+  if (isSellableRosterSlot(campRoster, slotIndex)) {
+    return true;
   }
 
   return allCampRosterSlotIndices.some(
@@ -178,10 +162,9 @@ const noSelection: CampSelection = { selectionKind: "none" };
 
 // Phase 16. A zone only acts for a held roster dwarf: the swap zone submits
 // whatever reposition the rule accepts (onto a dwarf, a swap), the merge
-// zone whatever merge the rule accepts; anything else changes nothing. It
-// ignores campInteractionMode on purpose — the zones are what replace the
-// mode. Shop holds keep the whole-card target (a merge-buy is a click on
-// the rosterSlot target), so zones do nothing for them.
+// zone whatever merge the rule accepts; anything else changes nothing.
+// Shop holds keep the whole-card target (a merge-buy is a click on the
+// rosterSlot target), so zones do nothing for them.
 function resolveRosterSlotZoneClick(
   campSelection: CampSelection,
   rosterSlotZoneTarget: Extract<
@@ -240,7 +223,7 @@ function resolveRosterSlotZoneClick(
 }
 
 // Nothing selected: a selectable character shop slot or roster slot becomes
-// selected; the sell area does nothing (there's nothing held to sell);
+// selected; the money pile does nothing (there's nothing held to sell);
 // anything else changes nothing.
 //
 // A character shop slot selected: clicking the same slot clears; a
@@ -249,30 +232,24 @@ function resolveRosterSlotZoneClick(
 // (buying and repositioning are separate actions on separate kinds of
 // selection, so an occupied, non-buyable slot is never itself picked up
 // here — this asymmetry is what lets the merge-buy rule turn a click on a
-// matching dwarf into a buy with no change here). The sell area does
+// matching dwarf into a buy with no change here). The money pile does
 // nothing (a shop character can't be sold).
 //
-// A roster slot selected: clicking the same slot clears. In "reposition"
-// mode, a reposition-target slot submits a reposition and clears; in
-// "mergeOrSell" mode, a merge-target slot submits a mergeCharacters intent
-// and clears instead, and repositioning is off; the sell area submits a
-// sellCharacter intent and clears when the held slot is sellable. In
-// "reposition" mode the sell area does nothing. Either mode: a selectable
-// shop slot switches to it; any other roster slot click changes nothing.
+// A roster slot selected: clicking the same slot clears; an empty slot
+// that's a reposition target submits a reposition (a move) and clears; the
+// money pile submits a sellCharacter intent and clears when the held slot
+// is sellable; a selectable shop slot switches to it. Clicking another
+// dwarf's whole slot changes nothing: while a dwarf is held, every other
+// dwarf's targets are its zones (Phase 16), and the UI disables its whole
+// slot.
 //
 // A roster slot zone (Phase 16) is resolved by resolveRosterSlotZoneClick,
 // before any of the above.
-//
-// campInteractionMode is client UI state only (CampInteractionMode's own
-// comment) — the server never receives or learns it, only the explicit
-// intent (reposition vs. mergeCharacters vs. sellCharacter) it caused the
-// player to submit.
 export function resolveCampClick(
   campSelection: CampSelection,
   campClickTarget: CampClickTarget,
   campState: CampState,
   characterTemplates: readonly CharacterTemplate[],
-  campInteractionMode: CampInteractionMode = "reposition",
 ): CampClickResolution {
   const unchanged: CampClickResolution = {
     nextCampSelection: campSelection,
@@ -288,7 +265,7 @@ export function resolveCampClick(
   }
 
   if (campSelection.selectionKind === "none") {
-    if (campClickTarget.targetKind === "sellArea") {
+    if (campClickTarget.targetKind === "moneyPile") {
       // Nothing is held, so there is nothing to sell.
       return unchanged;
     }
@@ -313,13 +290,7 @@ export function resolveCampClick(
     }
 
     // campClickTarget.targetKind === "rosterSlot"
-    if (
-      isRosterSlotSelectable(
-        campState.campRoster,
-        campClickTarget.slotIndex,
-        campInteractionMode,
-      )
-    ) {
+    if (isRosterSlotSelectable(campState.campRoster, campClickTarget.slotIndex)) {
       return {
         nextCampSelection: {
           selectionKind: "rosterSlot",
@@ -332,7 +303,7 @@ export function resolveCampClick(
   }
 
   if (campSelection.selectionKind === "characterShopSlot") {
-    if (campClickTarget.targetKind === "sellArea") {
+    if (campClickTarget.targetKind === "moneyPile") {
       // A shop character isn't owned yet, so it can't be sold.
       return unchanged;
     }
@@ -381,11 +352,8 @@ export function resolveCampClick(
   }
 
   // campSelection.selectionKind === "rosterSlot"
-  if (campClickTarget.targetKind === "sellArea") {
-    if (
-      campInteractionMode === "mergeOrSell" &&
-      isSellableRosterSlot(campState.campRoster, campSelection.slotIndex)
-    ) {
+  if (campClickTarget.targetKind === "moneyPile") {
+    if (isSellableRosterSlot(campState.campRoster, campSelection.slotIndex)) {
       return {
         nextCampSelection: noSelection,
         campIntentToSubmit: {
@@ -402,23 +370,10 @@ export function resolveCampClick(
       return { nextCampSelection: noSelection, campIntentToSubmit: null };
     }
 
-    if (campInteractionMode === "mergeOrSell") {
-      if (
-        isMergeTargetSlot(
-          campState.campRoster,
-          campSelection.slotIndex,
-          campClickTarget.slotIndex,
-        )
-      ) {
-        return {
-          nextCampSelection: noSelection,
-          campIntentToSubmit: {
-            intentKind: "mergeCharacters",
-            fromSlotIndex: campSelection.slotIndex,
-            intoSlotIndex: campClickTarget.slotIndex,
-          },
-        };
-      }
+    // Another dwarf's whole slot: its zones are the targets (see above).
+    // This is a routing decision between target kinds, not a rule check —
+    // the reposition rule below still decides whether the move is allowed.
+    if (campState.campRoster[campClickTarget.slotIndex] !== null) {
       return unchanged;
     }
 
@@ -489,14 +444,12 @@ export function isCampClickEffective(
   campClickTarget: CampClickTarget,
   campState: CampState,
   characterTemplates: readonly CharacterTemplate[],
-  campInteractionMode: CampInteractionMode = "reposition",
 ): boolean {
   const { nextCampSelection, campIntentToSubmit } = resolveCampClick(
     campSelection,
     campClickTarget,
     campState,
     characterTemplates,
-    campInteractionMode,
   );
 
   return (
@@ -512,14 +465,12 @@ export function resolveCampDrop(
   dropTarget: CampClickTarget,
   campState: CampState,
   characterTemplates: readonly CharacterTemplate[],
-  campInteractionMode: CampInteractionMode = "reposition",
 ): CampIntent | null {
   return resolveCampClick(
     dragSourceSelection,
     dropTarget,
     campState,
     characterTemplates,
-    campInteractionMode,
   ).campIntentToSubmit;
 }
 
@@ -527,7 +478,6 @@ export type CampTargetPresentation =
   | "held"
   | "eligible"
   | "mergeTarget"
-  | "swapTarget"
   | "ineligible"
   | "neutral";
 
@@ -535,24 +485,19 @@ export type CampTargetPresentation =
 // can't present differently. With nothing in hand, a tile that holds a
 // pick-up-able item (an offering shop slot, or an occupied roster slot)
 // shows whether it can be picked up; an empty slot holds nothing to pick
-// up, so it just looks empty ("neutral"); the sell area holds nothing to
+// up, so it just looks empty ("neutral"); the money pile holds nothing to
 // pick up either, so it's "ineligible" rather than neutral — there's
 // nothing to sell. A buy-target roster slot that would merge, rather than
-// place, presents as "mergeTarget" instead of "eligible". A
-// reposition-target roster slot that already holds a dwarf presents as
-// "swapTarget" instead of "eligible" — placing here swaps the two dwarves.
-// It's derived from the reposition intent the click would submit, plus the
-// target slot holding a dwarf: the same roster data the reposition rule
-// itself swaps on, never a template comparison. A submitted sellCharacter
-// intent presents as "eligible" (the shared fallthrough below); the sell
-// area is otherwise "ineligible" — never a draggable or buy-target source,
-// so it never needs "mergeTarget" or "swapTarget".
+// place, presents as "mergeTarget" instead of "eligible". A submitted
+// sellCharacter intent presents as "eligible" (the shared fallthrough
+// below); the money pile is otherwise "ineligible". With a dwarf in hand,
+// another dwarf's whole slot is "ineligible" (clicking it does nothing);
+// the UI draws its zones instead (presentRosterSlotZones) and ignores this.
 export function presentCampTarget(
   heldCampItem: CampSelection,
   campClickTarget: CampClickTarget,
   campState: CampState,
   characterTemplates: readonly CharacterTemplate[],
-  campInteractionMode: CampInteractionMode = "reposition",
 ): CampTargetPresentation {
   if (campClickTarget.targetKind === "rosterSlotZone") {
     // A programmer error: a zone's two halves have their own presentations.
@@ -572,7 +517,7 @@ export function presentCampTarget(
         : "ineligible";
     }
 
-    if (campClickTarget.targetKind === "sellArea") {
+    if (campClickTarget.targetKind === "moneyPile") {
       // Nothing is held, so there is nothing to sell.
       return "ineligible";
     }
@@ -585,7 +530,6 @@ export function presentCampTarget(
     return isRosterSlotSelectable(
       campState.campRoster,
       campClickTarget.slotIndex,
-      campInteractionMode,
     )
       ? "neutral"
       : "ineligible";
@@ -608,7 +552,6 @@ export function presentCampTarget(
     campClickTarget,
     campState,
     characterTemplates,
-    campInteractionMode,
   );
 
   if (campIntentToSubmit !== null) {
@@ -628,17 +571,6 @@ export function presentCampTarget(
       }
     }
 
-    if (campIntentToSubmit.intentKind === "mergeCharacters") {
-      return "mergeTarget";
-    }
-
-    if (
-      campIntentToSubmit.intentKind === "reposition" &&
-      campState.campRoster[campIntentToSubmit.toSlotIndex] !== null
-    ) {
-      return "swapTarget";
-    }
-
     return "eligible";
   }
 
@@ -648,7 +580,6 @@ export function presentCampTarget(
       campClickTarget,
       campState,
       characterTemplates,
-      campInteractionMode,
     )
   ) {
     return "neutral";
@@ -660,16 +591,14 @@ export function presentCampTarget(
 // "Matching" is read from the real rules' previews (the
 // rosterSlotAtMaxLevel / targetSlotAtMaxLevel rejections are only ever
 // returned for a matching occupant) — never from a client-side template-id
-// comparison. A shop hold's matching is unaffected by
-// the mode (a merge-buy can always happen); a roster hold's matching is
-// mode-aware, because in "reposition" mode the player is moving the dwarf,
-// not merging it, so nothing should look like a merge target there.
+// comparison. Only a shop hold matches here: with a roster dwarf in hand,
+// every other dwarf shows its split zones (Phase 16), and the merge zone
+// shows the match instead (presentRosterSlotZones).
 export function isRosterSlotMatchingHeldItem(
   heldCampItem: CampSelection,
   rosterSlotIndex: number,
   campState: CampState,
   characterTemplates: readonly CharacterTemplate[],
-  campInteractionMode: CampInteractionMode = "reposition",
 ): boolean {
   if (heldCampItem.selectionKind === "characterShopSlot") {
     const buyPreview = previewBuyCharacterFromShopSlot(
@@ -684,23 +613,6 @@ export function isRosterSlotMatchingHeldItem(
         buyPreview.acceptanceKind === "merged") ||
       (buyPreview.outcome === "rejected" &&
         buyPreview.rejectionReason === "rosterSlotAtMaxLevel")
-    );
-  }
-
-  if (
-    heldCampItem.selectionKind === "rosterSlot" &&
-    campInteractionMode === "mergeOrSell"
-  ) {
-    const mergePreview = mergeRosterCharacters(
-      campState.campRoster,
-      heldCampItem.slotIndex,
-      rosterSlotIndex,
-    );
-
-    return (
-      mergePreview.outcome === "accepted" ||
-      (mergePreview.outcome === "rejected" &&
-        mergePreview.rejectionReason === "targetSlotAtMaxLevel")
     );
   }
 

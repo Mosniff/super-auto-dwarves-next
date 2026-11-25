@@ -5,7 +5,7 @@ import { renderWithMessages } from "@/test/renderWithMessages";
 import { buildTestCharacter } from "@/test/characterFixtures";
 import { campDropCollisionDetector } from "./campDropCollision";
 import { InteractiveRosterSlotButton } from "./InteractiveRosterSlotButton";
-import { SellArea } from "./SellArea";
+import { MoneyPile } from "./MoneyPile";
 
 // Phase 16: with a shrunken drag overlay, a drop must land where the
 // pointer is. dnd-kit's default detector falls back to the overlap of the
@@ -63,7 +63,8 @@ describe("camp drop collision (Phase 16)", () => {
     ]).toEqual(["fixture-droppable", null]);
   });
 
-  it("CD2: every camp drop target (the whole slot, both zones and the sell box) uses the camp's collision detector", () => {
+  // deliberate assertion rewrite: the money pile replaced the sell box as the camp's sell target (Phase 16)
+  it("CD2: every camp drop target (the whole slot, both zones and the money pile) uses the camp's collision detector", () => {
     capturedManagers.length = 0;
 
     renderWithMessages(
@@ -86,8 +87,10 @@ describe("camp drop collision (Phase 16)", () => {
           isZoneEnabled={() => false}
           onZoneClick={() => {}}
         />
-        <SellArea
-          isShown={false}
+        <MoneyPile
+          gold={10}
+          isSellShown={false}
+          sellButtonLabel="Sell?"
           presentation="ineligible"
           isEnabled={false}
           onClick={() => {}}
@@ -110,10 +113,10 @@ describe("camp drop collision (Phase 16)", () => {
           String(firstId).localeCompare(String(secondId)),
         ),
     ).toEqual([
+      ["money-pile", true],
       ["roster-drop-0", true],
       ["roster-merge-zone-0", true],
       ["roster-swap-zone-0", true],
-      ["sell-area", true],
     ]);
   });
 });
