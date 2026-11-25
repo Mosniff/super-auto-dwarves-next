@@ -49,8 +49,6 @@ export default async function PlayPage() {
         header={
           <GameHeader
             day={savedGame.gameState.day}
-            depth={savedGame.gameState.depth}
-            gold={savedGame.gameState.gold}
             gamePhase={savedGame.gameState.phase}
             advanceGameAction={advanceGameAction}
           />
@@ -95,8 +93,6 @@ export default async function PlayPage() {
       header={
         <GameHeader
           day={savedGame.gameState.day}
-          depth={savedGame.gameState.depth}
-          gold={savedGame.gameState.gold}
           gamePhase={savedGame.gameState.phase}
           advanceGameAction={advanceGameAction}
           isRunLost={isRunLost}

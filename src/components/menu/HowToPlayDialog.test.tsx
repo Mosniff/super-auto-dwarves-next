@@ -106,6 +106,22 @@ describe("HowToPlayDialog", () => {
     ]).toEqual([null, true]);
   });
 
+  it("H7: the game header's trigger opens the same guide", async () => {
+    const user = userEvent.setup();
+    renderWithMessages(<HowToPlayDialog triggerPlacement="header" />);
+
+    const headerTrigger = screen.getByRole("button", { name: "How to Play" });
+    await user.click(headerTrigger);
+
+    expect({
+      triggerPlacement: headerTrigger.getAttribute(
+        "data-how-to-play-trigger",
+      ),
+      dialogIsOpen:
+        screen.queryByRole("dialog", { name: "How to Play" }) !== null,
+    }).toEqual({ triggerPlacement: "header", dialogIsOpen: true });
+  });
+
   // deliberate assertion rewrite: the placeholder became the guide (before: the dialog says 近日公開; after: its Japanese headings, in order) — Phase 15, the human's call
   it("H4: in Japanese, the button and title read あそびかた and the guide's headings are Japanese", async () => {
     const user = userEvent.setup();

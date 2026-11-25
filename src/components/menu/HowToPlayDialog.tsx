@@ -57,16 +57,40 @@ const howToPlayTags = {
   ),
 };
 
-export function HowToPlayDialog() {
+interface HowToPlayDialogProps {
+  // Where the trigger sits: the main menu's full-width button (Phase 15),
+  // or the game header's ghost button beside Menu (Phase 16), styled like
+  // MenuButton. The dialog itself is the same.
+  triggerPlacement?: "menu" | "header";
+}
+
+export function HowToPlayDialog({
+  triggerPlacement = "menu",
+}: HowToPlayDialogProps) {
   const translateCommon = useTranslations("common");
   const translateHowToPlay = useTranslations("howToPlay");
 
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="w-full" size="lg" variant="outline">
-          {translateCommon("howToPlay")}
-        </Button>
+        {triggerPlacement === "header" ? (
+          <Button
+            variant="ghost"
+            data-how-to-play-trigger="header"
+            className="text-parchment-50 text-lg hover:bg-slate-200 hover:text-white"
+          >
+            {translateCommon("howToPlay")}
+          </Button>
+        ) : (
+          <Button
+            className="w-full"
+            size="lg"
+            variant="outline"
+            data-how-to-play-trigger="menu"
+          >
+            {translateCommon("howToPlay")}
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent
         closeButtonLabel={translateCommon("close")}

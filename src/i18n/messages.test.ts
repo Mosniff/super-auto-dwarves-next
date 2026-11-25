@@ -83,7 +83,7 @@ describe("locale message parity", () => {
     "cancel",
     "startedOn",
     "dayLabel",
-    "depthLabel",
+    // deliberate test-data update: the header shows only the day, so the depth and the placeholder gem count went with their keys (Phase 16; before: depthLabel here and gemsLabel below)
     "phaseCamp",
     "phaseBattle",
     "deleteSaveTitle",
@@ -106,7 +106,6 @@ describe("locale message parity", () => {
     "swapPositionZoneText",
     "shopSlotLockedLabel",
     "shopSectionComingSoonLabel",
-    "gemsLabel",
     "levelPill",
     "experienceBarMax",
     "experienceBarLabel",

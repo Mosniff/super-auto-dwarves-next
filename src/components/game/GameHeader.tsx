@@ -4,26 +4,19 @@ import { HeaderDivider } from "@/components/game/HeaderDivider";
 import { LocaleSwitcher } from "@/components/game/LocaleSwitcher";
 import { MenuButton } from "@/components/game/MenuButton";
 import { PhaseAdvanceButton } from "@/components/game/PhaseAdvanceButton";
+import { HowToPlayDialog } from "@/components/menu/HowToPlayDialog";
 import type { GamePhase } from "@/lib/game/types";
 
 interface GameHeaderProps {
   day: number;
-  depth: number;
-  gold: number;
   gamePhase: GamePhase;
   advanceGameAction: (formData: FormData) => Promise<void>;
   // See PhaseAdvanceButton (Phase 13).
   isRunLost?: boolean;
 }
 
-// Gems aren't implemented yet; the counter's place in the UI is pinned.
-// Replace with the real count from the save when the mechanic exists.
-const PLACEHOLDER_GEM_COUNT = 0;
-
 export async function GameHeader({
   day,
-  depth,
-  gold,
   gamePhase,
   advanceGameAction,
   isRunLost = false,
@@ -33,22 +26,21 @@ export async function GameHeader({
   return (
     <header className="w-full">
       {/* ── Utility strip ─────────────────────────────── */}
-      <div className="flex items-center justify-between border-b border-iron-900/40 bg-slate-300 h-(--game-header-height) px-4">
-        <div className="flex items-center gap-4">
+      {/* Three columns (Phase 16): the two outer ones share the leftover
+          width equally, so the day sits at the header's true centre
+          whatever the two sides hold. */}
+      <div className="grid grid-cols-[1fr_auto_1fr] items-center border-b border-iron-900/40 bg-slate-300 h-(--game-header-height) px-4">
+        <div className="flex items-center gap-4 justify-self-start">
           <span className="text-xl font-semibold tracking-wide text-parchment-50">
             {t("appName")}
           </span>
           <HeaderDivider />
           <MenuButton />
+          <HowToPlayDialog triggerPlacement="header" />
           <LocaleSwitcher />
         </div>
-        <div className="flex items-center gap-4">
-          <GameStatus
-            day={day}
-            depth={depth}
-            gold={gold}
-            gems={PLACEHOLDER_GEM_COUNT}
-          />
+        <GameStatus day={day} />
+        <div className="flex items-center gap-4 justify-self-end">
           <PhaseAdvanceButton
             gamePhase={gamePhase}
             advanceGameAction={advanceGameAction}

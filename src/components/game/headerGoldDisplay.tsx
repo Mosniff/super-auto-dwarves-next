@@ -11,8 +11,10 @@ import {
 } from "react";
 import { useTranslations } from "next-intl";
 
-// Display-only: the header counts up while the camp-start sequence plays;
-// the saved gold is already final.
+// Display-only: the shown gold counts up while the camp-start sequence
+// plays; the saved gold is already final. Since Phase 16 the header shows
+// no gold; camp's money pile is the one display (the names here still say
+// "header" from before).
 interface HeaderGoldDisplayContextValue {
   pendingGold: number;
   setPendingGold: Dispatch<SetStateAction<number>>;

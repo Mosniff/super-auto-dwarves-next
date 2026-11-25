@@ -4,22 +4,23 @@ import { renderWithMessages, screen } from "@/test/renderWithMessages";
 import { GameStatus } from "./GameStatus";
 
 describe("GameStatus", () => {
-  it("(m) shows the day and gold", () => {
-    renderWithMessages(<GameStatus day={3} depth={3} gold={10} gems={0} />);
+  // deliberate assertion rewrite: the header shows only the day, centred (Phase 16, the human's call; before: the day and the gold)
+  it("(m) shows the day", () => {
+    renderWithMessages(<GameStatus day={3} />);
 
-    expect(screen.queryByText(/Day 3/)).not.toBeNull();
-    expect(screen.queryByText(/10 gold/)).not.toBeNull();
+    expect(
+      document.querySelector("[data-game-status]")?.textContent ?? null,
+    ).toBe("Day 3");
   });
 
-  it("(m2) shows the gem count", () => {
-    renderWithMessages(<GameStatus day={3} depth={3} gold={10} gems={0} />);
+  // deliberate assertion rewrite: the gold (now on camp's money pile), the depth and the placeholder gem count left the header (Phase 16, the human's call; before: (m2) showed the gems and (m3) the depth)
+  it("(m2) shows no gold, depth or gems", () => {
+    renderWithMessages(<GameStatus day={3} />);
 
-    expect(screen.queryByText(/0 gems/)).not.toBeNull();
-  });
-
-  it("(m3) shows the depth", () => {
-    renderWithMessages(<GameStatus day={3} depth={5} gold={10} gems={0} />);
-
-    expect(screen.queryByText("Depth 5")).not.toBeNull();
+    expect({
+      gold: screen.queryByText(/gold/),
+      depth: screen.queryByText(/Depth/),
+      gems: screen.queryByText(/gems/),
+    }).toEqual({ gold: null, depth: null, gems: null });
   });
 });
