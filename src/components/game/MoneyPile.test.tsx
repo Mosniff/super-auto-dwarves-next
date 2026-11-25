@@ -10,10 +10,11 @@ import { MoneyPile } from "./MoneyPile";
 
 // Phase 16: the money pile swells, glows gold and wobbles a little each
 // time its displayed gold goes up: when a camp-start ability's gold floater
-// plays (the pending gold is released) or a sale's gold arrives. Spending
-// (a purchase) doesn't trigger it. The animation restarts on every gain by
-// switching between two identical keyframes (the parity trick), so tests
-// assert the parity attribute, never the animation itself.
+// plays (the pending gold is released) or a sale's gold arrives. When the
+// saved gold falls (a purchase or a merge-buy), it dips with a cooler glow
+// instead. The latest change picks which plays; each animation restarts on
+// every change by switching between two identical keyframes (the parity
+// trick), so tests assert the attributes, never the animation itself.
 
 function PendingGoldReporter({ pendingGold }: { pendingGold: number }) {
   useReportPendingHeaderGold(pendingGold);
@@ -41,6 +42,22 @@ function MoneyPileUnderTest({
         />
       </HeaderGoldDisplayProvider>
     </DragDropProvider>
+  );
+}
+
+function spendParity(): string | null {
+  return (
+    document
+      .querySelector("[data-money-pile]")
+      ?.getAttribute("data-money-pile-spend-parity") ?? null
+  );
+}
+
+function lastGoldChange(): string | null {
+  return (
+    document
+      .querySelector("[data-money-pile]")
+      ?.getAttribute("data-money-pile-last-gold-change") ?? null
   );
 }
 
@@ -73,12 +90,17 @@ describe("money pile gain pulse (Phase 16)", () => {
     expect(paritiesAfterEachRise).toEqual(["odd", "even", "odd"]);
   });
 
-  it("MPG3: spending gold (a fall) doesn't pulse", () => {
+  // deliberate assertion rewrite: spending now plays its own dip, so a fall is not a gain but is a spend (Phase 16, the human's call; before: a fall pulsed nothing)
+  it("MPG3: spending gold (a fall) isn't a gain: it plays the spend dip instead", () => {
     const { rerender } = renderWithMessages(<MoneyPileUnderTest gold={10} />);
 
     rerender(<MoneyPileUnderTest gold={7} />);
 
-    expect(gainParity()).toBe("none");
+    expect({
+      gainParity: gainParity(),
+      spendParity: spendParity(),
+      lastChange: lastGoldChange(),
+    }).toEqual({ gainParity: "none", spendParity: "odd", lastChange: "spend" });
   });
 
   it("MPG4: during the start-of-camp sequence, releasing pending gold pulses as the shown gold rises; arriving with gold held back doesn't", () => {
@@ -96,5 +118,55 @@ describe("money pile gain pulse (Phase 16)", () => {
     expect(
       document.querySelector("[data-money-pile-gold]")?.textContent,
     ).toBe("10 gold");
+  });
+
+  it("MPS1: nothing has changed on arrival; each spend dips again, switching parity so the animation restarts", () => {
+    const { rerender } = renderWithMessages(<MoneyPileUnderTest gold={10} />);
+    const statesAfterEachChange: (string | null)[][] = [
+      [lastGoldChange(), spendParity()],
+    ];
+
+    rerender(<MoneyPileUnderTest gold={7} />);
+    statesAfterEachChange.push([lastGoldChange(), spendParity()]);
+    rerender(<MoneyPileUnderTest gold={4} />);
+    statesAfterEachChange.push([lastGoldChange(), spendParity()]);
+
+    expect(statesAfterEachChange).toEqual([
+      ["none", "none"],
+      ["spend", "odd"],
+      ["spend", "even"],
+    ]);
+  });
+
+  it("MPS2: the latest change picks the animation: a gain after a spend plays the gain, a spend after a gain plays the dip", () => {
+    const { rerender } = renderWithMessages(<MoneyPileUnderTest gold={10} />);
+    const lastChanges: (string | null)[] = [];
+
+    rerender(<MoneyPileUnderTest gold={7} />);
+    lastChanges.push(lastGoldChange());
+    rerender(<MoneyPileUnderTest gold={8} />);
+    lastChanges.push(lastGoldChange());
+    rerender(<MoneyPileUnderTest gold={5} />);
+    lastChanges.push(lastGoldChange());
+
+    expect({
+      lastChanges,
+      gainParity: gainParity(),
+      spendParity: spendParity(),
+    }).toEqual({
+      lastChanges: ["spend", "gain", "spend"],
+      gainParity: "odd",
+      spendParity: "even",
+    });
+  });
+
+  it("MPS3: arriving with gold held back by the start-of-camp sequence isn't a spend (the saved gold didn't fall)", () => {
+    renderWithMessages(<MoneyPileUnderTest gold={10} pendingGold={3} />);
+
+    expect({
+      lastChange: lastGoldChange(),
+      spendParity: spendParity(),
+      shownGold: document.querySelector("[data-money-pile-gold]")?.textContent,
+    }).toEqual({ lastChange: "none", spendParity: "none", shownGold: "7 gold" });
   });
 });

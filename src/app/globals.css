@@ -2164,10 +2164,10 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
 [data-money-pile] {
   transform-origin: 50% 55%;
 }
-[data-money-pile][data-money-pile-gain-parity="odd"] {
+[data-money-pile][data-money-pile-last-gold-change="gain"][data-money-pile-gain-parity="odd"] {
   animation: money-pile-gain-odd var(--money-pile-gain-duration) ease-out;
 }
-[data-money-pile][data-money-pile-gain-parity="even"] {
+[data-money-pile][data-money-pile-last-gold-change="gain"][data-money-pile-gain-parity="even"] {
   animation: money-pile-gain-even var(--money-pile-gain-duration) ease-out;
 }
 @keyframes money-pile-gain-odd {
@@ -2338,4 +2338,72 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
 }
 [data-phase-advance] button:disabled [data-phase-advance-pennant] {
   filter: grayscale(var(--phase-advance-disabled-grayscale));
+}
+
+/* Phase 16 money pile spend dip: each time the saved gold falls (a
+   purchase or a merge-buy), the whole pile dips (shrinks a little and
+   settles back, with a slight rebound) under a cooler copper glow: a cost
+   should read differently from the gain pulse's gold swell and wobble.
+   data-money-pile-last-gold-change picks gain or spend; two identical
+   keyframes, by data-money-pile-spend-parity, restart it on every spend.
+   Under reduced motion only the glow plays. The human tunes the
+   variables. */
+:root {
+  --money-pile-spend-duration: calc(0.5s * var(--animation-tempo, 1));
+  --money-pile-spend-scale: 0.93;
+  --money-pile-spend-rebound-scale: 1.02;
+  --money-pile-spend-glow-near: 0 0 0.25rem rgb(192 138 94 / 0.95);
+  --money-pile-spend-glow-far: 0 0 0.9rem rgb(156 100 64 / 0.75);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --money-pile-spend-scale: 1;
+    --money-pile-spend-rebound-scale: 1;
+  }
+}
+[data-money-pile][data-money-pile-last-gold-change="spend"][data-money-pile-spend-parity="odd"] {
+  animation: money-pile-spend-odd var(--money-pile-spend-duration) ease-out;
+}
+[data-money-pile][data-money-pile-last-gold-change="spend"][data-money-pile-spend-parity="even"] {
+  animation: money-pile-spend-even var(--money-pile-spend-duration) ease-out;
+}
+@keyframes money-pile-spend-odd {
+  0% {
+    scale: 1;
+    filter: drop-shadow(0 0 0 transparent) drop-shadow(0 0 0 transparent);
+  }
+  35% {
+    scale: var(--money-pile-spend-scale);
+    filter: drop-shadow(var(--money-pile-spend-glow-near))
+      drop-shadow(var(--money-pile-spend-glow-far));
+  }
+  70% {
+    scale: var(--money-pile-spend-rebound-scale);
+    filter: drop-shadow(var(--money-pile-spend-glow-near))
+      drop-shadow(var(--money-pile-spend-glow-far));
+  }
+  100% {
+    scale: 1;
+    filter: drop-shadow(0 0 0 transparent) drop-shadow(0 0 0 transparent);
+  }
+}
+@keyframes money-pile-spend-even {
+  0% {
+    scale: 1;
+    filter: drop-shadow(0 0 0 transparent) drop-shadow(0 0 0 transparent);
+  }
+  35% {
+    scale: var(--money-pile-spend-scale);
+    filter: drop-shadow(var(--money-pile-spend-glow-near))
+      drop-shadow(var(--money-pile-spend-glow-far));
+  }
+  70% {
+    scale: var(--money-pile-spend-rebound-scale);
+    filter: drop-shadow(var(--money-pile-spend-glow-near))
+      drop-shadow(var(--money-pile-spend-glow-far));
+  }
+  100% {
+    scale: 1;
+    filter: drop-shadow(0 0 0 transparent) drop-shadow(0 0 0 transparent);
+  }
 }

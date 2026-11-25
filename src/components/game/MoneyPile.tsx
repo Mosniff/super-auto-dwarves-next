@@ -7,6 +7,15 @@ import type { CampClickTarget, CampTargetPresentation } from "./campSelection";
 import { campDropCollisionDetector } from "./campDropCollision";
 import { DisplayedGold, useDisplayedGold } from "./headerGoldDisplay";
 
+// "none" before the first change of a kind, then alternating, so that
+// switching keyframe names restarts the animation on every change.
+function changeCountParity(changeCount: number): "none" | "odd" | "even" {
+  if (changeCount === 0) {
+    return "none";
+  }
+  return changeCount % 2 === 1 ? "odd" : "even";
+}
+
 interface MoneyPileProps {
   gold: number;
   // A roster dwarf is in hand (clicked or dragged), so the pile is a sell
@@ -30,12 +39,17 @@ interface MoneyPileProps {
 //
 // Each time the displayed gold goes up (a camp-start ability's gold
 // floater, or a sale's gold arriving), the pile swells, glows gold and
-// wobbles a little; spending doesn't. The gain count lives in state,
-// adjusted during render (React's "storing information from previous
-// renders" pattern, as phaseArrival.tsx does), and the animation restarts
-// on every gain by switching between two identical keyframes
-// (data-money-pile-gain-parity). Arrival never pulses: the count starts at
-// the gold shown on the first render.
+// wobbles a little. Each time the saved gold goes down (a purchase or a
+// merge-buy), it dips with a cooler glow instead. A spend is read from the
+// saved gold, not the shown gold: on arrival the start-of-camp sequence
+// holds gold back, so the shown gold falls without anything being spent.
+// The counts live in state, adjusted during render (React's "storing
+// information from previous renders" pattern, as phaseArrival.tsx does).
+// data-money-pile-last-gold-change ("none" | "gain" | "spend") picks which
+// animation plays, and each one restarts on every change by switching
+// between two identical keyframes (data-money-pile-gain-parity,
+// data-money-pile-spend-parity). Arrival never animates: the history
+// starts at the gold on the first render.
 //
 // It fills the slab's left-hand area: the image box (the sell button)
 // takes all the height the gold count leaves, and the image is contained
@@ -54,25 +68,43 @@ export function MoneyPile({
   const campClickTarget: CampClickTarget = { targetKind: "moneyPile" };
 
   const displayedGold = useDisplayedGold(gold);
-  const [goldGainHistory, setGoldGainHistory] = useState({
+  const [goldChangeHistory, setGoldChangeHistory] = useState<{
+    lastGold: number;
+    lastDisplayedGold: number;
+    gainCount: number;
+    spendCount: number;
+    lastGoldChange: "none" | "gain" | "spend";
+  }>({
+    lastGold: gold,
     lastDisplayedGold: displayedGold,
     gainCount: 0,
+    spendCount: 0,
+    lastGoldChange: "none",
   });
-  if (goldGainHistory.lastDisplayedGold !== displayedGold) {
-    setGoldGainHistory({
+  if (
+    goldChangeHistory.lastGold !== gold ||
+    goldChangeHistory.lastDisplayedGold !== displayedGold
+  ) {
+    const isGain = displayedGold > goldChangeHistory.lastDisplayedGold;
+    const isSpend = !isGain && gold < goldChangeHistory.lastGold;
+    setGoldChangeHistory({
+      lastGold: gold,
       lastDisplayedGold: displayedGold,
-      gainCount:
-        displayedGold > goldGainHistory.lastDisplayedGold
-          ? goldGainHistory.gainCount + 1
-          : goldGainHistory.gainCount,
+      gainCount: isGain
+        ? goldChangeHistory.gainCount + 1
+        : goldChangeHistory.gainCount,
+      spendCount: isSpend
+        ? goldChangeHistory.spendCount + 1
+        : goldChangeHistory.spendCount,
+      lastGoldChange: isGain
+        ? "gain"
+        : isSpend
+          ? "spend"
+          : goldChangeHistory.lastGoldChange,
     });
   }
-  const goldGainParity =
-    goldGainHistory.gainCount === 0
-      ? "none"
-      : goldGainHistory.gainCount % 2 === 1
-        ? "odd"
-        : "even";
+  const goldGainParity = changeCountParity(goldChangeHistory.gainCount);
+  const goldSpendParity = changeCountParity(goldChangeHistory.spendCount);
 
   const { ref: droppableRef, isDropTarget } = useDroppable({
     id: "money-pile",
@@ -84,7 +116,9 @@ export function MoneyPile({
   return (
     <div
       data-money-pile
+      data-money-pile-last-gold-change={goldChangeHistory.lastGoldChange}
       data-money-pile-gain-parity={goldGainParity}
+      data-money-pile-spend-parity={goldSpendParity}
       className="flex h-full w-full flex-col items-center gap-(--money-pile-gap) p-(--money-pile-padding)"
     >
       <button
