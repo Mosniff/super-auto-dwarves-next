@@ -74,6 +74,10 @@ function campSelectionFromClickTarget(
         selectionKind: "rosterSlot",
         slotIndex: campClickTarget.slotIndex,
       };
+    case "rosterSlotZone":
+      // A roster slot's zones are only ever drop and click targets (Phase
+      // 16) — the dwarf is dragged by its whole-slot tile.
+      throw new Error("A roster slot zone cannot be a drag source.");
     case "sellArea":
       // The sell area is never a draggable source — only shop and roster
       // slot tiles are.

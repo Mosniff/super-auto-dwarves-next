@@ -20,6 +20,7 @@ import {
   isRosterSlotMatchingHeldItem,
   isRosterSlotSelectable,
   presentCampTarget,
+  presentRosterSlotZones,
   resolveCampClick,
   resolveCampDrop,
   type CampClickTarget,
@@ -1150,5 +1151,239 @@ describe("merge/sell mode", () => {
         "mergeOrSell",
       ),
     ).toBe("neutral");
+  });
+});
+
+// Phase 16: a held roster dwarf shows two zones on every other dwarf — the
+// top half swaps, the bottom half merges — so the merge/sell mode can go.
+// The zone rules ignore the mode; these tests pass none (the default,
+// "reposition"), which is exactly where a merge used to be impossible.
+describe("split drop zones (Phase 16)", () => {
+  const campStateWithZones: CampState = {
+    campRoster: [
+      buildMergeFixtureCharacter("a", "fixture-dwarf", 0),
+      buildMergeFixtureCharacter("b", "fixture-dwarf", 2),
+      buildMergeFixtureCharacter("c", "other-dwarf", 0),
+      buildMergeFixtureCharacter("d", "fixture-dwarf", 15),
+      null,
+      null,
+      null,
+    ],
+    gold: 10,
+    characterShopSlots: buildFixtureCharacterShopSlots(),
+  };
+
+  const slotZeroHeld: CampSelection = {
+    selectionKind: "rosterSlot",
+    slotIndex: 0,
+  };
+
+  function swapZone(slotIndex: number): CampClickTarget {
+    return { targetKind: "rosterSlotZone", slotIndex, zoneKind: "swap" };
+  }
+
+  function mergeZone(slotIndex: number): CampClickTarget {
+    return { targetKind: "rosterSlotZone", slotIndex, zoneKind: "merge" };
+  }
+
+  it("(sz1) clicking another dwarf's swap zone submits a reposition (a swap) and clears the selection", () => {
+    expect(
+      resolveCampClick(
+        slotZeroHeld,
+        swapZone(2),
+        campStateWithZones,
+        fixtureCharacterTemplates,
+      ),
+    ).toEqual({
+      nextCampSelection: { selectionKind: "none" },
+      campIntentToSubmit: {
+        intentKind: "reposition",
+        fromSlotIndex: 0,
+        toSlotIndex: 2,
+      },
+    });
+  });
+
+  it("(sz2) clicking a matching dwarf's merge zone submits a merge, with no merge/sell mode", () => {
+    expect(
+      resolveCampClick(
+        slotZeroHeld,
+        mergeZone(1),
+        campStateWithZones,
+        fixtureCharacterTemplates,
+      ),
+    ).toEqual({
+      nextCampSelection: { selectionKind: "none" },
+      campIntentToSubmit: {
+        intentKind: "mergeCharacters",
+        fromSlotIndex: 0,
+        intoSlotIndex: 1,
+      },
+    });
+  });
+
+  it("(sz3) a merge zone on a non-matching or a matching level-5 dwarf changes nothing and isn't effective", () => {
+    expect(
+      [2, 3].map((slotIndex) => ({
+        resolution: resolveCampClick(
+          slotZeroHeld,
+          mergeZone(slotIndex),
+          campStateWithZones,
+          fixtureCharacterTemplates,
+        ),
+        isEffective: isCampClickEffective(
+          slotZeroHeld,
+          mergeZone(slotIndex),
+          campStateWithZones,
+          fixtureCharacterTemplates,
+        ),
+      })),
+    ).toEqual([
+      {
+        resolution: {
+          nextCampSelection: slotZeroHeld,
+          campIntentToSubmit: null,
+        },
+        isEffective: false,
+      },
+      {
+        resolution: {
+          nextCampSelection: slotZeroHeld,
+          campIntentToSubmit: null,
+        },
+        isEffective: false,
+      },
+    ]);
+  });
+
+  it("(sz4) zones do nothing with nothing in hand or with a shop character in hand", () => {
+    const shopSlotZeroHeld: CampSelection = {
+      selectionKind: "characterShopSlot",
+      shopSlotIndex: 0,
+    };
+
+    expect([
+      resolveCampClick(
+        { selectionKind: "none" },
+        swapZone(1),
+        campStateWithZones,
+        fixtureCharacterTemplates,
+      ),
+      resolveCampClick(
+        { selectionKind: "none" },
+        mergeZone(1),
+        campStateWithZones,
+        fixtureCharacterTemplates,
+      ),
+      resolveCampClick(
+        shopSlotZeroHeld,
+        swapZone(1),
+        campStateWithZones,
+        fixtureCharacterTemplates,
+      ),
+      resolveCampClick(
+        shopSlotZeroHeld,
+        mergeZone(1),
+        campStateWithZones,
+        fixtureCharacterTemplates,
+      ),
+    ]).toEqual([
+      {
+        nextCampSelection: { selectionKind: "none" },
+        campIntentToSubmit: null,
+      },
+      {
+        nextCampSelection: { selectionKind: "none" },
+        campIntentToSubmit: null,
+      },
+      { nextCampSelection: shopSlotZeroHeld, campIntentToSubmit: null },
+      { nextCampSelection: shopSlotZeroHeld, campIntentToSubmit: null },
+    ]);
+  });
+
+  it("(sz5) dropping a dwarf on a zone yields the same intent as clicking it", () => {
+    expect([
+      resolveCampDrop(
+        slotZeroHeld,
+        swapZone(1),
+        campStateWithZones,
+        fixtureCharacterTemplates,
+      ),
+      resolveCampDrop(
+        slotZeroHeld,
+        mergeZone(1),
+        campStateWithZones,
+        fixtureCharacterTemplates,
+      ),
+      resolveCampDrop(
+        slotZeroHeld,
+        mergeZone(2),
+        campStateWithZones,
+        fixtureCharacterTemplates,
+      ),
+    ]).toEqual([
+      { intentKind: "reposition", fromSlotIndex: 0, toSlotIndex: 1 },
+      { intentKind: "mergeCharacters", fromSlotIndex: 0, intoSlotIndex: 1 },
+      null,
+    ]);
+  });
+
+  it("(sz6) with a dwarf in hand, every other dwarf shows zones: swap always, merge eligible, at max level or ineligible; the held dwarf and empty slots show none", () => {
+    expect(
+      [0, 1, 2, 3, 4].map((slotIndex) =>
+        presentRosterSlotZones(
+          slotZeroHeld,
+          slotIndex,
+          campStateWithZones,
+          fixtureCharacterTemplates,
+        ),
+      ),
+    ).toEqual([
+      { zonesShown: false },
+      {
+        zonesShown: true,
+        swapZonePresentation: "eligible",
+        mergeZonePresentation: "eligible",
+      },
+      {
+        zonesShown: true,
+        swapZonePresentation: "eligible",
+        mergeZonePresentation: "ineligible",
+      },
+      {
+        zonesShown: true,
+        swapZonePresentation: "eligible",
+        mergeZonePresentation: "atMaxLevel",
+      },
+      { zonesShown: false },
+    ]);
+  });
+
+  it("(sz7) no zones show with nothing in hand or with a shop character in hand", () => {
+    expect([
+      presentRosterSlotZones(
+        { selectionKind: "none" },
+        1,
+        campStateWithZones,
+        fixtureCharacterTemplates,
+      ),
+      presentRosterSlotZones(
+        { selectionKind: "characterShopSlot", shopSlotIndex: 0 },
+        1,
+        campStateWithZones,
+        fixtureCharacterTemplates,
+      ),
+    ]).toEqual([{ zonesShown: false }, { zonesShown: false }]);
+  });
+
+  it("(sz8) presentCampTarget refuses a zone target, because zones are presented by presentRosterSlotZones", () => {
+    expect(() =>
+      presentCampTarget(
+        slotZeroHeld,
+        mergeZone(1),
+        campStateWithZones,
+        fixtureCharacterTemplates,
+      ),
+    ).toThrow("presentRosterSlotZones");
   });
 });

@@ -25,9 +25,19 @@ export type CampSelection =
 // caused the player to submit.
 export type CampInteractionMode = "reposition" | "mergeOrSell";
 
+// Phase 16: while a roster dwarf is held, every other dwarf shows two
+// zones — the top half swaps, the bottom half merges — each its own click
+// and drop target, so swapping and merging no longer need a mode.
+export type RosterSlotZoneKind = "swap" | "merge";
+
 export type CampClickTarget =
   | { targetKind: "characterShopSlot"; shopSlotIndex: number }
   | { targetKind: "rosterSlot"; slotIndex: number }
+  | {
+      targetKind: "rosterSlotZone";
+      slotIndex: number;
+      zoneKind: RosterSlotZoneKind;
+    }
   | { targetKind: "sellArea" };
 
 export type CampIntent =
@@ -166,6 +176,69 @@ export function isRosterSlotSelectable(
 
 const noSelection: CampSelection = { selectionKind: "none" };
 
+// Phase 16. A zone only acts for a held roster dwarf: the swap zone submits
+// whatever reposition the rule accepts (onto a dwarf, a swap), the merge
+// zone whatever merge the rule accepts; anything else changes nothing. It
+// ignores campInteractionMode on purpose — the zones are what replace the
+// mode. Shop holds keep the whole-card target (a merge-buy is a click on
+// the rosterSlot target), so zones do nothing for them.
+function resolveRosterSlotZoneClick(
+  campSelection: CampSelection,
+  rosterSlotZoneTarget: Extract<
+    CampClickTarget,
+    { targetKind: "rosterSlotZone" }
+  >,
+  campRoster: CampRoster,
+): CampClickResolution {
+  const unchanged: CampClickResolution = {
+    nextCampSelection: campSelection,
+    campIntentToSubmit: null,
+  };
+
+  if (campSelection.selectionKind !== "rosterSlot") {
+    return unchanged;
+  }
+
+  if (rosterSlotZoneTarget.zoneKind === "swap") {
+    if (
+      isRepositionTargetSlot(
+        campRoster,
+        campSelection.slotIndex,
+        rosterSlotZoneTarget.slotIndex,
+      )
+    ) {
+      return {
+        nextCampSelection: noSelection,
+        campIntentToSubmit: {
+          intentKind: "reposition",
+          fromSlotIndex: campSelection.slotIndex,
+          toSlotIndex: rosterSlotZoneTarget.slotIndex,
+        },
+      };
+    }
+    return unchanged;
+  }
+
+  // rosterSlotZoneTarget.zoneKind === "merge"
+  if (
+    isMergeTargetSlot(
+      campRoster,
+      campSelection.slotIndex,
+      rosterSlotZoneTarget.slotIndex,
+    )
+  ) {
+    return {
+      nextCampSelection: noSelection,
+      campIntentToSubmit: {
+        intentKind: "mergeCharacters",
+        fromSlotIndex: campSelection.slotIndex,
+        intoSlotIndex: rosterSlotZoneTarget.slotIndex,
+      },
+    };
+  }
+  return unchanged;
+}
+
 // Nothing selected: a selectable character shop slot or roster slot becomes
 // selected; the sell area does nothing (there's nothing held to sell);
 // anything else changes nothing.
@@ -187,6 +260,9 @@ const noSelection: CampSelection = { selectionKind: "none" };
 // "reposition" mode the sell area does nothing. Either mode: a selectable
 // shop slot switches to it; any other roster slot click changes nothing.
 //
+// A roster slot zone (Phase 16) is resolved by resolveRosterSlotZoneClick,
+// before any of the above.
+//
 // campInteractionMode is client UI state only (CampInteractionMode's own
 // comment) — the server never receives or learns it, only the explicit
 // intent (reposition vs. mergeCharacters vs. sellCharacter) it caused the
@@ -202,6 +278,14 @@ export function resolveCampClick(
     nextCampSelection: campSelection,
     campIntentToSubmit: null,
   };
+
+  if (campClickTarget.targetKind === "rosterSlotZone") {
+    return resolveRosterSlotZoneClick(
+      campSelection,
+      campClickTarget,
+      campState.campRoster,
+    );
+  }
 
   if (campSelection.selectionKind === "none") {
     if (campClickTarget.targetKind === "sellArea") {
@@ -470,6 +554,13 @@ export function presentCampTarget(
   characterTemplates: readonly CharacterTemplate[],
   campInteractionMode: CampInteractionMode = "reposition",
 ): CampTargetPresentation {
+  if (campClickTarget.targetKind === "rosterSlotZone") {
+    // A programmer error: a zone's two halves have their own presentations.
+    throw new Error(
+      "A roster slot zone is presented by presentRosterSlotZones, not presentCampTarget.",
+    );
+  }
+
   if (heldCampItem.selectionKind === "none") {
     if (campClickTarget.targetKind === "characterShopSlot") {
       return isCharacterShopSlotSelectable(
@@ -614,4 +705,83 @@ export function isRosterSlotMatchingHeldItem(
   }
 
   return false;
+}
+
+export type RosterSlotZonePresentation = "eligible" | "ineligible";
+
+export type RosterSlotMergeZonePresentation =
+  | RosterSlotZonePresentation
+  | "atMaxLevel";
+
+export type RosterSlotZonesPresentation =
+  | { zonesShown: false }
+  | {
+      zonesShown: true;
+      swapZonePresentation: RosterSlotZonePresentation;
+      mergeZonePresentation: RosterSlotMergeZonePresentation;
+    };
+
+// Phase 16. Zones show on every dwarf other than the held one while a
+// roster dwarf is held; never for a shop hold (it keeps the whole-card
+// target), nor on an empty slot (a whole-slot move target). Each half's
+// presentation comes from what clicking it would do (resolveCampClick), so
+// a zone can't look different from how it acts. "atMaxLevel" is read from
+// the merge rule's targetSlotAtMaxLevel rejection, which is only ever
+// returned for a matching occupant — never from a template comparison.
+export function presentRosterSlotZones(
+  heldCampItem: CampSelection,
+  rosterSlotIndex: number,
+  campState: CampState,
+  characterTemplates: readonly CharacterTemplate[],
+): RosterSlotZonesPresentation {
+  if (
+    heldCampItem.selectionKind !== "rosterSlot" ||
+    heldCampItem.slotIndex === rosterSlotIndex ||
+    campState.campRoster[rosterSlotIndex] === null
+  ) {
+    return { zonesShown: false };
+  }
+
+  const swapZoneIntent = resolveCampClick(
+    heldCampItem,
+    {
+      targetKind: "rosterSlotZone",
+      slotIndex: rosterSlotIndex,
+      zoneKind: "swap",
+    },
+    campState,
+    characterTemplates,
+  ).campIntentToSubmit;
+  const mergeZoneIntent = resolveCampClick(
+    heldCampItem,
+    {
+      targetKind: "rosterSlotZone",
+      slotIndex: rosterSlotIndex,
+      zoneKind: "merge",
+    },
+    campState,
+    characterTemplates,
+  ).campIntentToSubmit;
+
+  const swapZonePresentation: RosterSlotZonePresentation =
+    swapZoneIntent !== null ? "eligible" : "ineligible";
+
+  let mergeZonePresentation: RosterSlotMergeZonePresentation = "ineligible";
+  if (mergeZoneIntent !== null) {
+    mergeZonePresentation = "eligible";
+  } else {
+    const mergePreview = mergeRosterCharacters(
+      campState.campRoster,
+      heldCampItem.slotIndex,
+      rosterSlotIndex,
+    );
+    if (
+      mergePreview.outcome === "rejected" &&
+      mergePreview.rejectionReason === "targetSlotAtMaxLevel"
+    ) {
+      mergeZonePresentation = "atMaxLevel";
+    }
+  }
+
+  return { zonesShown: true, swapZonePresentation, mergeZonePresentation };
 }
