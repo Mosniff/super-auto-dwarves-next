@@ -49,12 +49,18 @@ export function useReportPendingHeaderGold(pendingGold: number): void {
   }, [pendingGold, setPendingGold]);
 }
 
-export function DisplayedGold({ gold }: { gold: number }) {
+// The gold as shown: the saved gold, minus whatever the start-of-camp
+// sequence is still holding back (it is released as each ability's gold
+// floater plays).
+export function useDisplayedGold(gold: number): number {
   const { pendingGold } = useContext(HeaderGoldDisplayContext);
+  return gold - pendingGold;
+}
+
+export function DisplayedGold({ gold }: { gold: number }) {
+  const displayedGold = useDisplayedGold(gold);
   const t = useTranslations("common");
   return (
-    <span data-displayed-gold>
-      {t("goldLabel", { gold: gold - pendingGold })}
-    </span>
+    <span data-displayed-gold>{t("goldLabel", { gold: displayedGold })}</span>
   );
 }

@@ -2139,3 +2139,88 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
   color: var(--money-pile-gold-colour);
   text-shadow: var(--money-pile-ink-shadow);
 }
+
+/* Phase 16 money pile gain pulse: each time the shown gold goes up (a
+   camp-start ability's gold floater, or a sale), the whole pile — image
+   and gold count — swells, glows gold and wobbles a little. Two identical
+   keyframes, picked by data-money-pile-gain-parity, so every gain restarts
+   the animation (an animation restarts only when its name changes). The
+   glow is a drop-shadow on the pile, so it follows the sack's outline and
+   the letters. Under reduced motion only the glow plays (no swell, no
+   wobble). The human tunes the variables. */
+:root {
+  --money-pile-gain-duration: calc(0.7s * var(--animation-tempo, 1));
+  --money-pile-gain-scale: 1.1;
+  --money-pile-gain-wobble: 2.5deg;
+  --money-pile-gain-glow-near: 0 0 0.3rem rgb(253 224 71 / 0.95);
+  --money-pile-gain-glow-far: 0 0 1.1rem rgb(250 204 21 / 0.8);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --money-pile-gain-scale: 1;
+    --money-pile-gain-wobble: 0deg;
+  }
+}
+[data-money-pile] {
+  transform-origin: 50% 55%;
+}
+[data-money-pile][data-money-pile-gain-parity="odd"] {
+  animation: money-pile-gain-odd var(--money-pile-gain-duration) ease-out;
+}
+[data-money-pile][data-money-pile-gain-parity="even"] {
+  animation: money-pile-gain-even var(--money-pile-gain-duration) ease-out;
+}
+@keyframes money-pile-gain-odd {
+  0% {
+    scale: 1;
+    rotate: 0deg;
+    filter: drop-shadow(0 0 0 transparent) drop-shadow(0 0 0 transparent);
+  }
+  25% {
+    scale: var(--money-pile-gain-scale);
+    rotate: calc(var(--money-pile-gain-wobble) * -1);
+    filter: drop-shadow(var(--money-pile-gain-glow-near))
+      drop-shadow(var(--money-pile-gain-glow-far));
+  }
+  45% {
+    rotate: var(--money-pile-gain-wobble);
+  }
+  65% {
+    scale: var(--money-pile-gain-scale);
+    rotate: calc(var(--money-pile-gain-wobble) * -0.5);
+    filter: drop-shadow(var(--money-pile-gain-glow-near))
+      drop-shadow(var(--money-pile-gain-glow-far));
+  }
+  100% {
+    scale: 1;
+    rotate: 0deg;
+    filter: drop-shadow(0 0 0 transparent) drop-shadow(0 0 0 transparent);
+  }
+}
+@keyframes money-pile-gain-even {
+  0% {
+    scale: 1;
+    rotate: 0deg;
+    filter: drop-shadow(0 0 0 transparent) drop-shadow(0 0 0 transparent);
+  }
+  25% {
+    scale: var(--money-pile-gain-scale);
+    rotate: calc(var(--money-pile-gain-wobble) * -1);
+    filter: drop-shadow(var(--money-pile-gain-glow-near))
+      drop-shadow(var(--money-pile-gain-glow-far));
+  }
+  45% {
+    rotate: var(--money-pile-gain-wobble);
+  }
+  65% {
+    scale: var(--money-pile-gain-scale);
+    rotate: calc(var(--money-pile-gain-wobble) * -0.5);
+    filter: drop-shadow(var(--money-pile-gain-glow-near))
+      drop-shadow(var(--money-pile-gain-glow-far));
+  }
+  100% {
+    scale: 1;
+    rotate: 0deg;
+    filter: drop-shadow(0 0 0 transparent) drop-shadow(0 0 0 transparent);
+  }
+}
