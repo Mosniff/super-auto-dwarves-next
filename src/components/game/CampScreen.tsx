@@ -543,7 +543,7 @@ export function CampScreen({
             | undefined;
 
           return (
-            <div className="aspect-3/4 w-(--shop-tile-width)">
+            <div data-drag-overlay-card className="h-full w-full">
               {/* A dragged roster dwarf keeps its card as it is today
                   (showLevel). A dragged shop character shows the same
                   level pill and inline XP bar its shop tile shows, so the

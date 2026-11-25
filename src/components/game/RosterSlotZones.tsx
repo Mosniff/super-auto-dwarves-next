@@ -4,6 +4,7 @@ import { useDroppable } from "@dnd-kit/react";
 import { useTranslations } from "next-intl";
 import { ArrowRightLeft, ChevronsUp } from "lucide-react";
 import { ExperienceBarContents } from "./CharacterCard";
+import { campDropCollisionDetector } from "./campDropCollision";
 import type {
   CampClickTarget,
   RosterSlotZoneKind,
@@ -71,6 +72,7 @@ function RosterSlotZoneButton({
     id: `roster-${zoneKind}-zone-${slotIndex}`,
     data: { campClickTarget },
     disabled: !isShown,
+    collisionDetector: campDropCollisionDetector,
   });
 
   return (

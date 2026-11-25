@@ -3,6 +3,7 @@
 import { useDroppable } from "@dnd-kit/react";
 import { useTranslations } from "next-intl";
 import type { CampClickTarget, CampTargetPresentation } from "./campSelection";
+import { campDropCollisionDetector } from "./campDropCollision";
 
 interface SellAreaProps {
   isShown: boolean;
@@ -31,6 +32,7 @@ export function SellArea({
       campClickTarget: { targetKind: "sellArea" } satisfies CampClickTarget,
     },
     disabled: !isShown,
+    collisionDetector: campDropCollisionDetector,
   });
 
   const presentationClassName =

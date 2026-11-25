@@ -2005,3 +2005,27 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
   opacity: 0;
   pointer-events: none;
 }
+/* Phase 16: the dragged card is a shrunken copy of what was picked up, so
+   the player can see the slots under it. dnd-kit sizes the overlay to the
+   picked-up tile and sets --dnd-transform-origin to the grab point, so the
+   card shrinks toward the cursor and stays under it. The human tunes the
+   scale and the pick-up shrink. */
+:root {
+  --drag-overlay-card-scale: 0.3;
+  --drag-overlay-card-shrink-duration: calc(0.12s * var(--animation-tempo, 1));
+}
+[data-drag-overlay-card] {
+  scale: var(--drag-overlay-card-scale);
+  transform-origin: var(--dnd-transform-origin, 50% 50%);
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-drag-overlay-card] {
+    animation: drag-overlay-card-shrink var(--drag-overlay-card-shrink-duration)
+      ease-out;
+  }
+}
+@keyframes drag-overlay-card-shrink {
+  from {
+    scale: 1;
+  }
+}

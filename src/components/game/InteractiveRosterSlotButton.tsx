@@ -15,6 +15,7 @@ import type { CampStartSlotBeat } from "./campStartSequence";
 import { CharacterInfoControl } from "./CharacterInfoControl";
 import { RosterSlot } from "./RosterSlot";
 import { RosterSlotZones } from "./RosterSlotZones";
+import { campDropCollisionDetector } from "./campDropCollision";
 
 interface InteractiveRosterSlotButtonProps {
   slotIndex: number;
@@ -114,6 +115,7 @@ export function InteractiveRosterSlotButton({
     id: `roster-drop-${slotIndex}`,
     data: { campClickTarget },
     disabled: zonesShown,
+    collisionDetector: campDropCollisionDetector,
   });
 
   const combinedRef = useCallback(
