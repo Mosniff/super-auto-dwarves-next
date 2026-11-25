@@ -307,7 +307,8 @@ describe("BattleScreen", () => {
     });
   });
 
-  it("BS1: the battle screen shows no phase banner and no downed piles", () => {
+  // deliberate assertion rewrite: the phase banner no longer exists anywhere (Phase 16), so this checks only the downed piles (before: also no phase banner)
+  it("BS1: the battle screen shows no downed piles", () => {
     renderWithMessages(
       <BattleScreen
         resolvedBattle={playerWinResolvedBattle}
@@ -315,10 +316,6 @@ describe("BattleScreen", () => {
       />,
     );
 
-    expect({
-      hasPhaseBanner:
-        document.querySelector("[data-game-phase-banner]") !== null,
-    }).toEqual({ hasPhaseBanner: false });
     // deliberate assertion rewrite: check the pile element, not the word, since cards carry their own Downed overlay (BR4)
     expect(document.querySelector("[data-discard-pile]")).toBeNull();
   });

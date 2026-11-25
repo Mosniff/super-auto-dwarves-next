@@ -110,7 +110,6 @@ export function BattleScreen({
   return (
     <GameScreenShell
       gamePhase="battlePhase"
-      showsPhaseBanner={false}
       playerBenchCharacters={playerBenchCharacters}
       presentsPlayerFrontSlotAsOnDeck
       showsPlayerInfoControls

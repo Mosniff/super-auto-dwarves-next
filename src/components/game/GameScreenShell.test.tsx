@@ -91,7 +91,8 @@ describe("GameScreenShell", () => {
     );
   });
 
-  it("(e) shows the camp phase banner as the page heading", () => {
+  // deliberate assertion rewrite: the phase banner is gone in both phases (Phase 16, the human's call); the phase stays the page heading, for screen readers only (before: (e) and (f) checked the visible banner, PB1 the banner switched off, SE1 and SE2 the iron edge under the slab that sat against it)
+  it("(e) camp: no phase banner and no iron slab edge; the phase is still the page heading", () => {
     render(
       wrapWithMessages(
         <GameScreenShell
@@ -103,46 +104,27 @@ describe("GameScreenShell", () => {
       ),
     );
 
-    expect(
-      document
-        .querySelector("[data-game-phase-banner]")
-        ?.getAttribute("data-game-phase-banner") ?? null,
-    ).toBe("campPhase");
-    // deliberate assertion rewrite: the camp phase banner reads "Shop" (BR4)
-    expect(
-      screen.queryByRole("heading", { level: 1, name: "Shop" }),
-    ).not.toBeNull();
+    expect({
+      hasPhaseBanner:
+        document.querySelector("[data-game-phase-banner]") !== null,
+      hasSlabBaseEdge:
+        document.querySelector("[data-slab-base-edge]") !== null,
+      // deliberate assertion rewrite: the camp phase banner reads "Shop" (BR4)
+      hasShopHeading:
+        screen.queryByRole("heading", { level: 1, name: "Shop" }) !== null,
+    }).toEqual({
+      hasPhaseBanner: false,
+      hasSlabBaseEdge: false,
+      hasShopHeading: true,
+    });
   });
 
-  it("(f) shows the battle phase banner", () => {
+  it("(f) battle: no phase banner; the phase is still the page heading", () => {
     render(
       wrapWithMessages(
         <GameScreenShell
           gamePhase="battlePhase"
           playerBenchCharacters={sevenEmptySlots}
-        >
-          <p>Shell content</p>
-        </GameScreenShell>,
-      ),
-    );
-
-    expect(
-      document
-        .querySelector("[data-game-phase-banner]")
-        ?.getAttribute("data-game-phase-banner") ?? null,
-    ).toBe("battlePhase");
-    expect(
-      screen.queryByRole("heading", { level: 1, name: englishPhaseBattleLabel }),
-    ).not.toBeNull();
-  });
-
-  it("PB1: with the phase banner switched off, there is no banner but the phase is still the page heading", () => {
-    render(
-      wrapWithMessages(
-        <GameScreenShell
-          gamePhase="battlePhase"
-          playerBenchCharacters={sevenEmptySlots}
-          showsPhaseBanner={false}
         >
           <p>Shell content</p>
         </GameScreenShell>,
@@ -158,44 +140,5 @@ describe("GameScreenShell", () => {
           name: englishPhaseBattleLabel,
         }) !== null,
     }).toEqual({ hasPhaseBanner: false, hasBattleHeading: true });
-  });
-
-  it("SE1: with the phase banner, the player slab has its iron bottom edge", () => {
-    render(
-      wrapWithMessages(
-        <GameScreenShell
-          gamePhase="campPhase"
-          playerBenchCharacters={sevenEmptySlots}
-        >
-          <p>Shell content</p>
-        </GameScreenShell>,
-      ),
-    );
-
-    expect(
-      document
-        .querySelector("[data-slab-base-edge]")
-        ?.getAttribute("data-slab-base-edge") ?? null,
-    ).toBe("shown");
-  });
-
-  it("SE2: with the phase banner switched off, the player slab has no iron bottom edge", () => {
-    render(
-      wrapWithMessages(
-        <GameScreenShell
-          gamePhase="battlePhase"
-          playerBenchCharacters={sevenEmptySlots}
-          showsPhaseBanner={false}
-        >
-          <p>Shell content</p>
-        </GameScreenShell>,
-      ),
-    );
-
-    expect(
-      document
-        .querySelector("[data-slab-base-edge]")
-        ?.getAttribute("data-slab-base-edge") ?? null,
-    ).toBe("hidden");
   });
 });

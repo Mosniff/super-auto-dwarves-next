@@ -458,7 +458,7 @@ export function CampScreen({
           }}
         >
           {/* The shop as a market stall (Phase 16): a striped awning hangs
-              under the SHOP banner over a dark wood backdrop, and the stall
+              under the roster slab over a dark wood backdrop, and the stall
               starts right under it rather than centring in the space
               (globals.css → "Phase 16 shop stall"). */}
           <div data-shop-awning aria-hidden="true" className="shrink-0" />

@@ -1,14 +1,23 @@
 "use client";
 
 import { motion, useIsPresent, useReducedMotion } from "motion/react";
+import { useTranslations } from "next-intl";
 import type { Character } from "@/lib/game/character";
 import type { GamePhase } from "@/lib/game/types";
 import type { CurrentBeatEffects } from "@/lib/battle/beatCharacterEffects";
-import { GamePhaseBanner } from "./GamePhaseBanner";
 import { RosterSlab, type RosterSlotInteraction } from "./RosterSlab";
 import { animationTempoSeconds } from "@/lib/animationTempo";
 
 const PHASE_SWIPE_DURATION_S = animationTempoSeconds(0.35);
+
+// The page heading names the phase, for screen readers only: there is no
+// visible phase banner (removed in Phase 16; battle had hidden it since
+// Phase 14).
+const GAME_PHASE_HEADING_KEYS: Record<GamePhase, "phaseCamp" | "phaseBattle"> =
+  {
+    campPhase: "phaseCamp",
+    battlePhase: "phaseBattle",
+  };
 
 export type { RosterSlotInteraction };
 
@@ -27,10 +36,6 @@ interface GameScreenShellProps {
   // Battle's player faction tab in the slab's bottom-left (Phase 15). The
   // screen decides; camp passes none.
   playerRosterFactionLabel?: string;
-  // The screen decides whether the phase banner shows; battle turns it off
-  // to save space (Phase 14). The phase stays the page heading, visually
-  // hidden.
-  showsPhaseBanner?: boolean;
   // The screen decides; the slab never learns the phase. Battle turns
   // this on for the player's bench; camp's interactive slots render their
   // own info controls.
@@ -51,19 +56,18 @@ export function GameScreenShell({
   playerRosterLeadingControls,
   alignsPlayerRosterSlotsTowardFront = false,
   playerRosterFactionLabel,
-  showsPhaseBanner = true,
   showsPlayerInfoControls = false,
   onPlayerInfoControlOpen,
   playerCurrentBeat,
   children,
 }: GameScreenShellProps) {
+  const t = useTranslations("common");
   const prefersReducedMotion = useReducedMotion();
   const isPresent = useIsPresent();
 
   // During a swipe both screens share one grid cell (see GameScreen).
-  // Hiding the outgoing roster (and the phase banner hanging from it)
-  // keeps them visually fixed; inert stops clicks and focus on the
-  // departing screen.
+  // Hiding the outgoing roster keeps it visually fixed; inert stops clicks
+  // and focus on the departing screen.
   return (
     <main
       className="flex min-h-0 flex-1 flex-col"
@@ -75,18 +79,7 @@ export function GameScreenShell({
         inert={!isPresent}
         style={{ visibility: isPresent ? "visible" : "hidden" }}
       >
-        {/* The iron edge is designed to sit against the phase banner;
-            without the banner (battle) it reads as a stray line on the
-            dark centre. */}
-        <div
-          data-slab-base-edge={showsPhaseBanner ? "shown" : "hidden"}
-          style={{
-            boxShadow: "var(--shadow-slab)",
-            borderBottom: showsPhaseBanner
-              ? "var(--slab-base-border)"
-              : undefined,
-          }}
-        >
+        <div style={{ boxShadow: "var(--shadow-slab)" }}>
           <RosterSlab
             characters={playerBenchCharacters}
             variant="player"
@@ -102,10 +95,7 @@ export function GameScreenShell({
             currentBeat={playerCurrentBeat}
           />
         </div>
-        <GamePhaseBanner
-          gamePhase={gamePhase}
-          isVisuallyHidden={!showsPhaseBanner}
-        />
+        <h1 className="sr-only">{t(GAME_PHASE_HEADING_KEYS[gamePhase])}</h1>
       </div>
       {/* The phase swipe, always forward: the outgoing screen's content
           slides out to the left while the incoming screen's content slides
