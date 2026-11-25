@@ -166,4 +166,45 @@ describe("PhaseAdvanceButton", () => {
 
     expect(screen.getByRole("button", { name: "Continue" })).toBeDisabled();
   });
+
+  it("PA1: the button names where it leads (battle from camp, camp from battle, the game-over screen after a loss); its accessible name is still the label alone", () => {
+    const buttonStates: { destination: string | null; isNamedByLabel: boolean }[] =
+      [];
+    for (const [gamePhase, isRunLost, label] of [
+      ["campPhase", false, "To battle"],
+      ["battlePhase", false, "Return to camp"],
+      ["battlePhase", true, "Continue"],
+    ] as const) {
+      const { unmount } = renderWithMessages(
+        <GameScreen
+          phase={gamePhase}
+          header={
+            <PhaseAdvanceButton
+              gamePhase={gamePhase}
+              advanceGameAction={async () => {}}
+              isRunLost={isRunLost}
+            />
+          }
+          gameOverScreen={<p>game over screen</p>}
+        >
+          <ReportingScreen gamePhase={gamePhase} isAvailable={true} />
+        </GameScreen>,
+      );
+      buttonStates.push({
+        destination:
+          document
+            .querySelector("[data-phase-advance]")
+            ?.getAttribute("data-phase-advance-destination") ?? null,
+        isNamedByLabel:
+          screen.queryByRole("button", { name: label }) !== null,
+      });
+      unmount();
+    }
+
+    expect(buttonStates).toEqual([
+      { destination: "battle", isNamedByLabel: true },
+      { destination: "camp", isNamedByLabel: true },
+      { destination: "gameOver", isNamedByLabel: true },
+    ]);
+  });
 });

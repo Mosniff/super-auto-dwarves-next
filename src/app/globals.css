@@ -2224,3 +2224,118 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
     filter: drop-shadow(0 0 0 transparent) drop-shadow(0 0 0 transparent);
   }
 }
+
+/* Phase 16 header flare: the day in the battle opening's Cinzel display
+   face, with a sun (camp, the day) or a moon (battle, the night) beside
+   it; the advance button as a pennant whose arrowhead points forward, in
+   the colour of where it leads (enemy red to battle, player blue back to
+   camp, dark iron to the game-over screen), with a gold edge. Sizes follow
+   the header's height. The button's gold edge is the pennant layer
+   showing around the face, both cut to the same arrowhead. Every value is
+   the human's to tune. */
+:root {
+  --header-gold: #e2b84a;
+  --header-day-font-size: calc(var(--game-header-height) * 0.42);
+  --header-day-letter-spacing: 0.12em;
+  --header-day-colour: var(--color-parchment-50);
+  --header-day-shadow: 0 2px 2px rgb(0 0 0 / 0.7);
+  --header-day-icon-size: calc(var(--game-header-height) * 0.4);
+  --header-day-icon-gap: calc(var(--game-header-height) * 0.16);
+  --header-day-sun-colour: var(--header-gold);
+  --header-day-moon-colour: var(--color-rune-blue-200);
+  --phase-advance-font-size: clamp(
+    0.875rem,
+    calc(var(--game-header-height) * 0.24),
+    1.125rem
+  );
+  --phase-advance-letter-spacing: 0.08em;
+  --phase-advance-text-colour: var(--color-parchment-50);
+  --phase-advance-text-shadow: 0 1px 2px rgb(0 0 0 / 0.6);
+  --phase-advance-padding-y: calc(var(--game-header-height) * 0.12);
+  --phase-advance-padding-x: calc(var(--game-header-height) * 0.28);
+  --phase-advance-arrow-depth: calc(var(--game-header-height) * 0.28);
+  --phase-advance-edge: 2px;
+  --phase-advance-edge-colour: var(--header-gold);
+  --phase-advance-icon-size: 1.15em;
+  --phase-advance-icon-gap: 0.5em;
+  --phase-advance-battle-colour: var(--color-enemy-side);
+  --phase-advance-camp-colour: var(--color-player-side);
+  --phase-advance-game-over-colour: var(--color-iron-700);
+  --phase-advance-hover-brightness: 1.15;
+  --phase-advance-disabled-grayscale: 0.7;
+}
+
+[data-game-status-day] {
+  font-family: var(--font-cinzel), serif;
+  font-weight: 900;
+  font-size: var(--header-day-font-size);
+  letter-spacing: var(--header-day-letter-spacing);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--header-day-colour);
+  text-shadow: var(--header-day-shadow);
+  text-box: trim-both cap alphabetic;
+}
+[data-game-status-icon] {
+  width: var(--header-day-icon-size);
+  height: var(--header-day-icon-size);
+  filter: drop-shadow(var(--header-day-shadow));
+}
+[data-game-status-phase-icon="sun"] [data-game-status-icon] {
+  color: var(--header-day-sun-colour);
+}
+[data-game-status-phase-icon="moon"] [data-game-status-icon] {
+  color: var(--header-day-moon-colour);
+}
+
+[data-phase-advance-pennant] {
+  padding: var(--phase-advance-edge);
+  background: var(--phase-advance-edge-colour);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--phase-advance-arrow-depth)) 0,
+    100% 50%,
+    calc(100% - var(--phase-advance-arrow-depth)) 100%,
+    0 100%
+  );
+}
+[data-phase-advance-pennant-face] {
+  padding: var(--phase-advance-padding-y)
+    calc(var(--phase-advance-padding-x) + var(--phase-advance-arrow-depth))
+    var(--phase-advance-padding-y) var(--phase-advance-padding-x);
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--phase-advance-arrow-depth) + var(--phase-advance-edge)) 0,
+    100% 50%,
+    calc(100% - var(--phase-advance-arrow-depth) + var(--phase-advance-edge))
+      100%,
+    0 100%
+  );
+  font-family: var(--font-cinzel), serif;
+  font-weight: 700;
+  font-size: var(--phase-advance-font-size);
+  letter-spacing: var(--phase-advance-letter-spacing);
+  line-height: 1;
+  text-transform: uppercase;
+  color: var(--phase-advance-text-colour);
+  text-shadow: var(--phase-advance-text-shadow);
+}
+[data-phase-advance-destination="battle"] [data-phase-advance-pennant-face] {
+  background: var(--phase-advance-battle-colour);
+}
+[data-phase-advance-destination="camp"] [data-phase-advance-pennant-face] {
+  background: var(--phase-advance-camp-colour);
+}
+[data-phase-advance-destination="gameOver"] [data-phase-advance-pennant-face] {
+  background: var(--phase-advance-game-over-colour);
+}
+[data-phase-advance-icon] {
+  width: var(--phase-advance-icon-size);
+  height: var(--phase-advance-icon-size);
+}
+[data-phase-advance] button:not(:disabled):hover [data-phase-advance-pennant] {
+  filter: brightness(var(--phase-advance-hover-brightness));
+}
+[data-phase-advance] button:disabled [data-phase-advance-pennant] {
+  filter: grayscale(var(--phase-advance-disabled-grayscale));
+}
