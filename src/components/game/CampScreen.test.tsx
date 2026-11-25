@@ -27,6 +27,7 @@ import {
   buildTestCharacterTemplate,
 } from "@/test/characterFixtures";
 import { CampScreen } from "./CampScreen";
+import { SHOP_CHARACTER_PRICE } from "@/lib/game/shop";
 import {
   CAMP_START_FLOATER_DURATION_MS,
   CAMP_START_LAND_DELAY_MS,
@@ -1808,5 +1809,75 @@ describe("money pile (Phase 16)", () => {
     }).toEqual({ toggleCount: 0, isSellShown: "false" });
 
     await user.keyboard("{/Shift}");
+  });
+});
+
+// Phase 16: the shop reads as a market stall. Every character on offer
+// carries a price tag (SHOP_CHARACTER_PRICE), red when the player can't
+// afford it (canAffordShopCharacter, the buy rule's own check), and the
+// Characters section's sign states the price for everyone, screen readers
+// included. Sold and locked slots have no tag.
+describe("shop prices (Phase 16)", () => {
+  function priceTags() {
+    return Array.from(document.querySelectorAll("[data-shop-price-tag]"));
+  }
+
+  it("SH1: each character on offer carries a price tag with the price; sold and locked slots don't", () => {
+    renderCampScreen({ gold: 10 });
+
+    const offeringTiles = Array.from(
+      document.querySelectorAll(
+        '[data-character-shop-slot-state="offering"]',
+      ),
+    );
+
+    expect({
+      tagCount: priceTags().length,
+      offeringCount: offeringTiles.length,
+      tagTexts: priceTags().map((priceTag) => priceTag.textContent),
+      soldOrLockedTagCount: document.querySelectorAll(
+        '[data-character-shop-slot-state="sold"] [data-shop-price-tag], [data-character-shop-slot-state="locked"] [data-shop-price-tag]',
+      ).length,
+    }).toEqual({
+      tagCount: offeringTiles.length,
+      offeringCount: offeringTiles.length,
+      tagTexts: offeringTiles.map(() => String(SHOP_CHARACTER_PRICE)),
+      soldOrLockedTagCount: 0,
+    });
+  });
+
+  it("SH2: the tags show whether the player can afford the price", () => {
+    const { unmount } = renderCampScreen({ gold: SHOP_CHARACTER_PRICE });
+    const affordableStates = priceTags().map((priceTag) =>
+      priceTag.getAttribute("data-shop-price-affordable"),
+    );
+    unmount();
+
+    renderCampScreen({ gold: SHOP_CHARACTER_PRICE - 1 });
+    const unaffordableStates = priceTags().map((priceTag) =>
+      priceTag.getAttribute("data-shop-price-affordable"),
+    );
+
+    expect({ affordableStates, unaffordableStates }).toEqual({
+      affordableStates: affordableStates.map(() => "true"),
+      unaffordableStates: affordableStates.map(() => "false"),
+    });
+    expect(affordableStates.length).toBeGreaterThan(0);
+  });
+
+  it("SH3: the Characters section's sign states the price; the coming-soon sections show none", () => {
+    renderCampScreen();
+
+    expect({
+      charactersPrice:
+        within(screen.getByRole("region", { name: "Characters" }))
+          .queryByText(`${SHOP_CHARACTER_PRICE} gold each`) !== null,
+      otherSectionPrices: ["Equipment", "Magic", "Food"].map(
+        (sectionName) =>
+          screen
+            .getByRole("region", { name: sectionName })
+            .querySelectorAll("[data-shop-section-price]").length,
+      ),
+    }).toEqual({ charactersPrice: true, otherSectionPrices: [0, 0, 0] });
   });
 });

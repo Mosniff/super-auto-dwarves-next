@@ -106,6 +106,8 @@ describe("locale message parity", () => {
     "swapPositionZoneText",
     "shopSlotLockedLabel",
     "shopSectionComingSoonLabel",
+    // deliberate test-data update: the Characters section's sign states the price (Phase 16 shop)
+    "shopCharacterPriceEach",
     "levelPill",
     "experienceBarMax",
     "experienceBarLabel",

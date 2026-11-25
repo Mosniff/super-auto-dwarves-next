@@ -48,6 +48,7 @@
     "rosterSlotMergeZoneLabel": "スロット{slotNumber}：{characterName}に合成する",
     "swapPositionZoneText": "位置を入れ替え",
     "shopSlotLockedLabel": "未解放",
+    "shopCharacterPriceEach": "各{price}ゴールド",
     "shopSectionComingSoonLabel": "近日公開",
     "levelPill": "Lv{level}",
     "experienceBarMax": "MAX",

@@ -8,6 +8,7 @@ import { Hourglass, Lock } from "lucide-react";
 import type { CharacterShopSlots } from "@/lib/game/characterShopSlots";
 import type { CharacterTemplate } from "@/lib/game/characterTemplates";
 import { spawnCharacterFromTemplate } from "@/lib/game/spawnCharacterFromTemplate";
+import { SHOP_CHARACTER_PRICE } from "@/lib/game/shop";
 import {
   PLACEHOLDER_SHOP_SECTION_IDS,
   PLACEHOLDER_SHOP_SECTION_SLOT_COUNTS,
@@ -45,9 +46,18 @@ function presentationClassName(
   }
 }
 
+// A small gold coin (Phase 16 shop): the price tags' and the price sign's
+// mark. Decorative; the price is in text beside it.
+function ShopCoin() {
+  return <span data-shop-coin aria-hidden="true" />;
+}
+
 interface DraggableCharacterShopSlotTileProps {
   shopSlotIndex: number;
   characterTemplate: CharacterTemplate;
+  // Whether the player's gold covers the price (canAffordShopCharacter,
+  // the buy rule's own check): the price tag turns red when it doesn't.
+  isPriceAffordable: boolean;
   isSelected: boolean;
   isEnabled: boolean;
   isDraggable: boolean;
@@ -59,6 +69,7 @@ interface DraggableCharacterShopSlotTileProps {
 function DraggableCharacterShopSlotTile({
   shopSlotIndex,
   characterTemplate,
+  isPriceAffordable,
   isSelected,
   isEnabled,
   isDraggable,
@@ -118,21 +129,30 @@ function DraggableCharacterShopSlotTile({
           showRevealWash
         />
       </button>
+      {/* The price tag hangs off the card's bottom edge, centred (Phase 16
+          shop). Decorative for screen readers: the section's sign states
+          the price in text. */}
+      <span
+        data-shop-price-tag
+        data-shop-price-affordable={String(isPriceAffordable)}
+        aria-hidden="true"
+        className="pointer-events-none absolute left-1/2 z-10 flex -translate-x-1/2 items-center"
+      >
+        <ShopCoin />
+        {SHOP_CHARACTER_PRICE}
+      </span>
       <CharacterInfoControl character={displayCharacter} />
     </div>
   );
 }
 
-// Shared padlock + label markup for any permanently locked recessed slot —
-// character shop slots not yet open, and every slot in the placeholder
-// equipment/magic/food sections.
+// The padlock for a character shop slot that isn't open yet. Since Phase 16
+// the slot shows only the padlock; the label stays for screen readers.
 function LockedSlotContents({ label }: { label: string }) {
   return (
     <>
-      <Lock aria-hidden="true" className="h-4 w-4 text-slate-50/30" />
-      <span className="select-none text-[20px] font-medium uppercase tracking-wide text-slate-50/30">
-        {label}
-      </span>
+      <Lock aria-hidden="true" data-shop-locked-padlock />
+      <span className="sr-only">{label}</span>
     </>
   );
 }
@@ -210,6 +230,9 @@ function RecessedShopSlot({
 interface ShopSectionProps {
   headingId: string;
   heading: string;
+  // Shown on the section's sign beside its name (Phase 16: the Characters
+  // section's price).
+  signAside?: ReactNode;
   gridClassName: string;
   // One overlay label across the whole section, centred over its tile
   // grid, rather than per tile — used for the "Coming soon" placeholder
@@ -226,15 +249,24 @@ interface ShopSectionProps {
 function ShopSection({
   headingId,
   heading,
+  signAside,
   gridClassName,
   gridOverlay,
   children,
 }: ShopSectionProps) {
   return (
-    <section className="flex flex-col gap-2" aria-labelledby={headingId}>
-      <h3 id={headingId} className="text-sm font-semibold">
-        {heading}
-      </h3>
+    <section
+      className="flex flex-col gap-(--shop-sign-gap)"
+      aria-labelledby={headingId}
+    >
+      {/* The section's sign (Phase 16 shop): a wooden plank with a gold
+          edge, centred over its tiles, in globals.css. */}
+      <div data-shop-section-sign className="flex items-center self-center">
+        <h3 id={headingId} data-shop-section-name>
+          {heading}
+        </h3>
+        {signAside}
+      </div>
       <div className="relative">
         <div className={gridClassName}>{children}</div>
         {gridOverlay && (
@@ -251,15 +283,18 @@ const PLACEHOLDER_SHOP_SECTION_GRID_CLASS_NAMES: Readonly<
   Record<PlaceholderShopSectionId, string>
 > = {
   equipment:
-    "grid grid-cols-[repeat(2,var(--shop-tile-width))] grid-rows-2 gap-(--shop-tile-gap)",
+    "grid grid-cols-[repeat(2,var(--shop-tile-width))] grid-rows-2 gap-x-(--shop-tile-gap) gap-y-(--shop-row-gap)",
   magic:
-    "grid grid-cols-[repeat(2,var(--shop-tile-width))] grid-rows-2 gap-(--shop-tile-gap)",
-  food: "grid grid-cols-[repeat(1,var(--shop-tile-width))] grid-rows-2 gap-(--shop-tile-gap)",
+    "grid grid-cols-[repeat(2,var(--shop-tile-width))] grid-rows-2 gap-x-(--shop-tile-gap) gap-y-(--shop-row-gap)",
+  food: "grid grid-cols-[repeat(1,var(--shop-tile-width))] grid-rows-2 gap-x-(--shop-tile-gap) gap-y-(--shop-row-gap)",
 };
 
 interface ShopPanelProps {
   characterShopSlots: CharacterShopSlots;
   characterTemplates: readonly CharacterTemplate[];
+  // canAffordShopCharacter for the player's gold (one price for every
+  // character, so one answer for every tag).
+  isCharacterPriceAffordable: boolean;
   selectedShopSlotIndex: number | null;
   isShopSlotEnabled: (shopSlotIndex: number) => boolean;
   isShopSlotDraggable: (shopSlotIndex: number) => boolean;
@@ -270,6 +305,7 @@ interface ShopPanelProps {
 export function ShopPanel({
   characterShopSlots,
   characterTemplates,
+  isCharacterPriceAffordable,
   selectedShopSlotIndex,
   isShopSlotEnabled,
   isShopSlotDraggable,
@@ -299,7 +335,13 @@ export function ShopPanel({
         <ShopSection
           headingId={charactersHeadingId}
           heading={shopSectionTranslations("characters")}
-          gridClassName="grid grid-cols-[repeat(4,var(--shop-tile-width))] grid-rows-2 gap-(--shop-tile-gap)"
+          signAside={
+            <span data-shop-section-price className="flex items-center">
+              <ShopCoin />
+              {t("shopCharacterPriceEach", { price: SHOP_CHARACTER_PRICE })}
+            </span>
+          }
+          gridClassName="grid grid-cols-[repeat(4,var(--shop-tile-width))] grid-rows-2 gap-x-(--shop-tile-gap) gap-y-(--shop-row-gap)"
         >
           {characterShopSlots.map((characterShopSlot, shopSlotIndex) => {
             if (characterShopSlot.slotState === "sold") {
@@ -309,7 +351,7 @@ export function ShopPanel({
                   dataAttributes={{ "data-character-shop-slot-state": "sold" }}
                   slotLook="open"
                 >
-                  <span className="select-none text-[20px] font-medium uppercase tracking-wide text-parchment-50/30">
+                  <span data-shop-sold-stamp className="select-none">
                     {t("shopListingSoldLabel")}
                   </span>
                 </RecessedShopSlot>
@@ -329,6 +371,7 @@ export function ShopPanel({
                     key={shopSlotIndex}
                     shopSlotIndex={shopSlotIndex}
                     characterTemplate={matchedCharacterTemplate}
+                    isPriceAffordable={isCharacterPriceAffordable}
                     isSelected={selectedShopSlotIndex === shopSlotIndex}
                     isEnabled={isShopSlotEnabled(shopSlotIndex)}
                     isDraggable={isShopSlotDraggable(shopSlotIndex)}

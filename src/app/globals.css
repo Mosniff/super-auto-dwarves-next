@@ -534,9 +534,12 @@
 
   /* Camp centre: the shop under the player slab. The shop is 9 tile
      columns × 2 rows (characters 4, equipment 2, magic 2, food 1), with
-     5 tile gaps and 3 shelf gaps across; 1.75rem is a shelf heading and
-     its gap; tiles are 3:4, so 3/8 turns the two rows' height into a
-     tile width. The 2560×1440 cap matches the old 3xl size. */
+     5 tile gaps and 3 shelf gaps across. Down, the camp centre loses the
+     awning, the stall's top and bottom padding, a section sign and its
+     gap, the price tags hanging below the second row, and the row gap
+     (Phase 16 shop stall; before: a flat 1.75rem for a plain heading);
+     tiles are 3:4, so 3/8 turns the two rows' height into a tile width.
+     The 2560×1440 cap matches the old 3xl size. */
   /* Camp keeps its own copy of the battle centre's old padding, so the
      shop is unchanged by battle's tighter padding (Phase 14). */
   --camp-centre-padding: clamp(
@@ -562,8 +565,10 @@
     13.5rem,
     calc(
       (
-          var(--camp-centre-height) - 2 * var(--camp-centre-padding) - 1.75rem -
-            var(--shop-tile-gap)
+          var(--camp-centre-height) - var(--shop-awning-height) -
+            var(--shop-stall-top-padding) - var(--camp-centre-padding) -
+            var(--shop-sign-room) - var(--shop-price-tag-room) -
+            var(--shop-row-gap)
         ) *
         3 / 8
     ),
@@ -2406,4 +2411,187 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
     scale: 1;
     filter: drop-shadow(0 0 0 transparent) drop-shadow(0 0 0 transparent);
   }
+}
+
+/* Phase 16 shop stall: the shop reads as a market stall rather than a web
+   page. A striped awning (red and parchment, scalloped) hangs under the
+   SHOP banner over a dark wood backdrop; each section has a wooden sign
+   with a gold edge (the Characters sign states the price); every
+   character on offer has a price tag hanging off its bottom edge, red when
+   the player can't afford it; a sold slot is stamped SOLD in red ink; a
+   locked slot shows only a padlock. The heights here feed the shop's tile
+   size (--shop-tile-width), so they're window-based, never tile-based (a
+   tile-based height would make the formula circular). Every value is the
+   human's to tune. */
+:root {
+  --shop-stall-background: #1b1511;
+  --shop-stall-top-padding: clamp(
+    0.75rem,
+    calc(var(--layout-window-height) * 0.02),
+    1.5rem
+  );
+  --shop-awning-height: clamp(
+    1rem,
+    calc(var(--layout-window-height) * 0.028),
+    1.75rem
+  );
+  --shop-awning-stripe-width: clamp(
+    1.75rem,
+    calc(var(--layout-window-width) * 0.025),
+    3.5rem
+  );
+  --shop-awning-scallop-depth: calc(var(--shop-awning-height) * 0.5);
+  --shop-awning-red: #8f2a22;
+  --shop-awning-cloth: var(--color-parchment-100);
+  --shop-sign-font-size: clamp(
+    0.875rem,
+    calc(var(--layout-window-height) * 0.018),
+    1.3rem
+  );
+  --shop-sign-padding-y: 0.3rem;
+  --shop-sign-edge-width: 2px;
+  --shop-sign-gap: 0.75rem;
+  --shop-sign-room: calc(
+    var(--shop-sign-font-size) * 1.1 + 2 * var(--shop-sign-padding-y) + 2 *
+      var(--shop-sign-edge-width) + var(--shop-sign-gap)
+  );
+  --shop-sign-wood: #5a3a22;
+  --shop-sign-edge: var(--color-parchment-300);
+  --shop-sign-price-background: var(--color-ink-900);
+  --shop-price-tag-font-size: clamp(
+    0.75rem,
+    calc(var(--layout-window-height) * 0.016),
+    1.05rem
+  );
+  --shop-price-tag-room: calc(var(--shop-price-tag-font-size) * 0.9);
+  --shop-row-gap: calc(var(--shop-tile-gap) + var(--shop-price-tag-room));
+  --shop-price-tag-background: var(--color-parchment-100);
+  --shop-price-tag-edge: var(--color-parchment-400);
+  --shop-price-tag-text: var(--color-ink-900);
+  --shop-price-tag-unaffordable-background: #3a2020;
+  --shop-price-tag-unaffordable-edge: var(--color-enemy-side);
+  --shop-price-tag-unaffordable-text: #e8a090;
+  --shop-coin-gold: #e2b84a;
+  --shop-coin-rim: var(--color-parchment-400);
+  --shop-sold-ink: var(--color-enemy-side);
+  --shop-sold-rotation: -14deg;
+  --shop-padlock-colour: var(--color-iron-500);
+}
+
+[data-shop-awning] {
+  height: var(--shop-awning-height);
+  background:
+    radial-gradient(
+        calc(var(--shop-awning-stripe-width) / 2)
+          var(--shop-awning-scallop-depth) at 25% 0,
+        var(--shop-awning-red) 98%,
+        transparent 100%
+      )
+      0 100% / calc(var(--shop-awning-stripe-width) * 2)
+      var(--shop-awning-scallop-depth) repeat-x,
+    radial-gradient(
+        calc(var(--shop-awning-stripe-width) / 2)
+          var(--shop-awning-scallop-depth) at 25% 0,
+        var(--shop-awning-cloth) 98%,
+        transparent 100%
+      )
+      var(--shop-awning-stripe-width) 100% /
+      calc(var(--shop-awning-stripe-width) * 2)
+      var(--shop-awning-scallop-depth) repeat-x,
+    repeating-linear-gradient(
+        90deg,
+        var(--shop-awning-red) 0 var(--shop-awning-stripe-width),
+        var(--shop-awning-cloth) var(--shop-awning-stripe-width)
+          calc(var(--shop-awning-stripe-width) * 2)
+      )
+      0 0 / 100% calc(100% - var(--shop-awning-scallop-depth)) no-repeat,
+    var(--shop-stall-background);
+}
+[data-shop-stall] {
+  background: var(--shop-stall-background);
+}
+
+[data-shop-section-sign] {
+  gap: 0.75em;
+  font-size: var(--shop-sign-font-size);
+  padding: var(--shop-sign-padding-y) 0.9em;
+  background: var(--shop-sign-wood);
+  border: var(--shop-sign-edge-width) solid var(--shop-sign-edge);
+  border-radius: 0.375rem;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 0.5);
+}
+[data-shop-section-name] {
+  font-family: var(--font-cinzel), serif;
+  font-weight: 900;
+  font-size: 1em;
+  letter-spacing: 0.12em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: var(--color-parchment-50);
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.6);
+}
+[data-shop-section-price] {
+  gap: 0.35em;
+  padding: 0.15em 0.7em 0.15em 0.2em;
+  border-radius: 999px;
+  background: var(--shop-sign-price-background);
+  font-family: var(--font-cinzel), serif;
+  font-weight: 700;
+  font-size: 0.8em;
+  line-height: 1.1;
+  color: var(--color-parchment-50);
+}
+
+[data-shop-coin] {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+  margin-right: 0.3em;
+  border-radius: 50%;
+  background: var(--shop-coin-gold);
+  border: 0.12em solid var(--shop-coin-rim);
+}
+
+[data-shop-price-tag] {
+  bottom: -0.8em;
+  font-size: var(--shop-price-tag-font-size);
+  padding: 0.15em 0.55em 0.15em 0.25em;
+  border-radius: 0.3em;
+  background: var(--shop-price-tag-background);
+  border: 0.1em solid var(--shop-price-tag-edge);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.5);
+  font-family: var(--font-cinzel), serif;
+  font-weight: 900;
+  line-height: 1.1;
+  color: var(--shop-price-tag-text);
+}
+[data-shop-price-tag][data-shop-price-affordable="false"] {
+  background: var(--shop-price-tag-unaffordable-background);
+  border-color: var(--shop-price-tag-unaffordable-edge);
+  color: var(--shop-price-tag-unaffordable-text);
+}
+[data-shop-price-tag][data-shop-price-affordable="false"] [data-shop-coin] {
+  filter: grayscale(1) brightness(0.7);
+}
+
+[data-shop-sold-stamp] {
+  font-family: var(--font-cinzel), serif;
+  font-weight: 900;
+  font-size: calc(var(--shop-tile-width) * 0.16);
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: var(--shop-sold-ink);
+  border: 0.12em solid currentColor;
+  border-radius: 0.15em;
+  padding: 0.05em 0.35em;
+  rotate: var(--shop-sold-rotation);
+  opacity: 0.85;
+}
+[data-shop-locked-padlock] {
+  width: calc(var(--shop-tile-width) * 0.22);
+  height: calc(var(--shop-tile-width) * 0.22);
+  color: var(--shop-padlock-colour);
+  opacity: 0.7;
 }

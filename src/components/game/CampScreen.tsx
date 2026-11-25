@@ -31,6 +31,7 @@ import type { CampState } from "@/lib/game/campState";
 import type { CharacterShopSlots } from "@/lib/game/characterShopSlots";
 import type { CharacterTemplate } from "@/lib/game/characterTemplates";
 import { levelFromExperience } from "@/lib/game/characterExperience";
+import { canAffordShopCharacter } from "@/lib/game/shop";
 import {
   isCampClickEffective,
   isCharacterShopSlotSelectable,
@@ -456,10 +457,19 @@ export function CampScreen({
               }),
           }}
         >
-          <section className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 p-(--camp-centre-padding)">
+          {/* The shop as a market stall (Phase 16): a striped awning hangs
+              under the SHOP banner over a dark wood backdrop, and the stall
+              starts right under it rather than centring in the space
+              (globals.css → "Phase 16 shop stall"). */}
+          <div data-shop-awning aria-hidden="true" className="shrink-0" />
+          <section
+            data-shop-stall
+            className="flex min-h-0 flex-1 flex-col items-center justify-start gap-4 p-(--camp-centre-padding) pt-(--shop-stall-top-padding)"
+          >
             <ShopPanel
               characterShopSlots={characterShopSlots}
               characterTemplates={characterTemplates}
+              isCharacterPriceAffordable={canAffordShopCharacter(gold)}
               selectedShopSlotIndex={
                 campSelection.selectionKind === "characterShopSlot"
                   ? campSelection.shopSlotIndex

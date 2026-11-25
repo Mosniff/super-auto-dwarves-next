@@ -48,6 +48,7 @@
     "rosterSlotMergeZoneLabel": "Slot {slotNumber}: merge into {characterName}",
     "swapPositionZoneText": "Swap position",
     "shopSlotLockedLabel": "Locked",
+    "shopCharacterPriceEach": "{price} gold each",
     "shopSectionComingSoonLabel": "Coming soon",
     "levelPill": "Lv {level}",
     "experienceBarMax": "MAX",

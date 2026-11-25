@@ -3,7 +3,7 @@ import type { CampState } from "./campState";
 import { CHARACTER_SHOP_SLOT_COUNT } from "./characterShopSlots";
 import type { CharacterTemplate } from "./characterTemplates";
 import { spawnCharacterFromTemplate } from "./spawnCharacterFromTemplate";
-import { SHOP_CHARACTER_PRICE } from "./shop";
+import { SHOP_CHARACTER_PRICE, canAffordShopCharacter } from "./shop";
 import {
   MAX_CHARACTER_LEVEL,
   levelFromExperience,
@@ -112,7 +112,7 @@ export function buyCharacterFromShopSlot(
     return { outcome: "rejected", rejectionReason: "rosterSlotAtMaxLevel" };
   }
 
-  if (campState.gold < SHOP_CHARACTER_PRICE) {
+  if (!canAffordShopCharacter(campState.gold)) {
     return { outcome: "rejected", rejectionReason: "notEnoughGold" };
   }
 
