@@ -204,6 +204,7 @@ export function InteractiveRosterSlotButton({
       {character && (
         <RosterSlotZones
           slotIndex={slotIndex}
+          experience={character.experience}
           zonesPresentation={zonesPresentation}
           zoneButtonLabel={zoneButtonLabel}
           isZoneEnabled={isZoneEnabled}

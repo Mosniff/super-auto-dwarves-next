@@ -1875,7 +1875,8 @@ describe("split drop zones (Phase 16)", () => {
     ).toHaveLength(0);
   });
 
-  it("SZ7: with a dwarf in hand, the XP bar is revealed only on the dwarf its merge zone would merge into", async () => {
+  // deliberate assertion rewrite: the XP bar is drawn inside the mergeable dwarf's merge zone, and the cards' own bars stay hidden, because a bar inside the portrait can't be centred in the bottom zone (Phase 16 block 2b)
+  it("SZ7: with a dwarf in hand, only a mergeable dwarf's merge zone shows the XP bar; the cards' own bars stay hidden", async () => {
     const user = userEvent.setup();
     renderCampScreen({ playerCampRoster: zonesCampRoster });
 
@@ -1883,6 +1884,24 @@ describe("split drop zones (Phase 16)", () => {
       screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
     );
 
+    const mergeZoneButtons = [
+      "Slot 2: merge into Borin",
+      "Slot 3: merge into Gimlok",
+      "Slot 4: merge into Borin",
+    ].map((mergeZoneName) =>
+      screen.getByRole("button", { name: mergeZoneName }),
+    );
+
+    expect(
+      mergeZoneButtons.map(
+        (mergeZoneButton) =>
+          mergeZoneButton.querySelectorAll("[data-roster-slot-zone-experience]")
+            .length,
+      ),
+    ).toEqual([1, 0, 0]);
+    expect(
+      within(mergeZoneButtons[0]).getByText("3 XP to level 2"),
+    ).toBeInTheDocument();
     expect(
       [
         "Slot 2: Borin, level 1",
@@ -1893,7 +1912,7 @@ describe("split drop zones (Phase 16)", () => {
           .getByRole("button", { name: slotButtonLabel })
           .getAttribute("data-experience-bar-revealed"),
       ),
-    ).toEqual(["true", "false", "false"]);
+    ).toEqual(["false", "false", "false"]);
   });
 
   it("SZ8: with a shop character in hand, no card shows zones (a merge-buy keeps the whole card)", async () => {

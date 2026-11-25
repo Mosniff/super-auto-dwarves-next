@@ -1891,11 +1891,12 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
    held, every other dwarf's card is covered by two half-card buttons: the
    top half swaps, the bottom half merges. The buttons fill their halves
    exactly; the visible boxes ([data-roster-slot-zone-box]) are inset
-   inside them. The card underneath shows its grey wash; its XP bar is
-   revealed only when the merge zone would merge, and moves into the
-   bottom half. Every size, colour and glow here is the human's to tune. */
+   inside them. The card underneath shows its grey wash and hides its own
+   XP bar; a mergeable dwarf's merge zone draws the bar in its box instead
+   (block 2b). Every size, colour and glow here is the human's to tune. */
 :root {
   --roster-slot-zone-inset: 0.25rem;
+  --roster-slot-zones-mask: rgb(15 15 15 / 0.78);
   --roster-slot-zone-radius: 0.375rem;
   --roster-slot-zone-border-width: 2px;
   --roster-slot-zone-swap-border: rgb(255 255 255 / 0.85);
@@ -1915,7 +1916,6 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
   --roster-slot-zone-text-min-size: 0.5rem;
   --roster-slot-zone-text-max-size: 1rem;
   --roster-slot-zone-text-tracking: 0.06em;
-  --roster-slot-zones-experience-bar-top: 72%;
 }
 
 [data-roster-slot-zone-box] {
@@ -1988,14 +1988,17 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
   color: var(--roster-slot-zone-unavailable-text-colour);
 }
 
-/* The card under its zones: the grey wash on, the "i" hidden, and the XP
-   bar (when revealed) moved into the bottom half. Declared after the info
-   control's reveal rules so it wins over them. */
+/* The card under its zones: the grey wash on, the "i" hidden, and its own
+   XP bar hidden even on hover or focus (the merge zone draws one instead).
+   Declared after the reveal rules, at their specificity, so it wins. */
 [data-roster-slot-zones-shown="true"] [data-character-experience-mask] {
+  background: var(--roster-slot-zones-mask);
   opacity: 1;
 }
-[data-roster-slot-zones-shown="true"] [data-character-experience-bar] {
-  top: var(--roster-slot-zones-experience-bar-top);
+[data-info-control-host][data-roster-slot-zones-shown="true"]
+  [data-experience-bar-revealed]
+  [data-character-experience-bar] {
+  opacity: 0;
 }
 [data-info-control-host][data-roster-slot-zones-shown="true"]
   [data-character-info-control] {

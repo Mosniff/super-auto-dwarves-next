@@ -445,12 +445,12 @@ export function CampScreen({
               campTargetPresentation({ targetKind: "rosterSlot", slotIndex }),
             slotExitKind: (slotIndex) =>
               rosterSlotExitKind(lastSubmittedCampIntent, revision, slotIndex),
-            // While a card shows its split zones (Phase 16), its XP bar is
-            // revealed exactly when its merge zone would merge.
+            // While a card shows its split zones (Phase 16), its own XP bar
+            // stays hidden: a mergeable dwarf's merge zone draws the bar
+            // itself (RosterSlotZones).
             isSlotMatchingHeldItem: (slotIndex) => {
-              const zonesPresentation = rosterSlotZonesPresentation(slotIndex);
-              if (zonesPresentation.zonesShown) {
-                return zonesPresentation.mergeZonePresentation === "eligible";
+              if (rosterSlotZonesPresentation(slotIndex).zonesShown) {
+                return false;
               }
               return isRosterSlotMatchingHeldItem(
                 heldCampItem,

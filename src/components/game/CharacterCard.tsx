@@ -101,6 +101,39 @@ function ExperienceSegments({ experience }: { experience: number }) {
   );
 }
 
+// The overlay XP bar's contents: the label, the segments and the caption.
+// The camp roster card draws them mid-portrait; since Phase 16 a split
+// card's merge zone (RosterSlotZones) draws them in its own box. Their
+// sizes are cqw, so a caller outside the card must sit inside a container
+// as wide as the card.
+export function ExperienceBarContents({ experience }: { experience: number }) {
+  const t = useTranslations("common");
+  const experienceCaption = experienceBarCaption(experience);
+
+  return (
+    <>
+      <span
+        data-experience-bar-label
+        className="text-card-xp-label font-bold leading-none text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]"
+      >
+        {t("experienceBarLabel")}
+      </span>
+      <ExperienceSegments experience={experience} />
+      <span
+        data-experience-bar-caption
+        className="text-card-xp-caption font-bold italic leading-none text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]"
+      >
+        {experienceCaption.progressKind === "maxLevel"
+          ? t("experienceBarMaxLevel")
+          : t("experienceToNextLevel", {
+              experienceRemaining: experienceCaption.experienceRemaining,
+              nextLevel: experienceCaption.nextLevel,
+            })}
+      </span>
+    </>
+  );
+}
+
 export function CharacterCard({
   character,
   animateHpDrop = false,
@@ -123,7 +156,6 @@ export function CharacterCard({
   const hpTone = hpDisplayTone(character.hp, character.maxHp);
   const level = levelFromExperience(character.experience);
   const { isMaxLevel } = experienceBarSegments(character.experience);
-  const experienceCaption = experienceBarCaption(character.experience);
   const shownArmour =
     armourBeat?.armourBeatKind === "broken"
       ? armourBeat.brokenFromArmour
@@ -227,25 +259,7 @@ export function CharacterCard({
               aria-hidden="true"
               className="absolute inset-x-card-hp-bar-inset top-1/2 z-2 flex -translate-y-1/2 flex-col items-center gap-card-xp-text-gap"
             >
-              <span
-                data-experience-bar-label
-                className="text-card-xp-label font-bold leading-none text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]"
-              >
-                {t("experienceBarLabel")}
-              </span>
-              <ExperienceSegments experience={character.experience} />
-              <span
-                data-experience-bar-caption
-                className="text-card-xp-caption font-bold italic leading-none text-white [text-shadow:0_1px_1px_rgba(0,0,0,0.6)]"
-              >
-                {experienceCaption.progressKind === "maxLevel"
-                  ? t("experienceBarMaxLevel")
-                  : t("experienceToNextLevel", {
-                      experienceRemaining:
-                        experienceCaption.experienceRemaining,
-                      nextLevel: experienceCaption.nextLevel,
-                    })}
-              </span>
+              <ExperienceBarContents experience={character.experience} />
             </div>
           )}
           {shownArmour > 0 && (

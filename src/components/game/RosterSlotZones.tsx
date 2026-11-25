@@ -3,6 +3,7 @@
 import { useDroppable } from "@dnd-kit/react";
 import { useTranslations } from "next-intl";
 import { ArrowRightLeft, ChevronsUp } from "lucide-react";
+import { ExperienceBarContents } from "./CharacterCard";
 import type {
   CampClickTarget,
   RosterSlotZoneKind,
@@ -26,6 +27,12 @@ import type {
 //
 // Every size, colour and glow is a globals.css variable ("Phase 16 split
 // drop zones"); tests assert the data attributes, never classes.
+//
+// A mergeable dwarf's merge zone draws the XP bar itself, centred in its
+// box (Phase 16 block 2b): the card's own bar lives inside the portrait,
+// which clips it, so it can't be moved into the bottom half. The card's own
+// bar stays hidden while its zones show. The zones overlay is a container
+// as wide as the card, so the bar's cqw sizes match the card's.
 
 type RosterSlotZoneButtonPresentation =
   | "eligible"
@@ -35,6 +42,7 @@ type RosterSlotZoneButtonPresentation =
 
 interface RosterSlotZoneButtonProps {
   slotIndex: number;
+  experience: number;
   zoneKind: RosterSlotZoneKind;
   presentation: RosterSlotZoneButtonPresentation;
   buttonLabel: string;
@@ -44,6 +52,7 @@ interface RosterSlotZoneButtonProps {
 
 function RosterSlotZoneButton({
   slotIndex,
+  experience,
   zoneKind,
   presentation,
   buttonLabel,
@@ -103,6 +112,14 @@ function RosterSlotZoneButton({
           {presentation === "atMaxLevel" && (
             <span data-roster-slot-zone-text>{t("experienceBarMax")}</span>
           )}
+          {zoneKind === "merge" && presentation === "eligible" && (
+            <span
+              data-roster-slot-zone-experience
+              className="flex w-full flex-col items-center gap-card-xp-text-gap px-card-hp-bar-inset"
+            >
+              <ExperienceBarContents experience={experience} />
+            </span>
+          )}
         </span>
       )}
     </button>
@@ -111,6 +128,8 @@ function RosterSlotZoneButton({
 
 interface RosterSlotZonesProps {
   slotIndex: number;
+  // The zones' own dwarf's experience, for the merge zone's XP bar.
+  experience: number;
   zonesPresentation: RosterSlotZonesPresentation;
   zoneButtonLabel: (zoneKind: RosterSlotZoneKind) => string;
   isZoneEnabled: (zoneKind: RosterSlotZoneKind) => boolean;
@@ -119,6 +138,7 @@ interface RosterSlotZonesProps {
 
 export function RosterSlotZones({
   slotIndex,
+  experience,
   zonesPresentation,
   zoneButtonLabel,
   isZoneEnabled,
@@ -138,12 +158,13 @@ export function RosterSlotZones({
       data-roster-slot-zones
       aria-hidden={zonesPresentation.zonesShown ? undefined : true}
       inert={!zonesPresentation.zonesShown}
-      className={`absolute inset-0 z-20 flex flex-col ${
+      className={`@container absolute inset-0 z-20 flex flex-col ${
         zonesPresentation.zonesShown ? "" : "invisible"
       }`}
     >
       <RosterSlotZoneButton
         slotIndex={slotIndex}
+        experience={experience}
         zoneKind="swap"
         presentation={swapZonePresentation}
         buttonLabel={zoneButtonLabel("swap")}
@@ -152,6 +173,7 @@ export function RosterSlotZones({
       />
       <RosterSlotZoneButton
         slotIndex={slotIndex}
+        experience={experience}
         zoneKind="merge"
         presentation={mergeZonePresentation}
         buttonLabel={zoneButtonLabel("merge")}
