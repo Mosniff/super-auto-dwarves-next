@@ -8,13 +8,13 @@ A fantasy auto-battler inspired by Super Auto Pets, Choose Your Own Adventure ga
 
 ## Testing at a glance
 
-**830 tests across 100 files**, run on every push by GitHub Actions (a type check, lint, then the tests with coverage). The game logic is written test-first: every rule starts as a failing test.
+**833 tests across 100 files**, run on every push by GitHub Actions (a type check, lint, then the tests with coverage). The game logic is written test-first: every rule starts as a failing test.
 
 | Scope                                                        | Lines     | Branches  | Functions |
 | ------------------------------------------------------------ | --------- | --------- | --------- |
 | **Game and battle rules** (`src/lib/game`, `src/lib/battle`) | **95.9%** | **95.8%** | **100%**  |
 | All logic and server code (`src/lib`)                        | 90.3%     | 92.7%     | 88.2%     |
-| Whole app (`src`, UI components included)                    | 84.9%     | 87.7%     | 83.5%     |
+| Whole app (`src`, UI components included)                    | 85.0%     | 87.7%     | 83.7%     |
 
 The rules are the headline because they are the game. A battle is a deterministic function of two rosters, so the rules can be tested exhaustively as pure functions, with no browser and no database. UI components are tested for behaviour and state in jsdom; how they look is checked by eye. _Measured at the end of Phase 15; `npm run test:coverage` reproduces it._
 
@@ -180,7 +180,7 @@ The **fundamental battle system** is specified (see above). Still to be specifie
 - [x] Factions, depth and the kobolds — a faction on every character and card, a depth counter, seeded battle randomness, translated character names, a game-over screen, and the first enemy list with two new ability triggers (battle-start damage, turn start) _(Phase 13; see `CLAUDE.md` → "Factions, enemies and game over (Phase 13)")_
 - [x] Deployment and hardening — Vercel, a security review, security headers, a Turnstile CAPTCHA on guest sign-in, coverage reporting and CI _(Phase 14; see `CLAUDE.md` → "Deployment and hosting (Phase 14)")_
 - [x] Fit-the-window layout and battle-screen polish — every screen fits the window down to 1200 × 600; highlighted names and numbers; a redesigned battle log and autoplay (Off / Slow / Fast); a battle layout with front-aligned rosters, a side NEXT marker and a log that fills the centre _(Phase 14; see `CLAUDE.md` → "Window-fitting layout and the battle screen (Phase 14)")_
-- [x] Repo tidy-up and battle flare — lint enforced in CI, error and not-found pages, a How to Play placeholder; hit, armour and buff flashes, outlined floaters that fit their beat, card hops and recoils, one master animation tempo, a clash that scales with the card, levels on every battle card, a "Battle!" and faction-matchup opening, and faction tabs on both battle rosters _(Phase 15; see `CLAUDE.md` → "Repo tidy-up and battle flare (Phase 15)")_
+- [x] Repo tidy-up and battle flare — lint enforced in CI, error and not-found pages, a How to Play guide (English and Japanese); hit, armour and buff flashes, outlined floaters that fit their beat, card hops and recoils, one master animation tempo, a clash that scales with the card, levels on every battle card, a "Battle!" and faction-matchup opening, and faction tabs on both battle rosters _(Phase 15; see `CLAUDE.md` → "Repo tidy-up and battle flare (Phase 15)")_
 - [ ] Card model and card types
 - [x] Abilities, armour and the expanded card — armour as a stat that absorbs hits; one ability per character type with five level strengths and three triggers (gaining experience, battle start, camp start); a battle opening of prepare → abilities → engage; an "i" control and expanded card view; a clearer held selection; character portraits; a start-of-camp sequence _(Phase 12; see `CLAUDE.md` → "Abilities and armour (Phase 12)")_
 - [~] Character stats and progression / leveling rules — experience and levels defined _(Phase 11)_; levels set ability strength and armour joins attack and hp _(Phase 12)_
