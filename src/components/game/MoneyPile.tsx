@@ -27,10 +27,11 @@ interface MoneyPileProps {
 // count is DisplayedGold, so it counts up with the header during the
 // start-of-camp sequence.
 //
-// Every size and colour is a globals.css variable ("Phase 16 money pile");
-// the image's width is capped so it always fits the slab's height and the
-// side area's width (which is min-w-0: anything wider would run under the
-// slots).
+// It fills the slab's left-hand area: the image box (the sell button)
+// takes all the height the gold count leaves, and the image is contained
+// in it, so the pile can never run under the slots (the area is min-w-0)
+// and grows with the window. Every size and colour is a globals.css
+// variable ("Phase 16 money pile").
 export function MoneyPile({
   gold,
   isSellShown,
@@ -52,7 +53,7 @@ export function MoneyPile({
   return (
     <div
       data-money-pile
-      className="flex w-full flex-1 flex-col items-center justify-center gap-(--money-pile-gap)"
+      className="flex h-full w-full flex-col items-center gap-(--money-pile-gap) p-(--money-pile-padding)"
     >
       <button
         ref={droppableRef}
@@ -66,24 +67,24 @@ export function MoneyPile({
         data-money-pile-sell-shown={String(isSellShown)}
         data-camp-target-presentation={presentation}
         data-money-pile-drop-target={String(isSellShown && isDropTarget)}
-        className="relative block aspect-4/3 max-w-full rounded-(--money-pile-radius) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="relative block min-h-0 w-full flex-1 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <span
           data-money-pile-image
           aria-hidden="true"
-          className="absolute inset-0 rounded-(--money-pile-radius)"
+          className="absolute inset-0"
         />
         {isSellShown && (
           <span
             data-money-pile-sell-prompt
             aria-hidden="true"
-            className="absolute inset-0 flex items-center justify-center rounded-(--money-pile-radius)"
+            className="absolute inset-0 flex items-center justify-center"
           >
             {t("moneyPileSellPrompt")}
           </span>
         )}
       </button>
-      <span data-money-pile-gold>
+      <span data-money-pile-gold className="shrink-0">
         <DisplayedGold gold={gold} />
       </span>
     </div>

@@ -134,7 +134,9 @@ export function RosterSlab({
     // basis-0, so they start at zero and split the leftover width equally,
     // which keeps the slot row dead centre. min-w-0 stops a box's content
     // width from growing it and shifting the slots; controls wider than the
-    // box overflow symmetrically rather than moving the roster.
+    // box overflow (under the slot row) rather than moving the roster, so a
+    // control must be sized to fit its box. The boxes impose no alignment
+    // (they stretch their content); each control positions itself.
     // Aligned toward the front: the box on the front's side isn't rendered,
     // so the remaining flex-1 box takes all the leftover width and pushes
     // the slot row against the front's edge (right for the player, left for
@@ -169,11 +171,8 @@ export function RosterSlab({
       {rendersLeadingArea && (
         <div
           data-roster-slab-leading-area
-          className="relative flex min-w-0 flex-1 basis-0 flex-col items-start justify-start"
+          className="relative flex min-w-0 flex-1 basis-0 flex-col"
         >
-          {/* Top-aligned (Phase 15): battle's one-row autoplay control sits
-              at the top, leaving the bottom-left corner for the player's
-              faction tab. */}
           {leadingControls}
         </div>
       )}
@@ -291,7 +290,7 @@ export function RosterSlab({
       {rendersTrailingArea && (
         <div
           data-roster-slab-trailing-area
-          className="relative flex min-w-0 flex-1 basis-0 flex-col items-center justify-center"
+          className="relative flex min-w-0 flex-1 basis-0 flex-col"
         >
           {trailingControls}
         </div>

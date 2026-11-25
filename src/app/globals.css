@@ -1837,11 +1837,20 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
   color: var(--color-parchment-300);
 }
 
-/* Battle (slots aligned toward the front): only the front side needs the
-   wide padding for the NEXT marker; the back side, where the controls
-   sit, gets a slim edge. Camp's centred slabs keep both sides. */
+/* Only the front side of a battle slab (slots aligned toward the front)
+   needs the wide padding, for the NEXT marker; every other side gets the
+   slim edge: the back side in battle, where the controls sit, and both
+   sides of camp's centred slab, which has no NEXT marker (Phase 16; before,
+   camp kept 4rem of dead space on both sides). The card size formula still
+   reserves the wide padding on both sides, so cards are the same size in
+   both phases. */
 :root {
   --roster-slab-padding-back: 1rem;
+}
+
+[data-roster-slot-alignment="centre"] {
+  padding-left: var(--roster-slab-padding-back);
+  padding-right: var(--roster-slab-padding-back);
 }
 
 [data-roster-slot-alignment="front"][data-roster-slab-variant="player"] {
@@ -2030,67 +2039,103 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
   }
 }
 
-/* Phase 16 money pile (MoneyPile): camp's selling place, in the roster
-   slab's left-hand area. The image is a placeholder block until the sack
-   of gold exists. Its width is capped by the side area (max-width: 100%,
-   in the component) and by the slab's height: the image (3:4 of its
-   width) plus the gold count below must fit inside one roster card's
-   height. While a dwarf is held it highlights and "SELL?" shows over it.
-   Every value is the human's to tune. */
+/* Phase 16 money pile (MoneyPile): camp's selling place, filling the
+   roster slab's left-hand area. The image box takes all the height the
+   gold count leaves, and the sack image is contained in it (centred, never
+   cropped or stretched), so the pile grows with the window. While a dwarf
+   is held the sack dims a little and glows: a drop-shadow filter, which
+   follows the image's transparent outline rather than its box, and "SELL?"
+   shows over it. The text is the battle opening's Cinzel display face.
+   Sizes scale with the roster card height. Every value is the human's to
+   tune. */
 :root {
-  --money-pile-max-width: 8rem;
-  --money-pile-gold-room: 1.75rem; /* the gold count and the gap above it */
-  --money-pile-gap: 0.375rem;
-  --money-pile-radius: 0.5rem;
-  --money-pile-placeholder: linear-gradient(
-    160deg,
-    rgb(240 200 96),
-    rgb(176 128 40)
+  --money-pile-image: url("/images/gold.webp");
+  --money-pile-padding: clamp(
+    0.5rem,
+    calc(var(--roster-card-height) * 0.06),
+    1.25rem
   );
-  --money-pile-eligible-ring:
-    0 0 0 3px rgb(52 211 153), 0 0 0.75rem rgb(52 211 153 / 0.6);
-  --money-pile-eligible-ring-active:
-    0 0 0 4px rgb(52 211 153), 0 0 1.25rem rgb(52 211 153 / 0.9);
-  --money-pile-sell-wash: rgb(15 15 15 / 0.45);
-  --money-pile-prompt-size: 1.25rem;
-  --money-pile-prompt-colour: rgb(255 255 255 / 0.95);
-  --money-pile-prompt-glow:
-    0 0 0.4rem rgb(255 255 255 / 0.75), 0 1px 1px rgb(0 0 0 / 0.7);
-  --money-pile-gold-size: 1rem;
+  --money-pile-gap: clamp(
+    0.5rem,
+    calc(var(--roster-card-height) * 0.06),
+    1.25rem
+  );
+  --money-pile-gold-size: clamp(
+    1.125rem,
+    calc(var(--roster-card-height) * 0.14),
+    2.25rem
+  );
   --money-pile-gold-colour: var(--color-parchment-100);
-}
-/* Computed on the button itself: a custom property containing var() is
-   resolved where it is declared. */
-[data-money-pile-sell] {
-  width: min(
-    var(--money-pile-max-width),
-    calc((var(--roster-card-height) - var(--money-pile-gold-room)) * 4 / 3)
+  --money-pile-text-weight: 900;
+  --money-pile-text-letter-spacing: 0.04em;
+  --money-pile-ink-shadow: 0 1px 2px rgb(0 0 0 / 0.75);
+  --money-pile-prompt-size: clamp(
+    1.25rem,
+    calc(var(--roster-card-height) * 0.18),
+    3rem
   );
+  --money-pile-prompt-colour: rgb(255 255 255 / 0.97);
+  --money-pile-prompt-colour-active: rgb(255 226 110);
+  --money-pile-prompt-glow:
+    0 0 0.5rem rgb(255 255 255 / 0.7), 0 2px 3px rgb(0 0 0 / 0.85);
+  /* A black outline painted under the fill (as on the battle floaters),
+     so "SELL?" reads against the gold sack in both states. */
+  --money-pile-prompt-outline-width: 0.14em;
+  --money-pile-prompt-outline-colour: rgb(0 0 0 / 0.9);
+  --money-pile-prompt-glow-active:
+    0 0 0.25rem rgb(255 240 160), 0 0 0.6rem rgb(255 210 70),
+    0 0 1.2rem rgb(255 180 30 / 0.9), 0 0 2rem rgb(255 160 0 / 0.6);
+  --money-pile-held-brightness: 0.8;
+  --money-pile-glow-near: 0 0 0.25rem rgb(52 211 153);
+  --money-pile-glow-far: 0 0 0.75rem rgb(52 211 153 / 0.7);
+  --money-pile-glow-far-active: 0 0 1.25rem rgb(52 211 153 / 0.95);
 }
 [data-money-pile-image] {
-  background: var(--money-pile-placeholder);
+  background: var(--money-pile-image) center / contain no-repeat;
 }
-[data-money-pile-sell][data-camp-target-presentation="eligible"] {
-  box-shadow: var(--money-pile-eligible-ring);
+[data-money-pile-sell][data-camp-target-presentation="eligible"]
+  [data-money-pile-image] {
+  filter: brightness(var(--money-pile-held-brightness))
+    drop-shadow(var(--money-pile-glow-near))
+    drop-shadow(var(--money-pile-glow-far));
 }
-[data-money-pile-sell][data-camp-target-presentation="eligible"]:hover,
-[data-money-pile-sell][data-camp-target-presentation="eligible"]:focus-visible,
-[data-money-pile-sell][data-camp-target-presentation="eligible"][data-money-pile-drop-target="true"] {
-  box-shadow: var(--money-pile-eligible-ring-active);
+[data-money-pile-sell][data-camp-target-presentation="eligible"]:hover
+  [data-money-pile-image],
+[data-money-pile-sell][data-camp-target-presentation="eligible"]:focus-visible
+  [data-money-pile-image],
+[data-money-pile-sell][data-camp-target-presentation="eligible"][data-money-pile-drop-target="true"]
+  [data-money-pile-image] {
+  filter: brightness(var(--money-pile-held-brightness))
+    drop-shadow(var(--money-pile-glow-near))
+    drop-shadow(var(--money-pile-glow-far-active));
+}
+[data-money-pile-sell-prompt],
+[data-money-pile-gold] {
+  font-family: var(--font-cinzel), serif;
+  font-weight: var(--money-pile-text-weight);
+  letter-spacing: var(--money-pile-text-letter-spacing);
+  line-height: 1;
 }
 [data-money-pile-sell-prompt] {
-  background: var(--money-pile-sell-wash);
   font-size: var(--money-pile-prompt-size);
-  font-weight: 700;
-  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--money-pile-prompt-colour);
   text-shadow: var(--money-pile-prompt-glow);
+  -webkit-text-stroke: var(--money-pile-prompt-outline-width)
+    var(--money-pile-prompt-outline-colour);
+  paint-order: stroke fill;
+}
+/* "SELL?" turns a bright, glowing gold when the pile is hovered, focused or
+   dragged over, the same moments the green glow brightens. */
+[data-money-pile-sell]:hover [data-money-pile-sell-prompt],
+[data-money-pile-sell]:focus-visible [data-money-pile-sell-prompt],
+[data-money-pile-sell][data-money-pile-drop-target="true"]
+  [data-money-pile-sell-prompt] {
+  color: var(--money-pile-prompt-colour-active);
+  text-shadow: var(--money-pile-prompt-glow-active);
 }
 [data-money-pile-gold] {
   font-size: var(--money-pile-gold-size);
-  font-weight: 700;
-  line-height: 1;
   color: var(--money-pile-gold-colour);
-  text-shadow: 0 1px 1px rgb(0 0 0 / 0.6);
+  text-shadow: var(--money-pile-ink-shadow);
 }

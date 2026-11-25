@@ -34,12 +34,14 @@ export function BattleAutoplayControl({
   const t = useTranslations("common");
 
   return (
-    // One row (Phase 15): the label on the left, and on the right the speed
-    // group, a small divider, then Advance. justify-between spreads the two
-    // across the leading area's full width.
+    // One row (Phase 15): the label, then the speed group, a small divider
+    // and Advance, left-aligned with fixed gaps. self-start keeps it at the
+    // top-left of the slab's leading area at its own width (the area
+    // stretches its content), leaving the bottom-left corner for the
+    // player's faction tab.
     <div
       data-battle-autoplay-control
-      className="flex items-center gap-(--battle-autoplay-section-gap) [zoom:var(--battle-autoplay-control-zoom)]"
+      className="flex self-start items-center gap-(--battle-autoplay-section-gap) [zoom:var(--battle-autoplay-control-zoom)]"
     >
       <span
         id="battle-autoplay-label"
