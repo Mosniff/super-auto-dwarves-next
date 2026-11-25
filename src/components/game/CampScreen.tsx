@@ -459,12 +459,12 @@ export function CampScreen({
         >
           {/* The shop as a market stall (Phase 16): a striped awning hangs
               under the roster slab over a dark wood backdrop, and the stall
-              starts right under it rather than centring in the space
+              centers in the space below it
               (globals.css → "Phase 16 shop stall"). */}
           <div data-shop-awning aria-hidden="true" className="shrink-0" />
           <section
             data-shop-stall
-            className="flex min-h-0 flex-1 flex-col items-center justify-start gap-4 p-(--camp-centre-padding) pt-(--shop-stall-top-padding)"
+            className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 p-(--camp-centre-padding) pt-(--shop-stall-top-padding)"
           >
             <ShopPanel
               characterShopSlots={characterShopSlots}

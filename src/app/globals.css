@@ -389,7 +389,6 @@
     ),
     var(--color-parchment-100);
 
-
   /* ── Window-fitting layout (Phase 14) ───────────────
      The game screen is exactly one window tall. Below the minimum window
      (--layout-min-width × --layout-min-height) sizes stop shrinking and
@@ -2386,10 +2385,22 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
     1.5rem
   );
   --shop-awning-height: clamp(
-    1rem,
-    calc(var(--layout-window-height) * 0.028),
-    1.75rem
+    1.4rem,
+    calc(var(--layout-window-height) * 0.036),
+    2.25rem
   );
+  --shop-awning-ledge-height: clamp(
+    0.3rem,
+    calc(var(--layout-window-height) * 0.007),
+    0.5rem
+  );
+  --shop-awning-ledge-lit: var(--color-slate-50);
+  --shop-awning-ledge-face: var(--color-slate-200);
+  --shop-awning-ledge-shade: var(--color-slate-400);
+  --shop-awning-ledge-shadow: rgb(0 0 0 / 0.45);
+  --shop-awning-hem: rgb(0 0 0 / 0.22);
+  --shop-awning-scallop-shadow: rgb(0 0 0 / 0.4);
+  --shop-awning-scallop-shadow-offset: 3px;
   --shop-awning-stripe-width: clamp(
     1.75rem,
     calc(var(--layout-window-width) * 0.025),
@@ -2434,32 +2445,68 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
 }
 
 [data-shop-awning] {
-  height: var(--shop-awning-height);
+  height: calc(
+    var(--shop-awning-height) + var(--shop-awning-scallop-shadow-offset)
+  );
   background:
+    /* the stone ledge: a lit top edge, the face, a shaded underside */
+    linear-gradient(
+        to bottom,
+        var(--shop-awning-ledge-lit) 0 1px,
+        var(--shop-awning-ledge-face) 1px 70%,
+        var(--shop-awning-ledge-shade) 70% 100%
+      )
+      0 0 / 100% var(--shop-awning-ledge-height) no-repeat,
+    /* the ledge's shadow on the cloth */
+    linear-gradient(to bottom, var(--shop-awning-ledge-shadow), transparent) 0
+      var(--shop-awning-ledge-height) / 100%
+      calc(var(--shop-awning-ledge-height) * 1.6) no-repeat,
+    /* the hem: a darker band where the cloth is fixed */
+    linear-gradient(var(--shop-awning-hem), var(--shop-awning-hem)) 0
+      var(--shop-awning-ledge-height) / 100%
+      calc(var(--shop-awning-ledge-height) * 0.8) no-repeat,
+    /* the scallops (red, then cloth), lifted by the shadow offset */
     radial-gradient(
         calc(var(--shop-awning-stripe-width) / 2)
           var(--shop-awning-scallop-depth) at 25% 0,
         var(--shop-awning-red) 98%,
         transparent 100%
       )
-      0 100% / calc(var(--shop-awning-stripe-width) * 2)
-      var(--shop-awning-scallop-depth) repeat-x,
+      0 calc(100% - var(--shop-awning-scallop-shadow-offset)) /
+      calc(var(--shop-awning-stripe-width) * 2) var(--shop-awning-scallop-depth)
+      repeat-x,
     radial-gradient(
         calc(var(--shop-awning-stripe-width) / 2)
           var(--shop-awning-scallop-depth) at 25% 0,
         var(--shop-awning-cloth) 98%,
         transparent 100%
       )
-      var(--shop-awning-stripe-width) 100% /
-      calc(var(--shop-awning-stripe-width) * 2)
-      var(--shop-awning-scallop-depth) repeat-x,
+      var(--shop-awning-stripe-width)
+      calc(100% - var(--shop-awning-scallop-shadow-offset)) /
+      calc(var(--shop-awning-stripe-width) * 2) var(--shop-awning-scallop-depth)
+      repeat-x,
+    /* the scallops' shadow, one offset below them */
+    radial-gradient(
+        calc(var(--shop-awning-stripe-width) / 2)
+          var(--shop-awning-scallop-depth) at 50% 0,
+        var(--shop-awning-scallop-shadow) 98%,
+        transparent 100%
+      )
+      0 100% / var(--shop-awning-stripe-width) var(--shop-awning-scallop-depth)
+      repeat-x,
+    /* the stripes */
     repeating-linear-gradient(
         90deg,
         var(--shop-awning-red) 0 var(--shop-awning-stripe-width),
         var(--shop-awning-cloth) var(--shop-awning-stripe-width)
           calc(var(--shop-awning-stripe-width) * 2)
       )
-      0 0 / 100% calc(100% - var(--shop-awning-scallop-depth)) no-repeat,
+      0 0 / 100%
+      calc(
+        100% - var(--shop-awning-scallop-depth) -
+          var(--shop-awning-scallop-shadow-offset)
+      )
+      no-repeat,
     var(--shop-stall-background);
 }
 [data-shop-stall] {
