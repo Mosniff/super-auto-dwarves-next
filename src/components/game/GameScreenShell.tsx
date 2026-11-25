@@ -65,20 +65,31 @@ export function GameScreenShell({
   const prefersReducedMotion = useReducedMotion();
   const isPresent = useIsPresent();
 
-  // During a swipe both screens share one grid cell (see GameScreen).
-  // Hiding the outgoing roster keeps it visually fixed; inert stops clicks
-  // and focus on the departing screen.
+  // The phase swipe, always forward (see GameScreen): during a swipe both
+  // screens share one grid cell, and each whole screen — the roster slab
+  // and the content below it — slides as one: the outgoing screen leaves to
+  // the left while the incoming one arrives from the right (Phase 16; the
+  // roster used to stand fixed while only the content slid, but the slab's
+  // contents now differ a lot between phases). The slab's stone only
+  // varies top to bottom, so two slabs edge to edge read as one surface
+  // with the contents sliding across it. The header sits outside the swipe
+  // and never moves. inert stops clicks and focus on the departing screen.
   return (
-    <main
+    <motion.main
       className="flex min-h-0 flex-1 flex-col"
       data-game-screen-presence={isPresent ? "present" : "exiting"}
       data-game-phase={gamePhase}
+      data-game-screen-swipe
+      initial={prefersReducedMotion ? false : { x: "100%" }}
+      animate={{ x: "0%" }}
+      exit={
+        prefersReducedMotion
+          ? { x: "0%", transition: { duration: 0 } }
+          : { x: "-100%" }
+      }
+      transition={{ duration: PHASE_SWIPE_DURATION_S, ease: "easeInOut" }}
     >
-      <div
-        data-game-screen-region="roster"
-        inert={!isPresent}
-        style={{ visibility: isPresent ? "visible" : "hidden" }}
-      >
+      <div data-game-screen-region="roster" inert={!isPresent}>
         <div style={{ boxShadow: "var(--shadow-slab)" }}>
           <RosterSlab
             characters={playerBenchCharacters}
@@ -97,24 +108,13 @@ export function GameScreenShell({
         </div>
         <h1 className="sr-only">{t(GAME_PHASE_HEADING_KEYS[gamePhase])}</h1>
       </div>
-      {/* The phase swipe, always forward: the outgoing screen's content
-          slides out to the left while the incoming screen's content slides
-          in from the right (see GameScreen). */}
-      <motion.div
+      <div
         data-game-screen-region="content"
         className="flex min-h-0 flex-1 flex-col"
         inert={!isPresent}
-        initial={prefersReducedMotion ? false : { x: "100%" }}
-        animate={{ x: "0%" }}
-        exit={
-          prefersReducedMotion
-            ? { x: "0%", transition: { duration: 0 } }
-            : { x: "-100%" }
-        }
-        transition={{ duration: PHASE_SWIPE_DURATION_S, ease: "easeInOut" }}
       >
         {children}
-      </motion.div>
-    </main>
+      </div>
+    </motion.main>
   );
 }

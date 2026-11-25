@@ -53,7 +53,8 @@ describe("GameScreenShell", () => {
     expect(contentRegion).not.toHaveAttribute("inert");
   });
 
-  it("(d) while its screen is exiting, the roster is hidden and both regions are inert", () => {
+  // deliberate assertion rewrite: the roster now swipes with the content instead of hiding (Phase 16, the human's call; before: the outgoing roster was hidden so the incoming one stood fixed)
+  it("(d) while its screen is exiting, the roster stays visible (it slides out with the content) and both regions are inert", () => {
     const { container, rerender } = render(
       wrapWithMessages(
         <AnimatePresence>
@@ -89,6 +90,34 @@ describe("GameScreenShell", () => {
     expect(presenceAncestor?.getAttribute("data-game-screen-presence") ?? null).toBe(
       "exiting",
     );
+    expect((rosterRegion as HTMLElement | null)?.style.visibility ?? "").not.toBe(
+      "hidden",
+    );
+  });
+
+  it("(g) the roster and the content swipe as one: both regions sit inside the one swiping element", () => {
+    const { container } = render(
+      wrapWithMessages(
+        <GameScreenShell
+          gamePhase="campPhase"
+          playerBenchCharacters={sevenEmptySlots}
+        >
+          <p>Shell content</p>
+        </GameScreenShell>,
+      ),
+    );
+
+    const rosterSwipe = container
+      .querySelector('[data-game-screen-region="roster"]')
+      ?.closest("[data-game-screen-swipe]");
+    const contentSwipe = container
+      .querySelector('[data-game-screen-region="content"]')
+      ?.closest("[data-game-screen-swipe]");
+
+    expect({
+      rosterIsInsideASwipe: rosterSwipe != null,
+      sameSwipe: rosterSwipe != null && rosterSwipe === contentSwipe,
+    }).toEqual({ rosterIsInsideASwipe: true, sameSwipe: true });
   });
 
   // deliberate assertion rewrite: the phase banner is gone in both phases (Phase 16, the human's call); the phase stays the page heading, for screen readers only (before: (e) and (f) checked the visible banner, PB1 the banner switched off, SE1 and SE2 the iron edge under the slab that sat against it)
