@@ -624,7 +624,8 @@ describe("CampScreen", () => {
     ).toBeInTheDocument();
   });
 
-  it("(bb) with a dwarf selected, another dwarf is a swap target with a swap marker", async () => {
+  // deliberate assertion rewrite: the selected dwarf's neighbour now shows split zones, and the swap marker moved from its whole-slot button onto its swap zone (Phase 16)
+  it("(bb) with a dwarf selected, another dwarf's swap zone is eligible and carries the swap marker", async () => {
     const user = userEvent.setup();
     renderCampScreen({
       playerCampRoster: [
@@ -642,16 +643,16 @@ describe("CampScreen", () => {
       screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
     );
 
-    const swapTargetButton = screen.getByRole("button", {
-      name: "Slot 2: Thrain, level 1",
+    const swapZoneButton = screen.getByRole("button", {
+      name: "Slot 2: swap position with Thrain",
     });
 
-    expect(swapTargetButton).toHaveAttribute(
-      "data-camp-target-presentation",
-      "swapTarget",
+    expect(swapZoneButton).toHaveAttribute(
+      "data-roster-slot-zone-presentation",
+      "eligible",
     );
     expect(
-      swapTargetButton.querySelectorAll("[data-camp-swap-marker]"),
+      swapZoneButton.querySelectorAll("[data-camp-swap-marker]"),
     ).toHaveLength(1);
     expect(
       document.querySelectorAll("[data-camp-swap-marker]"),
@@ -666,7 +667,8 @@ describe("CampScreen", () => {
     ).toHaveAttribute("aria-pressed", "false");
   });
 
-  it("(dd) clicking the toggle latches merge/sell mode, and a dwarf clicked onto a matching dwarf submits a merge", async () => {
+  // deliberate assertion rewrite: the merge is now a click on the matching dwarf's merge zone; the whole-slot button is disabled while zones show (Phase 16)
+  it("(dd) clicking the toggle latches merge/sell mode, and a dwarf clicked onto a matching dwarf's merge zone submits a merge", async () => {
     const recordedMergeFormValues: Record<string, FormDataEntryValue>[] = [];
     const mergeCharacterAction = async (formData: FormData) => {
       recordedMergeFormValues.push(Object.fromEntries(formData));
@@ -691,7 +693,7 @@ describe("CampScreen", () => {
       screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
     );
     await user.click(
-      screen.getByRole("button", { name: "Slot 2: Borin, level 1" }),
+      screen.getByRole("button", { name: "Slot 2: merge into Borin" }),
     );
 
     expect(recordedMergeFormValues).toEqual([
@@ -872,12 +874,12 @@ describe("CampScreen", () => {
       revision: 5,
     });
 
-    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    // deliberate assertion rewrite: a merge is now a click on the matching dwarf's merge zone, with no merge/sell mode (Phase 16 split drop zones)
     await user.click(
       screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
     );
     await user.click(
-      screen.getByRole("button", { name: "Slot 2: Borin, level 1" }),
+      screen.getByRole("button", { name: "Slot 2: merge into Borin" }),
     );
 
     const mergedRoster: CampRoster = [
@@ -912,12 +914,12 @@ describe("CampScreen", () => {
       revision: 5,
     });
 
-    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    // deliberate assertion rewrite: a merge is now a click on the matching dwarf's merge zone, with no merge/sell mode (Phase 16 split drop zones)
     await user.click(
       screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
     );
     await user.click(
-      screen.getByRole("button", { name: "Slot 2: Borin, level 1" }),
+      screen.getByRole("button", { name: "Slot 2: merge into Borin" }),
     );
 
     const mergedRoster: CampRoster = [
@@ -974,12 +976,12 @@ describe("CampScreen", () => {
       revision: 5,
     });
 
-    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    // deliberate assertion rewrite: a merge is now a click on the matching dwarf's merge zone, with no merge/sell mode (Phase 16 split drop zones)
     await user.click(
       screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
     );
     await user.click(
-      screen.getByRole("button", { name: "Slot 2: Borin, level 1" }),
+      screen.getByRole("button", { name: "Slot 2: merge into Borin" }),
     );
 
     const mergedRoster: CampRoster = [
@@ -1012,12 +1014,12 @@ describe("CampScreen", () => {
       revision: 5,
     });
 
-    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    // deliberate assertion rewrite: a merge is now a click on the matching dwarf's merge zone, with no merge/sell mode (Phase 16 split drop zones)
     await user.click(
       screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
     );
     await user.click(
-      screen.getByRole("button", { name: "Slot 2: Borin, level 1" }),
+      screen.getByRole("button", { name: "Slot 2: merge into Borin" }),
     );
 
     const mergedRoster: CampRoster = [
@@ -1048,12 +1050,12 @@ describe("CampScreen", () => {
       revision: 5,
     });
 
-    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    // deliberate assertion rewrite: a merge is now a click on the matching dwarf's merge zone, with no merge/sell mode (Phase 16 split drop zones)
     await user.click(
       screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
     );
     await user.click(
-      screen.getByRole("button", { name: "Slot 2: Borin, level 1" }),
+      screen.getByRole("button", { name: "Slot 2: merge into Borin" }),
     );
 
     const mergedRoster: CampRoster = [
@@ -1086,12 +1088,12 @@ describe("CampScreen", () => {
       revision: 5,
     });
 
-    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    // deliberate assertion rewrite: a merge is now a click on the matching dwarf's merge zone, with no merge/sell mode (Phase 16 split drop zones)
     await user.click(
       screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
     );
     await user.click(
-      screen.getByRole("button", { name: "Slot 2: Borin, level 1" }),
+      screen.getByRole("button", { name: "Slot 2: merge into Borin" }),
     );
 
     const mergedRoster: CampRoster = [
@@ -1164,12 +1166,12 @@ describe("CampScreen", () => {
       revision: 5,
     });
 
-    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    // deliberate assertion rewrite: a merge is now a click on the matching dwarf's merge zone, with no merge/sell mode (Phase 16 split drop zones)
     await user.click(
       screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
     );
     await user.click(
-      screen.getByRole("button", { name: "Slot 2: Borin, level 1" }),
+      screen.getByRole("button", { name: "Slot 2: merge into Borin" }),
     );
 
     // The target gains the consumed character's XP (0) + 1, reaching 3 —
@@ -1204,12 +1206,12 @@ describe("CampScreen", () => {
       { strictMode: true },
     );
 
-    await user.click(screen.getByRole("button", { name: "Merge / Sell" }));
+    // deliberate assertion rewrite: a merge is now a click on the matching dwarf's merge zone, with no merge/sell mode (Phase 16 split drop zones)
     await user.click(
       screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
     );
     await user.click(
-      screen.getByRole("button", { name: "Slot 2: Borin, level 1" }),
+      screen.getByRole("button", { name: "Slot 2: merge into Borin" }),
     );
 
     const mergedRoster: CampRoster = [
@@ -1676,5 +1678,237 @@ describe("camp-start sequence", () => {
     observations.push(observeCampStart());
 
     expect(observations).toEqual([idleObservation, idleObservation]);
+  });
+});
+
+// Phase 16: while a roster dwarf is held, every other dwarf's card shows
+// two zones — the top half swaps, the bottom half merges — each a real
+// button (and drop target), so no merge/sell mode is needed.
+describe("split drop zones (Phase 16)", () => {
+  const fixtureGimlok: Character = buildTestCharacter({
+    id: "dwarf-3",
+    name: "Gimlok",
+    attack: 3,
+    hp: 9,
+    maxHp: 9,
+    characterTemplateId: "fixture-gimlok",
+    tier: 1,
+    characterClassIds: ["miner"],
+    experience: 0,
+  });
+
+  const fixtureMaxLevelBorin: Character = {
+    ...fixtureBorin,
+    id: "dwarf-4",
+    experience: 15,
+  };
+
+  // Slot 1 Borin; slot 2 a matching Borin; slot 3 a non-matching Gimlok;
+  // slot 4 a matching Borin at level 5; slots 5–7 empty.
+  const zonesCampRoster: CampRoster = [
+    fixtureBorin,
+    fixtureMatchingBorin,
+    fixtureGimlok,
+    fixtureMaxLevelBorin,
+    null,
+    null,
+    null,
+  ];
+
+  const slotButtonLabels = [
+    "Slot 1: Borin, level 1",
+    "Slot 2: Borin, level 1",
+    "Slot 3: Gimlok, level 1",
+    "Slot 4: Borin, level 5",
+    "Slot 5: empty",
+  ];
+
+  function slotHost(slotButtonLabel: string): Element | null {
+    return screen
+      .getByRole("button", { name: slotButtonLabel })
+      .closest("[data-info-control-host]");
+  }
+
+  it("SZ1: with nothing in hand, no card shows zones and no zone button is reachable", () => {
+    renderCampScreen({ playerCampRoster: zonesCampRoster });
+
+    expect(
+      slotButtonLabels.map((slotButtonLabel) =>
+        slotHost(slotButtonLabel)?.getAttribute("data-roster-slot-zones-shown"),
+      ),
+    ).toEqual(["false", "false", "false", "false", "false"]);
+    expect(
+      screen.queryAllByRole("button", {
+        name: /swap position with|merge into/,
+      }),
+    ).toHaveLength(0);
+  });
+
+  it("SZ2: selecting a dwarf shows zones on every other dwarf, never on itself or an empty slot", async () => {
+    const user = userEvent.setup();
+    renderCampScreen({ playerCampRoster: zonesCampRoster });
+
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+
+    expect(
+      slotButtonLabels.map((slotButtonLabel) =>
+        slotHost(slotButtonLabel)?.getAttribute("data-roster-slot-zones-shown"),
+      ),
+    ).toEqual(["false", "true", "true", "true", "false"]);
+  });
+
+  it("SZ3: each dwarf's swap zone is eligible; its merge zone is eligible, ineligible or at max level (with MAX), and only an eligible zone is enabled", async () => {
+    const user = userEvent.setup();
+    renderCampScreen({ playerCampRoster: zonesCampRoster });
+
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+
+    const zoneButtonNames = [
+      ["Slot 2: swap position with Borin", "Slot 2: merge into Borin"],
+      ["Slot 3: swap position with Gimlok", "Slot 3: merge into Gimlok"],
+      ["Slot 4: swap position with Borin", "Slot 4: merge into Borin"],
+    ];
+
+    expect(
+      zoneButtonNames.map((zoneButtonNamePair) =>
+        zoneButtonNamePair.map((zoneButtonName) => {
+          const zoneButton = screen.getByRole("button", {
+            name: zoneButtonName,
+          });
+          return [
+            zoneButton.getAttribute("data-roster-slot-zone-presentation"),
+            (zoneButton as HTMLButtonElement).disabled,
+          ];
+        }),
+      ),
+    ).toEqual([
+      [
+        ["eligible", false],
+        ["eligible", false],
+      ],
+      [
+        ["eligible", false],
+        ["ineligible", true],
+      ],
+      [
+        ["eligible", false],
+        ["atMaxLevel", true],
+      ],
+    ]);
+    expect(
+      within(
+        screen.getByRole("button", { name: "Slot 4: merge into Borin" }),
+      ).getByText("MAX"),
+    ).toBeInTheDocument();
+  });
+
+  it("SZ4: clicking a matching dwarf's merge zone submits a merge, with no merge/sell mode", async () => {
+    const recordedMergeFormValues: Record<string, FormDataEntryValue>[] = [];
+    const mergeCharacterAction = async (formData: FormData) => {
+      recordedMergeFormValues.push(Object.fromEntries(formData));
+    };
+    const user = userEvent.setup();
+    renderCampScreen({
+      playerCampRoster: zonesCampRoster,
+      mergeCharacterAction,
+    });
+
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Slot 2: merge into Borin" }),
+    );
+
+    expect(recordedMergeFormValues).toEqual([
+      { fromSlotIndex: "0", intoSlotIndex: "1", expectedRevision: "5" },
+    ]);
+  });
+
+  it("SZ5: clicking another dwarf's swap zone submits a reposition (a swap)", async () => {
+    const recordedRepositionFormValues: Record<
+      string,
+      FormDataEntryValue
+    >[] = [];
+    const repositionCharacterAction = async (formData: FormData) => {
+      recordedRepositionFormValues.push(Object.fromEntries(formData));
+    };
+    const user = userEvent.setup();
+    renderCampScreen({
+      playerCampRoster: zonesCampRoster,
+      repositionCharacterAction,
+    });
+
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Slot 3: swap position with Gimlok" }),
+    );
+
+    expect(recordedRepositionFormValues).toEqual([
+      { fromSlotIndex: "0", toSlotIndex: "2", expectedRevision: "5" },
+    ]);
+  });
+
+  it("SZ6: while its zones show, a dwarf's whole-slot button is disabled and draws no markers", async () => {
+    const user = userEvent.setup();
+    renderCampScreen({ playerCampRoster: zonesCampRoster });
+
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+
+    const wholeSlotButton = screen.getByRole("button", {
+      name: "Slot 2: Borin, level 1",
+    });
+
+    expect(wholeSlotButton).toBeDisabled();
+    expect(
+      wholeSlotButton.querySelectorAll(
+        "[data-camp-swap-marker], [data-camp-merge-marker]",
+      ),
+    ).toHaveLength(0);
+  });
+
+  it("SZ7: with a dwarf in hand, the XP bar is revealed only on the dwarf its merge zone would merge into", async () => {
+    const user = userEvent.setup();
+    renderCampScreen({ playerCampRoster: zonesCampRoster });
+
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+
+    expect(
+      [
+        "Slot 2: Borin, level 1",
+        "Slot 3: Gimlok, level 1",
+        "Slot 4: Borin, level 5",
+      ].map((slotButtonLabel) =>
+        screen
+          .getByRole("button", { name: slotButtonLabel })
+          .getAttribute("data-experience-bar-revealed"),
+      ),
+    ).toEqual(["true", "false", "false"]);
+  });
+
+  it("SZ8: with a shop character in hand, no card shows zones (a merge-buy keeps the whole card)", async () => {
+    const user = userEvent.setup();
+    renderCampScreen({
+      ...matchingShopRenderOverrides,
+      playerCampRoster: zonesCampRoster,
+    });
+
+    await user.click(screen.getByRole("button", { name: "Shop: Borin" }));
+
+    expect(
+      slotButtonLabels.map((slotButtonLabel) =>
+        slotHost(slotButtonLabel)?.getAttribute("data-roster-slot-zones-shown"),
+      ),
+    ).toEqual(["false", "false", "false", "false", "false"]);
   });
 });

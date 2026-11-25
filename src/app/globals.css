@@ -1886,3 +1886,119 @@ ul:has(> [data-log-line-emphasis="outcome"]) {
   text-transform: uppercase;
   letter-spacing: 0.25em;
 }
+
+/* Phase 16 split drop zones (RosterSlotZones). While a roster dwarf is
+   held, every other dwarf's card is covered by two half-card buttons: the
+   top half swaps, the bottom half merges. The buttons fill their halves
+   exactly; the visible boxes ([data-roster-slot-zone-box]) are inset
+   inside them. The card underneath shows its grey wash; its XP bar is
+   revealed only when the merge zone would merge, and moves into the
+   bottom half. Every size, colour and glow here is the human's to tune. */
+:root {
+  --roster-slot-zone-inset: 0.25rem;
+  --roster-slot-zone-radius: 0.375rem;
+  --roster-slot-zone-border-width: 2px;
+  --roster-slot-zone-swap-border: rgb(255 255 255 / 0.85);
+  --roster-slot-zone-swap-glow: 0 0 0.5rem rgb(255 255 255 / 0.55);
+  --roster-slot-zone-swap-glow-active: 0 0 0.9rem rgb(255 255 255 / 0.85);
+  --roster-slot-zone-merge-border: rgb(52 211 153); /* emerald-400 */
+  --roster-slot-zone-merge-glow: 0 0 0.5rem rgb(52 211 153 / 0.6);
+  --roster-slot-zone-merge-glow-active: 0 0 0.9rem rgb(52 211 153 / 0.9);
+  --roster-slot-zone-active-background: rgb(255 255 255 / 0.1);
+  --roster-slot-zone-unavailable-border: rgb(170 170 170 / 0.6);
+  --roster-slot-zone-unavailable-marker-opacity: 0.55;
+  --roster-slot-zone-text-colour: rgb(255 255 255 / 0.95);
+  --roster-slot-zone-text-glow:
+    0 0 0.35rem rgb(255 255 255 / 0.75), 0 1px 1px rgb(0 0 0 / 0.7);
+  --roster-slot-zone-unavailable-text-colour: rgb(200 200 200 / 0.85);
+  --roster-slot-zone-text-height-ratio: 0.065;
+  --roster-slot-zone-text-min-size: 0.5rem;
+  --roster-slot-zone-text-max-size: 1rem;
+  --roster-slot-zone-text-tracking: 0.06em;
+  --roster-slot-zones-experience-bar-top: 72%;
+}
+
+[data-roster-slot-zone-box] {
+  border: var(--roster-slot-zone-border-width) solid
+    var(--roster-slot-zone-unavailable-border);
+}
+[data-roster-slot-zone="swap"][data-roster-slot-zone-presentation="eligible"]
+  [data-roster-slot-zone-box] {
+  border-color: var(--roster-slot-zone-swap-border);
+  box-shadow: var(--roster-slot-zone-swap-glow);
+}
+[data-roster-slot-zone="merge"][data-roster-slot-zone-presentation="eligible"]
+  [data-roster-slot-zone-box] {
+  border-color: var(--roster-slot-zone-merge-border);
+  box-shadow: var(--roster-slot-zone-merge-glow);
+}
+
+/* The zone under the pointer (hover, or the drop target mid-drag) and the
+   keyboard-focused zone brighten. */
+[data-roster-slot-zone="swap"][data-roster-slot-zone-presentation="eligible"]:hover
+  [data-roster-slot-zone-box],
+[data-roster-slot-zone="swap"][data-roster-slot-zone-presentation="eligible"]:focus-visible
+  [data-roster-slot-zone-box],
+[data-roster-slot-zone="swap"][data-roster-slot-zone-drop-target="true"][data-roster-slot-zone-presentation="eligible"]
+  [data-roster-slot-zone-box] {
+  background: var(--roster-slot-zone-active-background);
+  box-shadow: var(--roster-slot-zone-swap-glow-active);
+}
+[data-roster-slot-zone="merge"][data-roster-slot-zone-presentation="eligible"]:hover
+  [data-roster-slot-zone-box],
+[data-roster-slot-zone="merge"][data-roster-slot-zone-presentation="eligible"]:focus-visible
+  [data-roster-slot-zone-box],
+[data-roster-slot-zone="merge"][data-roster-slot-zone-drop-target="true"][data-roster-slot-zone-presentation="eligible"]
+  [data-roster-slot-zone-box] {
+  background: var(--roster-slot-zone-active-background);
+  box-shadow: var(--roster-slot-zone-merge-glow-active);
+}
+
+/* A merge zone that can't merge (not matching, or at max level): greyed. */
+[data-roster-slot-zone-presentation="ineligible"],
+[data-roster-slot-zone-presentation="atMaxLevel"] {
+  cursor: not-allowed;
+}
+[data-roster-slot-zone-presentation="ineligible"] [data-camp-merge-marker],
+[data-roster-slot-zone-presentation="atMaxLevel"] [data-camp-merge-marker] {
+  filter: grayscale(1);
+  opacity: var(--roster-slot-zone-unavailable-marker-opacity);
+}
+
+/* The zone labels ("SWAP POSITION", "MAX") scale with the card, like the
+   badges: computed on the label itself (see "Card badges"). */
+[data-roster-slot-zone-text] {
+  font-size: clamp(
+    var(--roster-slot-zone-text-min-size),
+    calc(
+      var(--card-badge-card-height, 16rem) *
+        var(--roster-slot-zone-text-height-ratio)
+    ),
+    var(--roster-slot-zone-text-max-size)
+  );
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: var(--roster-slot-zone-text-tracking);
+  text-align: center;
+  text-transform: uppercase;
+  color: var(--roster-slot-zone-text-colour);
+  text-shadow: var(--roster-slot-zone-text-glow);
+}
+[data-roster-slot-zone-presentation="atMaxLevel"] [data-roster-slot-zone-text] {
+  color: var(--roster-slot-zone-unavailable-text-colour);
+}
+
+/* The card under its zones: the grey wash on, the "i" hidden, and the XP
+   bar (when revealed) moved into the bottom half. Declared after the info
+   control's reveal rules so it wins over them. */
+[data-roster-slot-zones-shown="true"] [data-character-experience-mask] {
+  opacity: 1;
+}
+[data-roster-slot-zones-shown="true"] [data-character-experience-bar] {
+  top: var(--roster-slot-zones-experience-bar-top);
+}
+[data-info-control-host][data-roster-slot-zones-shown="true"]
+  [data-character-info-control] {
+  opacity: 0;
+  pointer-events: none;
+}

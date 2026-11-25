@@ -40,6 +40,7 @@ import {
   isRosterSlotMatchingHeldItem,
   isRosterSlotSelectable,
   presentCampTarget,
+  presentRosterSlotZones,
   resolveCampClick,
   resolveCampDrop,
   type CampClickTarget,
@@ -277,6 +278,17 @@ export function CampScreen({
     );
   }
 
+  // Phase 16: each roster slot's split zones, relative to the item in hand
+  // (the drag source during a drag, otherwise the click selection).
+  function rosterSlotZonesPresentation(slotIndex: number) {
+    return presentRosterSlotZones(
+      heldCampItem,
+      slotIndex,
+      campState,
+      characterTemplates,
+    );
+  }
+
   function campTargetPresentation(
     campClickTarget: CampClickTarget,
   ): CampTargetPresentation {
@@ -433,20 +445,50 @@ export function CampScreen({
               campTargetPresentation({ targetKind: "rosterSlot", slotIndex }),
             slotExitKind: (slotIndex) =>
               rosterSlotExitKind(lastSubmittedCampIntent, revision, slotIndex),
-            isSlotMatchingHeldItem: (slotIndex) =>
-              isRosterSlotMatchingHeldItem(
+            // While a card shows its split zones (Phase 16), its XP bar is
+            // revealed exactly when its merge zone would merge.
+            isSlotMatchingHeldItem: (slotIndex) => {
+              const zonesPresentation = rosterSlotZonesPresentation(slotIndex);
+              if (zonesPresentation.zonesShown) {
+                return zonesPresentation.mergeZonePresentation === "eligible";
+              }
+              return isRosterSlotMatchingHeldItem(
                 heldCampItem,
                 slotIndex,
                 campState,
                 characterTemplates,
                 campInteractionMode,
-              ),
+              );
+            },
             slotCampStartBeat: (slotIndex) =>
               campStartSlotBeat(
                 campStartActivationsPlaying,
                 campStartProgress,
                 slotIndex,
               ),
+            slotZonesPresentation: rosterSlotZonesPresentation,
+            slotZoneButtonLabel: (slotIndex, zoneKind) => {
+              const character = playerCampRoster[slotIndex];
+              const labelValues = {
+                slotNumber: slotIndex + 1,
+                characterName: character ? displayCharacterName(character) : "",
+              };
+              return zoneKind === "swap"
+                ? t("rosterSlotSwapZoneLabel", labelValues)
+                : t("rosterSlotMergeZoneLabel", labelValues);
+            },
+            isSlotZoneEnabled: (slotIndex, zoneKind) =>
+              isClickEnabled({
+                targetKind: "rosterSlotZone",
+                slotIndex,
+                zoneKind,
+              }),
+            onSlotZoneClick: (slotIndex, zoneKind) =>
+              handleCampClick({
+                targetKind: "rosterSlotZone",
+                slotIndex,
+                zoneKind,
+              }),
           }}
         >
           <section className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 p-(--camp-centre-padding)">

@@ -4,11 +4,17 @@ import { useCallback } from "react";
 import { useDraggable, useDroppable } from "@dnd-kit/react";
 import { ArrowRightLeft, ChevronsUp } from "lucide-react";
 import type { Character } from "@/lib/game/character";
-import type { CampClickTarget, CampTargetPresentation } from "./campSelection";
+import type {
+  CampClickTarget,
+  CampTargetPresentation,
+  RosterSlotZoneKind,
+  RosterSlotZonesPresentation,
+} from "./campSelection";
 import type { RosterSlotExitKind } from "./rosterSlotAnimation";
 import type { CampStartSlotBeat } from "./campStartSequence";
 import { CharacterInfoControl } from "./CharacterInfoControl";
 import { RosterSlot } from "./RosterSlot";
+import { RosterSlotZones } from "./RosterSlotZones";
 
 interface InteractiveRosterSlotButtonProps {
   slotIndex: number;
@@ -26,6 +32,11 @@ interface InteractiveRosterSlotButtonProps {
   isMatchingHeldItem: boolean;
   // Phase 12 start-of-camp sequence; display-only.
   campStartBeat?: CampStartSlotBeat;
+  // Phase 16 split drop zones (RosterSlotZones' own comment).
+  zonesPresentation: RosterSlotZonesPresentation;
+  zoneButtonLabel: (zoneKind: RosterSlotZoneKind) => string;
+  isZoneEnabled: (zoneKind: RosterSlotZoneKind) => boolean;
+  onZoneClick: (zoneKind: RosterSlotZoneKind) => void;
 }
 
 // Visual classes come from the presentation state only (plus dimming the
@@ -80,7 +91,15 @@ export function InteractiveRosterSlotButton({
   showsCharacterProgression = false,
   isMatchingHeldItem,
   campStartBeat,
+  zonesPresentation,
+  zoneButtonLabel,
+  isZoneEnabled,
+  onZoneClick,
 }: InteractiveRosterSlotButtonProps) {
+  // While this card shows its split zones (Phase 16), the zones replace
+  // the whole-slot button: it is disabled, it is no drop target, and its
+  // presentation ring and markers are not drawn (each zone draws its own).
+  const zonesShown = zonesPresentation.zonesShown;
   const campClickTarget: CampClickTarget = {
     targetKind: "rosterSlot",
     slotIndex,
@@ -94,6 +113,7 @@ export function InteractiveRosterSlotButton({
   const { ref: droppableRef, isDropTarget } = useDroppable({
     id: `roster-drop-${slotIndex}`,
     data: { campClickTarget },
+    disabled: zonesShown,
   });
 
   const combinedRef = useCallback(
@@ -122,6 +142,7 @@ export function InteractiveRosterSlotButton({
       data-info-control-host
       data-card-badge-basis="roster"
       data-info-control-revealed={String(isSelected)}
+      data-roster-slot-zones-shown={String(zonesShown)}
       className="relative h-full w-full"
     >
       <button
@@ -129,7 +150,7 @@ export function InteractiveRosterSlotButton({
         type="button"
         aria-label={buttonLabel}
         aria-pressed={isSelected}
-        disabled={!isEnabled}
+        disabled={!isEnabled || zonesShown}
         onClick={onClick}
         data-camp-target-presentation={presentation}
         // globals.css hides the card's XP bar inside any element carrying
@@ -137,11 +158,11 @@ export function InteractiveRosterSlotButton({
         // "true" (selected, or matching the held item). The card itself
         // stays unaware of these reveal rules.
         {...experienceBarRevealedAttributes}
-        className={`relative block w-full rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${presentationClassName(
-          presentation,
-          isEnabled,
-          isDropTarget,
-        )} ${isDragSource ? "opacity-40" : ""}`}
+        className={`relative block w-full rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+          zonesShown
+            ? ""
+            : presentationClassName(presentation, isEnabled, isDropTarget)
+        } ${isDragSource ? "opacity-40" : ""}`}
       >
         <RosterSlot
           slotIndex={slotIndex}
@@ -152,7 +173,7 @@ export function InteractiveRosterSlotButton({
           showsCharacterProgression={showsCharacterProgression}
           campStartBeat={campStartBeat}
         />
-        {presentation === "mergeTarget" && (
+        {!zonesShown && presentation === "mergeTarget" && (
           // Top-left, so the top-right stays free for Phase 12's info
           // control. An icon, not "+1", because roster merges grant the
           // consumed dwarf's XP + 1. Rendered outside RosterSlot so the
@@ -166,7 +187,7 @@ export function InteractiveRosterSlotButton({
             <ChevronsUp aria-hidden="true" className="size-(--card-badge-icon-size)" />
           </span>
         )}
-        {presentation === "swapTarget" && (
+        {!zonesShown && presentation === "swapTarget" && (
           // Shares the merge marker's top-left spot — the two states never
           // coexist on the same tile — but a different colour (sky, not
           // emerald) so "swap" and "level up" read differently at a glance.
@@ -180,6 +201,15 @@ export function InteractiveRosterSlotButton({
           </span>
         )}
       </button>
+      {character && (
+        <RosterSlotZones
+          slotIndex={slotIndex}
+          zonesPresentation={zonesPresentation}
+          zoneButtonLabel={zoneButtonLabel}
+          isZoneEnabled={isZoneEnabled}
+          onZoneClick={onZoneClick}
+        />
+      )}
       {character && <CharacterInfoControl character={character} />}
     </div>
   );

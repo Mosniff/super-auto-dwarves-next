@@ -1,7 +1,11 @@
 import type { Character } from "@/lib/game/character";
 import type { CurrentBeatEffects } from "@/lib/battle/beatCharacterEffects";
 import { abilityCasterPulseKind } from "@/lib/battle/beatDurationMs";
-import type { CampTargetPresentation } from "./campSelection";
+import type {
+  CampTargetPresentation,
+  RosterSlotZoneKind,
+  RosterSlotZonesPresentation,
+} from "./campSelection";
 import type { RosterSlotExitKind } from "./rosterSlotAnimation";
 import type { CampStartSlotBeat } from "./campStartSequence";
 import { CharacterInfoControl } from "./CharacterInfoControl";
@@ -30,6 +34,18 @@ export interface RosterSlotInteraction {
   isSlotMatchingHeldItem: (slotIndex: number) => boolean;
   // Phase 12 start-of-camp sequence; display-only.
   slotCampStartBeat?: (slotIndex: number) => CampStartSlotBeat | undefined;
+  // Phase 16 split drop zones: each slot's two halves while a roster dwarf
+  // is held (campSelection's presentRosterSlotZones).
+  slotZonesPresentation: (slotIndex: number) => RosterSlotZonesPresentation;
+  slotZoneButtonLabel: (
+    slotIndex: number,
+    zoneKind: RosterSlotZoneKind,
+  ) => string;
+  isSlotZoneEnabled: (
+    slotIndex: number,
+    zoneKind: RosterSlotZoneKind,
+  ) => boolean;
+  onSlotZoneClick: (slotIndex: number, zoneKind: RosterSlotZoneKind) => void;
 }
 
 interface RosterSlabProps {
@@ -195,6 +211,18 @@ export function RosterSlab({
                     slotIndex,
                   )}
                   campStartBeat={slotInteraction.slotCampStartBeat?.(slotIndex)}
+                  zonesPresentation={slotInteraction.slotZonesPresentation(
+                    slotIndex,
+                  )}
+                  zoneButtonLabel={(zoneKind) =>
+                    slotInteraction.slotZoneButtonLabel(slotIndex, zoneKind)
+                  }
+                  isZoneEnabled={(zoneKind) =>
+                    slotInteraction.isSlotZoneEnabled(slotIndex, zoneKind)
+                  }
+                  onZoneClick={(zoneKind) =>
+                    slotInteraction.onSlotZoneClick(slotIndex, zoneKind)
+                  }
                 />
               ) : showsInfoControls ? (
                 <div

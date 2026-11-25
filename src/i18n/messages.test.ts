@@ -100,6 +100,10 @@ describe("locale message parity", () => {
     "shopListingButtonLabel",
     "rosterSlotOccupiedLabel",
     "rosterSlotEmptyLabel",
+    // deliberate test-data update: the split drop zones' labels (Phase 16)
+    "rosterSlotSwapZoneLabel",
+    "rosterSlotMergeZoneLabel",
+    "swapPositionZoneText",
     "shopSlotLockedLabel",
     "shopSectionComingSoonLabel",
     "gemsLabel",
