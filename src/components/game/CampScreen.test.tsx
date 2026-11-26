@@ -1881,3 +1881,75 @@ describe("shop prices (Phase 16)", () => {
     }).toEqual({ charactersPrice: true, otherSectionPrices: [0, 0, 0] });
   });
 });
+
+// Phase 16: a card moved in camp slides toward its new slot and arrives
+// from its old one, whichever way that is; other slots keep sliding out
+// toward the front (slot 1, on the right) and in from the back.
+describe("reposition slide directions (Phase 16)", () => {
+  function playerSlotRoot(slotIndex: number): Element | null {
+    return document.querySelector(
+      `[data-roster-slot][data-roster-slot-index="${slotIndex}"]`,
+    );
+  }
+
+  function shuffleSides(slotIndex: number): (string | null)[] {
+    const slotRoot = playerSlotRoot(slotIndex);
+    return [
+      slotRoot?.getAttribute("data-roster-slot-shuffle-exit-side") ?? null,
+      slotRoot?.getAttribute("data-roster-slot-shuffle-enter-side") ?? null,
+    ];
+  }
+
+  it("RD1: a move toward the back slides out of the old slot toward the back and into the new slot from the front; an untouched slot keeps the default", async () => {
+    const user = userEvent.setup();
+    const { rerenderCampScreen } = renderCampScreen({
+      playerCampRoster: [fixtureBorin, null, null, null, null, null, null],
+      revision: 5,
+    });
+
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+    await user.click(screen.getByRole("button", { name: "Slot 4: empty" }));
+
+    rerenderCampScreen({
+      playerCampRoster: [null, null, null, fixtureBorin, null, null, null],
+      revision: 6,
+    });
+
+    expect([shuffleSides(0), shuffleSides(3), shuffleSides(5)]).toEqual([
+      ["back", "back"],
+      ["front", "front"],
+      ["front", "back"],
+    ]);
+  });
+
+  it("RD2: in a swap, each card slides toward the other's slot", async () => {
+    const user = userEvent.setup();
+    const { rerenderCampScreen } = renderCampScreen({
+      playerCampRoster: fixtureTwoBorinCampRoster,
+      revision: 5,
+    });
+
+    await user.click(
+      screen.getByRole("button", { name: "Slot 1: Borin, level 1" }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: "Slot 2: swap position with Borin" }),
+    );
+
+    rerenderCampScreen({
+      playerCampRoster: [
+        fixtureTwoBorinCampRoster[1],
+        fixtureTwoBorinCampRoster[0],
+        ...fixtureTwoBorinCampRoster.slice(2),
+      ],
+      revision: 6,
+    });
+
+    expect([shuffleSides(0), shuffleSides(1)]).toEqual([
+      ["back", "back"],
+      ["front", "front"],
+    ]);
+  });
+});

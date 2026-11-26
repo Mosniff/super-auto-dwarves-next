@@ -29,6 +29,8 @@ import {
   rosterSlotEffectFlashKind,
   rosterSlotExitAnimation,
   type RosterSlotExitKind,
+  type RosterSlotShuffleSide,
+  type RosterSlotShuffleSides,
 } from "./rosterSlotAnimation";
 import type { CampStartSlotBeat } from "./campStartSequence";
 import { CharacterCard } from "./CharacterCard";
@@ -44,6 +46,9 @@ interface RosterSlotProps {
   // today's plain slide. Used only for the data attribute when no
   // interaction wiring supplies it (the plain, non-interactive path).
   exitKind?: RosterSlotExitKind;
+  // Phase 16, display-only: which end of the row this slot's cards slide
+  // toward and in from; defaults to out toward the front, in from the back.
+  shuffleSides?: RosterSlotShuffleSides;
   // Display-only, used only for the data-roster-slot-index attribute.
   slotIndex?: number;
   // Phase 12 battle beat animations: what this beat did to this slot's
@@ -63,8 +68,14 @@ interface RosterSlotProps {
 // What a leaving card's exit variant receives (AnimatePresence's custom).
 interface RosterSlotExitCustom {
   exitKind: RosterSlotExitKind;
+  shuffleExitSide: RosterSlotShuffleSide;
   droppedCharacterIds: ReadonlySet<string>;
 }
+
+const DEFAULT_SHUFFLE_SIDES: RosterSlotShuffleSides = {
+  exitSide: "front",
+  enterSide: "back",
+};
 
 const NO_DROPPED_CHARACTER_IDS: ReadonlySet<string> = new Set();
 
@@ -118,6 +129,7 @@ export function RosterSlot({
   isNext = false,
   showsCharacterProgression = false,
   exitKind = "shuffle",
+  shuffleSides = DEFAULT_SHUFFLE_SIDES,
   slotIndex,
   beatEffect,
   beatKey,
@@ -255,11 +267,16 @@ export function RosterSlot({
 
   // Player slabs are facing="right" (front of the reversed row is at screen
   // right); enemy slabs are facing="left" (front of the normal row is at
-  // screen left). Cards exit toward the front and enter from the back —
-  // derived from the existing `facing` prop rather than threading a new one.
-  const cardExitX = facing === "right" ? "100%" : "-100%";
-  const cardEnterInitialX = facing === "right" ? "-100%" : "100%";
-  // Same direction convention as cardExitX, just with the launch's much
+  // screen left). shuffleSides says which end of the row a card slides
+  // toward or in from (by default out toward the front, in from the back;
+  // a camp reposition slides toward the other slot — Phase 16), and
+  // `facing` turns that end into a screen direction.
+  const frontX = facing === "right" ? "100%" : "-100%";
+  const backX = facing === "right" ? "-100%" : "100%";
+  const shuffleSideX = (shuffleSide: RosterSlotShuffleSide) =>
+    shuffleSide === "front" ? frontX : backX;
+  const cardEnterInitialX = shuffleSideX(shuffleSides.enterSide);
+  // Same direction convention as frontX, just with the launch's much
   // larger travel distance.
   const launchExitX = facing === "right" ? LAUNCH_EXIT_X : `-${LAUNCH_EXIT_X}`;
 
@@ -274,10 +291,15 @@ export function RosterSlot({
   // rosterSlotExitAnimation. This closure belongs to the leaving card's
   // last render, so departingCharacterId is the card that is leaving.
   const departingCharacterId = character?.id;
-  const exitCustom: RosterSlotExitCustom = { exitKind, droppedCharacterIds };
+  const exitCustom: RosterSlotExitCustom = {
+    exitKind,
+    shuffleExitSide: shuffleSides.exitSide,
+    droppedCharacterIds,
+  };
   const cardExitVariants = {
     exit: ({
       exitKind: exitKindAtExit,
+      shuffleExitSide: shuffleExitSideAtExit,
       droppedCharacterIds: droppedCharacterIdsAtExit,
     }: RosterSlotExitCustom): TargetAndTransition => {
       if (prefersReducedMotion) {
@@ -374,7 +396,7 @@ export function RosterSlot({
       }
 
       return {
-        x: cardExitX,
+        x: shuffleSideX(shuffleExitSideAtExit),
         transition: {
           duration: SHUFFLE_EXIT_DURATION_S,
           ease: "easeIn",
@@ -417,6 +439,8 @@ export function RosterSlot({
       className="relative"
       data-roster-slot
       data-roster-slot-exit-kind={exitKind}
+      data-roster-slot-shuffle-exit-side={shuffleSides.exitSide}
+      data-roster-slot-shuffle-enter-side={shuffleSides.enterSide}
       data-experience-beat-active={String(isExperienceBeatActive)}
       data-experience-beat={experienceBeatAttribute}
       data-ability-acting={String(isActing)}

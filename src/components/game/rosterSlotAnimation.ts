@@ -49,6 +49,61 @@ export interface SubmittedCampIntent {
 // of this submit — a stale or rejected submit, or an unrelated change,
 // falls back to the plain slide. This is display-only; the server never
 // learns about it.
+// Phase 16: which end of the row a slot's card slides toward (exit) or in
+// from (enter). Slot 0 is the front; RosterSlot maps a side onto the screen
+// through its `facing`.
+export type RosterSlotShuffleSide = "front" | "back";
+
+export interface RosterSlotShuffleSides {
+  exitSide: RosterSlotShuffleSide;
+  enterSide: RosterSlotShuffleSide;
+}
+
+const DEFAULT_SHUFFLE_SIDES: RosterSlotShuffleSides = {
+  exitSide: "front",
+  enterSide: "back",
+};
+
+// By default a card slides out toward the front and in from the back. A
+// camp reposition can go either way, so its two slots slide toward each
+// other: the card leaving a slot heads for the other slot, and the card
+// arriving comes from it (a move fills the other slot; a swap exchanges
+// both cards). Same revision gate as rosterSlotExitKind; display-only.
+export function rosterSlotShuffleSides(
+  lastSubmittedCampIntent: SubmittedCampIntent | null,
+  currentRevision: number,
+  slotIndex: number,
+): RosterSlotShuffleSides {
+  if (
+    lastSubmittedCampIntent === null ||
+    currentRevision !== lastSubmittedCampIntent.submittedAtRevision + 1
+  ) {
+    return DEFAULT_SHUFFLE_SIDES;
+  }
+
+  const { campIntent } = lastSubmittedCampIntent;
+
+  if (campIntent.intentKind !== "reposition") {
+    return DEFAULT_SHUFFLE_SIDES;
+  }
+
+  const otherSlotIndex =
+    slotIndex === campIntent.fromSlotIndex
+      ? campIntent.toSlotIndex
+      : slotIndex === campIntent.toSlotIndex
+        ? campIntent.fromSlotIndex
+        : null;
+
+  if (otherSlotIndex === null) {
+    return DEFAULT_SHUFFLE_SIDES;
+  }
+
+  const sideOfOtherSlot: RosterSlotShuffleSide =
+    otherSlotIndex > slotIndex ? "back" : "front";
+
+  return { exitSide: sideOfOtherSlot, enterSide: sideOfOtherSlot };
+}
+
 export function rosterSlotExitKind(
   lastSubmittedCampIntent: SubmittedCampIntent | null,
   currentRevision: number,

@@ -6,7 +6,10 @@ import type {
   RosterSlotZoneKind,
   RosterSlotZonesPresentation,
 } from "./campSelection";
-import type { RosterSlotExitKind } from "./rosterSlotAnimation";
+import type {
+  RosterSlotExitKind,
+  RosterSlotShuffleSides,
+} from "./rosterSlotAnimation";
 import type { CampStartSlotBeat } from "./campStartSequence";
 import { CharacterInfoControl } from "./CharacterInfoControl";
 import { InteractiveRosterSlotButton } from "./InteractiveRosterSlotButton";
@@ -28,6 +31,9 @@ export interface RosterSlotInteraction {
   // Display-only (rosterSlotAnimation.ts's own comment): how that slot's
   // departing card should exit, derived from the last submitted intent.
   slotExitKind: (slotIndex: number) => RosterSlotExitKind;
+  // Phase 16, display-only: which way that slot's cards slide (a camp
+  // reposition slides toward the other slot; rosterSlotShuffleSides).
+  slotShuffleSides: (slotIndex: number) => RosterSlotShuffleSides;
   // "Matching" comes from the buy rule's preview via campSelection
   // (isRosterSlotMatchingHeldItem), never a client-side template
   // comparison.
@@ -206,6 +212,7 @@ export function RosterSlab({
                   isDraggable={slotInteraction.isSlotDraggable(slotIndex)}
                   presentation={slotInteraction.slotPresentation(slotIndex)}
                   exitKind={slotInteraction.slotExitKind(slotIndex)}
+                  shuffleSides={slotInteraction.slotShuffleSides(slotIndex)}
                   showsCharacterProgression={showsCharacterProgression}
                   isMatchingHeldItem={slotInteraction.isSlotMatchingHeldItem(
                     slotIndex,

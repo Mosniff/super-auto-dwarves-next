@@ -23,6 +23,7 @@ import { useCharacterDisplayName } from "@/components/game/characterDisplayName"
 import { MoneyPile } from "@/components/game/MoneyPile";
 import {
   rosterSlotExitKind,
+  rosterSlotShuffleSides,
   type SubmittedCampIntent,
 } from "@/components/game/rosterSlotAnimation";
 import type { Character } from "@/lib/game/character";
@@ -416,6 +417,12 @@ export function CampScreen({
               campTargetPresentation({ targetKind: "rosterSlot", slotIndex }),
             slotExitKind: (slotIndex) =>
               rosterSlotExitKind(lastSubmittedCampIntent, revision, slotIndex),
+            slotShuffleSides: (slotIndex) =>
+              rosterSlotShuffleSides(
+                lastSubmittedCampIntent,
+                revision,
+                slotIndex,
+              ),
             // Only a shop hold matches here: with a roster dwarf in hand, a
             // mergeable dwarf's merge zone draws its XP bar instead
             // (RosterSlotZones), and the card's own bar stays hidden.

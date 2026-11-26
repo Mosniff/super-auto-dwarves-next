@@ -10,7 +10,10 @@ import type {
   RosterSlotZoneKind,
   RosterSlotZonesPresentation,
 } from "./campSelection";
-import type { RosterSlotExitKind } from "./rosterSlotAnimation";
+import type {
+  RosterSlotExitKind,
+  RosterSlotShuffleSides,
+} from "./rosterSlotAnimation";
 import type { CampStartSlotBeat } from "./campStartSequence";
 import { CharacterInfoControl } from "./CharacterInfoControl";
 import { RosterSlot } from "./RosterSlot";
@@ -29,6 +32,8 @@ interface InteractiveRosterSlotButtonProps {
   isDraggable: boolean;
   presentation: CampTargetPresentation;
   exitKind: RosterSlotExitKind;
+  // Optional: RosterSlot falls back to its default sides.
+  shuffleSides?: RosterSlotShuffleSides;
   showsCharacterProgression?: boolean;
   isMatchingHeldItem: boolean;
   // Phase 12 start-of-camp sequence; display-only.
@@ -83,6 +88,7 @@ export function InteractiveRosterSlotButton({
   isDraggable,
   presentation,
   exitKind,
+  shuffleSides,
   showsCharacterProgression = false,
   isMatchingHeldItem,
   campStartBeat,
@@ -166,6 +172,7 @@ export function InteractiveRosterSlotButton({
           facing={facing}
           isNext={isNext}
           exitKind={exitKind}
+          shuffleSides={shuffleSides}
           showsCharacterProgression={showsCharacterProgression}
           campStartBeat={campStartBeat}
         />

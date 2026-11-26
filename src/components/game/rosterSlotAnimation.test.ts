@@ -3,6 +3,7 @@ import {
   abilityHpGainFromRefresh,
   experienceGainBeat,
   rosterSlotExitKind,
+  rosterSlotShuffleSides,
   type SubmittedCampIntent,
   rosterSlotExitAnimation,
   rosterSlotEffectFlashKind,
@@ -59,6 +60,51 @@ describe("rosterSlotAnimation", () => {
       none: rosterSlotExitKind(null, 6, 3),
       reposition: rosterSlotExitKind(repositionFromOneToFourAtFive, 6, 1),
     }).toEqual({ none: "shuffle", reposition: "shuffle" });
+  });
+
+  // Phase 16: a camp reposition can go either way, so its two slots slide
+  // toward and from each other; everything else slides out toward the
+  // front and in from the back. Slot 0 is the front.
+  it("RSS1: by default (no intent, a stale revision, a slot the move doesn't touch, or another intent) cards leave toward the front and arrive from the back", () => {
+    const defaultSides = { exitSide: "front", enterSide: "back" };
+    expect([
+      rosterSlotShuffleSides(null, 6, 1),
+      rosterSlotShuffleSides(repositionFromOneToFourAtFive, 7, 1),
+      rosterSlotShuffleSides(repositionFromOneToFourAtFive, 6, 2),
+      rosterSlotShuffleSides(mergeFromThreeIntoZeroAtFive, 6, 3),
+      rosterSlotShuffleSides(sellSlotTwoAtFive, 6, 2),
+    ]).toEqual([
+      defaultSides,
+      defaultSides,
+      defaultSides,
+      defaultSides,
+      defaultSides,
+    ]);
+  });
+
+  it("RSS2: a move toward the back: the old slot's card leaves toward the back, and the new slot's card arrives from the front", () => {
+    expect({
+      fromSlot: rosterSlotShuffleSides(repositionFromOneToFourAtFive, 6, 1),
+      toSlot: rosterSlotShuffleSides(repositionFromOneToFourAtFive, 6, 4),
+    }).toEqual({
+      fromSlot: { exitSide: "back", enterSide: "back" },
+      toSlot: { exitSide: "front", enterSide: "front" },
+    });
+  });
+
+  it("RSS3: a move toward the front mirrors it (and in a swap, the other card goes the other way)", () => {
+    const repositionFromFourToOneAtFive: SubmittedCampIntent = {
+      campIntent: { intentKind: "reposition", fromSlotIndex: 4, toSlotIndex: 1 },
+      submittedAtRevision: 5,
+    };
+
+    expect({
+      fromSlot: rosterSlotShuffleSides(repositionFromFourToOneAtFive, 6, 4),
+      toSlot: rosterSlotShuffleSides(repositionFromFourToOneAtFive, 6, 1),
+    }).toEqual({
+      fromSlot: { exitSide: "front", enterSide: "front" },
+      toSlot: { exitSide: "back", enterSide: "back" },
+    });
   });
 
   it("XB1: experienceGainBeat", () => {
