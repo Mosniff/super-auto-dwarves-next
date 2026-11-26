@@ -23,6 +23,7 @@ describe("HowToPlayDialog", () => {
   });
 
   // deliberate assertion rewrite: the placeholder became the guide (before: the dialog says "Coming soon"; after: its headings, in order, and the intro as its description) — Phase 15, the human's call
+  // deliberate assertion rewrite: the merge/sell mode is gone, so the subsection covers swapping too (before: "H4: Merging and selling"; after: "H4: Moving, merging and selling") — Phase 16
   it("H2: pressing the button opens the How to Play guide: its intro describes the dialog and its headings run Camp then Battle", async () => {
     const user = userEvent.setup();
     renderWithMessages(<HowToPlayDialog />);
@@ -50,7 +51,7 @@ describe("HowToPlayDialog", () => {
         "H3: Camp",
         "H4: Recruiting",
         "H4: Promoting",
-        "H4: Merging and selling",
+        "H4: Moving, merging and selling",
         "H4: Your line-up",
         "H3: Battle",
         "H4: How a fight works",
@@ -60,7 +61,8 @@ describe("HowToPlayDialog", () => {
     });
   });
 
-  it("H5: merging and selling are a two-item list, each led by its bold name", async () => {
+  // deliberate assertion rewrite: swapping joins the list now that there is no mode (before: Merge, Sell; after: Swap, Merge, Sell) — Phase 16
+  it("H5: moving, merging and selling are a three-item list, each led by its bold name", async () => {
     const user = userEvent.setup();
     renderWithMessages(<HowToPlayDialog />);
 
@@ -71,7 +73,35 @@ describe("HowToPlayDialog", () => {
       within(dialog)
         .getAllByRole("listitem")
         .map((listItem) => listItem.querySelector("strong")?.textContent ?? null),
-    ).toEqual(["Merge:", "Sell:"]);
+    ).toEqual(["Swap:", "Merge:", "Sell:"]);
+  });
+
+  // Phase 16: the split drop zones replaced the merge/sell toggle (and
+  // Shift), the money pile replaced the Sell box, and the NEXT marker is
+  // battle-only, so the guide must not describe any of them.
+  it("H8: the guide describes the split drop zones and the money pile, not the old toggle, Shift, Sell box or NEXT marker", async () => {
+    const user = userEvent.setup();
+    renderWithMessages(<HowToPlayDialog />);
+
+    await user.click(screen.getByRole("button", { name: "How to Play" }));
+
+    const dialogText =
+      screen.getByRole("dialog", { name: "How to Play" }).textContent ?? "";
+    expect({
+      staleMentions: ["toggle", "Shift", "Sell box", "NEXT"].filter(
+        (staleWord) => dialogText.includes(staleWord),
+      ),
+      mentionsTopHalf: dialogText.includes("top half"),
+      mentionsBottomHalf: dialogText.includes("bottom half"),
+      mentionsSackOfGold: dialogText.includes("sack of gold"),
+      mentionsRightHandEnd: dialogText.includes("right-hand end"),
+    }).toEqual({
+      staleMentions: [],
+      mentionsTopHalf: true,
+      mentionsBottomHalf: true,
+      mentionsSackOfGold: true,
+      mentionsRightHandEnd: true,
+    });
   });
 
   it("H6: every message in the howToPlay namespace appears in the dialog, without its tags", async () => {
@@ -123,6 +153,7 @@ describe("HowToPlayDialog", () => {
   });
 
   // deliberate assertion rewrite: the placeholder became the guide (before: the dialog says 近日公開; after: its Japanese headings, in order) — Phase 15, the human's call
+  // deliberate assertion rewrite: the merge/sell subsection now covers swapping too (before: 合成と売却; after: 並べ替え・合成・売却) — Phase 16
   it("H4: in Japanese, the button and title read あそびかた and the guide's headings are Japanese", async () => {
     const user = userEvent.setup();
     render(
@@ -143,7 +174,7 @@ describe("HowToPlayDialog", () => {
       "キャンプ",
       "ドワーフを雇う",
       "昇格",
-      "合成と売却",
+      "並べ替え・合成・売却",
       "並び順",
       "バトル",
       "戦いのしくみ",

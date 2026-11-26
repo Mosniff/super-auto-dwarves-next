@@ -24,9 +24,9 @@ const HOW_TO_PLAY_SECTIONS = [
       },
       { headingKey: "promotingHeading", paragraphKeys: ["promotingBody"] },
       {
-        headingKey: "mergingSellingHeading",
-        paragraphKeys: ["mergingSellingToggle"],
-        listItemKeys: ["mergeItem", "sellItem"],
+        headingKey: "rosterMovesHeading",
+        paragraphKeys: ["rosterMovesIntro"],
+        listItemKeys: ["swapItem", "mergeItem", "sellItem"],
       },
       { headingKey: "lineUpHeading", paragraphKeys: ["lineUpBody"] },
     ],
@@ -50,7 +50,7 @@ const HOW_TO_PLAY_SECTIONS = [
   }[];
 }[];
 
-// The guide's only tag: a bold lead-in ("Merge:", "Sell:").
+// The guide's only tag: a bold lead-in ("Swap:", "Merge:", "Sell:").
 const howToPlayTags = {
   strong: (chunks: ReactNode) => (
     <strong className="font-semibold text-foreground">{chunks}</strong>
